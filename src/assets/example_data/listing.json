@@ -1,0 +1,60 @@
+{
+    "banner_image": "./assets/images/listing/600x300banner1.png",
+    "banner_title": "",
+    "populars": [
+        {
+            "title": "Mandy",
+            "image": "./assets/images/listing/Family/300x300Mandy.jpg"
+        },
+        {
+            "title": "Sophie",
+            "image": "./assets/images/listing/Family/300x300Sophie.jpeg"
+        },
+        {
+            "title": "Ella",
+            "image": "./assets/images/listing/Family/300x300Ella.jpg"
+        },
+        {
+            "title": "Mirian",
+            "image": "./assets/images/listing/Family/300x300Mir.jpg"
+        },
+        {
+            "title": "Marty",
+            "image": "./assets/images/listing/Family/300x300AddImageWithText.jpg"
+        }
+    ],
+    "categories": [
+        {
+            "title": "Order a Meal",
+            "image": "./assets/images/listing/200x200meal.jpg"
+        },
+        {
+            "title": "Invest in You",
+            "image": "./assets/images/listing/200x200Workout.jpg"
+        },        {
+            "title": "Nutrition",
+            "image": "./assets/images/listing/200x200ingredient.jpg"
+        },
+        {
+            "title": "Sleep",
+            "image": "./assets/images/listing/200x200Sleep.jpg"
+        },
+        {
+            "title": "Daily Supplements",
+            "image": "./assets/images/listing/200x200supplement.jpg"
+        },
+        {
+            "title": "Current Medications",
+            "image": "./assets/images/listing/200x200medication.jpg"
+        },
+        {
+            "title": "Achieve",
+            "image": "./assets/images/listing/200x200weight.jpg"
+        },
+        {
+            "title": "Visit",
+            "image": "./assets/images/listing/200x200doctor.jpg"
+        }
+
+    ]
+}

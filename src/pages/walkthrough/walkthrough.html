@@ -1,0 +1,53 @@
+<ion-header class="walkthrough-header">
+
+</ion-header>
+
+<body>
+<div id="amazon-root"></div>  
+<ion-content class="walkthrough-content">
+
+  <ion-slides #slider (ionSlideDidChange)="onSlideChanged()" pager="true">
+    <ion-slide class="slide-1">
+      <ion-row class="intro-image-row">
+        <ion-col center width-64 no-padding>
+          <preload-image [ratio]="{w:1, h:1}" src="./assets/images/talking pacman.svg" alt="slide 4 img" title="ion2FullApp"></preload-image>
+        </ion-col>
+      </ion-row>
+      <h2 class="main-title">Logos Health</h2>
+	   <p class="intro-text">
+        Take control of your health!
+      </p>
+	
+       <button (click)="login()" style="background-color:#BCC6CC" >
+      <img  alt="Login with Amazon"  src="https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gry_156x132.png" width="156" height="32" >
+       </button>
+       <script type="text/javascript">
+        var diyvaENV = {};
+        diyvaENV.LWA_CLIENT = "amzn1.application-oa2-client.c2eaafa3f5d3482eb28d055d582f3b71";
+        diyvaENV.LWA_PROXY = "https://yiddishninja.github.io/LWA-proxy/index.html";
+        diyvaENV.LWA_PROXY_RETURN = "https://yiddishninja.github.io/LWA-proxy/signin.html";
+        //set up handling of the LWA login button
+        var lwaButton = document.getElementById("lwa_button");
+        console.log("Called 1");
+        lwaButton.addEventListener('click', function () {
+          console.log("Called 2");          
+          //open InAppBrowser to handle LWA web login
+          var ref = cordova.InAppBrowser.open(diyvaENV.LWA_PROXY + "?state=" + device.platform, '_blank');
+          //add handling of return from LWA
+            ref.addEventListener('loadstop', function (e) {
+              //check loaded URL for completion, process login and pass hash
+              if (e.url.includes(diyvaENV.LWA_PROXY_RETURN)) {
+                logincomplete = true;
+                ref.close();
+                if (e.url.includes(diyvaENV.LWA_PROXY_RETURN)) {
+                  handleReturnedHash(e.url);
+                }
+              }
+            });
+          })
+       </script>
+	</ion-slide>
+			  
+  </ion-slides>
+</ion-content>
+</body>

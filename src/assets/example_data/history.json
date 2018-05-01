@@ -1,0 +1,51 @@
+{
+    "banner_image": "./assets/images/listing/600x300banner1.png",
+    "banner_title": "",
+    "populars": [
+        {
+            "title": "Mandy",
+            "image": "./assets/images/listing/Family/300x300Mandy.jpg"
+        },
+        {
+            "title": "Sophie",
+            "image": "./assets/images/listing/Family/300x300Sophie.jpeg"
+        },
+        {
+            "title": "Ella",
+            "image": "./assets/images/listing/Family/300x300Ella.jpg"
+        },
+        {
+            "title": "Mirian",
+            "image": "./assets/images/listing/Family/300x300Mir.jpg"
+        },
+        {
+            "title": "Marty",
+            "image": "./assets/images/listing/Family/300x300AddImageWithText.jpg"
+        }
+    ],
+    "categories": [
+        {
+            "title": "Medical Events",
+            "image": "./assets/images/listing/200x200condition.jpg"
+        },
+        {
+            "title": "Allergies",
+            "image": "./assets/images/listing/200x200allergies.jpg"
+        },        {
+            "title": "Vaccines",
+            "image": "./assets/images/listing/200x200vaccine.jpg"
+        },
+        {
+            "title": "Medications",
+            "image": "./assets/images/listing/200x200medication.jpg"
+        },
+        {
+            "title": "Treatments/ Procedures",
+            "image": "./assets/images/listing/200x200therapy.jpg"
+        },
+        {
+            "title": "Lab/Test Results",
+            "image": "./assets/images/listing/200x200tests.jpg"
+        }
+    ]
+}
