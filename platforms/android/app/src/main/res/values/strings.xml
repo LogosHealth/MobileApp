@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MyApp</string>
+    <string name="launcher_name">@string/app_name</string>
+    <string name="activity_name">@string/launcher_name</string>
+    <string name="ionic_app_id">0f127b9d</string>
+    <string name="ionic_debug">true</string>
+    <string name="ionic_channel_name">Master</string>
+    <string name="ionic_update_api">https://api.ionicjs.com</string>
+    <string name="ionic_update_method">background</string>
+    <string name="ionic_max_versions">2</string>
+</resources>

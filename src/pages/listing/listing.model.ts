@@ -8,5 +8,6 @@ export class ListingModel {
 export class ListingItemModel {
   title: string;
   image: string;
-  profileid: string;
+  profileid: number;
+  checked: string;
 }

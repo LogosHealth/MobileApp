@@ -5,8 +5,10 @@ import { AwsManagedPolicy } from 'aws-sdk/clients/organizations';
 //import { AuthInfo } from 'aws-sdk/clients/iot';
 var apigClientFactory = require('aws-api-gateway-client').default;
 var profiles = [];
+var results = [];
 var cognitoIdentity;
 var AuthData = {} as AuthData;
+var currentProfile: number;
 
 interface AccountProfile {
     profileid: number,
@@ -32,17 +34,25 @@ export class RestService {
     public AWS: any;
     public CognitoIdentity: any;
     public Profiles: any;
+    public results: any;
+    public currentProfile: number;
 
     constructor() {
         this.AWS = AWSme;
         this.AWSRestFactory = apigClientFactory;
         this.Profiles = profiles;
+        this.results = results;
         this.AuthData = AuthData;
         this.CognitoIdentity = cognitoIdentity;
+        this.currentProfile = currentProfile;
     }
 
     anyfunction() {
         console.log('testing');
+    }
+
+    getDataByProfile (page: string, profileid: number) {
+        
     }
 
 }    

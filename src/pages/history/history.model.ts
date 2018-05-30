@@ -8,5 +8,6 @@ export class HistoryModel {
 export class HistoryItemModel {
   title: string;
   image: string;
-  profileid: string;
+  profileid: number;
+  checked: string;
 }

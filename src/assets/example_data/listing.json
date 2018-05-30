@@ -26,14 +26,14 @@
     "categories": [
         {
             "title": "Order a Meal",
-            "image": "./assets/images/listing/200x200meal.jpg"
+            "image": "./assets/images/listing/200x200order2.jpg"
         },
         {
             "title": "Invest in You",
-            "image": "./assets/images/listing/200x200Workout.jpg"
+            "image": "./assets/images/listing/200x200invest.jpg"
         },        {
             "title": "Nutrition",
-            "image": "./assets/images/listing/200x200ingredient.jpg"
+            "image": "./assets/images/listing/200x200nutrition.jpg"
         },
         {
             "title": "Sleep",
@@ -41,7 +41,7 @@
         },
         {
             "title": "Daily Supplements",
-            "image": "./assets/images/listing/200x200supplement.jpg"
+            "image": "./assets/images/listing/200x200supplements.jpg"
         },
         {
             "title": "Current Medications",
