@@ -36,6 +36,7 @@
     "aws-api-gateway-client": "^0.2.12",
     "aws-sdk": "^2.211.0",
     "bourbon": "4.3.4",
+    "cordova-android": "~7.0.0",
     "cordova-plugin-ionic": "^4.1.7",
     "ionic-angular": "^3.9.2",
     "ionicons": "3.0.0",
@@ -90,5 +91,10 @@
   "description": "Logos Health.  Personal Healthcare Companion.",
   "config": {
     "ionic_sass": "./config/sass.config.js"
+  },
+  "cordova": {
+    "platforms": [
+      "android"
+    ]
   }
 }

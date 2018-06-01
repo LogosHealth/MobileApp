@@ -17,6 +17,13 @@
     <feature name="Keyboard">
         <param name="android-package" onload="true" value="io.ionic.keyboard.IonicKeyboard" />
     </feature>
+    <feature name="IonicCordovaCommon">
+        <param name="android-package" onload="true" value="com.ionicframework.common.IonicCordovaCommon" />
+    </feature>
+    <feature name="IonicDeploy">
+        <param name="android-package" value="com.ionicframework.deploy.IonicDeploy" />
+        <param name="onload" value="true" />
+    </feature>
     <name>MyApp</name>
     <description>An awesome Ionic/Cordova app.</description>
     <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
@@ -28,6 +35,7 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <access origin="https://cognito-identity.us-east-1.amazonaws.com/" />
     <allow-intent href="market:*" />
     <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
     <icon density="mdpi" src="resources/android/icon/drawable-mdpi-icon.png" />
@@ -56,11 +64,4 @@
     <preference name="SplashShowOnlyFirstTime" value="false" />
     <preference name="SplashScreen" value="screen" />
     <preference name="SplashScreenDelay" value="3000" />
-    <feature name="IonicCordovaCommon">
-        <param name="android-package" onload="true" value="com.ionicframework.common.IonicCordovaCommon" />
-    </feature>
-    <feature name="IonicDeploy">
-        <param name="android-package" value="com.ionicframework.deploy.IonicDeploy" />
-        <param name="onload" value="true" />
-    </feature>
 </widget>
