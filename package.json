@@ -1,18 +1,9 @@
 {
-<<<<<<< HEAD
   "name": "LogosHealthApp",
   "author": "LogosHealth",
   "homepage": "https://logos.healthcare",
   "private": true,
   "scripts": {
-=======
-  "name": "ion2-fullapp-PRO",
-  "author": "Ionic Themes",
-  "homepage": "https://ionicthemes.com",
-  "private": true,
-  "scripts": {
-    "browser": "ionic-app-scripts serve --iscordovaserve --sourceMap source-map  --wwwDir platforms/browser/www/ --buildDir platforms/browser/www/build",
->>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
     "ionic:build": "ionic-app-scripts build",
     "ionic:serve": "ionic-app-scripts serve"
   },
@@ -40,7 +31,6 @@
     "@ionic-native/splash-screen": "3.4.4",
     "@ionic-native/status-bar": "3.4.4",
     "@ionic/storage": "2.0.1",
-<<<<<<< HEAD
     "@types/googlemaps": "3.25.38",
     "aws-amplify": "^0.2.11",
     "aws-api-gateway-client": "^0.2.12",
@@ -48,11 +38,6 @@
     "bourbon": "4.3.4",
     "cordova-android": "~7.0.0",
     "cordova-plugin-ionic": "^4.1.7",
-=======
-    "aws-amplify": "^0.2.11",
-    "aws-api-gateway-client": "^0.2.12",
-    "aws-sdk": "^2.211.0",
->>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
     "ionic-angular": "^3.9.2",
     "ionicons": "3.0.0",
     "rxjs": "^5.5.7",
@@ -103,32 +88,13 @@
       "locator": "android"
     }
   ],
-<<<<<<< HEAD
   "description": "Logos Health.  Personal Healthcare Companion.",
-=======
-  "description": "ion2-FullApp: The Best Ionic 2 Starter app.",
->>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
   "config": {
     "ionic_sass": "./config/sass.config.js"
   },
   "cordova": {
-<<<<<<< HEAD
-=======
-    "plugins": {
-      "cordova-plugin-whitelist": {},
-      "cordova-plugin-device": {},
-      "cordova-plugin-splashscreen": {},
-      "cordova-plugin-ionic-webview": {},
-      "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-inappbrowser": {}
-    },
->>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
     "platforms": [
       "android"
     ]
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
