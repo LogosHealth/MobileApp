@@ -1,0 +1,165 @@
+{
+	"name": "ion2FullApp-PRO-version-2018-03-19-18-30-23",
+	"projectId": "48b119b8-2bde-11e8-a6ca-85a13b734c82",
+	"region": "us-east-1",
+	"state": "NORMAL",
+	"createdDate": "2018-03-20T01:30:33.835Z",
+	"lastUpdatedDate": "2018-03-27T00:18:23.724Z",
+	"consoleUrl": "https://console.aws.amazon.com/mobilehub/home#/48b119b8-2bde-11e8-a6ca-85a13b734c82/build",
+	"resources": [
+		{
+			"type": "AWS::Pinpoint::AnalyticsApplication",
+			"name": "ion2fullappproversion20180319183023_MobileHub",
+			"arn": "3b580b29a7b74545a586e58e92faa8cf",
+			"feature": "analytics",
+			"attributes": {
+				"lastUpdateRequestID": "48b845b1-2bde-11e8-8d3d-df5fa617fa6e"
+			}
+		},
+		{
+			"type": "AWS::IAM::Policy",
+			"name": "ionfullappproversion_mobileanalytics_MOBILEHUB_921105249",
+			"arn": null,
+			"feature": "analytics",
+			"attributes": {
+				"authType": "authenticated",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"role": "ionfullappproversion_auth_MOBILEHUB_921105249"
+			}
+		},
+		{
+			"type": "AWS::IAM::Policy",
+			"name": "ionfullappproversion_mobileanalytics_MOBILEHUB_921105249",
+			"arn": null,
+			"feature": "analytics",
+			"attributes": {
+				"authType": "unauthenticated",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"role": "ionfullappproversion_unauth_MOBILEHUB_921105249"
+			}
+		},
+		{
+			"type": "AWS::Cognito::IdentityPool",
+			"name": "ionfullappproversion_MOBILEHUB_921105249",
+			"arn": "us-east-1:7a457959-5bc7-4134-9370-a008ab517339",
+			"feature": "user-signin",
+			"attributes": {
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"poolid": "us-east-1:7a457959-5bc7-4134-9370-a008ab517339",
+				"roleARNs": "arn:aws:iam::682625020594:role/ionfullappproversion_auth_MOBILEHUB_921105249,arn:aws:iam::682625020594:role/ionfullappproversion_unauth_MOBILEHUB_921105249"
+			}
+		},
+		{
+			"type": "AWS::IAM::Role",
+			"name": "ionfullappproversion_smsverification_MOBILEHUB_921105249",
+			"arn": "arn:aws:iam::682625020594:role/service-role/ionfullappproversion_smsverification_MOBILEHUB_921105249",
+			"feature": "user-signin",
+			"attributes": {
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"user-pools-role-key": "user-pools-execution-role"
+			}
+		},
+		{
+			"type": "AWS::Cognito::UserPool",
+			"name": "ionfullappproversion_userpool_MOBILEHUB_921105249",
+			"arn": "us-east-1_CmQLhXc1P",
+			"feature": "user-signin",
+			"attributes": {
+				"alias-attributes": "[\"email\",\"phone_number\"]",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"mfa-configuration": "ON",
+				"password-policy": "{\"minimumLength\":8,\"requireUppercase\":true,\"requireLowercase\":true,\"requireNumbers\":true,\"requireSymbols\":true}",
+				"region": "us-east-1",
+				"user-pools-client-id": "...redacted_1339761225...",
+				"user-pools-client-secret": "...redacted_-1646958503...",
+				"user-pools-id": "us-east-1_CmQLhXc1P",
+				"user-pools-web-client-id": "19bhhoglhkfp3ciqgm6sieofag"
+			}
+		},
+		{
+			"type": "AWS::IAM::Role",
+			"name": "ionfullappproversion_auth_MOBILEHUB_921105249",
+			"arn": "arn:aws:iam::682625020594:role/ionfullappproversion_auth_MOBILEHUB_921105249",
+			"feature": "user-signin",
+			"attributes": {
+				"authType": "authenticated",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2"
+			}
+		},
+		{
+			"type": "AWS::IAM::Role",
+			"name": "ionfullappproversion_unauth_MOBILEHUB_921105249",
+			"arn": "arn:aws:iam::682625020594:role/ionfullappproversion_unauth_MOBILEHUB_921105249",
+			"feature": "user-signin",
+			"attributes": {
+				"authType": "unauthenticated",
+				"lastUpdateRequestID": "48b845b1-2bde-11e8-8d3d-df5fa617fa6e"
+			}
+		},
+		{
+			"type": "AWS::S3::Bucket",
+			"name": "ionfullappproversion-hosting-mobilehub-921105249",
+			"arn": null,
+			"feature": "hosting",
+			"attributes": {
+				"lastUpdateRequestID": "48b845b1-2bde-11e8-8d3d-df5fa617fa6e",
+				"region": "us-east-1",
+				"s3-bucket-console-url": "https://s3.console.aws.amazon.com/s3/buckets/ionfullappproversion-hosting-mobilehub-921105249",
+				"s3-bucket-website-url": "https://s3.amazonaws.com/ionfullappproversion-hosting-mobilehub-921105249"
+			}
+		},
+		{
+			"type": "AWS::CloudFront::Distribution",
+			"name": "dv8jgkzxov9hy.cloudfront.net",
+			"arn": null,
+			"feature": "hosting",
+			"attributes": {
+				"id": "E28NMKSXONTJE1",
+				"lastUpdateRequestID": "48b845b1-2bde-11e8-8d3d-df5fa617fa6e"
+			}
+		},
+		{
+			"type": "AWS::IAM::Policy",
+			"name": "ionfullappproversion_hosting_MOBILEHUB_921105249",
+			"arn": null,
+			"feature": "hosting",
+			"attributes": {
+				"authType": "authenticated",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"role": "ionfullappproversion_auth_MOBILEHUB_921105249"
+			}
+		},
+		{
+			"type": "AWS::IAM::Policy",
+			"name": "ionfullappproversion_hosting_MOBILEHUB_921105249",
+			"arn": null,
+			"feature": "hosting",
+			"attributes": {
+				"authType": "unauthenticated",
+				"lastUpdateRequestID": "248ddfc1-2be6-11e8-a092-fb2ae0e705d2",
+				"role": "ionfullappproversion_unauth_MOBILEHUB_921105249"
+			}
+		},
+		{
+			"type": "AWS::S3::Bucket",
+			"name": "ionfullappproversion-deployments-mobilehub-921105249",
+			"arn": null,
+			"feature": "common",
+			"attributes": {
+				"region": "us-east-1",
+				"s3-bucket-console-url": "https://s3.console.aws.amazon.com/s3/buckets/ionfullappproversion-deployments-mobilehub-921105249"
+			}
+		},
+		{
+			"type": "AWS::CloudFormation::Stack",
+			"name": "Development",
+			"arn": null,
+			"feature": "cloud-api",
+			"attributes": {
+				"primary": "true",
+				"region": "us-east-1",
+				"stateSummary": "NOT_YET_DEPLOYED"
+			}
+		}
+	]
+}

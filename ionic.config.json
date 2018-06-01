@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "LogosHealth",
   "app_id": "0f127b9d",
+=======
+  "name": "ion2-FullApp-PRO",
+  "app_id": "f0cf33a7",
+>>>>>>> daa0c7dbc88f3f84708dba442125dca8c2213377
   "integrations": {
     "cordova": {}
   },
