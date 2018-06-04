@@ -1,0 +1,49 @@
+<ion-header>
+    <ion-navbar>
+      <button ion-button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+      </button>
+      <ion-title>
+        <span>{{ feed.category.title }}</span>
+      </ion-title>
+    </ion-navbar>
+  </ion-header>
+  
+<ion-content class="list-mini-content">
+  <div class="list-mini">
+    <ion-list>
+      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
+        <ion-row no-padding class="content-row one-line" *ngIf="item.schedules.length > 0; else templateName">
+          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+          <ion-col no-padding width-90 class="item-content" >
+            <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
+            <div ion-item *ngFor="let sched of item.schedules">
+              <p class="item-description">Dose: {{sched.interval}}</p>
+              <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow !==sched.agerangehigh">Schedule: {{sched.agerangelow}} to {{sched.agerangehigh}} {{sched.agerangeunit}} </p>
+              <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
+              <p class="item-description" *ngIf="sched.agerangelow==0">Schedule: {{sched.notes}}</p>              
+              <p class="item-description">Date: {{sched.startdate}}</p>
+              <p class="item-description">Physician: {{sched.physician}}</p>
+              <br>
+            </div>                 
+          </ion-col>
+          <ion-col no-padding width-10 class="item-icon">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </ion-col>
+        </ion-row>
+        <ng-template #templateName>
+          <ion-row no-padding class="content-row one-line">
+            <ion-col no-padding width-90 class="item-content">
+              <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
+              <p class="item-description">Date: {{item.startdate}}</p> 
+              <p class="item-description">Physician: {{item.physician}}</p> 
+            </ion-col>
+            <ion-col no-padding width-10 class="item-icon">
+              <ion-icon name="arrow-forward"></ion-icon>
+            </ion-col>
+          </ion-row>
+        </ng-template>
+      </button>
+    </ion-list>
+  </div>
+</ion-content>

@@ -21,6 +21,7 @@ import { List1Page } from '../pages/list-1/list-1';
 import { List2Page } from '../pages/list-2/list-2';
 import { ListAllergiesPage } from '../pages/listAllergies/listAllergies';
 import { ListVaccinesPage } from '../pages/listVaccines/listVaccines';
+import { ListOrderPage } from '../pages/listOrder/listOrder';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -46,6 +47,7 @@ import { List1Service } from '../pages/list-1/list-1.service';
 import { List2Service } from '../pages/list-2/list-2.service';
 import { ListAllergiesService } from '../pages/listAllergies/listAllergies.service';
 import { ListVaccinesService } from '../pages/listVaccines/listVaccines.service';
+import { ListOrderService } from '../pages/listOrder/listOrder.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -98,10 +100,12 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     List2Page,
     ListAllergiesPage,
     ListVaccinesPage,
+    ListOrderPage,
 
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
+
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -147,10 +151,12 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     List2Page,
     ListAllergiesPage,
     ListVaccinesPage,
+    ListOrderPage,
     
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
+
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -170,6 +176,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     List2Service,
     ListAllergiesService,
     ListVaccinesService,
+    ListOrderService,
 
     ScheduleService,
     FacebookLoginService,
