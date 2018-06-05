@@ -26,6 +26,7 @@ import { ListOrderPage } from '../pages/listOrder/listOrder';
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
 import { FormVaccinesPage } from '../pages/formVaccines/formVaccines';
+import { FormOrderPage } from '../pages/formOrder/formOrder';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -105,6 +106,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
+    FormOrderPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -156,6 +158,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
+    FormOrderPage,
 
     FiltersPage,
     TermsOfServicePage,

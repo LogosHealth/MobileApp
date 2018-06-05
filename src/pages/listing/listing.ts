@@ -8,6 +8,8 @@ import { ListingModel } from './listing.model';
 import { ListingService } from './listing.service';
 import { RestService } from '../../app/services/restService.service';
 
+import { ListOrderPage } from '../listOrder/listOrder';
+
 
 @Component({
   selector: 'listing-page',
@@ -62,12 +64,16 @@ export class ListingPage {
         }
     }    
   }
-  
+
   goToFeed(category: any) {
     console.log("Clicked goToFeed", category);
-    this.nav.push(FeedPage, { category: category });
+    if (category.title == 'Order a Meal') {
+      this.nav.push(ListOrderPage, { category: category });
+    } else    {
+      this.nav.push(FeedPage, { category: category });
+    }
   }
-
+  
   setProfileID(profileID: any) {    
     this.RestService.currentProfile = profileID;
     this.event.publish('ProfileChangeFromListing', profileID);

@@ -73,27 +73,37 @@ formOrder-page {
 				margin: 0px;
 			}			
 
-			.title-notconfirmed{
-				font-size: 1.8rem;
-				line-height: 1.2;
+			.section-title2
+			{
+				font-size: 1.7rem;
+				line-height: 1.0;
 				letter-spacing: 1.1px;
 				text-align: center;
-				color: $theme-color-3;
+				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
-				margin-top: 25px;
+			}			
+			.image-center{
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				width: 100%;			
 			}
 
 			.section-label
 			{
-				font-size: 1.5rem;
-				line-height: 1.2;
-				letter-spacing: 1.1px;
-				text-align: center;
-				color: $theme-color-1;
-				font-weight: 100;
+				font-size: 1.1rem;
+				line-height: 1.1;
+				letter-spacing: 1.0px;
+				text-align: left;
+				color: $white-d;
+				//color: $theme-color-2;
+				//font-weight: 0;
 				margin-top: 0px;
-				margin: 10px;
+				margin: 0px;
+				//padding:20px;
+				white-space: pre-wrap;
+				//@include multi-line-ellipsis(10);
 			}
 
 			.form-action-button

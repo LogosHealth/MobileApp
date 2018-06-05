@@ -3,7 +3,7 @@ import { NavController, SegmentButton, NavParams, AlertController, Form } from '
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { counterRangeValidator } from '../../components/counter-input/counter-input';
 import { RestService } from '../../app/services/restService.service';
-import { ListOrderModel, ListOrder, ListOrderSchedule } from '../../pages/listOrder/listOrder.model';
+import { ListOrderModel, ListOrder } from '../../pages/listOrder/listOrder.model';
 import { ListOrderPage } from '../listOrder/listOrder';
 import { HistoryModel, HistoryItemModel } from '../../pages/history/history.model';
 
@@ -20,7 +20,6 @@ export class FormOrderPage {
   curRec: any;
   modelSave: ListOrderModel  = new ListOrderModel();
   listSave: ListOrder = new ListOrder();
-  listSched: ListOrderSchedule = new ListOrderSchedule();
   category: HistoryItemModel = new HistoryItemModel();
   
   categories_checkbox_open: boolean;
@@ -32,93 +31,55 @@ export class FormOrderPage {
    // this.section = "event";
 
     this.curRec = RestService.results[this.recId]; 
-    //alert('CurRec: ' + this.curRec.recordid); 
-
-    if (this.curRec.schedules.length > 0) {
-      this.form_array = new FormArray([]);
-      for (var i = 0; i < this.curRec.schedules.length; i++) {
-        var dtSched;      
-        if (this.curRec.schedules[i].startdate == 'Invalid date') {
-          dtSched = '';
-        } else {
-          dtSched = new Date(this.curRec.schedules[i].startdate).toISOString();
-        }
-          
-        this.form_group = new FormGroup({
-          //interval: this.curRec.schedules[i].startdate,
-          recordid: new FormControl(this.curRec.schedules[i].recordid),
-          interval: new FormControl(this.curRec.schedules[i].interval),
-          agerangelow: new FormControl(this.curRec.schedules[i].agerangelow),
-          agerangehigh: new FormControl(this.curRec.schedules[i].agerangehigh),
-          agerangeunit: new FormControl(this.curRec.schedules[i].agerangeunit),
-          notes: new FormControl(this.curRec.schedules[i].notes),
-          
-          exp_date: new FormControl(dtSched, Validators.required),
-          physician: new FormControl(this.curRec.schedules[i].physician, Validators.required)
-        });
-        this.form_array.push(this.form_group);
-      } 
-      this.card_form = new FormGroup({
-        recordid: new FormControl(this.curRec.recordid),
-        vaccine_name: new FormControl(this.curRec.name),
-        confirmed: new FormControl(this.curRec.confirmed),
-        schedules: this.form_array
-      });
-
-    } else {
-      //alert(this.curRec.startdate);
-      //alert(this.curRec.startdate);
-      var dt;      
-      if (this.curRec.startdate == 'Invalid date') {
-        dt = '';
-      } else {
-        dt = new Date(this.curRec.startdate).toISOString();
-      }
-      this.card_form = new FormGroup({
+    
+    this.card_form = new FormGroup({
         //exp_date: new FormControl(this.curRec.startdate, Validators.required),
         recordid: new FormControl(this.curRec.recordid),
-        vaccine_name: new FormControl(this.curRec.name),
-        confirmed: new FormControl(this.curRec.confirmed),
-        exp_date: new FormControl(dt, Validators.required),
-        physician: new FormControl(this.curRec.physician, Validators.required)
+        name: new FormControl(this.curRec.name),
+        description: new FormControl(this.curRec.description),
+        cost: new FormControl(this.curRec.cost),
+        calories: new FormControl(this.curRec.calories),
+        totalfat: new FormControl(this.curRec.totalfat),
+        saturatedfat: new FormControl(this.curRec.saturatedfat),
+        transfat: new FormControl(this.curRec.transfat),
+        sodium: new FormControl(this.curRec.sodium),
+        carbs: new FormControl(this.curRec.carbs),
+        caloriesfromfat: new FormControl(this.curRec.caloriesfromfat),
+        protein: new FormControl(this.curRec.protein),
+        cholesterol: new FormControl(this.curRec.cholesterol),
+        dietaryfiber: new FormControl(this.curRec.dietaryfiber),
+        sugars: new FormControl(this.curRec.sugars),
+        restaurantid: new FormControl(this.curRec.restaurantid),
+        restaurantname: new FormControl(this.curRec.restaurantname),
+        address: new FormControl(this.curRec.address),
+        city: new FormControl(this.curRec.city),
+        phone: new FormControl(this.curRec.phone),
+        image: new FormControl(this.curRec.image)
       });  
-      //alert("VaccineId: " + this.card_form.get('recordid').value);
-    }
   }
 
   confirmRecord(){
-    this.listSave.schedules = [];
     this.listSave.recordid = this.card_form.get('recordid').value;
-    this.listSave.confirmed = 'Y';
 
     if (this.card_form.get('schedules') !== null) {
       var vaccineSaveArray = this.card_form.get('schedules') as FormArray;
       var isChanged = false;
       for (var i = 0; i < vaccineSaveArray.length ; i++) {
         console.log('VaccineSaveArray: ', vaccineSaveArray);
-        this.listSched = new ListOrderSchedule;
         isChanged = false;
         if (vaccineSaveArray.controls[i].get('exp_date').dirty) {
           isChanged = true;
-          this.listSched.startdate = vaccineSaveArray.controls[i].get('exp_date').value;
-          console.log('Start Date: ' + this.listSched.startdate);
         }
         if (vaccineSaveArray.controls[i].get('physician').dirty) {
           isChanged = true;
-          this.listSched.physician = vaccineSaveArray.controls[i].get('physician').value;
         }
         if (isChanged) {
-          this.listSched.recordid = vaccineSaveArray.controls[i].get('recordid').value;
-          //console.log('Record id: ' + this.vaccineSched.recordid);
-          this.listSave.schedules.push(this.listSched);
         }
       }  
     } else {
       if (this.card_form.get('exp_date').dirty) {
-        this.listSave.startdate = this.card_form.get('exp_date').value;
       }
       if (this.card_form.get('physician').dirty) {
-        this.listSave.physician = this.card_form.get('physician').value;
       }  
     }
 
@@ -177,9 +138,7 @@ export class FormOrderPage {
           handler: () => {
             console.log('Delete clicked');
             //alert('Going to delete');
-            this.listSave.schedules = [];
             this.listSave.recordid = this.card_form.get('recordid').value;
-            this.listSave.active = 'N';
             var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
     
             var config = {
@@ -225,10 +184,8 @@ export class FormOrderPage {
 
   saveRecord(){
     //alert('Save Button Selected');
-    this.listSave.schedules = [];
     this.listSave.recordid = this.card_form.get('recordid').value;
     if (!this.card_form.valid) {
-      this.listSave.confirmed = 'N';     
     }
 
     if (this.card_form.get('schedules') !== null) {
@@ -236,29 +193,21 @@ export class FormOrderPage {
       var isChanged = false;
       for (var i = 0; i < vaccineSaveArray.length ; i++) {
         console.log('VaccineSaveArray: ', vaccineSaveArray);
-        this.listSched = new ListOrderSchedule;
         isChanged = false;
         if (vaccineSaveArray.controls[i].get('exp_date').dirty) {
           isChanged = true;
-          this.listSched.startdate = vaccineSaveArray.controls[i].get('exp_date').value;
-          console.log('Start Date: ' + this.listSched.startdate);
         }
         if (vaccineSaveArray.controls[i].get('physician').dirty) {
           isChanged = true;
-          this.listSched.physician = vaccineSaveArray.controls[i].get('physician').value;
         }
         if (isChanged) {
-          this.listSched.recordid = vaccineSaveArray.controls[i].get('recordid').value;
           //console.log('Record id: ' + this.vaccineSched.recordid);
-          this.listSave.schedules.push(this.listSched);
         }
       }  
     } else {
       if (this.card_form.get('exp_date').dirty) {
-        this.listSave.startdate = this.card_form.get('exp_date').value;
       }
       if (this.card_form.get('physician').dirty) {
-        this.listSave.physician = this.card_form.get('physician').value;
       }  
     }
 

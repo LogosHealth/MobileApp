@@ -30,11 +30,10 @@ export class ListOrderPage {
     this.feed.category = navParams.get('category');
   }
 
-  ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
-
-  }
+  //ionViewWillEnter() {
+  //  this.loading.present();
+  //  this.loadData();
+  //}
 
   ionViewDidLoad() {
     this.loading.present();
@@ -57,7 +56,7 @@ export class ListOrderPage {
     //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/OrderAMeal";
     
     var config = {
       invokeUrl: restURL,

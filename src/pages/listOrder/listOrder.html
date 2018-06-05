@@ -6,6 +6,11 @@
       <ion-title>
         <span>{{ feed.category.title }}</span>
       </ion-title>
+      <ion-buttons right>
+        <button ion-button icon-only>
+          <ion-icon name='funnel'></ion-icon>
+        </button>
+      </ion-buttons>  
     </ion-navbar>
   </ion-header>
   
@@ -13,36 +18,20 @@
   <div class="list-mini">
     <ion-list>
       <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
-        <ion-row no-padding class="content-row one-line" *ngIf="item.schedules.length > 0; else templateName">
+        <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
-          <ion-col no-padding width-90 class="item-content" >
-            <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
-            <div ion-item *ngFor="let sched of item.schedules">
-              <p class="item-description">Dose: {{sched.interval}}</p>
-              <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow !==sched.agerangehigh">Schedule: {{sched.agerangelow}} to {{sched.agerangehigh}} {{sched.agerangeunit}} </p>
-              <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
-              <p class="item-description" *ngIf="sched.agerangelow==0">Schedule: {{sched.notes}}</p>              
-              <p class="item-description">Date: {{sched.startdate}}</p>
-              <p class="item-description">Physician: {{sched.physician}}</p>
-              <br>
-            </div>                 
+          <ion-col no-padding width-18 class="item-avatar">
+            <preload-image class="avatar-image" [ratio]="{w:1, h:1}" [src]="item.image"></preload-image>
+          </ion-col>    
+          <ion-col no-padding width-72 class="item-content" >
+            <h3 class="item-title">{{item.name}}</h3>
+            <h3 class="item-title">from {{item.restaurantname}}</h3>
+            <p class="item-description">Cost: ${{item.cost}}      Calories: {{item.calories}} </p> 
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>
           </ion-col>
         </ion-row>
-        <ng-template #templateName>
-          <ion-row no-padding class="content-row one-line">
-            <ion-col no-padding width-90 class="item-content">
-              <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
-              <p class="item-description">Date: {{item.startdate}}</p> 
-              <p class="item-description">Physician: {{item.physician}}</p> 
-            </ion-col>
-            <ion-col no-padding width-10 class="item-icon">
-              <ion-icon name="arrow-forward"></ion-icon>
-            </ion-col>
-          </ion-row>
-        </ng-template>
       </button>
     </ion-list>
   </div>
