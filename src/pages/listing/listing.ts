@@ -30,6 +30,9 @@ export class ListingPage {
     this.event.subscribe('ProfileChangeFromHistory', (profileid) => {
       this.setCurrentProfile(profileid);
     })
+    this.event.subscribe('ProfileChangeFromSettings', (profileid) => {
+      this.setCurrentProfile(profileid);
+    })
 //    this.event.subscribe('TabSelectToday', (profileid) => {
 //      this.setCurrentProfile(profileid);
 //    })
@@ -46,8 +49,10 @@ export class ListingPage {
         this.listing.categories = data.categories;
         this.loading.dismiss();
       });
-  }
+      //alert('Listing Did Load.');        
 
+  }
+ 
   //ionSelected() {
     //alert('Listing Selected');
   //}
@@ -57,12 +62,13 @@ export class ListingPage {
     for (var i = 0; i < this.listing.populars.length; i++) {
         if (this.listing.populars[i].profileid == this.RestService.currentProfile) {
           this.listing.populars[i].checked = "checked";
-          //alert('Yup CurProfile! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
+          //alert('Yup CurProfile Listing! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
         } else {
           this.listing.populars[i].checked = "";            
-          //alert('Nope CurProfile! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
+          //alert('Nope CurProfile Listing! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
         }
-    }    
+    }
+        
   }
 
   goToFeed(category: any) {

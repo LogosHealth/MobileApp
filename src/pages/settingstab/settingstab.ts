@@ -2,26 +2,26 @@ import { Component } from '@angular/core';
 import { NavController, LoadingController, Events } from 'ionic-angular';
 
 //import { FeedPage } from '../feed/feed';
+import { FormFoodPref } from '../formFoodPref/formFoodPref';
+
 import { List2Page } from '../list-2/list-2';
-import { ListAllergiesPage } from '../listAllergies/listAllergies';
-import { ListVaccinesPage } from '../listVaccines/listVaccines';
 
 import 'rxjs/Rx';
-import { HistoryModel } from './history.model';
-import { HistoryService } from './history.service';
+import { SettingsModel } from './settingstab.model';
+import { SettingsService } from './settingstab.service';
 import { RestService } from '../../app/services/restService.service';
 
 @Component({
   selector: 'listing-page',
-  templateUrl: 'history.html',
+  templateUrl: 'settingstab.html',
 })
-export class HistoryPage {
-  listing: HistoryModel = new HistoryModel();
+export class SettingsTabPage {
+  listing: SettingsModel = new SettingsModel();
   loading: any;
 
   constructor(
     public nav: NavController,
-    public listingService: HistoryService,
+    public listingService: SettingsService,
     public loadingCtrl: LoadingController,
     public RestService:RestService,
     private event:Events
@@ -31,9 +31,13 @@ export class HistoryPage {
     this.event.subscribe('ProfileChangeFromListing', (profileid) => {
       this.setCurrentProfile(profileid);
     })
-    this.event.subscribe('ProfileChangeFromSettings', (profileid) => {
+    this.event.subscribe('ProfileChangeFromHistory', (profileid) => {
       this.setCurrentProfile(profileid);
-    })    
+    })
+  //  this.event.subscribe('TabSelectHistory', (profileid) => {
+  //    this.setCurrentProfile(profileid);
+  //  })
+    
   }
 
   ionViewDidLoad() {
@@ -47,7 +51,6 @@ export class HistoryPage {
         for (var i = 0; i < this.RestService.Profiles.length; i++) {
           if (this.RestService.Profiles[i].profileid == this.RestService.currentProfile) {
             this.RestService.Profiles[i].checked = "checked";
-            //alert('Yup! ' + this.RestService.Profiles[i].profileid);
           } else {
             this.RestService.Profiles[i].checked = "";            
           }
@@ -64,10 +67,10 @@ export class HistoryPage {
     for (var i = 0; i < this.listing.populars.length; i++) {
       if (this.listing.populars[i].profileid == this.RestService.currentProfile) {
         this.listing.populars[i].checked = "checked";
-        //alert('Yup CurProfile History! ' + this.listing.populars[i].profileid + ' ' + this.listing.populars[i].checked);
+        //alert('Yup CurProfile Settings! ' + this.listing.populars[i].profileid + ' ' + this.listing.populars[i].checked);
       } else {
         this.listing.populars[i].checked = "";            
-        //alert('Nope CurProfile History! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
+        //alert('Nope CurProfile Settings! ' + this.listing.populars[i].profileid + ' ' + this.listing.populars[i].checked);
       }
     }    
   }
@@ -78,10 +81,8 @@ export class HistoryPage {
 
   goToFeed(category: any) {
     console.log("Clicked goToFeed", category);
-    if (category.title == 'Allergies') {
-      this.nav.push(ListAllergiesPage, { category: category });
-    } else if (category.title == 'Vaccines') {
-      this.nav.push(ListVaccinesPage, { category: category });
+    if (category.title == 'Food Preferences') {
+      this.nav.push(FormFoodPref, { category: category });
     } else    {
       this.nav.push(List2Page, { category: category });      
     }
@@ -89,7 +90,7 @@ export class HistoryPage {
 
   setProfileID(profileID: any) {
     this.RestService.currentProfile = profileID;
-    this.event.publish('ProfileChangeFromHistory', profileID);
+    this.event.publish('ProfileChangeFromSettings', profileID);
 
     //alert("Profile selected: " + this.RestService.currentProfile);
   }

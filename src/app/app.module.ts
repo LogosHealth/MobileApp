@@ -4,6 +4,7 @@ import { MyApp } from './app.component';
 
 import { ListingPage } from '../pages/listing/listing';
 import { HistoryPage } from '../pages/history/history';
+import { SettingsTabPage } from '../pages/settingstab/settingstab';
 import { FeedPage } from '../pages/feed/feed';
 import { FollowersPage } from '../pages/followers/followers';
 import { LayoutsPage } from '../pages/layouts/layouts';
@@ -27,6 +28,7 @@ import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
 import { FormVaccinesPage } from '../pages/formVaccines/formVaccines';
 import { FormOrderPage } from '../pages/formOrder/formOrder';
+import { FormFoodPref } from '../pages/formFoodPref/formFoodPref';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -49,6 +51,8 @@ import { List2Service } from '../pages/list-2/list-2.service';
 import { ListAllergiesService } from '../pages/listAllergies/listAllergies.service';
 import { ListVaccinesService } from '../pages/listVaccines/listVaccines.service';
 import { ListOrderService } from '../pages/listOrder/listOrder.service';
+import { SettingsService } from '../pages/settingstab/settingstab.service';
+import { FoodPrefService } from '../pages/formFoodPref/foodPref.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -84,6 +88,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     MyApp,
     ListingPage,
     HistoryPage,
+    SettingsTabPage,
     FeedPage,
     FollowersPage,
     LayoutsPage,
@@ -107,6 +112,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormLayoutPage,
     FormVaccinesPage,
     FormOrderPage,
+    FormFoodPref,
 
     FiltersPage,
     TermsOfServicePage,
@@ -136,6 +142,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     MyApp,
     ListingPage,
     HistoryPage,
+    SettingsTabPage,
     FeedPage,
     FollowersPage,
     LayoutsPage,
@@ -159,6 +166,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormLayoutPage,
     FormVaccinesPage,
     FormOrderPage,
+    FormFoodPref,
 
     FiltersPage,
     TermsOfServicePage,
@@ -173,6 +181,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FeedService,
     ListingService,
     HistoryService,
+    SettingsService,
     ProfileService,
     NotificationsService,
     List1Service,
@@ -180,6 +189,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListAllergiesService,
     ListVaccinesService,
     ListOrderService,
+    FoodPrefService,
 
     ScheduleService,
     FacebookLoginService,

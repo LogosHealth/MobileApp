@@ -1,7 +1,30 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Order a Meal</ion-title>
+    <ion-title>Food Preferences</ion-title>
   </ion-navbar>
+
+  <ion-toolbar>
+      <ion-list radio-group [(ngModel)]="selectedPage">
+        <ion-row>
+          <ion-col width-50></ion-col> 
+                      
+          <ion-col width-25> 
+            <ion-item>
+              <ion-label class="section-label">Food</ion-label>
+              <ion-radio value="food"></ion-radio>
+            </ion-item>
+          </ion-col>
+
+          <ion-col width-25> 
+            <ion-item>
+              <ion-label>Diet</ion-label>
+              <ion-radio value="diet"></ion-radio>
+            </ion-item>
+          </ion-col> 
+        </ion-row>
+      </ion-list>
+    </ion-toolbar>
+
 </ion-header>
 
 <ion-content class="forms-examples-content">

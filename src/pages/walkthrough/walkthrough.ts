@@ -1,6 +1,6 @@
 /// <reference types="aws-sdk" />
 import { Component, ViewChild, OnInit } from '@angular/core';
-import { NavController, Slides, Platform } from 'ionic-angular';
+import { NavController, Slides, Platform, LoadingController } from 'ionic-angular';
 
 import { LoginPage } from '../login/login';
 import { SignupPage } from '../signup/signup';
@@ -41,11 +41,12 @@ export class WalkthroughPage implements OnInit {
 
   AccountProfiles$: Observable<AccountProfile[]>;
   lastSlide = false;
+  loading: any;
   main_page: { component: any };
 
   @ViewChild('slider') slider: Slides;
 
-  constructor(public nav: NavController, private platform: Platform, private alertCtrl: AlertController, 
+  constructor(public nav: NavController, private platform: Platform, private alertCtrl: AlertController, public loadingCtrl: LoadingController,
     public RestService: RestService) {this.main_page = { component: TabsNavigationPage };
 
   }
@@ -100,7 +101,7 @@ export class WalkthroughPage implements OnInit {
       self.RestService.Profiles = result.data;
       console.log('Body: ', resultData);   
       self.nav.setRoot(self.main_page.component);    
-
+      self.loading.dismiss();
       //self.nav.push(LoginPage);
 
         //This is where you would put a success callback
@@ -201,6 +202,8 @@ export class WalkthroughPage implements OnInit {
     this.platform.ready().then(() => {
       var self = this;
       var options = { scope : 'profile', popup : 'false' };
+      self.loading = self.loadingCtrl.create();
+      self.loading.present();
       amazon.Login.authorize(options,function(response) {
         if ( response.error ) {
           alert('oauth error ' + response.error);

@@ -7,12 +7,24 @@
         <span>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
-        <button ion-button icon-only>
+        <button ion-button icon-only (click)="getFilterPane()">
           <ion-icon name='funnel'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
-  </ion-header>
+
+    <ion-toolbar *ngIf="this.show">
+      <form (ngSubmit)="runSearch()">
+        <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchControl" placeholder="Filter by category, restaurant, or dish"></ion-searchbar>
+        <ion-list>
+          <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(idx)">
+              {{item.name}}
+          </ion-item>
+      </ion-list>
+      <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+     </form>
+    </ion-toolbar>
+</ion-header>
   
 <ion-content class="list-mini-content">
   <div class="list-mini">

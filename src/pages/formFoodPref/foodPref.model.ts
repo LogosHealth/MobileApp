@@ -1,6 +1,6 @@
 import { phoneNumber } from "aws-sdk/clients/importexport";
 
-export class ListOrder {
+export class FoodPref {
   recordid: number;
   name: string;
   description: string;
@@ -23,14 +23,14 @@ export class ListOrder {
   phone: phoneNumber
   image: string;
 }
-export class ListOrderModel {
-  items: Array<ListOrder>;
+export class FoodPrefModel {
+  items: Array<FoodPref>;
 }
-export class ListFilter {
+export class FoodPrefFilter {
   recordid: number;
   name: string;
   iscategory: string;
 }
-export class ListFilterModel {
-  items: Array<ListFilter>;
+export class FoodPrefFilterModel {
+  items: Array<FoodPrefFilter>;
 }

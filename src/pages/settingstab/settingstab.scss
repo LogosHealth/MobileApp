@@ -1,0 +1,188 @@
+@mixin categories-title-style($color){
+	display: inline-block;
+	font-family: 'Poiret-One Regular';
+	width: 100%;
+	text-align: center;
+	font-size: 5;
+	font-weight: 900;
+	letter-spacing: 0.4px;
+	//color: #E1E5CE;
+	color: $white;
+	
+	//background-color: #FFF000;
+
+	//Color here is the lettering color on the tiles 
+	//color: $color;
+	margin: 0px;
+}
+
+settingstab-page {
+	$categories-heading-image-height: 150px;
+	$categories-grid-padding: 10px;
+	$categories-horizontal-list-padding: 10px;
+	font-family:  'Poiret-One Regular';
+	//bg color - no impact here
+	//background-color: #FFF000;
+
+	.listing-header
+	{
+		.header-logo
+		{
+			width: 34vw;
+		}
+	}
+
+	.listing-content
+	{
+		//background-color: #E1E5CE;
+		//background-color: #FBE68D;
+
+		.image-heading
+		{
+			height: $categories-heading-image-height;
+
+			.bg-overlay
+			{
+				z-index: 1;
+				background-color: rgba($black-c, .6);
+			}
+
+			ion-spinner {
+				z-index: 2;
+			}
+
+			@include spinner-color($white);
+
+			.heading-row
+			{
+				//background-color: #FFF000;
+				height: 100%;
+				width: 100%;
+				z-index: 3;
+  			position: absolute;
+				@include align-items(center);
+
+				.main-title
+				{
+					//background-color: #FFF000;
+					@include categories-title-style($white);
+					font-size: 10vw;
+				}
+			}
+		}
+
+		.categories-title
+		{
+			font-size: 1.2rem;
+		
+			font-weight: 400;
+			letter-spacing: 0.7px;
+			//color: $white-d;
+			//color of category labels (e.g. Family) 
+			color: #403F5E;
+			//bg color around text of category labels
+			//background-color: #FFF000;
+			margin: 8px 16px 16px;
+		}
+
+		.horizontal-categories
+		{
+			//background-color: #FFF000;
+			border-bottom: 10px solid #D2E4D4;
+			//border-bottom: 10px solid $white;
+
+			//border-bottom: 10px solid $white-a;
+			@include element-shadow();
+			padding-bottom: 16px;
+
+			.scroll-content
+			{
+				position: relative;
+				contain: style layout;
+			}
+
+			label > input{ /* HIDE RADIO */
+				visibility: hidden; /* Makes input not-clickable */
+				position: absolute; /* Remove input from document flow */
+
+			}	
+
+			label > input + img{ /* IMAGE STYLES */
+				cursor:pointer;
+				border-radius: 50%;
+				border:2px solid transparent;
+			  }
+			label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
+				border-radius: 50%;
+				border:2px solid #FFA500;
+			  }
+			  			
+			preload-image {
+				border-radius: 50%;
+
+				img	{
+					border-radius: 50%;
+				}
+			}
+
+			.categories-row
+			{
+				@include flex-wrap(nowrap);
+
+				&::after{
+					content: '';
+					flex: 0 0 $categories-horizontal-list-padding;
+			    max-width: $categories-horizontal-list-padding;
+				}
+			}
+
+			.horizontal-item
+			{
+				padding: 0px 0px 0px $categories-horizontal-list-padding;
+			}
+		}
+
+		.grid-categories
+		{
+			//background-color: #FFF000;
+			padding: 0px ($categories-grid-padding/2);
+			@include flex-wrap(wrap);
+
+			.category-item
+			{
+				padding: 0px ($categories-grid-padding/2) $categories-grid-padding;
+
+				.category-heading
+				{
+					padding-bottom: 100%;
+
+					.bg-overlay
+					{
+						z-index: 1;
+						background-color: rgba($black-c, .6);
+					}
+
+					ion-spinner {
+						z-index: 2;
+					}
+
+					@include spinner-color($white);
+
+					.heading-row
+					{
+						height: 100%;
+						width: 100%;
+						z-index: 3;
+		  			position: absolute;
+						@include align-items(center);
+
+						.category-title
+						{
+							@include categories-title-style($white);
+						}
+					}
+				}
+			}
+		}
+	}
+}
