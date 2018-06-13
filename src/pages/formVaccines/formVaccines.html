@@ -18,10 +18,10 @@
             <div *ngIf="card_form.get('schedules') !== null; else templateName">
               <div formArrayName="schedules" *ngFor="let sched of card_form.get('schedules').controls; let i=index">
                 <ion-row no-padding class="multi-input-row" [formGroupName]="i">
-                  <ion-col no-padding width-25>
+                  <ion-col no-padding width-30>
                     <ion-label class = "section-label">Dose: {{sched.get('interval').value}}</ion-label>
                   </ion-col> 
-                  <ion-col no-padding width-75>
+                  <ion-col no-padding width-70>
                     <ion-label class = "section-label" *ngIf="sched.get('agerangelow').value > 0 && sched.get('agerangelow').value !==sched.get('agerangehigh').value">{{sched.get('agerangelow').value}} to {{sched.get('agerangehigh').value}} {{sched.get('agerangeunit').value}} </ion-label>
                     <ion-label class = "section-label" *ngIf="sched.get('agerangelow').value > 0 && sched.get('agerangelow').value ==sched.get('agerangehigh').value">{{sched.get('agerangelow').value}} {{sched.get('agerangeunit').value}} </ion-label>
                     <ion-label class = "section-label" *ngIf="sched.get('agerangelow').value==0">{{sched.get('notes').value}}</ion-label>                        

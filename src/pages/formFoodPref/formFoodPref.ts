@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, SegmentButton, NavParams, AlertController, Form } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
 import { counterRangeValidator } from '../../components/counter-input/counter-input';
 import { RestService } from '../../app/services/restService.service';
 import { FoodPrefModel, FoodPrefFilterModel } from '../../pages/formFoodPref/foodPref.model';
@@ -26,8 +26,9 @@ export class FormFoodPref {
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
-    public navParams: NavParams, private callNumber: CallNumber) {
+    public navParams: NavParams, private callNumber: CallNumber, public categoryList: FormsModule) {
     this.recId = navParams.get('recId');
+    this.categoryList = "food";
    // this.section = "event";
 
     this.curRec = RestService.results[this.recId]; 
@@ -69,8 +70,19 @@ export class FormFoodPref {
     return new Date().toISOString().substring(0,10);
   }
 
+  selectedFood() {
+    //alert('More to add');
+  }
+
+  selectedDiet() {
+    //alert('More to add');
+  } 
+
   runSearch() {
-    alert('More to add');
+    //alert('More to add');
+  }
+  confirmRecord() {
+    //alert('More to add');
   }
 
 }
