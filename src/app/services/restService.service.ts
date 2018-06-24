@@ -35,7 +35,7 @@ export class RestService {
     public CognitoIdentity: any;
     public Profiles: any;
     public results: any;
-    public currentProfile: number;
+    public currentProfile: number = 0;
 
     constructor() {
         this.AWS = AWSme;

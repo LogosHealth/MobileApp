@@ -4,10 +4,10 @@
  </ion-navbar>
 </ion-header>
 
-<ion-content class="forms-examples-content">
+<ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveData()">
   <div>
       <!-- Segment buttons with text -->
-      <ion-segment [(ngModel)]="categoryList" class="forms-examples-segment">
+      <ion-segment [(ngModel)]="categoryList" [ngModelOptions]="{standalone: true}" class="forms-examples-segment">
         <ion-segment-button class="segment-button" value="food" (ionSelect)="selectedFood()">
           Food
         </ion-segment-button>
@@ -17,20 +17,328 @@
       </ion-segment>
 
       <div [ngSwitch]="categoryList" class="forms-examples-segment">
-          <ion-card class="sample-form" *ngSwitchCase="'food'">
-            <ion-card-header>
-              Overview of activities for:
-            </ion-card-header>
-            <ion-card-content>
-              <canvas #piCanvas></canvas>
-            </ion-card-content>
+        <div  *ngSwitchCase="'food'">
+          <ion-card class="sample-form">
+            <ion-item>
+              <ion-label class="section-title">Maximum Cost per Meal ($):</ion-label>
+              <ion-select formControlName="maxcost" >
+                <ion-option class="section-title" value="10">10</ion-option>
+                <ion-option class="section-title" value="15">15</ion-option>
+                <ion-option class="section-title" value="20">20</ion-option>
+                <ion-option class="section-title" value="No Limit">No Limit</ion-option>
+              </ion-select>
+            </ion-item>            
+            <ion-item>
+              <ion-label class="section-title">Delivery/Carryout Preference</ion-label>
+              <ion-select  formControlName="deliveryoption">
+                <ion-option  value="Delivery">Delivery</ion-option>
+                <ion-option  value="Carry Out">Carry Out</ion-option>
+                <ion-option  value="Both">Both</ion-option>
+              </ion-select>
+            </ion-item>                          
+            <ion-item>
+              <ion-label class="section-title">Search Range (miles)</ion-label>
+              <ion-select formControlName="deliveryrange">
+                <ion-option  value="1">1</ion-option>
+                <ion-option  value="5">5</ion-option>
+                <ion-option  value="10">10</ion-option>
+              </ion-select>
+            </ion-item>                          
+            <ion-item>
+              <ion-label class="section-title">Apply to family</ion-label>
+              <ion-select formControlName="familyfood">
+                <ion-option  value="Y">Yes</ion-option>
+                <ion-option  value="N">No</ion-option>
+              </ion-select>
+            </ion-item>                          
           </ion-card>
 
-          <div *ngSwitchCase="'diet'">
+          <ion-card class="sample-form" >
+            <ion-row class="row-category">
+              <ion-label class="section-checkbox-label2">Category: <b>American</b>
+                <ion-checkbox formControlName="American" (click)="changeMaster('American')"></ion-checkbox>
+              </ion-label>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Bakeries
+                  <ion-checkbox formControlName="Bakeries" (click)="changeCategory('Bakeries','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Bar Food
+                    <ion-checkbox formControlName="Barfood"  (click)="changeCategory('Barfood','American')"></ion-checkbox>
+                  </ion-label>
+              </ion-col>
+            </ion-row>  
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Barbeque
+                  <ion-checkbox formControlName="Barbeque" (click)="changeCategory('Barbeque','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Breakfast
+                    <ion-checkbox formControlName="Breakfast"  (click)="changeCategory('Breakfast','American')"></ion-checkbox>
+                  </ion-label>
+              </ion-col>
+            </ion-row>  
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Burgers
+                  <ion-checkbox formControlName="Burgers" (click)="changeCategory('Burgers','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Cajun/Creole
+                  <ion-checkbox formControlName="Cajun"  (click)="changeCategory('Cajun','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>  
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Chickenhouse
+                  <ion-checkbox formControlName="Chickenhouse" (click)="changeCategory('Chickenhouse','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Delis/Sandwiches
+                    <ion-checkbox formControlName="Delis"  (click)="changeCategory('Delis','American')"></ion-checkbox>
+                   </ion-label>
+              </ion-col>
+            </ion-row>  
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Diners
+                  <ion-checkbox formControlName="Diners" (click)="changeCategory('Diners','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Hawaiian
+                  <ion-checkbox formControlName="Hawaiian"  (click)="changeCategory('Hawaiian','American')"></ion-checkbox>
+                  </ion-label>
+              </ion-col>
+            </ion-row>          
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Pizza
+                  <ion-checkbox formControlName="Pizza" (click)="changeCategory('Pizza','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Seafood
+                  <ion-checkbox formControlName="Seafood"  (click)="changeCategory('Seafood','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>  
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Southwest/Tex-Mex
+                  <ion-checkbox formControlName="Southwest" (click)="changeCategory('Southwest','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Steakhouse
+                  <ion-checkbox formControlName="Steakhouse"  (click)="changeCategory('Steakhouse','American')"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>  
+          </ion-card>
+
+          <ion-card class="sample-form" >
+              <ion-row class="row-category">
+                <ion-label class="section-checkbox-label2">Category: <b>Asian</b>
+                  <ion-checkbox formControlName="Asian" (click)="changeMaster('Asian')"></ion-checkbox>
+                </ion-label>
+              </ion-row>
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Chinese
+                    <ion-checkbox formControlName="Chinese" (click)="changeCategory('Chinese','Asian')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Japanese
+                      <ion-checkbox formControlName="Japanese"  (click)="changeCategory('Japanese','Asian')"></ion-checkbox>
+                    </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Korean
+                    <ion-checkbox formControlName="Korean" (click)="changeCategory('Korean','Asian')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Other East Asian
+                      <ion-checkbox formControlName="OtherAsian"  (click)="changeCategory('OtherAsian','Asian')"></ion-checkbox>
+                    </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Thai
+                    <ion-checkbox formControlName="Thai" (click)="changeCategory('Thai','Asian')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Vietnamese
+                    <ion-checkbox formControlName="Vietnamese"  (click)="changeCategory('Vietnamese','Asian')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+              </ion-row>  
+          </ion-card>
+  
+          <ion-card class="sample-form" >
+              <ion-row class="row-category">
+                <ion-label class="section-checkbox-label2">Category: <b>Latin American</b>
+                  <ion-checkbox formControlName="LatinAmerican" (click)="changeMaster('LatinAmerican')"></ion-checkbox>
+                </ion-label>
+              </ion-row>
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Argentinian
+                    <ion-checkbox formControlName="Argentinian" (click)="changeCategory('Argentinian','LatinAmerican')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Brazilian
+                      <ion-checkbox formControlName="Brazilian"  (click)="changeCategory('Brazilian','LatinAmerican')"></ion-checkbox>
+                    </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Caribbean
+                    <ion-checkbox formControlName="Caribbean" (click)="changeCategory('Caribbean','LatinAmerican')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Cuban
+                      <ion-checkbox formControlName="Cuban"  (click)="changeCategory('Cuban','LatinAmerican')"></ion-checkbox>
+                    </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Jamaican
+                    <ion-checkbox formControlName="Jamaican" (click)="changeCategory('Jamaican','LatinAmerican')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Mexican
+                    <ion-checkbox formControlName="Mexican"  (click)="changeCategory('Mexican','LatinAmerican')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Other
+                    <ion-checkbox formControlName="OtherLatin" (click)="changeCategory('OtherLatin','LatinAmerican')"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                </ion-col>
+              </ion-row>  
+            </ion-card>
+
+            <ion-card class="sample-form" >
+                <ion-row class="row-category">
+                  <ion-label class="section-checkbox-label2">Category: <b>Mediterranean and European</b>
+                    <ion-checkbox formControlName="Mediterranean" (click)="changeMaster('Mediterranean')"></ion-checkbox>
+                  </ion-label>
+                </ion-row>
+                <ion-row>
+                  <ion-col width-50>
+                    <ion-label class="section-checkbox-label">French
+                      <ion-checkbox formControlName="French" (click)="changeCategory('French','Mediterranean')"></ion-checkbox>
+                    </ion-label>
+                  </ion-col>
+                  <ion-col width-50>
+                      <ion-label class="section-checkbox-label">German
+                        <ion-checkbox formControlName="German"  (click)="changeCategory('German','Mediterranean')"></ion-checkbox>
+                      </ion-label>
+                  </ion-col>
+                </ion-row>  
+                <ion-row>
+                  <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Greek
+                      <ion-checkbox formControlName="Greek" (click)="changeCategory('Greek','Mediterranean')"></ion-checkbox>
+                    </ion-label>
+                  </ion-col>
+                  <ion-col width-50>
+                      <ion-label class="section-checkbox-label">Italian
+                        <ion-checkbox formControlName="Italian"  (click)="changeCategory('Italian','Mediterranean')"></ion-checkbox>
+                      </ion-label>
+                  </ion-col>
+                </ion-row>  
+                <ion-row>
+                  <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Russian
+                      <ion-checkbox formControlName="Russian" (click)="changeCategory('Russian','Mediterranean')"></ion-checkbox>
+                    </ion-label>
+                  </ion-col>
+                  <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Scandanavian
+                      <ion-checkbox formControlName="Scandanavian"  (click)="changeCategory('Scandanavian','Mediterranean')"></ion-checkbox>
+                    </ion-label>
+                  </ion-col>
+                </ion-row>  
+                <ion-row>
+                  <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Spanish/Tapas
+                      <ion-checkbox formControlName="Spanish" (click)="changeCategory('Spanish','Mediterranean')"></ion-checkbox>
+                    </ion-label>
+                  </ion-col>
+                  <ion-col width-50>
+                      <ion-label class="section-checkbox-label">United Kingdom
+                        <ion-checkbox formControlName="UK" (click)="changeCategory('UK','Mediterranean')"></ion-checkbox>
+                      </ion-label>
+                    </ion-col>
+                  </ion-row>  
+          </ion-card>
+
+          <ion-card class="sample-form" >
+              <ion-row class="row-category">
+                <ion-label class="section-checkbox-label2"><b>Other</b>
+                </ion-label>
+              </ion-row>
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">African
+                    <ion-checkbox formControlName="African"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                    <ion-label class="section-checkbox-label">Indian
+                      <ion-checkbox formControlName="Indian"></ion-checkbox>
+                    </ion-label>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                <ion-col width-50>
+                  <ion-label class="section-checkbox-label">Middle Eastern
+                    <ion-checkbox formControlName="MiddleEastern"></ion-checkbox>
+                  </ion-label>
+                </ion-col>
+                <ion-col width-50>
+                </ion-col>
+              </ion-row>  
+          </ion-card>
+
+          <ion-col no-padding  width-100>
+              <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty" (click)="saveData()">Save</button>
+          </ion-col>
+          <br>  
+
+
+        </div>
+
+        <div *ngSwitchCase="'diet'">
           <ion-card class="sample-form">
               <ion-item>
-                  <ion-label class="section-title">Calorie Limit per Entrée</ion-label>
-                  <ion-select [(ngModel)]="calorieLimit"[ngModelOptions]="{standalone: true}" >
+                  <ion-label class="section-title">Calorie Limit per Meal</ion-label>
+                  <ion-select formControlName="calorielimit">
                     <ion-option class="section-title" value="500">500</ion-option>
                     <ion-option class="section-title" value="750">750</ion-option>
                     <ion-option class="section-title" value="1000">1000</ion-option>
@@ -39,28 +347,140 @@
               </ion-item>            
               <ion-item>
                   <ion-label class="section-title">Meals per Entrée</ion-label>
-                  <ion-select [(ngModel)]="mealsEntree" [ngModelOptions]="{standalone: true}">
+                  <ion-select  formControlName="mealsperentreevalue">
                     <ion-option  value="1">1</ion-option>
                     <ion-option  value="2">2</ion-option>
                   </ion-select>
               </ion-item>                          
+              <ion-item>
+                <ion-label class="section-title">Apply to family</ion-label>
+                <ion-select  formControlName="familydiet">
+                  <ion-option  value="Y">Yes</ion-option>
+                  <ion-option  value="N">No</ion-option>
+                </ion-select>
+            </ion-item>                          
           </ion-card>
 
           <ion-card class="sample-form">
-              <ion-item>
-                  <ion-label class="section-title">Calorie limit</ion-label>
-                  <ion-select [(ngModel)]="calorieLimit2" [ngModelOptions]="{standalone: true}">
-                    <ion-option class="section-title" value="500">500</ion-option>
-                    <ion-option class="section-title" value="750">750</ion-option>
-                    <ion-option class="section-title" value="1000">1000</ion-option>
-                    <ion-option class="section-title" value="No Limit">No Limit</ion-option>
-                  </ion-select>
-              </ion-item>            
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">White Meat Only
+                  <ion-checkbox  formControlName="iswhitemeat"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Chicken Only
+                  <ion-checkbox  formControlName="ischicken"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Vegetarian
+                  <ion-checkbox  formControlName="isvegetarian"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Vegetarian No Egg
+                  <ion-checkbox formControlName="isvegetariannoegg"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Vegan
+                  <ion-checkbox formControlName="isvegan"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Pescatarian
+                  <ion-checkbox formControlName="ispescatarian"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">No Dairy
+                  <ion-checkbox formControlName="isavoiddairy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Gluten Free
+                  <ion-checkbox formControlName="isglutenfree"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Low Carb
+                  <ion-checkbox formControlName="islowcarb"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Heart Healthy
+                  <ion-checkbox formControlName="ishearthealthy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Low Sodium
+                  <ion-checkbox formControlName="islowsodium"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Low Sugar (GI)
+                  <ion-checkbox formControlName="islowglycemicindex"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Halal
+                  <ion-checkbox formControlName="ishalal"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Kosher
+                  <ion-checkbox formControlName="iskosher"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <br>
+            <ion-row>
+              <ion-label class="section-checkbox-label2">Major allergies captured in the Allergy section:</ion-label>              
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Fish Allergy
+                  <ion-checkbox formControlName="hasfishallergy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Shellfish Allergy
+                  <ion-checkbox formControlName="hasshellfishallergy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Peanut Allergy
+                  <ion-checkbox formControlName="haspeanutallergy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+              <ion-col width-50>
+                <ion-label class="section-checkbox-label">Nut Allergy
+                  <ion-checkbox formControlName="hasnutallergy"></ion-checkbox>
+                </ion-label>
+              </ion-col>
+            </ion-row>
+
           </ion-card>
 
           <ion-col no-padding  width-100>
-              <button ion-button block class="form-action-button" type="submit">Save</button>
-          </ion-col>  
+              <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty" (click)="saveData()">Save</button>
+          </ion-col>
+          <br>  
         </div>          
       </div>
     </div>

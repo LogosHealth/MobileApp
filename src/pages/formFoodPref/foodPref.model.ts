@@ -1,36 +1,45 @@
 import { phoneNumber } from "aws-sdk/clients/importexport";
 
 export class FoodPref {
-  recordid: number;
-  name: string;
-  description: string;
-  cost: number;
-  calories: number;
-  totalfat: number;
-  saturatedfat: number;
-  transfat: number;
-  sodium: number;
-  carbs: number;
-  caloriesfromfat: number;
-  protein: number;
-  cholesterol: number;
-  dietaryfiber: number;
-  sugars: number;
-  restaurantid:number;
-  restaurantname: string;
-  address: string;
-  city: string;
-  phone: phoneNumber
-  image: string;
+  foodpreferenceid: number;
+  maxcost: string;
+  deliveryrange: string;
+  deliveryoption: string;
+  familyfood: string;
+  dietpreferenceid: number;
+  calorielimit: string;
+  mealsperentreevalue: number;
+  iswhitemeat: string;
+  ischicken: string;
+  isvegetarian: string;
+  isvegetariannoegg: string;
+  isvegan: string;
+  ispescatarian: string;
+  isavoiddairy: string;
+  isglutenfree: string;
+  islowcarb: string;
+  ishearthealthy: string;
+  islowsodium: string;
+  islowglycemicindex: string;
+  ishalal: string;
+  iskosher: string;
+  haspeanutallergy: string;
+  hasnutallergy: string;
+  hasfishallergy: string;
+  hasshellfishallergy: string;
+  familydiet: string;
+  categories: FoodPrefCategoryModel;
 }
 export class FoodPrefModel {
   items: Array<FoodPref>;
 }
-export class FoodPrefFilter {
-  recordid: number;
-  name: string;
-  iscategory: string;
+export class FoodPrefCategory {
+  foodcategorypreferenceid: number;
+  categoryname: string;
+  ismaster: string;
+  master_category: string;
+  answervalue: string;
 }
-export class FoodPrefFilterModel {
-  items: Array<FoodPrefFilter>;
+export class FoodPrefCategoryModel {
+  items: Array<FoodPrefCategory>;
 }

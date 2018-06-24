@@ -7,6 +7,15 @@ formFoodPref-page {
 	{
 		background-color: color($colors, background, base);
 
+		.checkbox-md .checkbox-checked {
+			border-color: $theme-color-1;
+			background-color: $theme-color-1;
+		}
+
+		.checkbox-md .checkbox-icon {
+			border-color: $theme-color-1;
+		}
+
 		.form-action-button
 		{
 			margin: 0px;
@@ -45,7 +54,12 @@ formFoodPref-page {
 				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 			}
 
-            .section-title
+			.row-category    
+			{
+				border-bottom: 1px $theme-color-1 solid;
+            }           
+
+			.section-title
             {
                 font-size: 1.6rem;
                 line-height: 1.2;
@@ -56,7 +70,27 @@ formFoodPref-page {
                 margin: 0px;
             }           
 
+			.section-checkbox-label
+            {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: right;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 0px;
+            }           
 
+            .section-checkbox-label2
+            {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: left;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 5px;
+            }           
 			ion-item {
 				background-color: $white;
 				//@include basic-input-style(color($colors, background, base), $black-d, $white-d);
@@ -152,5 +186,6 @@ ion-select {
 
 		}
 	}
+
 }
 
