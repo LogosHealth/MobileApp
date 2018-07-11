@@ -23,12 +23,14 @@ import { List2Page } from '../pages/list-2/list-2';
 import { ListAllergiesPage } from '../pages/listAllergies/listAllergies';
 import { ListVaccinesPage } from '../pages/listVaccines/listVaccines';
 import { ListOrderPage } from '../pages/listOrder/listOrder';
+import { ListGoalsPage } from '../pages/listGoals/listGoals';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
 import { FormVaccinesPage } from '../pages/formVaccines/formVaccines';
 import { FormOrderPage } from '../pages/formOrder/formOrder';
 import { FormFoodPref } from '../pages/formFoodPref/formFoodPref';
+import { FormGoalsPage } from '../pages/formGoals/formGoals';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -53,6 +55,8 @@ import { ListVaccinesService } from '../pages/listVaccines/listVaccines.service'
 import { ListOrderService } from '../pages/listOrder/listOrder.service';
 import { SettingsService } from '../pages/settingstab/settingstab.service';
 import { FoodPrefService } from '../pages/formFoodPref/foodPref.service';
+import { ListGoalsService } from '../pages/listGoals/listGoals.service';
+import { DictionaryService } from '../pages/models/dictionary.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -107,12 +111,14 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListAllergiesPage,
     ListVaccinesPage,
     ListOrderPage,
+    ListGoalsPage,
 
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
     FormOrderPage,
     FormFoodPref,
+    FormGoalsPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -161,12 +167,14 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListAllergiesPage,
     ListVaccinesPage,
     ListOrderPage,
+    ListGoalsPage,
     
     GridPage,
     FormLayoutPage,
     FormVaccinesPage,
     FormOrderPage,
     FormFoodPref,
+    FormGoalsPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -190,6 +198,8 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListVaccinesService,
     ListOrderService,
     FoodPrefService,
+    ListGoalsService,
+    DictionaryService,
 
     ScheduleService,
     FacebookLoginService,

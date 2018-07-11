@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Goals Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="!newRec">Goal: {{ card_form.get('goalname').value }} <br/> Version: {{ card_form.get('version').value }}</h2>
+          <h2 class = "section-title" *ngIf="newRec">New Goal</h2>
+
+          <ion-row *ngIf="newRec">
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Goal Name</ion-label>
+                <ion-input type="text" formControlName="goalname"></ion-input>  
+              </ion-item>
+            </ion-col>
+          </ion-row>
+  
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Goal Type</ion-label>
+                <ion-select formControlName="goaltype" [disabled]="!newRec" (ionChange)="checkFromGoalType()">
+                    <ion-option>exercise</ion-option>
+                    <ion-option>task</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Days per Week</ion-label>
+                <ion-select formControlName="daysperweek">
+                    <ion-option *ngFor="let day of daysList" [value]="day.recordid">{{day.dictionarycode}}</ion-option>                
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Number of</ion-label>
+                <ion-input type="text" formControlName="goalnumber"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Units of Measure</ion-label>
+                <ion-select formControlName="goalunit">
+                    <ion-option *ngFor="let goalUnit of goalUnitList" [value]="goalUnit.recordid">{{goalUnit.dictionarycode}}</ion-option>                
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Reward</ion-label>
+                <ion-input type="text" formControlName="reward"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Reward Timing</ion-label>
+                <ion-select formControlName="rewardtiming">
+                    <ion-option *ngFor="let rewardTiming of rewardTimingList" [value]="rewardTiming.recordid">{{rewardTiming.dictionarycode}}</ion-option>                
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50> 
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
+            </ion-col>    
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

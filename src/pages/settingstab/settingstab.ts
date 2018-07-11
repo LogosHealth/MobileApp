@@ -5,6 +5,7 @@ import { NavController, LoadingController, Events } from 'ionic-angular';
 import { FormFoodPref } from '../formFoodPref/formFoodPref';
 
 import { List2Page } from '../list-2/list-2';
+import { ListGoalsPage } from '../listGoals/listGoals';
 
 import 'rxjs/Rx';
 import { SettingsModel } from './settingstab.model';
@@ -83,7 +84,9 @@ export class SettingsTabPage {
     console.log("Clicked goToFeed", category);
     if (category.title == 'Food Preferences') {
       this.nav.push(FormFoodPref, { category: category });
-    } else    {
+    } else if (category.title == 'Set Goals') {
+      this.nav.push(ListGoalsPage, { category: category });      
+    } else {
       this.nav.push(List2Page, { category: category });      
     }
   }
