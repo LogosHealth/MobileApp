@@ -29,27 +29,28 @@
             "image": "./assets/images/listing/200x200order2.jpg"
         },
         {
-            "title": "Invest in You",
-            "image": "./assets/images/listing/200x200invest.jpg"
-        },        {
+            "title": "Achieve",
+            "image": "./assets/images/listing/200x200weight.jpg"
+        },
+        {
             "title": "Nutrition",
             "image": "./assets/images/listing/200x200nutrition.jpg"
         },
+        {
+            "title": "Invest in You",
+            "image": "./assets/images/listing/200x200invest.jpg"
+        },        
         {
             "title": "Sleep",
             "image": "./assets/images/listing/200x200Sleep.jpg"
         },
         {
-            "title": "Daily Supplements",
-            "image": "./assets/images/listing/200x200supplements.jpg"
+            "title": "Measure",
+            "image": "./assets/images/listing/200x200weight2.jpg"
         },
         {
-            "title": "Current Medications",
+            "title": "Medications/Supplements",
             "image": "./assets/images/listing/200x200medication.jpg"
-        },
-        {
-            "title": "Achieve",
-            "image": "./assets/images/listing/200x200weight.jpg"
         },
         {
             "title": "Visit",

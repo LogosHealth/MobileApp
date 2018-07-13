@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Goals Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="!newRec">Exercise Type: {{ card_form.get('exercisetype').value }}</h2>
+          <h2 class = "section-title" *ngIf="newRec">Exercise</h2>
+
+          <ion-row *ngIf="newRec">
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Exercise Type</ion-label>
+                <ion-input type="text" formControlName="exercisetype"></ion-input>  
+              </ion-item>
+            </ion-col>
+          </ion-row>
+  
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Exercise Time</ion-label>
+                <ion-input type="text" formControlName="exercisetime"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Calories Burned</ion-label>
+                <ion-input type="number" formControlName="caloriesburnedvalue"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Reps</ion-label>
+                <ion-input type="number" formControlName="reps"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Distance</ion-label>
+                <ion-input type="text" formControlName="distance"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Goal Name</ion-label>
+                <ion-select formControlName="goalname" [disabled]="goalname !=='' &&  newRec">
+                    <ion-option *ngFor="let item of list2.items" [value]="item.goalname">{{item.goalname}}</ion-option>                
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="!newRec">
+                <ion-item>
+                  <ion-label floating>Date of Measure</ion-label>
+                  <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+                </ion-item>
+            </ion-col>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50> 
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>    
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -46,8 +46,8 @@ walkthrough-page {
 			.intro-image-row
 			{
 				@include justify-content(center);
-				margin-top: 90px;
-				margin-top: 16vh;
+				margin-top: 30px;
+				//margin-top: 16vh;
 			}
 
 			.main-title
@@ -55,7 +55,8 @@ walkthrough-page {
 				margin: 35px 20px 20px;
 				font-size: 3.4rem;
 				font-weight: 900;
-				font-style: italic;
+				font-family: "Myanmar Text";
+				//font-style: italic;
 				text-align: center;
 				color: $white;
 			}
@@ -63,7 +64,8 @@ walkthrough-page {
 			.intro-text
 			{
 				margin: 0px 20%;
-				font-size: 1.4rem;
+				font-size: 1.9rem;
+				font-family: "Myanmar Text";
 				line-height: 1.35;
 				text-align: center;
 				color: $white;

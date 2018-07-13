@@ -9,6 +9,8 @@ import { ListingService } from './listing.service';
 import { RestService } from '../../app/services/restService.service';
 
 import { ListOrderPage } from '../listOrder/listOrder';
+import { ListGoalProgressPage } from '../listGoalProgress/listGoalProgress';
+import { ListExercisePage } from '../listExercise/listExercise';
 
 
 @Component({
@@ -75,7 +77,11 @@ export class ListingPage {
     console.log("Clicked goToFeed", category);
     if (category.title == 'Order a Meal') {
       this.nav.push(ListOrderPage, { category: category });
-    } else    {
+    } else if (category.title == 'Achieve') {
+      this.nav.push(ListGoalProgressPage, { category: category });
+    } else if (category.title == 'Invest in You') {
+      this.nav.push(ListExercisePage, { category: category });
+    } else {
       this.nav.push(FeedPage, { category: category });
     }
   }

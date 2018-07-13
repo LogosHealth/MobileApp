@@ -51,8 +51,19 @@ export class RestService {
         console.log('testing');
     }
 
-    getDataByProfile (page: string, profileid: number) {
-        
+    curProfileObj (callback) {
+        var foundObj = false;
+        console.log("curProfileObj currentProfile:" + this.currentProfile);
+        console.log("curProfileObj profiles.length:" + this.Profiles.length);
+        for (var j = 0; j < this.Profiles.length; j++) { 
+            if (this.Profiles[j].profileid == this.currentProfile) {
+                foundObj = true;
+                callback(null, this.Profiles[j]); 
+            }
+        }
+        if (!foundObj) {
+            callback('No Active Profile', null); 
+        }    
     }
 
 }    
