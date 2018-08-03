@@ -24,10 +24,10 @@
               <p class = "item-description">Days Met: {{item.days_met}}</p><br/>
               <div  *ngFor="let day of list2[i].days;let j=index;" >
                 <div class = "item-description" *ngIf="day.daily_goal_met=='Y'">
-                  <ion-img src="assets/images/thumbsupGreen.jpg" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
+                  <ion-img [src]="thumbsUp" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
                 </div>
                 <div class = "item-description" *ngIf="day.daily_goal_met!=='Y'">
-                  <ion-img src="assets/images/whiteBox.jpg" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
+                  <ion-img [src]="whiteBox" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
                 </div>
               </div>
             </ion-col>  

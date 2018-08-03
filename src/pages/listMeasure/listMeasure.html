@@ -1,0 +1,61 @@
+<ion-header>
+    <ion-navbar>
+      <button ion-button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+      </button>
+      <ion-title>
+        <span>{{ feed.category.title }}</span>
+      </ion-title>
+      <ion-buttons right>
+        <button ion-button icon-only (click)="loadList('weight')">
+          <ion-icon name='body' *ngIf="multiTab"></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="loadList('mood')">
+          <ion-icon name='happy' *ngIf="multiTab"></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="loadList('bloodGlucose')">
+          <ion-icon name='water' *ngIf="multiTab"></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="addNew()">
+          <ion-icon name='add'></ion-icon>
+        </button>
+      </ion-buttons>  
+    </ion-navbar>
+  </ion-header>
+  
+<ion-content class="list-mini-content">
+  <div class="list-mini">
+    <ion-list>
+      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
+        <ion-row no-padding class="content-row one-line">
+          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='weight'">
+            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Weight {{item.weight}} {{item.unitofmeasure}} </p>
+          </ion-col>
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='mood'">
+            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Mood: {{item.mood}}</p>
+          </ion-col>
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='bloodGlucose' && item.labunittext !== null">
+            <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Result {{item.labresult}} {{item.labunittext}} </p>
+            <p class = "item-description" *ngIf="item.lowerrange !== null">Range {{item.lowerrange}} to {{item.upperrange}}</p>
+          </ion-col>
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='bloodGlucose' && item.labunittext == null">
+            <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Result {{item.labresult}}</p>
+            <p class = "item-description" *ngIf="item.lowerrange !== null">Range {{item.lowerrange}} to {{item.upperrange}}</p>
+          </ion-col>
+          <ion-col no-padding width-10 class="item-icon">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </ion-col>
+        </ion-row>
+      </button>
+    </ion-list>
+  </div>
+</ion-content>

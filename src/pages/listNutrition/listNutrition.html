@@ -21,13 +21,12 @@
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{item.exercisetype}}</h3>
-            <p class = "item-description">{{formatDateTime(item.dateofmeasure)}}</p>
-            <p class = "item-description" *ngIf="item.exercisetime !== null">Exercise Time: {{item.exercisetime}}</p>
-            <p class = "item-description" *ngIf="item.caloriesburned !== null">Calories Burned: {{item.caloriesburned}}</p>
-            <p class = "item-description" *ngIf="item.reps !== null">Reps: {{item.reps}}</p>
-            <p class = "item-description" *ngIf="item.distance !== null">Distance: {{item.distance}}</p>
-            <p class = "item-description" *ngIf="item.goalname !== null">Goal Name: {{item.goalname}}</p>
+            <h3 class="item-title">{{formatDateTime(item.dayofmeasure)}}</h3>
+            <div *ngFor="let item2 of item.meals;let j=index;">
+              <p class = "item-description" *ngIf="item2.calories !== null"><b>{{item2.meal}}:</b> {{item2.food}}, {{item2.calories}} Calories</p>
+              <p class = "item-description" *ngIf="item2.calories == null"><b>{{item2.meal}}:</b> {{item2.food}} </p>
+            </div>
+            <p class = "item-description" *ngIf="caloriesTotal(i) > 0"><b>Calories Total:</b> {{caloriesTotal(i)}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

@@ -34,15 +34,20 @@
           <preload-image [ratio]="{w:1, h:1}" src="./assets/images/LogosHealthLogo.png" alt="" title="Logos Health"></preload-image>
         </ion-col>
       </ion-row>
-      <h2 class="main-title"></h2>
-	   <p class="intro-text">
-        Combine with our Alexa app and <br/><a href="https://alexa.amazon.com/spa/index.html#skills/your-skills" target="_blank">"Speak to your Health!"</a><br/><br/>
-      </p>
+      <h2 class="main-title"><br/><br/></h2>
+
+      <div class="footer">
+	      <p class="intro-text">
+          Combine with our Alexa app and <br/><a href="https://alexa.amazon.com/spa/index.html#skills/your-skills" target="_blank">"Speak to your Health!"</a><br/><br/>
+        </p>
 	
-       <button (click)="login()" style="background-color:#8AC7A6" >
-      <img  alt="Login with Amazon"  src="https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gry_156x132.png" width="156" height="32" >
-       </button>
-       <script type="text/javascript">
+        <button (click)="login()" style="background-color:#8AC7A6" >
+          <img  alt="Login with Amazon"  src="https://images-na.ssl-images-amazon.com/images/G/01/lwa/btnLWA_gry_156x132.png" width="156" height="32" >
+        </button>
+      </div>
+
+      <script type="text/javascript">
+
         var diyvaENV = {};
         diyvaENV.LWA_CLIENT = "amzn1.application-oa2-client.c2eaafa3f5d3482eb28d055d582f3b71";
         diyvaENV.LWA_PROXY = "https://yiddishninja.github.io/LWA-proxy/index.html";

@@ -9,6 +9,7 @@ import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormGoalsPage } from '../../pages/formGoals/formGoals';
 import { FormExercisePage } from '../../pages/formExercise/formExercise';
+import { FormTaskPage } from '../../pages/formTask/formTask';
 
 var moment = require('moment');
 
@@ -25,6 +26,9 @@ export class ListGoalProgressDetailPage {
   resultData: any;
   recId: number;
   curRec: any;
+  freshForm: any;
+  whiteBox: any;
+  thumbsUp: any;
 
   constructor(
     public nav: NavController,
@@ -37,28 +41,34 @@ export class ListGoalProgressDetailPage {
     this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
     this.curRec = RestService.results[this.recId]; 
+    this.freshForm = false;
+    this.thumbsUp = "assets/images/thumbsupGreen.jpg";
+    this.whiteBox = "assets/images/whiteBox.jpg";
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
+    //console.log('ListGoalProgressDetail - ionViewWillEnter');
+    //this.loading.present();
+    if(!this.freshForm) {
+      var refresh = this.navParams.get('refresh') || false;
+      if (refresh) {
+        console.log('ListGoalProgressDetail - Reload data object');
+        this.curRec = this.RestService.results[this.recId]; 
+        this.loadData();
 
+      }
+    } else {
+      console.log('ListGoalProgressDetail - ionViewWillEnter - Fresh Form');
+      this.freshForm = false;
+      //this.loading.dismiss();
+    }
   }
 
   ionViewDidLoad() {
+    console.log('ListGoalProgressDetail - ionViewDidLoad');
     this.loading.present();
+    this.freshForm = true;
     this.loadData();
-    /*
-    this.list2Service
-      .getData()
-      .then(data => {
-        this.list2.items = this.RestService.results;
-        alert('Allergy Response: ' + this.RestService.results);   
-        alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        this.loading.dismiss();
-      });
-      */
   }
 
   loadData() {
@@ -72,22 +82,30 @@ export class ListGoalProgressDetailPage {
     this.nav.push(FormGoalsPage, { recId: recordId });
     //alert('Open Record:' + recordId);
   }  
+
   shortDate(dateString) {
-    return moment(dateString).format("MMMM DD");
+    //console.log('Short Date Date: '+ dateString);
+    //console.log(moment.utc(dateString).format("MMMM DD"));
+
+    return moment.utc(dateString).format("MMMM DD");
   }
 
   shortEndDate(dateStartString, dateEndString) {
-    if (moment(dateStartString).format("MMMM") !== moment(dateEndString).format("MMMM")) {
-      return moment(dateEndString).format("MMMM DD");
+    //console.log('Short EndDate Date: '+ dateEndString);
+    if (moment.utc(dateStartString).format("MMMM") !== moment.utc(dateEndString).format("MMMM")) {
+      return moment.utc(dateEndString).format("MMMM DD");
     } else {
-      return moment(dateEndString).format("DD");
+      return moment.utc(dateEndString).format("DD");
     }
   }
 
-  addToday(item) {
-    
+  addToday(item) {    
     if (this.curRec.goaltype =='exercise') {
-      this.nav.push(FormExercisePage, { goalname: this.curRec.goalname });
+      var blnRefresh = new Boolean;
+      blnRefresh = false;
+      this.nav.push(FormExercisePage, { goalname: this.curRec.goalname, refresh: blnRefresh});
+    } else if (this.curRec.goaltype =='task') {
+      this.nav.push(FormTaskPage, { goalname: this.curRec.goalname, refresh: blnRefresh});
     } else {
       alert('Goal type: ' + this.curRec.goaltype);    
     }

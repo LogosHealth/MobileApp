@@ -27,6 +27,10 @@ import { ListGoalsPage } from '../pages/listGoals/listGoals';
 import { ListGoalProgressPage } from '../pages/listGoalProgress/listGoalProgress';
 import { ListGoalProgressDetailPage } from '../pages/listGoalProgressDetail/listGoalProgressDetail';
 import { ListExercisePage } from '../pages/listExercise/listExercise';
+import { ListSleepPage } from '../pages/listSleep/listSleep';
+import { ListMeasurePage } from '../pages/listMeasure/listMeasure';
+import { ListLabsPage } from '../pages/listLabs/listLabs';
+import { ListNutritionPage } from '../pages/listNutrition/listNutrition';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -35,6 +39,12 @@ import { FormOrderPage } from '../pages/formOrder/formOrder';
 import { FormFoodPref } from '../pages/formFoodPref/formFoodPref';
 import { FormGoalsPage } from '../pages/formGoals/formGoals';
 import { FormExercisePage } from '../pages/formExercise/formExercise';
+import { FormTaskPage } from '../pages/formTask/formTask';
+import { FormSleepPage } from '../pages/formSleep/formSleep';
+import { FormWeightPage } from '../pages/formWeight/formWeight';
+import { FormMoodPage } from '../pages/formMood/formMood';
+import { FormLabsPage } from '../pages/formLabs/formLabs';
+import { FormNutritionPage } from '../pages/formNutrition/formNutrition';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -62,6 +72,11 @@ import { FoodPrefService } from '../pages/formFoodPref/foodPref.service';
 import { ListGoalsService } from '../pages/listGoals/listGoals.service';
 import { DictionaryService } from '../pages/models/dictionary.service';
 import { ListExerciseService } from '../pages/listExercise/listExercise.service';
+import { FormTaskService } from '../pages/formTask/formTask.service';
+import { ListSleepService } from '../pages/listSleep/listSleep.service';
+import { ListMeasureService } from '../pages/listMeasure/listMeasure.service';
+import { ListLabsService } from '../pages/listLabs/listLabs.service';
+import { ListNutritionService } from '../pages/listNutrition/listNutrition.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -120,6 +135,10 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListGoalProgressPage,
     ListGoalProgressDetailPage,
     ListExercisePage,
+    ListSleepPage,
+    ListMeasurePage,
+    ListLabsPage,
+    ListNutritionPage,
 
     GridPage,
     FormLayoutPage,
@@ -128,6 +147,12 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormFoodPref,
     FormGoalsPage,
     FormExercisePage,
+    FormTaskPage,
+    FormSleepPage,
+    FormWeightPage,
+    FormMoodPage,
+    FormLabsPage,
+    FormNutritionPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -180,6 +205,10 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListGoalProgressPage,
     ListGoalProgressDetailPage,
     ListExercisePage,
+    ListSleepPage,
+    ListMeasurePage,
+    ListLabsPage,
+    ListNutritionPage,
 
     GridPage,
     FormLayoutPage,
@@ -188,7 +217,13 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormFoodPref,
     FormGoalsPage,
     FormExercisePage,
-    
+    FormTaskPage,
+    FormSleepPage,
+    FormWeightPage,
+    FormMoodPage,
+    FormLabsPage,
+    FormNutritionPage,
+
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -214,6 +249,11 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListGoalsService,
     DictionaryService,
     ListExerciseService,
+    FormTaskService,
+    ListSleepService,
+    ListMeasureService,
+    ListLabsService,
+    ListNutritionService,
 
     ScheduleService,
     FacebookLoginService,

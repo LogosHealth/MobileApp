@@ -46,7 +46,7 @@ walkthrough-page {
 			.intro-image-row
 			{
 				@include justify-content(center);
-				margin-top: 30px;
+				margin-top: 20px;
 				//margin-top: 16vh;
 			}
 
@@ -69,6 +69,10 @@ walkthrough-page {
 				line-height: 1.35;
 				text-align: center;
 				color: $white;
+			}
+			.footer
+			{
+				vertical-align: bottom;
 			}
 		}
 

@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Labs Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="confirmRecord()">
+        <section class="form-section">
+          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Lab Record</h2>
+ 
+          <ion-row *ngIf="newRec">
+            <ion-col>
+              <ion-item>
+                <ion-label floating>Lab Name</ion-label>
+                <ion-select formControlName="labname">
+                  <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>                
+              </ion-select>
+            </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="!newRec">
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Lab Name</ion-label>
+                <ion-select formControlName="labname">
+                  <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>                
+              </ion-select>
+            </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Result</ion-label>
+                <ion-input type="text" formControlName="labresult"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50  *ngIf="unitList !== undefined">
+                <ion-item>
+                    <ion-label floating>Unit</ion-label>
+                    <ion-select formControlName="labunit">
+                      <ion-option *ngFor="let unit of unitList"(ionSelect)="labUnitChange(unit)" [value]="unit.recordid">{{unit.dictionarycode}}</ion-option>                
+                  </ion-select>
+                </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="unitList == undefined">
+                <ion-item>
+                  <ion-label floating>Unit</ion-label>
+                  <ion-input type="text" formControlName="labunittext"></ion-input>
+                </ion-item>
+            </ion-col>
+          </ion-row>            
+          <ion-row>
+              <ion-col no-padding width-50>
+                  <ion-item>
+                      <ion-label floating>Lower Range</ion-label>
+                      <ion-input type="text" formControlName="lowerrange"></ion-input>
+                    </ion-item>    
+              </ion-col>
+              <ion-col no-padding width-50>
+                <ion-item>
+                  <ion-label floating>Upper Range</ion-label>
+                  <ion-input type="text" formControlName="upperrange"></ion-input>
+                </ion-item>
+              </ion-col>
+          </ion-row>  
+        </section>
+        <section class="form-section">
+          <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-40>
+                <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid">Confirm</button>
+            </ion-col>
+            <ion-col no-padding width-30>
+              <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
+          </ion-col>
+          <ion-col no-padding width-30> 
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
+          </ion-col>    
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

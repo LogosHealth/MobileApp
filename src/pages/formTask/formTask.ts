@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { ListExerciseModel, ListExercise } from '../../pages/listExercise/listExercise.model';
+import { FormTaskModel, FormTask } from '../../pages/formTask/formTask.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
@@ -11,12 +11,12 @@ var moment = require('moment-timezone');
 
 @Component({
   selector: 'formExercise-page',
-  templateUrl: 'formExercise.html'
+  templateUrl: 'formTask.html'
 })
-export class FormExercisePage {
+export class FormTaskPage {
   loading: any;
   section: string;
-  formName: string = "formExercise";
+  formName: string = "formTask";
   recId: number;
   goalname: string;
   card_form: FormGroup;
@@ -24,8 +24,8 @@ export class FormExercisePage {
   goal_schedule: FormGroup;
   curRec: any;
   newRec: boolean = false;
-  goalsModelSave: ListExerciseModel  = new ListExerciseModel();
-  exerciseSave: ListExercise = new ListExercise();
+  taskModelSave: FormTaskModel  = new FormTaskModel();
+  taskSave: FormTask = new FormTask();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
@@ -38,7 +38,7 @@ export class FormExercisePage {
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
     if (this.goalname == undefined) {
-      //alert('No goal name');
+      alert('No goal name');
       this.goalname = "";
     }  
 
@@ -55,22 +55,11 @@ export class FormExercisePage {
 
     //add caloriesburnedvalue generator    
     if (this.recId !== undefined) {
-      var cbSplit;
-      var numCB = null;
-      if(this.curRec.caloriesburned !== undefined && this.curRec.caloriesburned !== null && this.curRec.caloriesburned !== "") {
-        var cbSplit = this.curRec.caloriesburned.split(" ");                                 
-        if (Number(cbSplit[0]) !== NaN) {
-          numCB = cbSplit[0];
-        }
-      }
  
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        exercisetype: new FormControl(this.curRec.exercisetype, Validators.required),
-        exercisetime: new FormControl(this.curRec.exercisetime),
-        caloriesburned: new FormControl(this.curRec.caloriesburned),
-        caloriesburnedvalue: new FormControl(numCB, Validators.min(0)),
-        distance: new FormControl(this.curRec.distance),
+        taskname: new FormControl(this.curRec.taskname, Validators.required),
+        tasktime: new FormControl(this.curRec.tasktime),
         reps: new FormControl(this.curRec.reps),
         goalname: new FormControl(this.curRec.goalname),
         goalid: new FormControl(this.curRec.goalid),
@@ -83,11 +72,8 @@ export class FormExercisePage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        exercisetype: new FormControl("", Validators.required),
-        exercisetime: new FormControl(),
-        caloriesburned: new FormControl(),
-        caloriesburnedvalue: new FormControl("", Validators.min(0)),
-        distance: new FormControl(),
+        taskname: new FormControl("", Validators.required),
+        tasktime: new FormControl(),
         reps: new FormControl(),
         goalname: new FormControl(this.goalname),
         goalid: new FormControl(),
@@ -133,7 +119,7 @@ export class FormExercisePage {
     var additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
-            goaltype: 'exercise'
+            goaltype: 'task'
           }
     };
     var body = '';
@@ -177,11 +163,11 @@ export class FormExercisePage {
           handler: () => {
             console.log('Delete clicked');
             //alert('Going to delete');
-            this.exerciseSave.recordid = this.card_form.get('recordid').value;
-            this.exerciseSave.profileid = this.RestService.currentProfile;
-            this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-            this.exerciseSave.active = 'N';
-            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
+            this.taskSave.recordid = this.card_form.get('recordid').value;
+            this.taskSave.profileid = this.RestService.currentProfile;
+            this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+            this.taskSave.active = 'N';
+            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
     
             var config = {
               invokeUrl: restURL,
@@ -202,16 +188,15 @@ export class FormExercisePage {
                     profileid: this.RestService.currentProfile,
                 }
             };
-            var body = JSON.stringify(this.exerciseSave);
+            var body = JSON.stringify(this.taskSave);
             var self = this;
         
-            console.log('Calling Post', this.exerciseSave);    
+            console.log('Calling Post', this.taskSave);    
             apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
             .then(function(result){
               self.RestService.results = result.data;
               console.log('Happy Path: ' + self.RestService.results);
               self.category.title = "Invest in You";
-              //self.nav.push(ListVaccinesPage, { category: self.category });      
               self.nav.pop();      
             }).catch( function(result){
               console.log('Result: ',result);
@@ -227,67 +212,51 @@ export class FormExercisePage {
   saveRecord(){
     //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
-      this.exerciseSave.recordid = this.card_form.get('recordid').value;
-      this.exerciseSave.profileid = this.RestService.currentProfile;
-      this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.exerciseSave.active = 'Y'; 
-      if (this.card_form.get('exercisetime').dirty){
-        this.exerciseSave.exercisetime = this.card_form.get('exercisetime').value;
-      }
-      if (this.card_form.get('exercisetype').dirty){
-        this.exerciseSave.exercisetype = this.card_form.get('exercisetype').value;
-      }
-      if (this.card_form.get('caloriesburnedvalue').dirty){
-        this.exerciseSave.caloriesburned = this.card_form.get('caloriesburnedvalue').value;
-      }
-      if (this.card_form.get('distance').dirty){
-        this.exerciseSave.distance = this.card_form.get('distance').value;
+      this.taskSave.recordid = this.card_form.get('recordid').value;
+      this.taskSave.profileid = this.RestService.currentProfile;
+      this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+      this.taskSave.active = 'Y'; 
+      if (this.card_form.get('tasktime').dirty){
+        this.taskSave.tasktime = this.card_form.get('tasktime').value;
       }
       if (this.card_form.get('reps').dirty){
-        this.exerciseSave.reps = this.card_form.get('reps').value;
+        this.taskSave.reps = this.card_form.get('reps').value;
       }
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
-        this.exerciseSave.goalname = this.card_form.get('goalname').value;
+        this.taskSave.goalname = this.card_form.get('goalname').value;
       }      
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        this.exerciseSave.timezone = this.userTimezone;
+        this.taskSave.timezone = this.userTimezone;
       }      
     } else {
-      this.exerciseSave.exercisetype = this.card_form.get('exercisetype').value;
-      this.exerciseSave.profileid = this.RestService.currentProfile;
-      this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.exerciseSave.active = 'Y'; 
-      if (this.card_form.get('exercisetime').dirty){
-        this.exerciseSave.exercisetime = this.card_form.get('exercisetime').value;
-      }
-      if (this.card_form.get('caloriesburnedvalue').dirty){
-        this.exerciseSave.caloriesburned = this.card_form.get('caloriesburnedvalue').value;
-      }
-      if (this.card_form.get('distance').dirty){
-        this.exerciseSave.distance = this.card_form.get('distance').value;
+      this.taskSave.taskname = this.card_form.get('taskname').value;
+      this.taskSave.profileid = this.RestService.currentProfile;
+      this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+      this.taskSave.active = 'Y'; 
+      if (this.card_form.get('tasktime').dirty){
+        this.taskSave.tasktime = this.card_form.get('tasktime').value;
       }
       if (this.card_form.get('reps').dirty){
-        this.exerciseSave.reps = this.card_form.get('reps').value;
+        this.taskSave.reps = this.card_form.get('reps').value;
       }
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
-        this.exerciseSave.goalname = this.card_form.get('goalname').value;
-      }
+        this.taskSave.goalname = this.card_form.get('goalname').value;
+      }      
       if (this.card_form.get('dateofmeasure').dirty){
         if (this.userTimezone !== undefined) {
-          console.log("dateofmeasure: " + this.card_form.get('dateofmeasure').value);
           var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
           var dtDET = moment(this.card_form.get('dateofmeasure').value);
         }        
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
-        this.exerciseSave.dateofmeasure = dtDET.utc().toISOString();
+        this.taskSave.dateofmeasure = dtDET.utc().toISOString();
       }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        this.exerciseSave.timezone = this.userTimezone;
+        this.taskSave.timezone = this.userTimezone;
       }      
     }
     
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
     
     var config = {
       invokeUrl: restURL,
@@ -308,10 +277,10 @@ export class FormExercisePage {
             profileid: this.RestService.currentProfile
         }
     };
-    var body = JSON.stringify(this.exerciseSave);
+    var body = JSON.stringify(this.taskSave);
     var self = this;
 
-    console.log('Calling Post', this.exerciseSave);    
+    console.log('Calling Post', this.taskSave);    
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -411,7 +380,7 @@ export class FormExercisePage {
     } else {
       var startofWeek = moment(momentNow).subtract(offSet, 'days');
     }
-    //console.log('Start of Week: ' + startofWeek);
+    console.log('Start of Week: ' + startofWeek);
     return startofWeek.format("YYYY-MM-DD");
   }
 }

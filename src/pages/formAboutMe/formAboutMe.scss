@@ -1,0 +1,191 @@
+formAboutMe-page {
+	ion-header {
+		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
+	}
+
+	.forms-examples-content
+	{
+		background-color: color($colors, background, base);
+
+		.checkbox-md .checkbox-checked {
+			border-color: $theme-color-1;
+			background-color: $theme-color-1;
+		}
+
+		.checkbox-md .checkbox-icon {
+			border-color: $theme-color-1;
+		}
+
+		.form-action-button
+		{
+			margin: 0px;
+			margin-top: 20px;
+
+			@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
+		}
+
+		.forms-examples-segment
+		{
+			
+			padding: 0px 0px;
+			//background-color: $white;
+			@include element-shadow();
+			@include segment-button-styles($theme-color-1);
+
+			.segment-button
+			{
+				@include segment-text-styles($black-d);
+				background-color: $white;
+				//color: $theme-color-2;
+				&.segment-activated
+				{
+					color: $theme-color-1;
+					background-color: $white;
+				}
+			}
+		}
+
+
+		.sample-form
+		{
+			.form-section
+			{
+				padding: 0px 0px;
+				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+			}
+
+			.row-category    
+			{
+				border-bottom: 1px $theme-color-1 solid;
+            }           
+
+			.section-title
+            {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                //text-align: center;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 0px;
+            }           
+
+			.section-checkbox-label
+            {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: right;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 0px;
+            }           
+
+            .section-checkbox-label2
+            {
+                font-size: 1.6rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: left;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 5px;
+            }           
+			ion-item {
+				background-color: $white;
+				//@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+
+				&.item
+				{
+					//margin-top: 14px;
+
+					&.item-label-floating
+					{
+						margin-top: 0px;
+
+						ion-label {
+							color: $white-d;
+						}
+					}
+
+					.item-inner
+					{
+						ion-icon {
+							color: $theme-color-2;
+						}
+					}
+				}
+
+				&:first-of-type {
+					margin-top: 0px;
+				}
+			}
+
+		}
+
+	}
+}
+
+ion-select {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    overflow: hidden;
+	max-width: 45%;
+	color: $black-d;
+}
+
+.alert-md [aria-checked=true] .alert-radio-icon {
+    border-color:$theme-color-1;
+}
+
+.alert-md [aria-checked=true] .alert-radio-inner {
+	background-color: $theme-color-1;
+}
+
+.alert-md [aria-checked=true] .alert-radio-label {
+    color: $theme-color-1;
+}
+.alert-md  .alert-wrapper {
+	background-color: $theme-color-1;
+
+	.alert-title
+	{
+		font-size: 2.0rem;
+		line-height: 1.2;
+		letter-spacing: 1.1px;
+		color: $white;
+		font-weight: 500;
+	}
+
+	.alert-message
+	{
+		color: $white;
+	}
+
+	.alert-radio-group
+	{
+		color: $white;
+
+		.alert-radio-button {
+			background: $white;	
+		}
+	}
+	
+	.alert-button-group
+	{
+		padding: 14px 0px;
+
+		.alert-button
+		{
+			@include segment-text-styles($white-d);
+			border-top: none;
+		  	border-right-color: rgba($white-d, 0.3);
+			font-weight: 400;
+			color: $white;
+
+		}
+	}
+
+}
+

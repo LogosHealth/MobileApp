@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Exercise Form</ion-title>
+    <ion-title>Task Form</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -9,14 +9,14 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
-          <h2 class = "section-title" *ngIf="!newRec">Exercise Type: {{ card_form.get('exercisetype').value }}</h2>
-          <h2 class = "section-title" *ngIf="newRec">Exercise</h2>
+          <h2 class = "section-title" *ngIf="!newRec">Task Name: {{ card_form.get('taskname').value }}</h2>
+          <h2 class = "section-title" *ngIf="newRec">Task</h2>
 
-          <ion-row>
+          <ion-row *ngIf="newRec">
             <ion-col no-padding>
               <ion-item>
-                <ion-label floating>Exercise Type</ion-label>
-                <ion-input type="text" formControlName="exercisetype"></ion-input>  
+                <ion-label floating>Task Name</ion-label>
+                <ion-input type="text" formControlName="taskname"></ion-input>  
               </ion-item>
             </ion-col>
           </ion-row>
@@ -24,30 +24,16 @@
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
-                <ion-label floating>Exercise Time</ion-label>
-                <ion-input type="text" formControlName="exercisetime"></ion-input>
+                <ion-label floating>Task Time</ion-label>
+                <ion-input type="text" formControlName="tasktime"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Calories Burned</ion-label>
-                <ion-input type="number" formControlName="caloriesburnedvalue"></ion-input>
-              </ion-item>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Reps</ion-label>
-                <ion-input type="number" formControlName="reps"></ion-input>
-              </ion-item>
-            </ion-col>
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Distance</ion-label>
-                <ion-input type="text" formControlName="distance"></ion-input>
-              </ion-item>
-            </ion-col>
+                <ion-item>
+                  <ion-label floating>Reps</ion-label>
+                  <ion-input type="number" formControlName="reps"></ion-input>
+                </ion-item>
+            </ion-col>  
           </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
@@ -70,7 +56,7 @@
                 <ion-datetime displayFormat="MMM-DD-YY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
           </ion-col>
-          </ion-row>
+        </ion-row>
         </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">

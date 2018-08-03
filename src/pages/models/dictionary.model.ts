@@ -11,6 +11,8 @@ export class DictionaryItem {
   recordid: number;
   fieldname: string;
   dictionarycode: string;
+  defaultSelection: string;
+  dictionary: Array<DictionaryItem>
 }
 
 export class DictionaryModel {

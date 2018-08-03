@@ -1,0 +1,195 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>About Me</ion-title>
+ </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveData()">
+    <div class="card-example-view">
+        <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="confirmRecord()">
+          <section class="form-section">
+            <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Lab Record</h2>   
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>First Name</ion-label>
+                    <ion-input type="text" formControlName="firstname"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Last Name</ion-label>
+                    <ion-input type="text" formControlName="lastname"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>SSN</ion-label>
+                    <ion-input type="text" formControlName="ssn"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Primary User</ion-label>
+                    <ion-checkbox formControlName="primaryflag"></ion-checkbox>
+                  </ion-item>
+                </ion-col>
+              </ion-row>  
+              <ion-row>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label floating>Address</ion-label>
+                      <ion-input type="text" formControlName="address"></ion-input>
+                    </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-60>
+                  <ion-item>
+                    <ion-label floating>City</ion-label>
+                    <ion-input type="text" formControlName="city"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-15>
+                  <ion-item>
+                    <ion-label floating>State</ion-label>
+                    <ion-select formControlName="labunit">
+                        <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.dictionarycode}}</ion-option>                
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-25>
+                  <ion-item>
+                    <ion-label floating>Zip Code</ion-label>
+                    <ion-input type="text" formControlName="zipcode"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Phone Number</ion-label>
+                    <ion-input type="text" formControlName="phonenumber"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Timezone</ion-label>
+                    <ion-input type="text" formControlName="timezone" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                  <ion-col>
+                    <ion-item>
+                      <ion-label floating>Emergency Contact Name</ion-label>
+                      <ion-input type="text" formControlName="emergencycontactname"></ion-input>
+                    </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Phone Number</ion-label>
+                    <ion-input type="text" formControlName="emergencycontactnumber"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Relation</ion-label>
+                    <ion-input type="text" formControlName="emergencycontactrelation"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Insurance Name</ion-label>
+                    <ion-input type="text" formControlName="insurancename"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Insurance Number</ion-label>
+                    <ion-input type="text" formControlName="insurancenumber"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50 *ngIf="!primary">
+                  <ion-item>
+                    <ion-label floating>Relation to Primary</ion-label>
+                    <ion-select formControlName="relationtoprimary">
+                        <ion-option *ngFor="let relation of relationList" [value]="relation.recordid">{{relation.dictionarycode}}</ion-option>                
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-25 *ngIf="!primary">
+                  <ion-item>
+                    <ion-label floating>Medical Consent</ion-label>
+                    <ion-checkbox formControlName="medicalconsent"></ion-checkbox>
+                  </ion-item>
+                </ion-col>
+                  <ion-col no-padding width-25 *ngIf="isChild">
+                  <ion-item>
+                    <ion-label floating>Adopted</ion-label>
+                    <ion-checkbox formControlName="biologicalparent"></ion-checkbox>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Birthdate</ion-label>
+                    <ion-datetime displayFormat="MMM-DD-YY" [min]="getMinDayDate()" [max]="today()"  formControlName="birthdate" ></ion-datetime>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Age</ion-label>
+                    <ion-input type="text" formControlName="age" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              
+  
+
+              
+
+
+            <ion-row>
+              <ion-col no-padding width-50  *ngIf="unitList !== undefined">
+                  <ion-item>
+                      <ion-label floating>Unit</ion-label>
+                      <ion-select formControlName="labunit">
+                        <ion-option *ngFor="let unit of unitList"(ionSelect)="labUnitChange(unit)" [value]="unit.recordid">{{unit.dictionarycode}}</ion-option>                
+                    </ion-select>
+                  </ion-item>
+              </ion-col>
+              <ion-col no-padding width-50 *ngIf="unitList == undefined">
+                  <ion-item>
+                    <ion-label floating>Unit</ion-label>
+                    <ion-input type="text" formControlName="labunittext"></ion-input>
+                  </ion-item>
+              </ion-col>
+            </ion-row>            
+
+          </section>
+          <section class="form-section">
+            <ion-row no-padding class="multi-input-row">
+              <ion-col no-padding width-40>
+                  <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid">Confirm</button>
+              </ion-col>
+              <ion-col no-padding width-30>
+                <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
+            </ion-col>
+            <ion-col no-padding width-30> 
+                <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
+            </ion-col>    
+           </ion-row>
+          </section>
+        </form>
+      </div>
+  </ion-content>

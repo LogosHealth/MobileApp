@@ -1,12 +1,9 @@
 import { String } from "aws-sdk/clients/lexruntime";
 
-export class ListExercise {
+export class FormTask {
   recordid: number;
-  exercisetype: string;
-  exercisetime:string;
-  caloriesburned: string;
-  caloriesburnedvalue: number;
-  distance: string;
+  taskname: string;
+  tasktime:string;
   reps: number;
   goalname: string;
   goalid: number;
@@ -18,6 +15,6 @@ export class ListExercise {
   timezone: string;
 }
 
-export class ListExerciseModel {
-  items: Array<ListExercise>;
+export class FormTaskModel {
+  items: Array<FormTask>;
 }

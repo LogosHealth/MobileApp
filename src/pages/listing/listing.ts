@@ -11,6 +11,9 @@ import { RestService } from '../../app/services/restService.service';
 import { ListOrderPage } from '../listOrder/listOrder';
 import { ListGoalProgressPage } from '../listGoalProgress/listGoalProgress';
 import { ListExercisePage } from '../listExercise/listExercise';
+import { ListSleepPage } from '../listSleep/listSleep';
+import { ListMeasurePage } from '../listMeasure/listMeasure';
+import { ListNutritionPage } from '../listNutrition/listNutrition';
 
 
 @Component({
@@ -81,6 +84,12 @@ export class ListingPage {
       this.nav.push(ListGoalProgressPage, { category: category });
     } else if (category.title == 'Invest in You') {
       this.nav.push(ListExercisePage, { category: category });
+    } else if (category.title == 'Sleep') {
+      this.nav.push(ListSleepPage, { category: category });
+    } else if (category.title == 'Measure') {
+      this.nav.push(ListMeasurePage, { category: category });
+    } else if (category.title == 'Nutrition') {
+      this.nav.push(ListNutritionPage, { category: category });
     } else {
       this.nav.push(FeedPage, { category: category });
     }

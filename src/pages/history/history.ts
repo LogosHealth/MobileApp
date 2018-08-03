@@ -5,6 +5,7 @@ import { NavController, LoadingController, Events } from 'ionic-angular';
 import { List2Page } from '../list-2/list-2';
 import { ListAllergiesPage } from '../listAllergies/listAllergies';
 import { ListVaccinesPage } from '../listVaccines/listVaccines';
+import { ListLabsPage } from '../listLabs/listLabs';
 
 import 'rxjs/Rx';
 import { HistoryModel } from './history.model';
@@ -82,6 +83,8 @@ export class HistoryPage {
       this.nav.push(ListAllergiesPage, { category: category });
     } else if (category.title == 'Vaccines') {
       this.nav.push(ListVaccinesPage, { category: category });
+    } else if (category.title == 'Lab/Test Results') {
+      this.nav.push(ListLabsPage, { category: category });
     } else    {
       this.nav.push(List2Page, { category: category });      
     }

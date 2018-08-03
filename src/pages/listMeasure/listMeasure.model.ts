@@ -1,0 +1,25 @@
+import { String } from "aws-sdk/clients/lexruntime";
+
+export class ListMeasure {
+  recordid: number;
+  weight: number;
+  mood: string;
+  labname: number;
+  labresult: string;
+  labnametext: string;
+  labunittext: string;
+  labunit: number;
+  lowerrange:string;
+  upperrange:string;
+  unitofmeasure:string;
+  dateofmeasure: string;
+  active: string;
+  confirmed: string;
+  profileid: number;
+  userid: number;
+  timezone: string;
+}
+
+export class ListMeasureModel {
+  items: Array<ListMeasure>;
+}
