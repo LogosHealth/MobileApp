@@ -29,6 +29,7 @@ export class FormExercisePage {
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
+  saving: boolean = false;
 
   categories_checkbox_open: boolean;
   categories_checkbox_result;
@@ -177,6 +178,7 @@ export class FormExercisePage {
           handler: () => {
             console.log('Delete clicked');
             //alert('Going to delete');
+            this.saving = true;
             this.exerciseSave.recordid = this.card_form.get('recordid').value;
             this.exerciseSave.profileid = this.RestService.currentProfile;
             this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
@@ -225,6 +227,7 @@ export class FormExercisePage {
   }
 
   saveRecord(){
+    this.saving = true;
     //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.exerciseSave.recordid = this.card_form.get('recordid').value;
@@ -414,4 +417,34 @@ export class FormExercisePage {
     //console.log('Start of Week: ' + startofWeek);
     return startofWeek.format("YYYY-MM-DD");
   }
+
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    }
+  }
+  
+  confirmLeave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Exit without Saving',
+      message: 'Do you want to exit without saving?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => resolveLeaving(false)
+        },
+        {
+          text: 'Yes',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }  
+  
 }

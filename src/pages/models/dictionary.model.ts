@@ -10,7 +10,9 @@ export class Dictionary {
 export class DictionaryItem {
   recordid: number;
   fieldname: string;
+  value: string;
   dictionarycode: string;
+  codeddictionary: string;
   defaultSelection: string;
   dictionary: Array<DictionaryItem>
 }

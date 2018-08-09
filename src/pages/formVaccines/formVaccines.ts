@@ -18,6 +18,8 @@ export class FormVaccinesPage {
   vaccine_array: FormArray;
   vaccine_schedule: FormGroup;
   curRec: any;
+  saving: boolean = false;
+
   vaccineModelSave: ListVaccinesModel  = new ListVaccinesModel();
   vaccineSave: ListVaccines = new ListVaccines();
   vaccineSched: ListVaccineSchedule = new ListVaccineSchedule();
@@ -87,6 +89,7 @@ export class FormVaccinesPage {
   }
 
   confirmRecord(){
+    this.saving = true;
     this.vaccineSave.schedules = [];
     this.vaccineSave.recordid = this.card_form.get('recordid').value;
     this.vaccineSave.confirmed = 'Y';
@@ -176,6 +179,7 @@ export class FormVaccinesPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
+            this.saving = true;
             //alert('Going to delete');
             this.vaccineSave.schedules = [];
             this.vaccineSave.recordid = this.card_form.get('recordid').value;
@@ -224,6 +228,7 @@ export class FormVaccinesPage {
   }
 
   saveRecord(){
+    this.saving = true;
     //alert('Save Button Selected');
     this.vaccineSave.schedules = [];
     this.vaccineSave.recordid = this.card_form.get('recordid').value;
@@ -303,5 +308,34 @@ export class FormVaccinesPage {
   public today() {
     return new Date().toISOString().substring(0,10);
   }
+
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    }
+  }
+  
+  confirmLeave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Exit without Saving',
+      message: 'Do you want to exit without saving?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => resolveLeaving(false)
+        },
+        {
+          text: 'Yes',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }  
 
 }

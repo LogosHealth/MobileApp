@@ -24,6 +24,8 @@ export class FormTaskPage {
   goal_schedule: FormGroup;
   curRec: any;
   newRec: boolean = false;
+  saving: boolean = false;
+
   taskModelSave: FormTaskModel  = new FormTaskModel();
   taskSave: FormTask = new FormTask();
   category: HistoryItemModel = new HistoryItemModel();
@@ -162,6 +164,7 @@ export class FormTaskPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
+            this.saving = true;
             //alert('Going to delete');
             this.taskSave.recordid = this.card_form.get('recordid').value;
             this.taskSave.profileid = this.RestService.currentProfile;
@@ -210,6 +213,7 @@ export class FormTaskPage {
   }
 
   saveRecord(){
+    this.saving = true;
     //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.taskSave.recordid = this.card_form.get('recordid').value;
@@ -383,4 +387,34 @@ export class FormTaskPage {
     console.log('Start of Week: ' + startofWeek);
     return startofWeek.format("YYYY-MM-DD");
   }
+
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    }
+  }
+  
+  confirmLeave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Exit without Saving',
+      message: 'Do you want to exit without saving?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => resolveLeaving(false)
+        },
+        {
+          text: 'Yes',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }  
+
 }

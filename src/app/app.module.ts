@@ -1,5 +1,5 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { IonicApp, IonicModule } from 'ionic-angular';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler } from '@angular/core';
+import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { MyApp } from './app.component';
 
 import { ListingPage } from '../pages/listing/listing';
@@ -45,6 +45,7 @@ import { FormWeightPage } from '../pages/formWeight/formWeight';
 import { FormMoodPage } from '../pages/formMood/formMood';
 import { FormLabsPage } from '../pages/formLabs/formLabs';
 import { FormNutritionPage } from '../pages/formNutrition/formNutrition';
+import { FormAboutMe } from '../pages/formAboutMe/formAboutMe';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -77,6 +78,7 @@ import { ListSleepService } from '../pages/listSleep/listSleep.service';
 import { ListMeasureService } from '../pages/listMeasure/listMeasure.service';
 import { ListLabsService } from '../pages/listLabs/listLabs.service';
 import { ListNutritionService } from '../pages/listNutrition/listNutrition.service';
+import { AboutMeService } from '../pages/formAboutMe/formAboutMe.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -106,6 +108,8 @@ import { ContactCardPage } from '../pages/contact-card/contact-card';
 import { FacebookLoginService } from '../pages/facebook-login/facebook-login.service';
 import { GoogleLoginService } from '../pages/google-login/google-login.service';
 import { GoogleMapsService } from '../pages/maps/maps.service';
+
+import { TextMaskModule } from 'angular2-text-mask';
 
 @NgModule({
   declarations: [
@@ -153,6 +157,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormMoodPage,
     FormLabsPage,
     FormNutritionPage,
+    FormAboutMe,
 
     FiltersPage,
     TermsOfServicePage,
@@ -175,6 +180,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     BrowserModule,
     HttpClientModule,
     HttpModule,
+    TextMaskModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
@@ -223,6 +229,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     FormMoodPage,
     FormLabsPage,
     FormNutritionPage,
+    FormAboutMe,
 
     FiltersPage,
     TermsOfServicePage,
@@ -254,7 +261,8 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     ListMeasureService,
     ListLabsService,
     ListNutritionService,
-
+    AboutMeService,
+    
     ScheduleService,
     FacebookLoginService,
     GoogleLoginService,
@@ -271,7 +279,7 @@ import { GoogleMapsService } from '../pages/maps/maps.service';
     Geolocation,
     EmailComposer,
     //MM 3-29-18 Implementing as global Provider 
-    RestService
+    RestService,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

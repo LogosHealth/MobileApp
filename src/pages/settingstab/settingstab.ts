@@ -3,9 +3,9 @@ import { NavController, LoadingController, Events } from 'ionic-angular';
 
 //import { FeedPage } from '../feed/feed';
 import { FormFoodPref } from '../formFoodPref/formFoodPref';
-
 import { List2Page } from '../list-2/list-2';
 import { ListGoalsPage } from '../listGoals/listGoals';
+import { FormAboutMe } from '../formAboutMe/formAboutMe';
 
 import 'rxjs/Rx';
 import { SettingsModel } from './settingstab.model';
@@ -86,6 +86,8 @@ export class SettingsTabPage {
       this.nav.push(FormFoodPref, { category: category });
     } else if (category.title == 'Set Goals') {
       this.nav.push(ListGoalsPage, { category: category });      
+    } else if (category.title == 'About Me') {
+      this.nav.push(FormAboutMe, { category: category });      
     } else {
       this.nav.push(List2Page, { category: category });      
     }

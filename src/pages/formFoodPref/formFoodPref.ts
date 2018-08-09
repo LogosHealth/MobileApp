@@ -23,6 +23,8 @@ export class FormFoodPref {
   FoodPrefModel: FoodPrefModel = new FoodPrefModel();
   category: HistoryItemModel = new HistoryItemModel();
   loading: any;
+  saving: boolean = false;
+
   categoryKey = []; 
   controlKey = [];
   control2Category = [];
@@ -916,6 +918,7 @@ export class FormFoodPref {
    
     //savePref: saveCategory: savePrefModel: saveCategoryModel: 
     //alert('Begin Save');
+    this.saving = true;
     saveCategoryModel = new FoodPrefCategoryModel();
     saveCategoryModel.items = new Array<FoodPrefCategory>();
     this.savePref = new FoodPref();
@@ -1011,4 +1014,35 @@ export class FormFoodPref {
         console.log(body);
       });
     }
+  
+    async ionViewCanLeave() {
+      if (!this.saving && this.card_form.dirty) {
+        const shouldLeave = await this.confirmLeave();
+        return shouldLeave;
+      }
+    }
+    
+    confirmLeave(): Promise<Boolean> {
+      let resolveLeaving;
+      const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+      const alert = this.alertCtrl.create({
+        title: 'Exit without Saving',
+        message: 'Do you want to exit without saving?',
+        buttons: [
+          {
+            text: 'No',
+            role: 'cancel',
+            handler: () => resolveLeaving(false)
+          },
+          {
+            text: 'Yes',
+            handler: () => resolveLeaving(true)
+          }
+        ]
+      });
+      alert.present();
+      return canLeave
+    }  
+      
+
 }

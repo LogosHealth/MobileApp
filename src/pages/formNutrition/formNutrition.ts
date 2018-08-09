@@ -26,6 +26,8 @@ export class FormNutritionPage {
   goal_schedule: FormGroup;
   curRec: any;
   newRec: boolean = false;
+  saving: boolean = false;
+
   formModelSave: ListNutritionModel  = new ListNutritionModel();
   formDaySave: ListNutritionDay = new ListNutritionDay(); 
   formSave: ListNutrition = new ListNutrition(); 
@@ -94,6 +96,7 @@ export class FormNutritionPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
+            this.saving = true;
             //alert('Going to delete');
             this.formDaySave.meals = [];
             mealsArray = this.card_form.get('meals') as FormArray;            
@@ -164,6 +167,7 @@ export class FormNutritionPage {
     var isDirty = false;
     var dtDET;
 
+    this.saving = true;
     this.formDaySave.meals = new Array<ListNutrition>() ;
     mealsArray = this.card_form.get('meals') as FormArray;            
     for (var j = 0; j < mealsArray.length; j++) {
@@ -341,4 +345,33 @@ export class FormNutritionPage {
     return startofWeek.format("YYYY-MM-DD");
   }
 
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    }
+  }
+  
+  confirmLeave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Exit without Saving',
+      message: 'Do you want to exit without saving?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => resolveLeaving(false)
+        },
+        {
+          text: 'Yes',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }  
+  
 }

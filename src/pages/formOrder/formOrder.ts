@@ -19,6 +19,8 @@ export class FormOrderPage {
   form_array: FormArray;
   form_group: FormGroup;
   curRec: any;
+  saving: boolean = false;
+
   modelSave: ListOrderModel  = new ListOrderModel();
   listSave: ListOrder = new ListOrder();
   category: HistoryItemModel = new HistoryItemModel();
