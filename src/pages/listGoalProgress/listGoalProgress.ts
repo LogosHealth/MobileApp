@@ -1,14 +1,16 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 
 import 'rxjs/Rx';
 
-import { ListGoalsModel, ListGoals } from '../../pages/listGoals/listGoals.model';
+import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { RestService } from '../../app/services/restService.service';
 import { ListGoalProgressDetailPage } from '../../pages/listGoalProgressDetail/listGoalProgressDetail';
 import { HistoryItemModel } from '../../pages/history/history.model';
+
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'listGoalsPage',
@@ -33,30 +35,19 @@ export class ListGoalProgressPage {
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  }
-
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loadData();
-    /*
-    this.list2Service
-      .getData()
-      .then(data => {
-        this.list2.items = this.RestService.results;
-        alert('Allergy Response: ' + this.RestService.results);   
-        alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        this.loading.dismiss();
-      });
-      */
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listGoalProgress');
+      this.RestService.appRestart();
+    }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
@@ -90,19 +81,14 @@ export class ListGoalProgressPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Goals: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
-      });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
+      });      
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {

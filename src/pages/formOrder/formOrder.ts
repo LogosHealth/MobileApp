@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { NavController, SegmentButton, NavParams, AlertController, Form } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { counterRangeValidator } from '../../components/counter-input/counter-input';
+import { NavController, NavParams, AlertController} from 'ionic-angular';
+import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListOrderModel, ListOrder } from '../../pages/listOrder/listOrder.model';
-import { ListOrderPage } from '../listOrder/listOrder';
-import { HistoryModel, HistoryItemModel } from '../../pages/history/history.model';
+import { HistoryItemModel } from '../../pages/history/history.model';
 import { CallNumber } from '@ionic-native/call-number';
 
 @Component({

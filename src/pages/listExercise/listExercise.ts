@@ -1,4 +1,4 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 
@@ -42,25 +42,16 @@ export class ListExercisePage {
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  }
-
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loadData();
-    /*
-    this.list2Service
-      .getData()
-      .then(data => {
-        this.list2.items = this.RestService.results;
-        alert('Allergy Response: ' + this.RestService.results);   
-        alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        this.loading.dismiss();
-      });
-      */
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
 
   loadData() {
@@ -98,9 +89,8 @@ export class ListExercisePage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Goals: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
       

@@ -20,13 +20,7 @@ export class TabsNavigationPage {
   constructor(public RestService:RestService, private event: Events) {
     this.tab1Root = ListingPage;
     this.tab2Root = HistoryPage;
-    this.tab3Root = SettingsTabPage;
-    //alert("From Main Page: Cognito ID" + this.RestService.AuthData.cognitoId);
-    //alert('Expiration Date from Main: ' + this.RestService.AuthData.expiration);
-    //alert('Check ProfileID from Main: ' + this.RestService.Profiles[0].profileid);
-    //alert('Device id: ' + window.device.uuid);
-    //alert('Check Name from Main: ' + this.RestService.Profiles[0].title + " " + this.RestService.Profiles[0].image);
-    
+    this.tab3Root = SettingsTabPage;    
   }  
 
   tabSelect(root: any) {

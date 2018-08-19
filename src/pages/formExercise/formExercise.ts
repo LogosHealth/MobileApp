@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListExerciseModel, ListExercise } from '../../pages/listExercise/listExercise.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
@@ -53,7 +53,6 @@ export class FormExercisePage {
       }
     });
 
-
     //add caloriesburnedvalue generator    
     if (this.recId !== undefined) {
       var cbSplit;
@@ -101,14 +100,17 @@ export class FormExercisePage {
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.nav.getPrevious().data.refresh = false;
-    this.loadData();
-  }
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loadData();
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.nav.getPrevious().data.refresh = false;
+      this.loadData();
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
 
   loadData() {
@@ -145,18 +147,15 @@ export class FormExercisePage {
       self.RestService.results = result.data;
       self.list2Service
       .getData()
-      .then(data => {
-        self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
-        self.loading.dismiss();
-      });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
+        .then(data => {
+          self.list2.items = self.RestService.results;
+          console.log("Results Data for Get Goals: ", self.list2.items);
+          self.RestService.refreshCheck();
+          self.loading.dismiss();
+        });
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -164,7 +163,7 @@ export class FormExercisePage {
   deleteRecord(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
-      message: 'Do you certain you want to delete this record?',
+      message: 'Are you certain you want to delete this record?',
       buttons: [
         {
           text: 'Cancel',
@@ -177,48 +176,54 @@ export class FormExercisePage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            //alert('Going to delete');
-            this.saving = true;
-            this.exerciseSave.recordid = this.card_form.get('recordid').value;
-            this.exerciseSave.profileid = this.RestService.currentProfile;
-            this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-            this.exerciseSave.active = 'N';
-            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-    
-            var config = {
-              invokeUrl: restURL,
-              accessKey: this.RestService.AuthData.accessKeyId,
-              secretKey: this.RestService.AuthData.secretKey,
-              sessionToken: this.RestService.AuthData.sessionToken,
-              region:'us-east-1'
-            };
+            var dtNow = moment(new Date());
+            var dtExpiration = moment(this.RestService.AuthData.expiration);
         
-            var apigClient = this.RestService.AWSRestFactory.newClient(config);
-            var params = {        
-              //pathParameters: this.vaccineSave
-            };
-            var pathTemplate = '';
-            var method = 'POST';
-            var additionalParams = {
+            if (dtNow < dtExpiration) {
+              //alert('Going to delete');
+              this.saving = true;
+              this.exerciseSave.recordid = this.card_form.get('recordid').value;
+              this.exerciseSave.profileid = this.RestService.currentProfile;
+              this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+              this.exerciseSave.active = 'N';
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
+    
+              var config = {
+                invokeUrl: restURL,
+                accessKey: this.RestService.AuthData.accessKeyId,
+                secretKey: this.RestService.AuthData.secretKey,
+                sessionToken: this.RestService.AuthData.sessionToken,
+                region:'us-east-1'
+              };
+        
+              var apigClient = this.RestService.AWSRestFactory.newClient(config);
+              var params = {        
+              };
+              var pathTemplate = '';
+              var method = 'POST';
+              var additionalParams = {
                 queryParams: {
                     profileid: this.RestService.currentProfile,
                 }
-            };
-            var body = JSON.stringify(this.exerciseSave);
-            var self = this;
+              };
+              var body = JSON.stringify(this.exerciseSave);
+              var self = this;
         
-            console.log('Calling Post', this.exerciseSave);    
-            apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-            .then(function(result){
-              self.RestService.results = result.data;
-              console.log('Happy Path: ' + self.RestService.results);
-              self.category.title = "Invest in You";
-              //self.nav.push(ListVaccinesPage, { category: self.category });      
-              self.nav.pop();      
-            }).catch( function(result){
-              console.log('Result: ',result);
-              console.log(body);
-            });        
+              console.log('Calling Post', this.exerciseSave);    
+              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+                .then(function(result){
+                  self.RestService.results = result.data;
+                  console.log('Happy Path: ' + self.RestService.results);
+                  self.category.title = "Invest in You";
+                  self.nav.pop();      
+                }).catch( function(result){
+                  console.log('Result: ',result);
+                  console.log(body);
+                });        
+            } else {
+              console.log('Need to login again!!! - Credentials expired from formExercise - Delete');
+              this.RestService.appRestart();
+            }
           }
         }
       ]
@@ -290,41 +295,49 @@ export class FormExercisePage {
       }      
     }
     
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
     
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-      //pathParameters: this.vaccineSave
-    };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
-    };
-    var body = JSON.stringify(this.exerciseSave);
-    var self = this;
-
-    console.log('Calling Post', this.exerciseSave);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-      self.category.title = "Invest in You";
-      self.loadData2();
-    }).catch( function(result){
-      console.log('Result: ',result);
-      console.log(body);
-    });
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+  
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.exerciseSave);
+      var self = this;
+  
+      console.log('Calling Post', this.exerciseSave);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        self.category.title = "Invest in You";
+        self.loadData2();
+      }).catch( function(result){
+        console.log('Result: ',result);
+        console.log(body);
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
 
   loadData2() {

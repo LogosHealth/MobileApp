@@ -12,6 +12,8 @@ import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
 import { RestService } from '../../app/services/restService.service';
 
+var moment = require('moment-timezone');
+
 @Component({
   selector: 'listing-page',
   templateUrl: 'settingstab.html',
@@ -63,6 +65,20 @@ export class SettingsTabPage {
       });
   }
 
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
+
+    if (dtDiff <= 0) {
+    	console.log('Need to login again!!! - Credentials expired from settingstab');
+    	this.RestService.appRestart();
+    } else if (dtDiff < 30) {
+    	console.log('Calling Refresh Credentials from settingstab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
+    	this.RestService.refreshCredentials();
+    }
+  }
+
   setCurrentProfile(profileid: any) {
     //alert('Start setCurrentProfile');
     for (var i = 0; i < this.listing.populars.length; i++) {
@@ -87,7 +103,7 @@ export class SettingsTabPage {
     } else if (category.title == 'Set Goals') {
       this.nav.push(ListGoalsPage, { category: category });      
     } else if (category.title == 'About Me') {
-      this.nav.push(FormAboutMe, { category: category });      
+      this.nav.push(FormAboutMe, { category: category, homePage: this });      
     } else {
       this.nav.push(List2Page, { category: category });      
     }
@@ -98,6 +114,45 @@ export class SettingsTabPage {
     this.event.publish('ProfileChangeFromSettings', profileID);
 
     //alert("Profile selected: " + this.RestService.currentProfile);
+  }
+
+  refreshProfiles() {
+    alert('Refresh Profiles called!');
+    console.log('Refresh Profiles called!');
+    var self = this;
+    var email = this.RestService.AuthData.email;
+        
+    var config = {
+      invokeUrl: "https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetProfilesByEmail",
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      email: email
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+          email: email
+        }
+    };
+    var body = '';
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      //console.log(result.data);
+      var resultData = JSON.stringify(result.data);
+      self.RestService.Profiles = result.data;
+      console.log('Body: ', resultData); 
+      self.listing.populars = self.RestService.Profiles;
+        //This is where you would put a success callback
+    }).catch( function(result){
+        console.log(body);
+    });
   }
 
 }

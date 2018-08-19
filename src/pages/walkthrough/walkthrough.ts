@@ -26,15 +26,6 @@ interface AccountProfile {
 @Component({
   selector: 'walkthrough-page',
   templateUrl: 'walkthrough.html',
-  //selector: 'app-root',
-//  template: `
-//      <ul *ngIf="AccountProfiles$ | async as profiles else noData">
-//          <li *ngFor="let profile of profiles">
-//              {{profle.profileId}}
-//              {{profle.firstname}}
-//          </li> 
-//      </ul>
-//      <ng-template #noData>No Data Available</ng-template>`
 })
 
 export class WalkthroughPage implements OnInit {
@@ -57,16 +48,7 @@ export class WalkthroughPage implements OnInit {
     var token = accountInfo.getSessionToken();
     var accessKey = accountInfo.getAccessKeyId();
     var secretKey = accountInfo.getSecretKey(); 
-    var cognitoId = accountInfo.getCognitoId();
-
-    //alert("Token: " + token);
-    //console.log("Token: " + token);
-    //alert("AccessKey: " + accessKey);
-    //console.log("AccessKey: " + accessKey);
-    //alert("SecretKey: " + secretKey);
-    //console.log("SecretKey: " + secretKey);
-    //alert("Cognito ID: " + cognitoId);
-    //console.log("Cognito ID: " + cognitoId);
+    //var cognitoId = accountInfo.getCognitoId();
         
     var config = {
       invokeUrl: "https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetProfilesByEmail",
@@ -82,14 +64,8 @@ export class WalkthroughPage implements OnInit {
     var pathTemplate = '';
     var method = 'GET';
     var additionalParams = {
-//        headers: {
-          //"x-api-key": accountInfo.getSessionToken()
-          //'Access-Control-Allow-Methods':'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT',
-          //'Access-Control-Allow-Origin': '*',
-          //'Access-Control-Allow-Headers':'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'
-  //      },
         queryParams: {
-            email: accountInfo.getEmail()
+            email: email
         }
     };
     var body = '';
@@ -102,18 +78,15 @@ export class WalkthroughPage implements OnInit {
       console.log('Body: ', resultData);   
       self.nav.setRoot(self.main_page.component);    
       self.loading.dismiss();
-      //self.nav.push(LoginPage);
-
-        //This is where you would put a success callback
     }).catch( function(result){
         console.log(body);
     });
-
-    //this.goToLogin();
   }
   
   ngOnInit () {
     //alert("ngOnInit begin");
+    this.RestService.nav = this.nav;
+    this.RestService.alertCtrl = this.alertCtrl;
     var self = this;
     accountInfo = this.accountInfoObj(function(key, email) {
       if (key !== "" && email !=="") {

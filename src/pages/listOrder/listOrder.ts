@@ -1,4 +1,4 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FormControl } from '@angular/forms';
 import { FeedModel } from '../feed/feed.model';
@@ -10,7 +10,9 @@ import { ListOrderModel, ListFilterModel } from './listOrder.model';
 import { ListOrderService } from './listOrder.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormOrderPage } from '../../pages/formOrder/formOrder';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+//import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'listOrderPage',
@@ -46,12 +48,22 @@ export class ListOrderPage {
 
   ionViewDidLoad() {
     //alert('Begin:' + this.searchTerm);
-    this.loading.present();
-    this.loadData();
-    this.searchControl.valueChanges.debounceTime(700).subscribe(search => {
-      //alert('Working');
-      this.setFilteredItems();
-    });
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();
+      this.searchControl.valueChanges.debounceTime(700).subscribe(search => {
+        //alert('Working');
+        this.setFilteredItems();
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listOrder');
+      this.RestService.appRestart();
+    }
+
+
   }
 
   loadData() {
@@ -89,10 +101,8 @@ export class ListOrderPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        self.loading.dismiss();
+        self.RestService.refreshCheck();       
+        self.loading.dismiss();       
       });
       
       //alert('Async Check from Invoke: ' + self.RestService.results);   
@@ -100,7 +110,6 @@ export class ListOrderPage {
     }).catch( function(result){
         console.log(body);
     });
-
 
     var restURLFilter: string;
     restURLFilter="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetMealFilterList";
@@ -124,7 +133,6 @@ export class ListOrderPage {
         }
     };
     var body2 = '';
-    var self2 = this;
 
     apigClient2.invokeApi(params2, pathTemplate2, method2, additionalParams2, body2)
     .then(function(result){
@@ -133,7 +141,6 @@ export class ListOrderPage {
       .then(data => {
         self.listFilter.items = result.data;
         this.setFilteredItems();
-       
       });
       
       //alert('Async Check from Invoke: ' + self.RestService.results);   

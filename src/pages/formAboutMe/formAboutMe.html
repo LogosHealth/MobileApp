@@ -17,13 +17,13 @@
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
-                    <ion-label floating>First Name</ion-label>
+                    <ion-label floating>First Name*</ion-label>
                     <ion-input type="text" formControlName="firstname"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-50>
                   <ion-item>
-                    <ion-label floating>Last Name</ion-label>
+                    <ion-label floating>Last Name*</ion-label>
                     <ion-input type="text" formControlName="lastname"></ion-input>
                   </ion-item>
                 </ion-col>
@@ -38,8 +38,8 @@
                 <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label floating>Primary User</ion-label>
-                    <ion-select formControlName="primaryflag" [disabled]="primary">
-                      <ion-option class="section-title" value="Y">Yes</ion-option>
+                    <ion-select formControlName="primaryflag" [disabled]="primary || !primaryEligible">
+                      <ion-option class="section-title" (ionSelect)="confirmPrimaryChange()" value="Y">Yes</ion-option>
                       <ion-option class="section-title" value="N">No</ion-option>
                     </ion-select>
                 </ion-item>
@@ -49,7 +49,7 @@
               <ion-row no-padding width-50 *ngIf="!primary">
                 <ion-col>
                   <ion-item>
-                    <ion-label floating>Address</ion-label>
+                    <ion-label floating>Address**</ion-label>
                     <ion-input type="text" formControlName="streetaddress"></ion-input>
                   </ion-item>
               </ion-col>
@@ -62,7 +62,7 @@
               <ion-row no-padding  *ngIf="primary">
                   <ion-col>
                     <ion-item>
-                      <ion-label floating>Address</ion-label>
+                      <ion-label floating>Address**</ion-label>
                       <ion-input type="text" formControlName="streetaddress"></ion-input>
                     </ion-item>
                 </ion-col>
@@ -71,13 +71,13 @@
               <ion-row>
                 <ion-col no-padding width-60>
                   <ion-item>
-                    <ion-label floating>City</ion-label>
+                    <ion-label floating>City**</ion-label>
                     <ion-input type="text" formControlName="city"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-15>
                   <ion-item>
-                    <ion-label floating>State</ion-label>
+                    <ion-label floating>State**</ion-label>
                     <ion-select formControlName="state">
                         <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
                     </ion-select>
@@ -85,7 +85,7 @@
                 </ion-col>
                 <ion-col no-padding width-25>
                   <ion-item>
-                    <ion-label floating>Zip Code</ion-label>
+                    <ion-label floating>Zip Code**</ion-label>
                     <ion-input type="text"  maxlength="5" pattern="[0-9]{5}" formControlName="zipcode"></ion-input>
                   </ion-item>
                 </ion-col>
@@ -168,7 +168,7 @@
               <ion-row>
                 <ion-col no-padding width-50 *ngIf="!primary">
                   <ion-item>
-                    <ion-label floating>Relation to Primary</ion-label>
+                    <ion-label floating>Relation to Primary*</ion-label>
                     <ion-select formControlName="relationtoprimary">
                         <ion-option *ngFor="let relation of relationList" (ionSelect)="relationChange(relation)" [value]="relation.recordid">{{relation.dictionarycode}}</ion-option>                
                     </ion-select>
@@ -212,7 +212,7 @@
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
-                    <ion-label floating>Birthdate</ion-label>
+                    <ion-label floating>Birthdate*</ion-label>
                     <ion-datetime displayFormat="MMM-DD-YYYY" [min]="1900-01-01" [max]="today()" (ionChange)="changeBDay()" formControlName="birthdate" ></ion-datetime>
                   </ion-item>
                 </ion-col>
@@ -294,18 +294,19 @@
                 </ion-row>
               </div>
             </div> 
-            
+            <p class="section-footnote">*Required to Save Profile</p>
+            <p class="section-footnote">**Required to Confirm Profile and for Order a Meal capability</p>
           </section>
           <section class="form-section">
             <ion-row no-padding class="multi-input-row">
               <ion-col no-padding width-40>
-                  <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid">Confirm</button>
+                  <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid || confirmed">Confirm</button>
               </ion-col>
               <ion-col no-padding width-30>
-                <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
+                <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="checkSaveEnabled()">Save</button>
             </ion-col>
             <ion-col no-padding width-30> 
-                <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="primary">Inactivate</button>
+                <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="primary || newUser">Inactivate</button>
             </ion-col>    
            </ion-row>
           </section>

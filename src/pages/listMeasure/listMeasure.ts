@@ -1,4 +1,4 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 
@@ -47,30 +47,25 @@ export class ListMeasurePage {
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    if (this.curObj == 'mood') {
-      this.loadDataMood();
-    } else if (this.curObj == 'bloodGlucose') {
-      this.loadDataBG();
-    } else {
-      this.loadData();
-    }
-  }
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  ionViewDidLoad() {
-    this.loading.present();
-    if (this.curObj == 'mood') {
-      this.loadDataMood();
-    } else if (this.curObj == 'bloodGlucose') {
-      this.loadDataBG();
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      if (this.curObj == 'mood') {
+        this.loadDataMood();
+      } else if (this.curObj == 'bloodGlucose') {
+        this.loadDataBG();
+      } else {
+        this.loadData();
+      }
     } else {
-      this.loadData();
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
     }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/WeightByProfile";
@@ -104,24 +99,18 @@ export class ListMeasurePage {
       .then(data => {
         self.list2.items = self.RestService.results;
         self.curObj = "weight";
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Weight: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-
   }
 
   loadDataBG() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
@@ -156,20 +145,18 @@ export class ListMeasurePage {
       .then(data => {
         self.list2.items = self.RestService.results;
         self.curObj = "bloodGlucose";
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for loadDataBG: ", self.list2.items);
+        console.log("Results Data for loadDataBG: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   loadDataMood() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
@@ -203,13 +190,13 @@ export class ListMeasurePage {
       .then(data => {
         self.list2.items = self.RestService.results;
         self.curObj = "mood";
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for loadDataMood: ", self.list2.items);
+        console.log("Results Data for loadDataMood: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }

@@ -6,6 +6,9 @@ export class ListAllergies {
   severity: string;
   medicallyconfirmed: string;
   confirmed: string;
+  active: string;
+  profileid: number;
+  userid: number;
 }
 export class ListAllergiesModel {
   items: Array<ListAllergies>;

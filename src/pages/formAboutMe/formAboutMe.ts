@@ -1,17 +1,15 @@
 import { Component } from '@angular/core';
-import { NavController, SegmentButton, NavParams, AlertController, Form,  LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule, FormBuilder } from '@angular/forms';
-import { counterRangeValidator } from '../../components/counter-input/counter-input';
+import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { AboutMe, RaceCode, LatestHeight, LatestWeight } from '../../pages/formAboutMe/formAboutMe.model';
+import { AboutMe, RaceCode, LatestHeight, LatestWeight, PrimaryUser } from '../../pages/formAboutMe/formAboutMe.model';
 import { AboutMeService } from '../../pages/formAboutMe/formAboutMe.service';
-import { HistoryModel, HistoryItemModel } from '../../pages/history/history.model';
-import { DictionaryModel, Dictionary, DictionaryItem } from '../../pages/models/dictionary.model';
+import { HistoryItemModel } from '../../pages/history/history.model';
+import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
 import { DictionaryService } from '../../pages/models/dictionary.service';
 import { TextMaskModule, conformToMask } from 'angular2-text-mask';
 
 var moment = require('moment-timezone');
-
 
 @Component({
   selector: 'formAboutMe-page',
@@ -24,14 +22,17 @@ export class FormAboutMe {
   formName: string = "formAboutMe";
   card_form: FormGroup;
   curRec: any;
+  newUser: Boolean = false;
   dictionaries: DictionaryModel = new DictionaryModel();
   category: HistoryItemModel = new HistoryItemModel();
   loading: any;
   saving: boolean = false;
-  
+
   primaryUser: any;
   races: FormArray; 
   primary: boolean;
+  primaryEligible: boolean = false;
+  confirmed: boolean = false;
   isChild: boolean;
   isPet: boolean;
   masks: any;
@@ -51,8 +52,6 @@ export class FormAboutMe {
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
     this.loading = this.loadingCtrl.create();
     
-    this.loadData();
-
     this.masks = {
       phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
       ssn: [ /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
@@ -97,24 +96,27 @@ export class FormAboutMe {
       confirmed: new FormControl(),
       active: new FormControl(),
     });  
-
-    console.log('From constructor - BDay: ' + this.card_form.controls["birthdate"].value);
-    console.log('From constructor - BDay invalid?: ' + this.card_form.controls["birthdate"].invalid);
-
+    //console.log('From constructor - BDay: ' + this.card_form.controls["birthdate"].value);
+    //console.log('From constructor - BDay invalid?: ' + this.card_form.controls["birthdate"].invalid);
     if (this.list2.races !== undefined && this.list2.races.length > 0) {
       this.addExistingRaces();
     }
   }
 
   ionViewDidLoad() {
-    //alert('Begin:' + this.searchTerm);
-    this.loading.present();
-    //this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
  
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     if (this.RestService.currentProfile == undefined || this.RestService.currentProfile <= 0) {
@@ -157,14 +159,8 @@ export class FormAboutMe {
         if (self.list2[0].primaryuser !== undefined && self.list2[0].primaryuser !== null) {
           self.primaryUser = self.list2[0].primaryuser;
         }
-        //console.log('Self Primary User', self.primaryUser);
-        //console.log('Self Primary User FirstName', self.primaryUser.firstname);
-
         self.loadDictionaries();            
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
     });
@@ -205,8 +201,6 @@ export class FormAboutMe {
       .getData()
       .then(data => {
         self.dictionaries.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.stateList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
         self.relationList = self.dictionaries.items[1].dictionary; //index 0 as aligned with sortIndex
@@ -234,8 +228,10 @@ export class FormAboutMe {
         self.card_form.controls["primaryflag"].setValue(self.list2[0].primaryflag);
         if (self.list2[0].primaryflag == 'Y') {
           self.primary = true;
+          self.card_form.controls["relationtoprimary"].clearValidators();
         } else {
           self.primary = false;
+          self.card_form.controls["relationtoprimary"].setValidators(Validators.required);
         }
         self.card_form.controls["streetaddress"].setValue(self.list2[0].streetaddress);
         self.card_form.controls["city"].setValue(self.list2[0].city);
@@ -273,40 +269,39 @@ export class FormAboutMe {
           //console.log('Emergency Phone Number: ' + conformedEPhoneNumber.conformedValue);
           self.card_form.controls["emergencycontactphone"].setValue(conformedEPhoneNumber.conformedValue);
         }
-
         self.card_form.controls["emergencycontactrelation"].setValue(self.list2[0].emergencycontactrelation);
         self.card_form.controls["insurancename"].setValue(self.list2[0].insurancename);
         self.card_form.controls["insurancenumber"].setValue(self.list2[0].insurancenumber);
-
         self.card_form.controls["relationtoprimary"].setValue(self.list2[0].relationtoprimary);
 
         if (self.list2[0].relationtoprimary !== undefined && self.list2[0].relationtoprimary !== null &&
           self.list2[0].relationtoprimary !== "") {
-
-            //console.log("Relation to Primary: " + self.list2[0].relationtoprimary);
-            //console.log("Relation to Primary Term: " + self.getRelationTerm(self.list2[0].relationtoprimary));
             if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Daughter' || 
             self.getRelationTerm(self.list2[0].relationtoprimary) == 'Son' ) {
               self.isChild = true;
-              console.log('isChild true: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
+              //console.log('isChild true: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
             } else {
               self.isChild = false;
-              console.log('isChild false: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
+              //console.log('isChild false: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
             }    
+            if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Husband' || 
+              self.getRelationTerm(self.list2[0].relationtoprimary) == 'Wife' ||
+              self.getRelationTerm(self.list2[0].relationtoprimary) == 'Spouse' ||
+              self.getRelationTerm(self.list2[0].relationtoprimary) == 'Partner') {
+                self.primaryEligible = true;
+            } else {
+              self.primaryEligible = false;
+            }
         }
-
         self.card_form.controls["biologicalparent"].setValue(self.list2[0].biologicalparent);
         self.card_form.controls["medicalconsent"].setValue(self.list2[0].medicalconsent);
 
-        console.log('From load dictionaries - BDay from list2: ' + self.list2[0].birthdate);
+        //console.log('From load dictionaries - BDay from list2: ' + self.list2[0].birthdate);
         if (self.list2[0].birthdate !== undefined && self.list2[0].birthdate !== null && self.list2[0].birthdate !== "" && self.list2[0].birthdate !== "0000-00-00") {
           self.card_form.controls["birthdate"].setValue(self.list2[0].birthdate);
-          console.log('set from list');
         }
-
-        console.log('From load dictionaries - BDay: ' + self.card_form.controls["birthdate"].value);
-        console.log('From load dictionaries - BDay invalid?: ' + self.card_form.controls["birthdate"].invalid);
-    
+        //console.log('From load dictionaries - BDay: ' + self.card_form.controls["birthdate"].value);
+        //console.log('From load dictionaries - BDay invalid?: ' + self.card_form.controls["birthdate"].invalid);
         self.card_form.controls["age"].setValue(self.list2[0].age);
         self.card_form.controls["bloodtype"].setValue(self.list2[0].bloodtype);
         self.card_form.controls["gender"].setValue(self.list2[0].gender);
@@ -314,42 +309,36 @@ export class FormAboutMe {
 
         if (self.list2[0].relationtoprimary !== undefined && self.list2[0].relationtoprimary !== null &&
           self.list2[0].relationtoprimary !== "") {
-
             if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Pet') {
               self.isPet = true;
             } else {
               self.isPet = false;
             }    
         }
-
         self.card_form.controls["species"].setValue(self.list2[0].species);
         self.card_form.controls["breed"].setValue(self.list2[0].breed);
         self.card_form.controls["breed"].setValue(self.list2[0].breed);
-        if (self.list2[0].races.length > 0) {
+        if (self.list2[0].races !== undefined && self.list2[0].races.length > 0) {
           self.addExistingRaces();
-          //console.log('Adding Races - Length: ' + self.list2[0].races.length);
-        } else {
-          //console.log('No races to add');
         }
-
         if (self.list2[0].latestweight !== undefined) {
           self.card_form.controls["weight"].setValue(self.list2[0].latestweight.weight);
         }
-
         if (self.list2[0].latestheight !== undefined) {
           self.card_form.controls["heightfeet"].setValue(self.list2[0].latestheight.feet);
           self.card_form.controls["heightinches"].setValue(self.list2[0].latestheight.inches);
         }
-
         self.card_form.controls["confirmed"].setValue(self.list2[0].confirmed);
-        console.log('Loaded profile confirmed: ' + self.card_form.controls["confirmed"].value);
+        if (self.list2[0].confirmed !== undefined && self.list2[0].confirmed == 'Y') {
+          self.confirmed = true;
+        }
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
-      
     }).catch( function(result){
+        self.RestService.refreshCheck();
         console.log(body);
     });
-
   }
 
   createItem () {
@@ -366,8 +355,6 @@ export class FormAboutMe {
     this.races.removeAt(0);
     for (var j = 0; j < this.list2[0].races.length; j++) {
       this.races.push(this.addExistingRace(j));              
-      //console.log('Race ID: ' + this.list2[0].races[j].raceid);
-      //console.log('Racecode: ' + this.list2[0].races[j].racecode);
     }    
   }
 
@@ -402,20 +389,25 @@ export class FormAboutMe {
       this.isChild = true;
     } else {
       this.isChild = false;
-    }    
+    }
+    
+    if (this.getRelationTerm(relation.recordid) == 'Husband' || 
+      this.getRelationTerm(relation.recordid) == 'Wife' ||
+      this.getRelationTerm(relation.recordid) == 'Spouse' ||
+      this.getRelationTerm(relation.recordid) == 'Partner') {
+        this.primaryEligible = true;
+    } else {
+      this.primaryEligible = false;
+    }
   }
 
   public today() {
     return new Date().toJSON().split('T')[0];
-    //return new Date().toISOString().substring(0,10);
   }
 
   trimLastCharPhone() {
     // Determine de max length to trim the extra character
     var phonenumber = this.card_form.get('phonenumber').value;
-    //console.log('CharPhone: ', phonenumber);
-    //console.log('CharPhone length: ', phonenumber.length);
-    //console.log('CharPhone last char: ' + '"' + phonenumber.substring(13, 14) + '"');
     if (phonenumber !== undefined && phonenumber !== null){
       if (phonenumber.length > 14 && phonenumber.substring(13, 14) !== "_" && phonenumber.substring(13, 14) !== " ") {
         this.card_form.get('phonenumber').setValue(phonenumber.substring(0,14));
@@ -428,9 +420,6 @@ export class FormAboutMe {
   trimLastCharEPhone() {
     // Determine de max length to trim the extra character
     var phonenumber = this.card_form.get('emergencycontactphone').value;
-    //console.log('CharPhone: ', phonenumber);
-    //console.log('CharPhone length: ', phonenumber.length);
-    //console.log('CharPhone last char: ' + '"' + phonenumber.substring(13, 14) + '"');
     if (phonenumber !== undefined && phonenumber !== null){
       if (phonenumber.length > 14 && phonenumber.substring(13, 14) !== "_" && phonenumber.substring(13, 14) !== " ") {
         this.card_form.get('emergencycontactphone').setValue(phonenumber.substring(0,14));
@@ -443,9 +432,6 @@ export class FormAboutMe {
   trimLastCharSSN() {
     // Determine de max length to trim the extra character
     var ssn = this.card_form.get('ssn').value;
-    //console.log('Charssn: ', ssn);
-    //console.log('Charssn length: ', ssn.length);
-    //console.log('CharPhone last char: ' + '"' + ssn.substring(10, 11) + '"');
     if (ssn !== undefined && ssn !== null){
       if (ssn.length > 11 && ssn.substring(10, 11) !== "_" && ssn.substring(10, 11) !== " ") {
         this.card_form.get('ssn').setValue(ssn.substring(0,11));
@@ -456,14 +442,31 @@ export class FormAboutMe {
   }
 
   getPrimaryName() {
+    //console.log('From getPrimaryName - primaryUser', this.primaryUser);
     if (this.primaryUser !== undefined) {
       if (this.primaryUser.firstname !== undefined) {
         return this.primaryUser.firstname; 
-      } else {
-        //console.log ('No First Name for Prirmary User'); 
-      }
+      } 
     } else {
-      //console.log ('No Prirmary User'); 
+      if (this.list2[0] !== undefined) {
+        if (this.list2[0].primaryflag == 'Y') {
+          console.log('Original User is Primary - Set Primary Values to populate for new user');
+          var setPrimary: PrimaryUser = new PrimaryUser();
+          setPrimary.firstname = this.list2[0].firstname;
+          setPrimary.profileid = this.list2[0].profileid;
+          setPrimary.streetaddress = this.list2[0].streetaddress;
+          setPrimary.city = this.list2[0].city;
+          setPrimary.state = this.list2[0].state;
+          setPrimary.zipcode = this.list2[0].zipcode;
+          setPrimary.timezone = this.list2[0].timezone;
+          setPrimary.latitude = this.list2[0].latitude;
+          setPrimary.longitude = this.list2[0].longitude;
+          setPrimary.insurancename = this.list2[0].insurancename;
+          setPrimary.insurancenumber = this.list2[0].insurancenumber;
+          this.primaryUser = setPrimary;
+          return this.primaryUser.firstname;      
+        }   
+      }
     }
   } 
 
@@ -525,64 +528,84 @@ export class FormAboutMe {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            this.saving = true;
 
-            this.saveModel.profileid = this.list2[0].profileid;
-            this.saveModel.userid = this.list2[0].profileid;
-            this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
-            this.saveModel.active = 'N';
-            if (this.list2[0].latestheight !== undefined) {
-              this.saveModel.latestheight.heightid = this.list2[0].latestheight.heightid;
-              this.saveModel.latestheight.active = 'N';
-            }
-            if (this.list2[0].latestweight !== undefined) {
-              this.saveModel.latestweight.weightid = this.list2[0].latestweight.weightid;
-              this.saveModel.latestweight.active = 'N';
-            }
-            for (var j = 0; j < this.list2[0].races.length; j++) {
-              race = new RaceCode();
-              race.raceid = this.list2[0].races[j].raceid;
-              race.active = 'N';
-              this.saveModel.races.push(race);
-            }    
+            var dtNow = moment(new Date());
+            var dtExpiration = moment(this.RestService.AuthData.expiration);
         
-            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-    
-            var config = {
-              invokeUrl: restURL,
-              accessKey: this.RestService.AuthData.accessKeyId,
-              secretKey: this.RestService.AuthData.secretKey,
-              sessionToken: this.RestService.AuthData.sessionToken,
-              region:'us-east-1'
-            };
-          
-            var apigClient = this.RestService.AWSRestFactory.newClient(config);
-            var params = {        
-                //pathParameters: this.vaccineSave
-            };
-              
-            var pathTemplate = '';
-            var method = 'POST';
-            var additionalParams = {
-              queryParams: {
-                profileid: this.RestService.currentProfile,
+            if (dtNow < dtExpiration) {
+              this.saving = true;
+              this.saveModel.profileid = this.list2[0].profileid;
+              this.saveModel.userid = this.list2[0].profileid;
+              this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
+              this.saveModel.active = 'N';
+              if (this.list2[0].latestheight !== undefined) {
+                var lh: LatestHeight = new LatestHeight();
+                lh.heightid = this.list2[0].latestheight.heightid;
+                lh.active = 'N';
+                this.saveModel.latestheight = lh;
               }
-            };
-
-            var body = JSON.stringify(this.saveModel);
-            var self = this;
-          
-            console.log('Calling Post', this.saveModel);    
-            apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-              .then(function(result){
-                self.RestService.results = result.data;
-                console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "About Me";
-                self.nav.pop();      
-            }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
-            });     
+              if (this.list2[0].latestweight !== undefined) {
+                var lw: LatestWeight = new LatestWeight();
+                lw.weightid = this.list2[0].latestweight.weightid;
+                lw.active = 'N';
+                this.saveModel.latestweight = lw;
+              }
+  
+              if (this.list2[0].races !== undefined) {
+                var races: Array<RaceCode> = [];
+                for (var j = 0; j < this.list2[0].races.length; j++) {
+                  race = new RaceCode();              
+                  race.raceid = this.list2[0].races[j].raceid;
+                  race.active = 'N';
+                  races.push(race);
+                }    
+            
+                if (races.length > 0) {
+                  this.saveModel.races = races;
+                }  
+              }
+  
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
+      
+              var config = {
+                invokeUrl: restURL,
+                accessKey: this.RestService.AuthData.accessKeyId,
+                secretKey: this.RestService.AuthData.secretKey,
+                sessionToken: this.RestService.AuthData.sessionToken,
+                region:'us-east-1'
+              };
+            
+              var apigClient = this.RestService.AWSRestFactory.newClient(config);
+              var params = {        
+                  //pathParameters: this.vaccineSave
+              };
+                
+              var pathTemplate = '';
+              var method = 'POST';
+              var additionalParams = {
+                queryParams: {
+                  profileid: this.RestService.currentProfile,
+                }
+              };
+  
+              var body = JSON.stringify(this.saveModel);
+              var self = this;
+            
+              console.log('Calling Post', this.saveModel);    
+              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+                .then(function(result){
+                  self.RestService.results = result.data;
+                  console.log('Happy Path: ' + self.RestService.results);
+                  self.navParams.get("homePage").refreshProfiles();
+                  self.nav.pop();
+                }).catch( function(result){
+                  console.log('Result: ',result);
+                  console.log(body);
+              });     
+              } else {
+              console.log('Need to login again!!! - Credentials expired from listSleep');
+              this.RestService.appRestart();
+            }
           }
         }
       ]
@@ -590,14 +613,19 @@ export class FormAboutMe {
     alert.present();    
   }
 
-
   confirmRecord(){
     var race: RaceCode = new RaceCode();
     this.saving = true;
 
-    this.saveModel.profileid = this.list2[0].profileid;
+    if (!this.newUser) {
+      this.saveModel.profileid = this.list2[0].profileid;
+      this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
+      this.saveModel.accountid = this.list2[0].accountid;
+    } else {
+      this.saveModel.accountid = this.list2[0].accountid;
+    }
+
     this.saveModel.userid = this.list2[0].profileid;
-    this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
     this.saveModel.active = 'Y';
     this.saveModel.confirmed = 'Y';
 
@@ -741,7 +769,6 @@ export class FormAboutMe {
 
     //Races not touched - confirm as needed         
     if (!raceChange) {
-      console.log('Enter Loop 1: raceControlCount = ' +raceControlCount + ", raceItemCount = " + raceItemCount);
       for (var j = 0; j < this.list2[0].races.length; j++) {
         race = new RaceCode();
 
@@ -753,98 +780,130 @@ export class FormAboutMe {
       }
       if (raceArray !== undefined && raceArray.length > 0) {
         this.saveModel.races = raceArray;
-      }
+      }      
     } else {
-      console.log('Enter Loop 4: raceControlCount = ' +raceControlCount + ", raceItemCount = " + raceItemCount);
-      for (var j = 0; j < this.list2[0].races.length; j++) {
-        match = false;
+      if (this.list2[0].races !== undefined) {
+        for (var j = 0; j < this.list2[0].races.length; j++) {
+          match = false;
+          for (var k = 0; k < raceControls.length; k++) {
+            if (this.list2[0].races[j].raceid == raceControls.controls[k].get("raceid").value) {
+              match = true;
+              if (raceControls.controls[k].get("racecode").dirty) {
+                race = new RaceCode();
+                race.raceid = this.list2[0].races[j].raceid;
+                race.racecode = raceControls.controls[k].get("racecode").value;
+                race.confirmed = 'Y';
+                raceArray.push(race);
+              } else if (this.list2[0].races[j].confirmed !=='Y') {
+                race = new RaceCode();
+                race.raceid = this.list2[0].races[j].raceid;
+                race.confirmed = 'Y';
+                raceArray.push(race);
+              }
+            }
+          }
+          //This race record deleted via UI
+          if (!match) {
+            race = new RaceCode();
+            race.active = "N";
+            race.raceid = this.list2[0].races[j].raceid;
+            raceArray.push(race);
+          } 
+        }
         for (var k = 0; k < raceControls.length; k++) {
-          if (this.list2[0].races[j].raceid == raceControls.controls[k].get("raceid").value) {
-            match = true;
-            if (raceControls.controls[k].get("racecode").dirty) {
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+            raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
-              race.raceid = this.list2[0].races[j].raceid;
               race.racecode = raceControls.controls[k].get("racecode").value;
               race.confirmed = 'Y';
               raceArray.push(race);
-            } else if (this.list2[0].races[j].confirmed !=='Y') {
-              race = new RaceCode();
-              race.raceid = this.list2[0].races[j].raceid;
-              race.confirmed = 'Y';
-              raceArray.push(race);
-            }
           }
         }
-        //This race record deleted via UI
-        if (!match) {
-          race = new RaceCode();
-          race.active = "N";
-          race.raceid = this.list2[0].races[j].raceid;
-          raceArray.push(race);
-        } 
-      }
-      for (var k = 0; k < raceControls.length; k++) {
-        if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
-          raceControls.controls[k].get("raceid").value == "") {
-            race = new RaceCode();
-            race.racecode = raceControls.controls[k].get("racecode").value;
-            race.confirmed = 'Y';
-            raceArray.push(race);
+        if (raceArray !== undefined && raceArray.length > 0) {
+          this.saveModel.races = raceArray;
         }
-      }
-      if (raceArray !== undefined && raceArray.length > 0) {
-        this.saveModel.races = raceArray;
+      } else {
+        for (var k = 0; k < raceControls.length; k++) {
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+            raceControls.controls[k].get("raceid").value == "") {
+              race = new RaceCode();
+              race.racecode = raceControls.controls[k].get("racecode").value;
+              race.confirmed = 'Y';
+              raceArray.push(race);
+          }
+        }
+        if (raceArray !== undefined && raceArray.length > 0) {
+          this.saveModel.races = raceArray;
+        }
       }
     }  
 
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-  
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-        //pathParameters: this.vaccineSave
-    };
-      
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-      queryParams: {
-        profileid: this.RestService.currentProfile,
-      }
-    };
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
 
-    var body = JSON.stringify(this.saveModel);
-    var self = this;
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+    
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+          //pathParameters: this.vaccineSave
+      };
+        
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+        queryParams: {
+          profileid: this.RestService.currentProfile,
+        }
+      };
   
-    console.log('Calling Post', this.saveModel);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-      .then(function(result){
-        self.RestService.results = result.data;
-        console.log('Happy Path: ' + self.RestService.results);
-        self.category.title = "About Me";
-        self.nav.pop();      
-    }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
-    });     
+      var body = JSON.stringify(this.saveModel);
+      var self = this;
+    
+      console.log('Calling Post', this.saveModel);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+        .then(function(result){
+          self.RestService.results = result.data;
+          if (!self.newUser) {
+            console.log('Happy Path: ' + self.RestService.results);
+            self.category.title = "About Me";
+            self.nav.pop();        
+          } else {
+            self.navParams.get("homePage").refreshProfiles();
+            self.nav.pop();
+            //self.nav.goToRoot(this.navParams);
+          }
+      }).catch( function(result){
+          console.log('Result: ',result);
+          console.log(body);
+      });     
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
 
   saveRecord(){
     var race: RaceCode = new RaceCode();
     this.saving = true;
 
-    this.saveModel.profileid = this.list2[0].profileid;
+    if (!this.newUser) {
+      this.saveModel.profileid = this.list2[0].profileid;
+      this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
+      this.saveModel.accountid = this.list2[0].accountid;
+    } else {
+      this.saveModel.accountid = this.list2[0].accountid;
+    }
     this.saveModel.userid = this.list2[0].profileid;
-    this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
     this.saveModel.active = 'Y';
-
     if (this.card_form.controls["firstname"].dirty) {
       this.saveModel.firstname = this.card_form.controls["firstname"].value;
     }
@@ -964,140 +1023,201 @@ export class FormAboutMe {
 
     //Races not touched - confirm as needed         
     if (raceChange) {
-      for (var j = 0; j < this.list2[0].races.length; j++) {
-        match = false;
-        for (var k = 0; k < raceControls.length; k++) {
-          if (this.list2[0].races[j].raceid == raceControls.controls[k].get("raceid").value) {
-            match = true;
-            if (raceControls.controls[k].get("racecode").dirty) {
-              race = new RaceCode();
-              race.raceid = this.list2[0].races[j].raceid;
-              race.racecode = raceControls.controls[k].get("racecode").value;
-              raceArray.push(race);
+      if (this.list2[0].races !== undefined) {
+        for (var j = 0; j < this.list2[0].races.length; j++) {
+          match = false;
+          for (var k = 0; k < raceControls.length; k++) {
+            if (this.list2[0].races[j].raceid == raceControls.controls[k].get("raceid").value) {
+              match = true;
+              if (raceControls.controls[k].get("racecode").dirty) {
+                race = new RaceCode();
+                race.raceid = this.list2[0].races[j].raceid;
+                race.racecode = raceControls.controls[k].get("racecode").value;
+                raceArray.push(race);
+              }
             }
           }
-        }
-        //This race record deleted via UI
-        if (!match) {
-          race = new RaceCode();
-          race.active = "N";
-          race.raceid = this.list2[0].races[j].raceid;
-          raceArray.push(race);
-        } 
-      }
-      for (var k = 0; k < raceControls.length; k++) {
-        if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
-          raceControls.controls[k].get("raceid").value == "") {
+          //This race record deleted via UI
+          if (!match) {
             race = new RaceCode();
-            race.racecode = raceControls.controls[k].get("racecode").value;
+            race.active = "N";
+            race.raceid = this.list2[0].races[j].raceid;
             raceArray.push(race);
+          } 
         }
-      }
-      if (raceArray !== undefined && raceArray.length > 0) {
-        this.saveModel.races = raceArray;
+        for (var k = 0; k < raceControls.length; k++) {
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+            raceControls.controls[k].get("raceid").value == "") {
+              race = new RaceCode();
+              race.racecode = raceControls.controls[k].get("racecode").value;
+              raceArray.push(race);
+          }
+        }
+        if (raceArray !== undefined && raceArray.length > 0) {
+          this.saveModel.races = raceArray;
+        }  
+      } else {
+        for (var k = 0; k < raceControls.length; k++) {
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+            raceControls.controls[k].get("raceid").value == "") {
+              race = new RaceCode();
+              race.racecode = raceControls.controls[k].get("racecode").value;
+              raceArray.push(race);
+          }
+        }
+        if (raceArray !== undefined && raceArray.length > 0) {
+          this.saveModel.races = raceArray;
+        }  
       }
     }  
 
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
+
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+    
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+          //pathParameters: this.vaccineSave
+      };
+        
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+        queryParams: {
+          profileid: this.RestService.currentProfile,
+        }
+      };
   
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-        //pathParameters: this.vaccineSave
-    };
-      
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-      queryParams: {
-        profileid: this.RestService.currentProfile,
-      }
-    };
-
-    var body = JSON.stringify(this.saveModel);
-    var self = this;
+      var body = JSON.stringify(this.saveModel);
+      var self = this;
+    
+      console.log('Calling Post', this.saveModel);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+        .then(function(result){
+          self.RestService.results = result.data;
+          if (!self.newUser) {
+            console.log('Happy Path: ' + self.RestService.results);
+            self.category.title = "About Me";
+            self.nav.pop();
+          } else {
+            self.navParams.get("homePage").refreshProfiles();
+            self.nav.pop();
+            // self.nav.goToRoot(this.navParams);
+          }
   
-    console.log('Calling Post', this.saveModel);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-      .then(function(result){
-        self.RestService.results = result.data;
-        console.log('Happy Path: ' + self.RestService.results);
-        self.category.title = "About Me";
-        self.nav.pop();      
-    }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
-    });     
-  }
-
-  addNew() {
-
-  }
-
-  /*
-  ionViewCanLeave() {
-    if (!this.saving && this.card_form.dirty) {
-      let alert = this.alertCtrl.create({
-        title: 'Exit without Saving',
-        message: 'Are you sure you want to exit without saving?',
-        buttons: [
-          {
-            text: 'No',
-            role: 'cancel',
-            handler: () => {
-              console.log('Cancel clicked');
-            }
-          },
-          {
-            text: 'Yes',
-            handler: () => {
-              console.log('Exit clicked');
-              this.saving = true;
-              this.category.title = "About Me";
-              this.nav.pop();      
-            }
-          }   
-        ]
-      });
-      alert.present();    
+      }).catch( function(result){
+          console.log('Result: ',result);
+          console.log(body);
+      });     
+      } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
     }
   }
-*/
 
-async ionViewCanLeave() {
-  if (!this.saving && this.card_form.dirty) {
-    const shouldLeave = await this.confirmLeave();
-    return shouldLeave;
-  }
-}
-
-confirmLeave(): Promise<Boolean> {
-  let resolveLeaving;
-  const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
-  const alert = this.alertCtrl.create({
-    title: 'Exit without Saving',
-    message: 'Do you want to exit without saving?',
-    buttons: [
-      {
-        text: 'No',
-        role: 'cancel',
-        handler: () => resolveLeaving(false)
-      },
-      {
-        text: 'Yes',
-        handler: () => resolveLeaving(true)
+  async confirmPrimaryChange() {
+    var canContinue: Boolean = false;
+    console.log('From confirmPrimaryChange - primaryflag = ' + this.card_form.controls["primaryflag"].value);
+      const shouldLeave = await this.confirmPrimary();
+      if (!shouldLeave) {
+        this.card_form.controls["primaryflag"].setValue('N');
       }
-    ]
-  });
-  alert.present();
-  return canLeave
-}
+  }
 
+  confirmPrimary(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Important - Primary Status Take Over',
+      message: 'You are taking the primary status role from ' + this.primaryUser.firstname + '.  This change will take effect when this record is saved or confirmed with the primary user value is set to "Yes" for you.',
+      buttons: [
+        {
+          text: 'OK',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }
+
+  async addNew() {
+    var canContinue: Boolean = false;
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      canContinue = shouldLeave;
+    } else {
+      canContinue = true;
+    }
+  
+    if (canContinue) {
+      this.newUser = true;
+      this.card_form.controls["primaryflag"].setValue('N');
+      this.primary = false;
+      this.card_form.reset();
+      this.card_form.controls["primaryflag"].setValue('N');
+      this.card_form.controls["relationtoprimary"].setValidators(Validators.required);
+      this.card_form.controls["primaryflag"].markAsDirty();
+    }
+  }
+
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    }
+  }
+
+  confirmLeave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Exit without Saving',
+      message: 'Do you want to exit without saving?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => resolveLeaving(false)
+        },
+        {
+          text: 'Yes',
+          handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }
+
+  checkSaveEnabled() {
+    if (!this.newUser) {
+      if (this.primary) {
+        return (!this.card_form.dirty 
+        || !(this.card_form.controls["firstname"].value !== undefined && this.card_form.controls["firstname"].value !== null && this.card_form.controls["firstname"].value !== "")
+        || !(this.card_form.controls["lastname"].value !== undefined && this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value !== "")
+        || !(this.card_form.controls["birthdate"].value !== undefined && this.card_form.controls["birthdate"].value !== null && this.card_form.controls["birthdate"].value !== "")
+        );  
+      } else {
+        return (!this.card_form.dirty 
+        || !(this.card_form.controls["firstname"].value !== undefined && this.card_form.controls["firstname"].value !== null && this.card_form.controls["firstname"].value !== "")
+        || !(this.card_form.controls["lastname"].value !== undefined && this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value !== "")
+        || !(this.card_form.controls["birthdate"].value !== undefined && this.card_form.controls["birthdate"].value !== null && this.card_form.controls["birthdate"].value !== "")
+        || !(this.card_form.controls["relationtoprimary"].value !== undefined && this.card_form.controls["relationtoprimary"].value !== null && this.card_form.controls["relationtoprimary"].value !== ""));  
+      }
+    } else {
+      return (!this.card_form.controls["firstname"].dirty || !this.card_form.controls["lastname"].dirty 
+                || !this.card_form.controls["birthdate"].dirty || !this.card_form.controls["relationtoprimary"].dirty);
+    }
+  }
 }

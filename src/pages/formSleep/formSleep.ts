@@ -95,16 +95,15 @@ export class FormSleepPage {
     this.loading.dismiss();
   }
 
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loading.dismiss();
-  }
-
+//  ionViewDidLoad() {
+//    this.loading.present();
+//    this.loading.dismiss();
+//  }
 
   deleteRecord(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
-      message: 'Do you certain you want to delete this record?',
+      message: 'Are you certain you want to delete this record?',
       buttons: [
         {
           text: 'Cancel',
@@ -123,41 +122,50 @@ export class FormSleepPage {
             this.sleepSave.profileid = this.RestService.currentProfile;
             this.sleepSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
             this.sleepSave.active = 'N';
-            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+
+            var dtNow = moment(new Date());
+            var dtExpiration = moment(this.RestService.AuthData.expiration);
+        
+            if (dtNow < dtExpiration) {
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
     
-            var config = {
-              invokeUrl: restURL,
-              accessKey: this.RestService.AuthData.accessKeyId,
-              secretKey: this.RestService.AuthData.secretKey,
-              sessionToken: this.RestService.AuthData.sessionToken,
-              region:'us-east-1'
-            };
-        
-            var apigClient = this.RestService.AWSRestFactory.newClient(config);
-            var params = {        
-              //pathParameters: this.vaccineSave
-            };
-            var pathTemplate = '';
-            var method = 'POST';
-            var additionalParams = {
-                queryParams: {
-                    profileid: this.RestService.currentProfile,
-                }
-            };
-            var body = JSON.stringify(this.sleepSave);
-            var self = this;
-        
-            console.log('Calling Post', this.sleepSave);    
-            apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-            .then(function(result){
-              self.RestService.results = result.data;
-              console.log('Happy Path: ' + self.RestService.results);
-              self.category.title = "Sleep";
-              self.nav.pop();      
-            }).catch( function(result){
-              console.log('Result: ',result);
-              console.log(body);
-            });        
+              var config = {
+                invokeUrl: restURL,
+                accessKey: this.RestService.AuthData.accessKeyId,
+                secretKey: this.RestService.AuthData.secretKey,
+                sessionToken: this.RestService.AuthData.sessionToken,
+                region:'us-east-1'
+              };
+          
+              var apigClient = this.RestService.AWSRestFactory.newClient(config);
+              var params = {        
+                //pathParameters: this.vaccineSave
+              };
+              var pathTemplate = '';
+              var method = 'POST';
+              var additionalParams = {
+                  queryParams: {
+                      profileid: this.RestService.currentProfile,
+                  }
+              };
+              var body = JSON.stringify(this.sleepSave);
+              var self = this;
+          
+              console.log('Calling Post', this.sleepSave);    
+              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+              .then(function(result){
+                self.RestService.results = result.data;
+                console.log('Happy Path: ' + self.RestService.results);
+                self.category.title = "Sleep";
+                self.nav.pop();      
+              }).catch( function(result){
+                console.log('Result: ',result);
+                console.log(body);
+              });            
+            } else {
+              console.log('Need to login again!!! - Credentials expired from formSleep - DeleteData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
+              this.RestService.appRestart();
+            }        
           }
         }
       ]
@@ -209,41 +217,49 @@ export class FormSleepPage {
       }      
     }
     
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
     
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-      //pathParameters: this.vaccineSave
-    };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
-    };
-    var body = JSON.stringify(this.sleepSave);
-    var self = this;
-
-    console.log('Calling Post', this.sleepSave);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-      self.category.title = "Sleep";
-      self.nav.pop();      
-    }).catch( function(result){
-      console.log('Result: ',result);
-      console.log(body);
-    });
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+  
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.sleepSave);
+      var self = this;
+  
+      console.log('Calling Post', this.sleepSave);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        self.category.title = "Sleep";
+        self.nav.pop();      
+      }).catch( function(result){
+        console.log('Result: ',result);
+        console.log(body);
+      });    
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
+      this.RestService.appRestart();
+    }
   }
 
   public today() {

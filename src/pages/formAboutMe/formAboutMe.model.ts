@@ -2,6 +2,7 @@ import { phoneNumber } from "aws-sdk/clients/importexport";
 
 export class AboutMe {
   profileid: number;
+  accountid: number;
   physicalprofileid: number;
   firstname: string;
   lastname: string;

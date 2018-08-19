@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController, SegmentButton, NavParams, AlertController, Form,  LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
-import { counterRangeValidator } from '../../components/counter-input/counter-input';
+import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { FoodPrefModel, FoodPrefCategoryModel, FoodPref, FoodPrefCategory } from '../../pages/formFoodPref/foodPref.model';
 import { FoodPrefService } from '../../pages/formFoodPref/foodPref.service';
-import { HistoryModel, HistoryItemModel } from '../../pages/history/history.model';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { HistoryItemModel } from '../../pages/history/history.model';
+
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'formFoodPref-page',
@@ -116,14 +116,19 @@ export class FormFoodPref {
   }
 
   ionViewDidLoad() {
-    //alert('Begin:' + this.searchTerm);
-    this.loading.present();
-    this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }  
   }
  
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     if (this.RestService.currentProfile == undefined || this.RestService.currentProfile <= 0) {
@@ -156,8 +161,6 @@ export class FormFoodPref {
     this.controlKey["ishalal"] = "diet";
     this.controlKey["iskosher"] = "diet";
     this.controlKey["familydiet"] = "diet";
-
-
 
     this.controlKey["American"] = "category";
     this.control2Category["American"] = "American";
@@ -270,33 +273,23 @@ export class FormFoodPref {
       .getData()
       .then(data => {
         self.FoodPrefModel = self.RestService.results;
-        console.log('FoodPrefModel 0: ', self.FoodPrefModel[0]);
-        console.log('FoodPrefModel 1: ', self.FoodPrefModel[1]);
-        //console.log('foodpreferenceid 0: ', self.FoodPrefModel[0].foodpreferenceid);
-        //console.log('foodpreferenceid 1: ', self.FoodPrefModel[1].foodpreferenceid);
-
+        //console.log('FoodPrefModel 0: ', self.FoodPrefModel[0]);
+        //console.log('FoodPrefModel 1: ', self.FoodPrefModel[1]);
         if (self.FoodPrefModel[0].foodpreferenceid !== undefined) {
           indexFPM = 0;
           self.foodcategories.items = self.FoodPrefModel[1];
-          console.log('self.foodcategories.length: ' + self.foodcategories.items.length);
+          //console.log('self.foodcategories.length: ' + self.foodcategories.items.length);
           for (var i = 0; i < self.foodcategories.items.length; i++) {
-            //alert('Item i: ' + self.foodcategories.items[i].categoryname);
             self.categoryKey[self.foodcategories.items[i].categoryname] = i;
           }
-          //alert("Category Key Burgers: " + categoryKey["Burgers"]);
         } else if (self.FoodPrefModel[1].foodpreferenceid !== undefined) {
           indexFPM = 1;
           self.foodcategories.items = self.FoodPrefModel[0];
-          console.log('self.foodcategories.length: ' + self.foodcategories.items.length);
+          //console.log('self.foodcategories.length: ' + self.foodcategories.items.length);
           for (var i = 0; i < self.foodcategories.items.length; i++) {
-            //alert('Item i: ' + self.foodcategories.items[i].categoryname);
             self.categoryKey[self.foodcategories.items[i].categoryname] = i;
           }
-          //alert("Category Key Burgers: " + categoryKey["Burgers"]);
         } 
-
-        //alert('Cat Key - Burgers: ' + categoryKey["Burgers"]);
-
         self.card_form.controls["foodpreferenceid"].setValue(self.FoodPrefModel[indexFPM].foodpreferenceid);
         self.card_form.controls["maxcost"].setValue(self.FoodPrefModel[indexFPM].maxcost);
         self.card_form.controls["deliveryrange"].setValue(self.FoodPrefModel[indexFPM].deliveryrange);
@@ -555,13 +548,12 @@ export class FormFoodPref {
           blnMiddleEastern = true;} else {blnMiddleEastern = false;}
           self.card_form.controls["MiddleEastern"].setValue(blnMiddleEastern);
             
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
     });
   }
 
@@ -683,11 +675,9 @@ export class FormFoodPref {
         this.card_form.controls["OtherLatin"].markAsDirty();
       }           
     } else if (master == 'Mediterranean') {
-      //alert('Upgrade Meditterean');
       if (this.card_form.controls["French"].value == false) {
         this.card_form.controls["French"].setValue(true);
         this.card_form.controls["French"].markAsDirty();
-        //alert('French changed: ' + this.card_form.controls["French"].dirty);
       }           
       if (this.card_form.controls["German"].value == false) {
         this.card_form.controls["German"].setValue(true);
@@ -910,14 +900,10 @@ export class FormFoodPref {
     var indexFPM
     var blnDietChanged = false;
     var blnFoodChanged = false;
-    var blnCategoryChanged = false;
-    var dietValues = [];
     var changeObject;
     var saveCategory: FoodPrefCategory;
     var saveCategoryModel: FoodPrefCategoryModel;
    
-    //savePref: saveCategory: savePrefModel: saveCategoryModel: 
-    //alert('Begin Save');
     this.saving = true;
     saveCategoryModel = new FoodPrefCategoryModel();
     saveCategoryModel.items = new Array<FoodPrefCategory>();
@@ -931,7 +917,7 @@ export class FormFoodPref {
       indexFPM = 1;
     } 
 
-    console.log('indexFPM:' + indexFPM);
+    //console.log('indexFPM:' + indexFPM);
     Object.keys(this.card_form.controls).forEach(key => {
       if (this.card_form.get(key).dirty) {
         changeObject = this.controlKey[key];
@@ -951,7 +937,7 @@ export class FormFoodPref {
           console.log("SavePref: " , this.savePref);
         } else if (changeObject == 'category') {
           saveCategory = new FoodPrefCategory();
-          console.log("saveCategory key: ", key);          
+          //console.log("saveCategory key: ", key);          
           saveCategory.foodcategorypreferenceid = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].foodcategorypreferenceid;
           saveCategory.ismaster = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].ismaster;
           saveCategory.master_category = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].master_category;
@@ -974,55 +960,64 @@ export class FormFoodPref {
     }
 
     console.log("savePref Final: ", this.savePref);    
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetFoodPreferences";
-        
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-    
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
 
-    var params = {        
-          //pathParameters: this.vaccineSave
-        };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-      queryParams: {
-        profileid: this.RestService.currentProfile
-      }
-    };
-    var body = JSON.stringify(this.savePref);
-    var self = this;
-    
-    console.log('Calling Post', this.savePref);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-      .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-        alert("Record Saved");
-        self.loadData();
-        Object.keys(self.card_form.controls).forEach(control => {
-          self.card_form.controls[control].markAsPristine();
-        });
-      }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
-      });
-    }
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetFoodPreferences";
+        
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+      
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
   
-    async ionViewCanLeave() {
+      var params = {        
+            //pathParameters: this.vaccineSave
+          };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+        queryParams: {
+          profileid: this.RestService.currentProfile
+        }
+      };
+      var body = JSON.stringify(this.savePref);
+      var self = this;
+      
+      console.log('Calling Post', this.savePref);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+        .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+          //alert("Record Saved");
+          self.loadData();
+          Object.keys(self.card_form.controls).forEach(control => {
+            self.card_form.controls[control].markAsPristine();
+          });
+        }).catch( function(result){
+          console.log('Result: ',result);
+          console.log(body);
+        });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
+  }
+  
+  async ionViewCanLeave() {
       if (!this.saving && this.card_form.dirty) {
         const shouldLeave = await this.confirmLeave();
         return shouldLeave;
       }
-    }
+  }
     
-    confirmLeave(): Promise<Boolean> {
+  confirmLeave(): Promise<Boolean> {
       let resolveLeaving;
       const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
       const alert = this.alertCtrl.create({
@@ -1042,7 +1037,6 @@ export class FormFoodPref {
       });
       alert.present();
       return canLeave
-    }  
+  }  
       
-
 }

@@ -15,6 +15,7 @@ import { ListSleepPage } from '../listSleep/listSleep';
 import { ListMeasurePage } from '../listMeasure/listMeasure';
 import { ListNutritionPage } from '../listNutrition/listNutrition';
 
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'listing-page',
@@ -58,9 +59,19 @@ export class ListingPage {
 
   }
  
-  //ionSelected() {
-    //alert('Listing Selected');
-  //}
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
+
+    if (dtDiff <= 0) {
+    	console.log('Need to login again!!! - Credentials expired from historytab');
+    	this.RestService.appRestart();
+    } else if (dtDiff < 30) {
+    	console.log('Calling Refresh Credentials from historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
+    	this.RestService.refreshCredentials();
+    }
+  }
 
   setCurrentProfile(profileid: any) {
     //alert('Start setCurrentProfile');

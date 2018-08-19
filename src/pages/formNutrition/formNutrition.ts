@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule, FormBuilder } from '@angular/forms';
+import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListNutritionModel, ListNutrition, ListNutritionDay } from '../../pages/listNutrition/listNutrition.model';
-import { ListNutritionService } from '../../pages/listNutrition/listNutrition.service';
 
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
@@ -83,7 +82,7 @@ export class FormNutritionPage {
 
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
-      message: 'Do you certain you want to delete this record?',
+      message: 'Are you certain you want to delete this record?',
       buttons: [
         {
           text: 'Cancel',
@@ -96,62 +95,71 @@ export class FormNutritionPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            this.saving = true;
-            //alert('Going to delete');
-            this.formDaySave.meals = [];
-            mealsArray = this.card_form.get('meals') as FormArray;            
-            for (var j = 0; j < mealsArray.length; j++) {
-              mealSave = new ListNutrition();
-              meal = mealsArray.at(j) as FormGroup;
-              if (meal.get("recordid").value !== null) {
-                mealSave.recordid = meal.get("recordid").value;
-                mealSave.active = 'N';
-                mealSave.profileid = this.RestService.currentProfile;
-                mealSave.userid = this.RestService.currentProfile;
-                this.formDaySave.meals.push(mealSave);
-              }
-            }  
 
-            if (this.formDaySave.meals !== undefined && this.formDaySave.meals.length > 0) {
-              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
-    
-              var config = {
-                invokeUrl: restURL,
-                accessKey: this.RestService.AuthData.accessKeyId,
-                secretKey: this.RestService.AuthData.secretKey,
-                sessionToken: this.RestService.AuthData.sessionToken,
-                region:'us-east-1'
-              };
-          
-              var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
-                //pathParameters: this.vaccineSave
-              };
-              var pathTemplate = '';
-              var method = 'POST';
-              var additionalParams = {
-                  queryParams: {
-                      profileid: this.RestService.currentProfile,
-                  }
-              };
-              var body = JSON.stringify(this.formDaySave);
-              var self = this;
-          
-              console.log('Calling Post', this.formDaySave);    
-              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-              .then(function(result){
-                self.RestService.results = result.data;
-                console.log('Happy Path: ' + self.RestService.results);
+            var dtNow = moment(new Date());
+            var dtExpiration = moment(this.RestService.AuthData.expiration);
+        
+            if (dtNow < dtExpiration) {
+              this.saving = true;
+              //alert('Going to delete');
+              this.formDaySave.meals = [];
+              mealsArray = this.card_form.get('meals') as FormArray;            
+              for (var j = 0; j < mealsArray.length; j++) {
+                mealSave = new ListNutrition();
+                meal = mealsArray.at(j) as FormGroup;
+                if (meal.get("recordid").value !== null) {
+                  mealSave.recordid = meal.get("recordid").value;
+                  mealSave.active = 'N';
+                  mealSave.profileid = this.RestService.currentProfile;
+                  mealSave.userid = this.RestService.currentProfile;
+                  this.formDaySave.meals.push(mealSave);
+                }
+              }  
+  
+              if (this.formDaySave.meals !== undefined && this.formDaySave.meals.length > 0) {
+                var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
+      
+                var config = {
+                  invokeUrl: restURL,
+                  accessKey: this.RestService.AuthData.accessKeyId,
+                  secretKey: this.RestService.AuthData.secretKey,
+                  sessionToken: this.RestService.AuthData.sessionToken,
+                  region:'us-east-1'
+                };
+            
+                var apigClient = this.RestService.AWSRestFactory.newClient(config);
+                var params = {        
+                  //pathParameters: this.vaccineSave
+                };
+                var pathTemplate = '';
+                var method = 'POST';
+                var additionalParams = {
+                    queryParams: {
+                        profileid: this.RestService.currentProfile,
+                    }
+                };
+                var body = JSON.stringify(this.formDaySave);
+                var self = this;
+            
+                console.log('Calling Post', this.formDaySave);    
+                apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+                .then(function(result){
+                  self.RestService.results = result.data;
+                  console.log('Happy Path: ' + self.RestService.results);
+                  self.category.title = "Nutrition";
+                  self.nav.pop();      
+                }).catch( function(result){
+                  console.log('Result: ',result);
+                  console.log(body);
+                });     
+              } else {
+                console.log('No saved Records - Delete goes back.');
                 self.category.title = "Nutrition";
                 self.nav.pop();      
-              }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
-              });     
+              }
             } else {
-              console.log('No saved Records - Delete goes back.');
-              self.category.title = "Nutrition";
-              self.nav.pop();      
+              console.log('Need to login again!!! - Credentials expired from listSleep');
+              this.RestService.appRestart();
             }
           }
         }
@@ -226,41 +234,49 @@ export class FormNutritionPage {
       this.formDaySave.dayofmeasure =  dtDET.utc().format('YYYY-MM-DD HH:mm');
     }
 
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
     
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-      //pathParameters: this.vaccineSave
-    };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
-    };
-    var body = JSON.stringify(this.formDaySave);
-    var self = this;
-
-    console.log('Calling Post', this.formDaySave);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-      self.category.title = "Nutrition";
-      self.nav.pop();      
-    }).catch( function(result){
-      console.log('Result: ',result);
-      console.log(body);
-    });
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+  
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.formDaySave);
+      var self = this;
+  
+      console.log('Calling Post', this.formDaySave);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        self.category.title = "Nutrition";
+        self.nav.pop();      
+      }).catch( function(result){
+        console.log('Result: ',result);
+        console.log(body);
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formNutrition - SaveData');
+      this.RestService.appRestart();
+    }
   }
 
   public today() {

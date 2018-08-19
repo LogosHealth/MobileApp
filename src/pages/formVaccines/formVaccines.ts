@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, SegmentButton, NavParams, AlertController, Form } from 'ionic-angular';
+import { NavController,  NavParams, AlertController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
-import { counterRangeValidator } from '../../components/counter-input/counter-input';
 import { RestService } from '../../app/services/restService.service';
 import { ListVaccinesModel, ListVaccines, ListVaccineSchedule } from '../../pages/listVaccines/listVaccines.model';
-import { ListVaccinesPage } from '../listVaccines/listVaccines';
-import { HistoryModel, HistoryItemModel } from '../../pages/history/history.model';
+import { HistoryItemModel } from '../../pages/history/history.model';
+
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'formVaccines-page',
@@ -31,10 +31,7 @@ export class FormVaccinesPage {
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
     public navParams: NavParams) {
     this.recId = navParams.get('recId');
-   // this.section = "event";
-
     this.curRec = RestService.results[this.recId]; 
-    //alert('CurRec: ' + this.curRec.recordid); 
 
     if (this.curRec.schedules.length > 0) {
       this.vaccine_array = new FormArray([]);
@@ -47,7 +44,6 @@ export class FormVaccinesPage {
         }
           
         this.vaccine_schedule = new FormGroup({
-          //interval: this.curRec.schedules[i].startdate,
           recordid: new FormControl(this.curRec.schedules[i].recordid),
           interval: new FormControl(this.curRec.schedules[i].interval),
           agerangelow: new FormControl(this.curRec.schedules[i].agerangelow),
@@ -66,10 +62,7 @@ export class FormVaccinesPage {
         confirmed: new FormControl(this.curRec.confirmed),
         schedules: this.vaccine_array
       });
-
     } else {
-      //alert(this.curRec.startdate);
-      //alert(this.curRec.startdate);
       var dt;      
       if (this.curRec.startdate == 'Invalid date') {
         dt = '';
@@ -84,7 +77,6 @@ export class FormVaccinesPage {
         exp_date: new FormControl(dt, Validators.required),
         physician: new FormControl(this.curRec.physician, Validators.required)
       });  
-      //alert("VaccineId: " + this.card_form.get('recordid').value);
     }
   }
 
@@ -125,42 +117,49 @@ export class FormVaccinesPage {
       }  
     }
 
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
     
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-      //pathParameters: this.vaccineSave
-    };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
-    };
-    var body = JSON.stringify(this.vaccineSave);
-    var self = this;
-
-    console.log('Calling Post', this.vaccineSave);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-      self.category.title = "Vaccines";
-      //self.nav.push(ListVaccinesPage, { category: self.category });      
-      self.nav.pop();      
-    }).catch( function(result){
-      console.log('Result: ',result);
-      console.log(body);
-    });
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+  
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.vaccineSave);
+      var self = this;
+  
+      console.log('Calling Post', this.vaccineSave);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        self.category.title = "Vaccines";
+        self.nav.pop();      
+      }).catch( function(result){
+        console.log('Result: ',result);
+        console.log(body);
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formVaccine - Confirm');
+      this.RestService.appRestart();
+    }
   }
 
   deleteRecord(){
@@ -179,47 +178,55 @@ export class FormVaccinesPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            this.saving = true;
-            //alert('Going to delete');
-            this.vaccineSave.schedules = [];
-            this.vaccineSave.recordid = this.card_form.get('recordid').value;
-            this.vaccineSave.active = 'N';
-            var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
-    
-            var config = {
-              invokeUrl: restURL,
-              accessKey: this.RestService.AuthData.accessKeyId,
-              secretKey: this.RestService.AuthData.secretKey,
-              sessionToken: this.RestService.AuthData.sessionToken,
-              region:'us-east-1'
-            };
+
+            var dtNow = moment(new Date());
+            var dtExpiration = moment(this.RestService.AuthData.expiration);
         
-            var apigClient = this.RestService.AWSRestFactory.newClient(config);
-            var params = {        
-              //pathParameters: this.vaccineSave
-            };
-            var pathTemplate = '';
-            var method = 'POST';
-            var additionalParams = {
-                queryParams: {
-                    profileid: this.RestService.currentProfile
-                }
-            };
-            var body = JSON.stringify(this.vaccineSave);
-            var self = this;
-        
-            console.log('Calling Post', this.vaccineSave);    
-            apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-            .then(function(result){
-              self.RestService.results = result.data;
-              console.log('Happy Path: ' + self.RestService.results);
-              self.category.title = "Vaccines";
-              //self.nav.push(ListVaccinesPage, { category: self.category });      
-              self.nav.pop();      
-            }).catch( function(result){
-              console.log('Result: ',result);
-              console.log(body);
-            });        
+            if (dtNow < dtExpiration) {
+              this.saving = true;
+              //alert('Going to delete');
+              this.vaccineSave.schedules = [];
+              this.vaccineSave.recordid = this.card_form.get('recordid').value;
+              this.vaccineSave.active = 'N';
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
+      
+              var config = {
+                invokeUrl: restURL,
+                accessKey: this.RestService.AuthData.accessKeyId,
+                secretKey: this.RestService.AuthData.secretKey,
+                sessionToken: this.RestService.AuthData.sessionToken,
+                region:'us-east-1'
+              };
+          
+              var apigClient = this.RestService.AWSRestFactory.newClient(config);
+              var params = {        
+                //pathParameters: this.vaccineSave
+              };
+              var pathTemplate = '';
+              var method = 'POST';
+              var additionalParams = {
+                  queryParams: {
+                      profileid: this.RestService.currentProfile
+                  }
+              };
+              var body = JSON.stringify(this.vaccineSave);
+              var self = this;
+          
+              console.log('Calling Post', this.vaccineSave);    
+              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+              .then(function(result){
+                self.RestService.results = result.data;
+                console.log('Happy Path: ' + self.RestService.results);
+                self.category.title = "Vaccines";
+                self.nav.pop();      
+              }).catch( function(result){
+                console.log('Result: ',result);
+                console.log(body);
+              });        
+            } else {
+              console.log('Need to login again!!! - Credentials expired from formVaccines - Delete');
+              this.RestService.appRestart();
+            }        
           }
         }
       ]
@@ -229,7 +236,6 @@ export class FormVaccinesPage {
 
   saveRecord(){
     this.saving = true;
-    //alert('Save Button Selected');
     this.vaccineSave.schedules = [];
     this.vaccineSave.recordid = this.card_form.get('recordid').value;
     if (!this.card_form.valid) {
@@ -267,42 +273,49 @@ export class FormVaccinesPage {
       }  
     }
 
-    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
     
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
-      //pathParameters: this.vaccineSave
-    };
-    var pathTemplate = '';
-    var method = 'POST';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
-    };
-    var body = JSON.stringify(this.vaccineSave);
-    var self = this;
-
-    console.log('Calling Post', this.vaccineSave);    
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      self.RestService.results = result.data;
-      console.log('Happy Path: ' + self.RestService.results);
-      self.category.title = "Vaccines";
-      //self.nav.push(ListVaccinesPage, { category: self.category });      
-      self.nav.pop();      
-    }).catch( function(result){
-      console.log('Result: ',result);
-      console.log(body);
-    });
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+  
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {        
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.vaccineSave);
+      var self = this;
+  
+      console.log('Calling Post', this.vaccineSave);    
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        self.category.title = "Vaccines";
+        self.nav.pop();      
+      }).catch( function(result){
+        console.log('Result: ',result);
+        console.log(body);
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formVaccines - save');
+      this.RestService.appRestart();
+    }
   }
 
   public today() {
@@ -337,5 +350,9 @@ export class FormVaccinesPage {
     alert.present();
     return canLeave
   }  
+
+  attachRecord() {
+    alert('Add attach doc here');
+  }
 
 }

@@ -1,4 +1,4 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 
@@ -47,20 +47,24 @@ export class ListGoalProgressDetailPage {
   }
 
   ionViewWillEnter() {
-    //console.log('ListGoalProgressDetail - ionViewWillEnter');
-    //this.loading.present();
-    if(!this.freshForm) {
-      var refresh = this.navParams.get('refresh') || false;
-      if (refresh) {
-        console.log('ListGoalProgressDetail - Reload data object');
-        this.curRec = this.RestService.results[this.recId]; 
-        this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
+    if (dtNow < dtExpiration) {
+      if(!this.freshForm) {
+        var refresh = this.navParams.get('refresh') || false;
+        if (refresh) {
+          console.log('ListGoalProgressDetail - Reload data object');
+          this.curRec = this.RestService.results[this.recId]; 
+          this.loadData();  
+        }
+      } else {
+        console.log('ListGoalProgressDetail - ionViewWillEnter - Fresh Form');
+        this.freshForm = false;
       }
     } else {
-      console.log('ListGoalProgressDetail - ionViewWillEnter - Fresh Form');
-      this.freshForm = false;
-      //this.loading.dismiss();
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
     }
   }
 

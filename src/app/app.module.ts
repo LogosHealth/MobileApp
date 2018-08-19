@@ -31,6 +31,8 @@ import { ListSleepPage } from '../pages/listSleep/listSleep';
 import { ListMeasurePage } from '../pages/listMeasure/listMeasure';
 import { ListLabsPage } from '../pages/listLabs/listLabs';
 import { ListNutritionPage } from '../pages/listNutrition/listNutrition';
+import { ListMedicationPage } from '../pages/listMedication/listMedication';
+import { ListEventPage } from '../pages/listEvent/listEvent';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -46,6 +48,7 @@ import { FormMoodPage } from '../pages/formMood/formMood';
 import { FormLabsPage } from '../pages/formLabs/formLabs';
 import { FormNutritionPage } from '../pages/formNutrition/formNutrition';
 import { FormAboutMe } from '../pages/formAboutMe/formAboutMe';
+import { FormAllergyPage } from '../pages/formAllergy/formAllergy';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -79,6 +82,8 @@ import { ListMeasureService } from '../pages/listMeasure/listMeasure.service';
 import { ListLabsService } from '../pages/listLabs/listLabs.service';
 import { ListNutritionService } from '../pages/listNutrition/listNutrition.service';
 import { AboutMeService } from '../pages/formAboutMe/formAboutMe.service';
+import { ListMedicationService } from '../pages/listMedication/listMedication.service';
+import { ListEventService } from '../pages/listEvent/listEvent.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -143,6 +148,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMeasurePage,
     ListLabsPage,
     ListNutritionPage,
+    ListMedicationPage,
+    ListEventPage,
 
     GridPage,
     FormLayoutPage,
@@ -158,6 +165,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormLabsPage,
     FormNutritionPage,
     FormAboutMe,
+    FormAllergyPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -215,6 +223,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMeasurePage,
     ListLabsPage,
     ListNutritionPage,
+    ListMedicationPage,
+    ListEventPage,
 
     GridPage,
     FormLayoutPage,
@@ -230,6 +240,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormLabsPage,
     FormNutritionPage,
     FormAboutMe,
+    FormAllergyPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -262,7 +273,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListLabsService,
     ListNutritionService,
     AboutMeService,
-    
+    ListMedicationService,
+    ListEventService,
+
     ScheduleService,
     FacebookLoginService,
     GoogleLoginService,

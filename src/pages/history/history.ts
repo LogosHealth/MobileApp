@@ -12,6 +12,8 @@ import { HistoryModel } from './history.model';
 import { HistoryService } from './history.service';
 import { RestService } from '../../app/services/restService.service';
 
+var moment = require('moment-timezone');
+
 @Component({
   selector: 'listing-page',
   templateUrl: 'history.html',
@@ -59,6 +61,22 @@ export class HistoryPage {
         this.loading.dismiss();
       });
   }
+
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
+
+    console.log('ivwe historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
+    if (dtDiff <= 0) {
+    	console.log('Need to login again!!! - Credentials expired from historytab');
+    	this.RestService.appRestart();
+    } else if (dtDiff < 30) {
+    	console.log('Calling Refresh Credentials from historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
+    	this.RestService.refreshCredentials();
+    }
+  }
+
 
   setCurrentProfile(profileid: any) {
     //alert('Start setCurrentProfile');

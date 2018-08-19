@@ -1,5 +1,5 @@
-import { Component, Self } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { Component, Self, ViewChild } from '@angular/core';
+import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 
 import 'rxjs/Rx';
@@ -24,10 +24,11 @@ export class ListSleepPage {
 
   constructor(
     public nav: NavController,
+    public alertCtrl: AlertController,
     public list2Service: ListSleepService,
     public navParams: NavParams,
     public RestService:RestService,
-    public loadingCtrl: LoadingController
+    public loadingCtrl: LoadingController,
   ) {
     this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
@@ -42,30 +43,19 @@ export class ListSleepPage {
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  }
-
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loadData();
-    /*
-    this.list2Service
-      .getData()
-      .then(data => {
-        this.list2.items = this.RestService.results;
-        alert('Allergy Response: ' + this.RestService.results);   
-        alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        this.loading.dismiss();
-      });
-      */
+    if (dtNow < dtExpiration) {
+      this.loading.present();
+      this.loadData();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
@@ -98,9 +88,8 @@ export class ListSleepPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Goals: ", self.list2.items);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
       
@@ -108,6 +97,7 @@ export class ListSleepPage {
       
     }).catch( function(result){
         console.log(body);
+        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
 
