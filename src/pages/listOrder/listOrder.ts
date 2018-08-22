@@ -3,14 +3,11 @@ import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FormControl } from '@angular/forms';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/add/operator/debounceTime';
-
 import 'rxjs/Rx';
-
 import { ListOrderModel, ListFilterModel } from './listOrder.model';
 import { ListOrderService } from './listOrder.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormOrderPage } from '../../pages/formOrder/formOrder';
-//import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 var moment = require('moment-timezone');
 
@@ -36,15 +33,9 @@ export class ListOrderPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
     this.searchControl = new FormControl();
   }
-
-  //ionViewWillEnter() {
-  //  this.loading.present();
-  //  this.loadData();
-  //}
 
   ionViewDidLoad() {
     //alert('Begin:' + this.searchTerm);
@@ -52,6 +43,7 @@ export class ListOrderPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
       this.searchControl.valueChanges.debounceTime(700).subscribe(search => {

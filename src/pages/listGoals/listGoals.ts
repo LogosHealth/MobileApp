@@ -1,13 +1,13 @@
-import { Component, Self } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListGoalsModel } from './listGoals.model';
 import { ListGoalsService } from './listGoals.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormGoalsPage } from '../../pages/formGoals/formGoals';
+
+var moment = require('moment-timezone');
 
 @Component({
   selector: 'listGoalsPage',
@@ -26,30 +26,21 @@ export class ListGoalsPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
   }
 
   ionViewWillEnter() {
-    this.loading.present();
-    this.loadData();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
 
-  }
-
-  ionViewDidLoad() {
-    this.loading.present();
-    this.loadData();
-    /*
-    this.list2Service
-      .getData()
-      .then(data => {
-        this.list2.items = this.RestService.results;
-        alert('Allergy Response: ' + this.RestService.results);   
-        alert('Transfer to List Items: ' +  this.list2.items);   
-       
-        this.loading.dismiss();
-      });
-      */
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadData();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listGoals');
+      this.RestService.appRestart();
+    }
   }
 
   loadData() {

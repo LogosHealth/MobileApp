@@ -43,7 +43,6 @@ export class FormExercisePage {
       this.goalname = "";
     }  
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     var self = this;
@@ -104,6 +103,7 @@ export class FormExercisePage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.nav.getPrevious().data.refresh = false;
       this.loadData();

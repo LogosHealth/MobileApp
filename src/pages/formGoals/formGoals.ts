@@ -40,7 +40,6 @@ export class FormGoalsPage {
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService) {
     this.recId = navParams.get('recId');
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     if (this.recId !== undefined) {
@@ -84,6 +83,7 @@ export class FormGoalsPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

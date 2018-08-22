@@ -5,6 +5,7 @@ import 'rxjs/Rx';
 import { ListAllergiesModel } from './listAllergies.model';
 import { ListAllergiesService } from './listAllergies.service';
 import { RestService } from '../../app/services/restService.service';
+import { FormAllergyPage } from '../../pages/formAllergy/formAllergy';
 
 var moment = require('moment-timezone');
 
@@ -25,7 +26,6 @@ export class ListAllergiesPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
   }
 
@@ -34,7 +34,11 @@ export class ListAllergiesPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
-      this.loading.present();
+      if (this.loading !== undefined) {
+        this.loading = this.loadingCtrl.create();
+        this.loading.present();
+        console.log ('This.loading not undefined: ', this.loading);
+      }
       this.loadData();  
     } else {
       console.log('Need to login again!!! - Credentials expired from listAllergies');
@@ -77,12 +81,26 @@ export class ListAllergiesPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         self.RestService.refreshCheck();       
-        self.loading.dismiss();
+        if (self.loading !== undefined) {
+          //console.log ('This.loading not undefined in loaddata: ', self.loading);
+          self.loading.dismiss();
+        }
       });
     }).catch( function(result){
       self.RestService.refreshCheck();
       console.log(body);
     });
-
   }
+
+  openRecord(recordId) {
+    console.log("Goto Form index: " + recordId);
+    //console.log("Recordid from index: " + this.list2[recordId].recordid);
+    this.nav.push(FormAllergyPage, { recId: recordId });
+    //alert('Open Record:' + recordId);
+  }  
+
+  addNew() {
+    this.nav.push(FormAllergyPage);
+  }  
+
 }

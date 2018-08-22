@@ -41,7 +41,6 @@ export class FormSleepPage {
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
     this.recId = navParams.get('recId');
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     var self = this;
@@ -90,15 +89,11 @@ export class FormSleepPage {
   }
 
   ionViewWillEnter() {
+    this.loading = this.loadingCtrl.create();
     this.loading.present();
     this.nav.getPrevious().data.refresh = false;
     this.loading.dismiss();
   }
-
-//  ionViewDidLoad() {
-//    this.loading.present();
-//    this.loading.dismiss();
-//  }
 
   deleteRecord(){
     let alert = this.alertCtrl.create({

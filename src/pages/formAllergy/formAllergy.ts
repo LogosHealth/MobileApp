@@ -8,7 +8,6 @@ import { ListMedicationService } from '../../pages/listMedication/listMedication
 import { ListEventModel, ListEvent } from '../../pages/listEvent/listEvent.model';
 import { ListEventService } from '../../pages/listEvent/listEvent.service';
 
-
 import { ListAllergiesModel, ListAllergies } from '../../pages/listAllergies/listAllergies.model';
 import { ListAllergiesService } from '../../pages/listAllergies/listAllergies.service';
 
@@ -47,7 +46,6 @@ export class FormAllergyPage {
     public listMedicationService: ListMedicationService, public listEventService: ListEventService) {
     this.recId = navParams.get('recId');
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     var self = this;
@@ -58,7 +56,7 @@ export class FormAllergyPage {
     });
 
     if (this.recId !== undefined) {
- 
+      console.log('Start Date: ' + this.curRec.startdate); 
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         allergyname: new FormControl(this.curRec.name),
@@ -92,6 +90,20 @@ export class FormAllergyPage {
     }
   }
 
+  ionViewDidLoad() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadData();
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formAllergy');
+      this.RestService.appRestart();
+    }
+  }
+  
   ionViewWillEnter() {
     this.nav.getPrevious().data.refresh = false;
   }
@@ -99,7 +111,7 @@ export class FormAllergyPage {
   loadData() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationbyProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
     
     var config = {
       invokeUrl: restURL,
@@ -116,7 +128,7 @@ export class FormAllergyPage {
     var method = 'GET';
     var additionalParams = {
         queryParams: {
-            eventid: this.recId
+            eventid: this.curRec.recordid
         }
     };
     var body = '';
@@ -124,16 +136,22 @@ export class FormAllergyPage {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.RestService.results = result.data;
-      self.listMedicationService
-      .getData()
-      .then(data => {
-        self.listMeds.items = self.RestService.results;
-        if (self.listMeds !== undefined && self.listMeds !== null && self.listMeds.items.length > 0) {
-          this.addExistingMeds();
-        }
+      if (Array.isArray(result.data)) {
+        var resultData = result.data;
+        self.listMedicationService
+        .getData()
+        .then(data => {
+          self.listMeds.items = resultData;
+          console.log('ListMeds: ',  self.listMeds.items);
+          if (self.listMeds !== undefined && self.listMeds !== null && self.listMeds.items.length > 0) {
+            self.addExistingMeds();
+          }
+          self.loadData2();
+        });
+      } else {
+        console.log('Result.data from getMeds not array: ', result.data);        
         self.loadData2();
-      });      
+      }           
     }).catch( function(result){
         console.log(body);
         self.loadData2();
@@ -143,7 +161,7 @@ export class FormAllergyPage {
   loadData2() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/EventbyProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/EventByProfile";
     
     var config = {
       invokeUrl: restURL,
@@ -160,7 +178,7 @@ export class FormAllergyPage {
     var method = 'GET';
     var additionalParams = {
         queryParams: {
-            eventid: this.recId
+            eventid: this.curRec.recordid
         }
     };
     var body = '';
@@ -168,23 +186,31 @@ export class FormAllergyPage {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.RestService.results = result.data;
-      self.listMedicationService
-      .getData()
-      .then(data => {
-        self.listEvents.items = self.RestService.results;
-        if (self.listEvents !== undefined && self.listEvents !== null && self.listEvents.items.length > 0) {
-          this.addExistingEvents();
-        }
+      if (Array.isArray(result.data)) {
+        var resultData = result.data;
+        self.listEventService
+        .getData()
+        .then(data => {
+          self.listEvents.items = resultData;
+          console.log('ListEvents: ',  self.listEvents.items);
+          if (self.listEvents !== undefined && self.listEvents !== null && self.listEvents.items.length > 0) {
+            self.addExistingEvents();
+          }
+          self.RestService.refreshCheck();
+          self.loading.dismiss();
+          });
+      } else {
+        console.log('Result.data from getEvents not array: ', result.data);        
         self.RestService.refreshCheck();
         self.loading.dismiss();
-      });      
+      }           
     }).catch( function(result){
         console.log(body);
         self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-  }
+
+}
 
   createMed () {
     return this.formBuilder.group({
@@ -197,9 +223,12 @@ export class FormAllergyPage {
   addExistingMeds() {
     this.currentMeds = this.card_form.get('currentmeds') as FormArray;
     this.currentMeds.removeAt(0);
+    console.log('From addExistingMeds listMeds length: ' + this.listMeds.items.length);
     for (var j = 0; j < this.listMeds.items.length; j++) {
+      console.log('From addExistingMeds listMeds medication name: ' + this.listMeds.items[j].medicationname);
       this.currentMeds.push(this.addExistingMed(j));              
     }    
+    console.log('From addExistingMeds currentMeds length: ' + this.currentMeds.length);
   }
 
   addExistingMed(index): FormGroup {
@@ -209,6 +238,14 @@ export class FormAllergyPage {
       startdate: new FormControl(this.listMeds.items[index].startdate),
     });
   }  
+
+  addMed() {
+    console.log('Coming');
+  }
+
+  showMed(index) {
+    console.log('Coming');
+  }
 
   createEvent () {
     return this.formBuilder.group({
@@ -233,6 +270,14 @@ export class FormAllergyPage {
       startdate: new FormControl(this.listEvents.items[index].startdate),
     });
   }  
+
+  addEvent() {
+    console.log('Coming');
+  }
+
+  showEvent(index) {
+    console.log('Coming');
+  }
 
   deleteRecord(){
     let alert = this.alertCtrl.create({

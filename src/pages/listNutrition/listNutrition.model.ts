@@ -1,5 +1,3 @@
-import { String } from "aws-sdk/clients/lexruntime";
-
 export class ListNutrition {
   recordid: number;
   food: string;

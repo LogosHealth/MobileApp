@@ -39,7 +39,6 @@ export class FormFoodPref {
     public navParams: NavParams, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.categoryList = "food";
-    this.loading = this.loadingCtrl.create();
     
     this.card_form = new FormGroup({
       categoryList: new FormControl(),
@@ -120,6 +119,7 @@ export class FormFoodPref {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

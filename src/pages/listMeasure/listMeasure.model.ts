@@ -1,5 +1,3 @@
-import { String } from "aws-sdk/clients/lexruntime";
-
 export class ListMeasure {
   recordid: number;
   weight: number;

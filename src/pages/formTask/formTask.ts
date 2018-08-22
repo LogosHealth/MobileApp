@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { FormTaskModel, FormTask } from '../../pages/formTask/formTask.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
@@ -44,7 +44,6 @@ export class FormTaskPage {
       this.goalname = "";
     }  
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     var self = this;
@@ -88,13 +87,9 @@ export class FormTaskPage {
   }
 
   ionViewWillEnter() {
+    this.loading = this.loadingCtrl.create();
     this.loading.present();
     this.nav.getPrevious().data.refresh = false;
-    this.loadData();
-  }
-
-  ionViewDidLoad() {
-    this.loading.present();
     this.loadData();
   }
 

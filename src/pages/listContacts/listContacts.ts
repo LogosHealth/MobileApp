@@ -1,22 +1,20 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
-import { ListLabsModel } from './listLabs.model';
-import { ListLabsService } from './listLabs.service';
+import { ListContactModel } from './listContacts.model';
+import { ListContactService } from './listContacts.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormLabsPage } from '../../pages/formLabs/formLabs';
+import { FormSleepPage } from '../../pages/formSleep/formSleep';
 
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listVaccinesPage',
-  templateUrl: 'listLabs.html'
+  selector: 'listExercisePage',
+  templateUrl: 'listContacts.html'
 })
-export class ListLabsPage {
-  list2: ListLabsModel = new ListLabsModel();
+export class ListContactPage {
+  list2: ListContactModel = new ListContactModel();
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
@@ -24,10 +22,11 @@ export class ListLabsPage {
 
   constructor(
     public nav: NavController,
-    public list2Service: ListLabsService,
+    public alertCtrl: AlertController,
+    public list2Service: ListContactService,
     public navParams: NavParams,
     public RestService:RestService,
-    public loadingCtrl: LoadingController
+    public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
 
@@ -37,6 +36,7 @@ export class ListLabsPage {
         self.userTimezone = results.timezone;
       }
     });
+
   }
 
   ionViewWillEnter() {
@@ -48,7 +48,7 @@ export class ListLabsPage {
       this.loading.present();
       this.loadData();  
     } else {
-      console.log('Need to login again!!! - Credentials expired from listLabs');
+      console.log('Need to login again!!! - Credentials expired from listContact');
       this.RestService.appRestart();
     }
   }
@@ -56,7 +56,7 @@ export class ListLabsPage {
   loadData() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
     
     var config = {
       invokeUrl: restURL,
@@ -86,41 +86,38 @@ export class ListLabsPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Labs: ", self.list2.items);
+        console.log("Results Data for Get Goals: ", self.list2.items);
         self.RestService.refreshCheck();
         self.loading.dismiss();
       });
+      
+      //alert('Async Check from Invoke: ' + self.RestService.results);   
+      
     }).catch( function(result){
         console.log(body);
         self.RestService.refreshCheck();
         self.loading.dismiss();
     });
+
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormLabsPage, { recId: recordId });
+    this.nav.push(FormSleepPage, { recId: recordId });
+    //alert('Open Record:' + recordId);
   }  
 
   addNew() {
-    this.nav.push(FormLabsPage);
+    this.nav.push(FormSleepPage);
   }  
   
   formatDateTime(dateString) {
+    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
-
-  formatMeasureTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format("hh:mm A");
-    } else {
-      return moment(dateString).format("hh:mm A");
     }
   }
 
@@ -144,5 +141,4 @@ export class ListLabsPage {
       }
     }
   }
-  
 }

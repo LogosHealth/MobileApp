@@ -40,6 +40,10 @@
             "image": "./assets/images/listing/200x200records.jpg"
         },
         {
+            "title": "Medical Contacts",
+            "image": "./assets/images/listing/200x200doctor.jpg"
+        },
+        {
             "title": "About Me",
             "image": "./assets/images/listing/200x200about.jpg"
         }

@@ -38,7 +38,6 @@ export class ListGoalProgressDetailPage {
     public loadingCtrl: LoadingController
   ) {
     this.recId = navParams.get('recId');
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
     this.curRec = RestService.results[this.recId]; 
     this.freshForm = false;
@@ -56,6 +55,8 @@ export class ListGoalProgressDetailPage {
         if (refresh) {
           console.log('ListGoalProgressDetail - Reload data object');
           this.curRec = this.RestService.results[this.recId]; 
+          this.loading = this.loadingCtrl.create();
+          this.loading.present();
           this.loadData();  
         }
       } else {
@@ -70,8 +71,9 @@ export class ListGoalProgressDetailPage {
 
   ionViewDidLoad() {
     console.log('ListGoalProgressDetail - ionViewDidLoad');
-    this.loading.present();
     this.freshForm = true;
+    this.loading = this.loadingCtrl.create();
+    this.loading.present();
     this.loadData();
   }
 

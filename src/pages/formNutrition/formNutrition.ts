@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListNutritionModel, ListNutrition, ListNutritionDay } from '../../pages/listNutrition/listNutrition.model';
@@ -14,7 +14,6 @@ var moment = require('moment-timezone');
   templateUrl: 'formNutrition.html'
 })
 export class FormNutritionPage {
-  loading: any;
   section: string;
   formName: string = "formMood";
   recId: number;
@@ -38,10 +37,9 @@ export class FormNutritionPage {
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
-    public navParams: NavParams, public loadingCtrl: LoadingController, public formBuilder: FormBuilder) {
+    public navParams: NavParams, public formBuilder: FormBuilder) {
     this.recId = navParams.get('recId');
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
     console.log('Cur Rec: ', this.curRec);
 

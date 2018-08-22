@@ -30,7 +30,6 @@ export class ListGoalProgressPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
   }
 
@@ -39,6 +38,7 @@ export class ListGoalProgressPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

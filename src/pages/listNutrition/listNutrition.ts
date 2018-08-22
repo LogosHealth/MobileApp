@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListNutritionModel } from './listNutrition.model';
 import { ListNutritionService } from './listNutrition.service';
 import { RestService } from '../../app/services/restService.service';
@@ -29,16 +27,13 @@ export class ListNutritionPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
   }
 
   ionViewWillEnter() {
@@ -46,6 +41,7 @@ export class ListNutritionPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

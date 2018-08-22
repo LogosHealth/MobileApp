@@ -38,10 +38,8 @@ export class FormWeightPage {
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
     public navParams: NavParams, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
-
     this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {

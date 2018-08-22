@@ -54,7 +54,6 @@ export class FormLabsPage {
       console.log ('Lab Form not exist - value = ' + this.labForm);
     }
 
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
 
     var self = this;
@@ -105,6 +104,7 @@ export class FormLabsPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

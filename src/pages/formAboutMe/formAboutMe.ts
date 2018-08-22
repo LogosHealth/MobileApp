@@ -50,7 +50,6 @@ export class FormAboutMe {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
-    this.loading = this.loadingCtrl.create();
     
     this.masks = {
       phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
@@ -108,6 +107,7 @@ export class FormAboutMe {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
@@ -316,8 +316,8 @@ export class FormAboutMe {
             }    
         }
         self.card_form.controls["species"].setValue(self.list2[0].species);
-        self.card_form.controls["breed"].setValue(self.list2[0].breed);
-        self.card_form.controls["breed"].setValue(self.list2[0].breed);
+        //self.card_form.controls["breed"].setValue(self.list2[0].breed);
+        //self.card_form.controls["breed"].setValue(self.list2[0].breed);
         if (self.list2[0].races !== undefined && self.list2[0].races.length > 0) {
           self.addExistingRaces();
         }

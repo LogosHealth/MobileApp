@@ -1,9 +1,7 @@
-import { Component, Self, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListSleepModel } from './listSleep.model';
 import { ListSleepService } from './listSleep.service';
 import { RestService } from '../../app/services/restService.service';
@@ -30,7 +28,6 @@ export class ListSleepPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController,
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
 
     var self = this;
@@ -39,7 +36,6 @@ export class ListSleepPage {
         self.userTimezone = results.timezone;
       }
     });
-
   }
 
   ionViewWillEnter() {
@@ -47,6 +43,7 @@ export class ListSleepPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {
@@ -91,16 +88,12 @@ export class ListSleepPage {
         console.log("Results Data for Get Goals: ", self.list2.items);
         self.RestService.refreshCheck();
         self.loading.dismiss();
-      });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
+      });      
     }).catch( function(result){
         console.log(body);
         self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {

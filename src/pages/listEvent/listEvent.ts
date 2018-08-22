@@ -30,7 +30,6 @@ export class ListEventPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController,
   ) {
-    this.loading = this.loadingCtrl.create();
     this.feed.category = navParams.get('category');
 
     var self = this;
@@ -47,6 +46,7 @@ export class ListEventPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();  
     } else {

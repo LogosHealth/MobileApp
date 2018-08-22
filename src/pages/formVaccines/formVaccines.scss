@@ -35,6 +35,7 @@ formVaccines-page {
 
 			ion-item {
 				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				vertical-align: bottom;
 
 				&.item
 				{
@@ -60,6 +61,12 @@ formVaccines-page {
 				&:first-of-type {
 					margin-top: 0px;
 				}
+			}
+
+			.columnAlign 
+			{
+                margin-top: 30px;
+				vertical-align: bottom;
 			}
 
 			.section-title

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
@@ -14,7 +14,6 @@ var moment = require('moment-timezone');
   templateUrl: 'formMood.html'
 })
 export class FormMoodPage {
-  loading: any;
   section: string;
   formName: string = "formMood";
   recId: number;
@@ -36,22 +35,17 @@ export class FormMoodPage {
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
-    public navParams: NavParams, public loadingCtrl: LoadingController) {
+    public navParams: NavParams) {
     this.recId = navParams.get('recId');
-
-    this.loading = this.loadingCtrl.create();
     this.curRec = RestService.results[this.recId]; 
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
     //add caloriesburnedvalue generator    
-    if (this.recId !== undefined) {
- 
+    if (this.recId !== undefined) { 
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         mood: new FormControl(this.curRec.mood),
