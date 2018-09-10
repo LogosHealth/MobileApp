@@ -10,7 +10,7 @@ import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVaccines-page',
+  selector: 'formExercise-page',
   templateUrl: 'formWeight.html'
 })
 export class FormWeightPage {
@@ -25,6 +25,7 @@ export class FormWeightPage {
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
+  showTips: boolean = true;
 
   formModelSave: ListMeasureModel  = new ListMeasureModel();
   formSave: ListMeasure = new ListMeasure();

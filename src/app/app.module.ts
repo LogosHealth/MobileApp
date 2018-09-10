@@ -1,6 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
+import { Autosize } from '../components/autosize/autosize'
 
 import { ListingPage } from '../pages/listing/listing';
 import { HistoryPage } from '../pages/history/history';
@@ -33,6 +34,7 @@ import { ListLabsPage } from '../pages/listLabs/listLabs';
 import { ListNutritionPage } from '../pages/listNutrition/listNutrition';
 import { ListMedicationPage } from '../pages/listMedication/listMedication';
 import { ListEventPage } from '../pages/listEvent/listEvent';
+import { ListContactPage } from '../pages/listContacts/listContacts';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -49,6 +51,9 @@ import { FormLabsPage } from '../pages/formLabs/formLabs';
 import { FormNutritionPage } from '../pages/formNutrition/formNutrition';
 import { FormAboutMe } from '../pages/formAboutMe/formAboutMe';
 import { FormAllergyPage } from '../pages/formAllergy/formAllergy';
+import { FormFindContact } from '../pages/formFindContact/formFindContact';
+import { FormContactPage } from '../pages/formContact/formContact';
+import { FormCallNotesPage } from '../pages/formCallNotes/formCallNotes';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -84,6 +89,8 @@ import { ListNutritionService } from '../pages/listNutrition/listNutrition.servi
 import { AboutMeService } from '../pages/formAboutMe/formAboutMe.service';
 import { ListMedicationService } from '../pages/listMedication/listMedication.service';
 import { ListEventService } from '../pages/listEvent/listEvent.service';
+import { ListContactService } from '../pages/listContacts/listContacts.service';
+import { FormFindContactService } from '../pages/formFindContact/formFindContact.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -150,6 +157,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListNutritionPage,
     ListMedicationPage,
     ListEventPage,
+    ListContactPage,
 
     GridPage,
     FormLayoutPage,
@@ -166,6 +174,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormNutritionPage,
     FormAboutMe,
     FormAllergyPage,
+    FormFindContact,
+    FormContactPage,
+    FormCallNotesPage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -182,6 +193,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ColorRadio,
     CounterInput,
     Rating,
+    Autosize,
     GoogleMap
   ],
   imports: [
@@ -225,6 +237,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListNutritionPage,
     ListMedicationPage,
     ListEventPage,
+    ListContactPage,
 
     GridPage,
     FormLayoutPage,
@@ -241,7 +254,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormNutritionPage,
     FormAboutMe,
     FormAllergyPage,
-
+    FormFindContact,
+    FormContactPage,
+    FormCallNotesPage,
+    
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -275,7 +291,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     AboutMeService,
     ListMedicationService,
     ListEventService,
-
+    ListContactService,
+    FormFindContactService,
+    
     ScheduleService,
     FacebookLoginService,
     GoogleLoginService,

@@ -34,11 +34,9 @@ export class ListAllergiesPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
-      if (this.loading !== undefined) {
-        this.loading = this.loadingCtrl.create();
-        this.loading.present();
-        console.log ('This.loading not undefined: ', this.loading);
-      }
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      console.log ('This.loading not undefined: ', this.loading);
       this.loadData();  
     } else {
       console.log('Need to login again!!! - Credentials expired from listAllergies');
@@ -88,6 +86,7 @@ export class ListAllergiesPage {
       });
     }).catch( function(result){
       self.RestService.refreshCheck();
+      self.loading.dismiss();
       console.log(body);
     });
   }

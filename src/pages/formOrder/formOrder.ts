@@ -18,6 +18,7 @@ export class FormOrderPage {
   form_group: FormGroup;
   curRec: any;
   saving: boolean = false;
+  showTips: boolean = true;
 
   modelSave: ListOrderModel  = new ListOrderModel();
   listSave: ListOrder = new ListOrder();

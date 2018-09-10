@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController,  NavParams, AlertController } from 'ionic-angular';
+import { NavController,  NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListVaccinesModel, ListVaccines, ListVaccineSchedule } from '../../pages/listVaccines/listVaccines.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
+import { ListContactModel } from '../../pages/listContacts/listContacts.model';
+import { ListContactService } from '../../pages/listContacts/listContacts.service';
+
 
 var moment = require('moment-timezone');
 
@@ -19,6 +22,8 @@ export class FormVaccinesPage {
   vaccine_schedule: FormGroup;
   curRec: any;
   saving: boolean = false;
+  loading: any;
+  listContacts: ListContactModel = new ListContactModel();
 
   vaccineModelSave: ListVaccinesModel  = new ListVaccinesModel();
   vaccineSave: ListVaccines = new ListVaccines();
@@ -28,12 +33,12 @@ export class FormVaccinesPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
-    public navParams: NavParams) {
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public listContactService: ListContactService,
+    public loadingCtrl: LoadingController, public navParams: NavParams) {
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId]; 
 
-    if (this.curRec.schedules.length > 0) {
+    if (this.curRec.schedules !== undefined && this.curRec.schedules.length > 0) {
       this.vaccine_array = new FormArray([]);
       for (var i = 0; i < this.curRec.schedules.length; i++) {
         var dtSched;      
@@ -49,10 +54,11 @@ export class FormVaccinesPage {
           agerangelow: new FormControl(this.curRec.schedules[i].agerangelow),
           agerangehigh: new FormControl(this.curRec.schedules[i].agerangehigh),
           agerangeunit: new FormControl(this.curRec.schedules[i].agerangeunit),
-          notes: new FormControl(this.curRec.schedules[i].notes),
-          
+          notes: new FormControl(this.curRec.schedules[i].notes),          
           exp_date: new FormControl(dtSched, Validators.required),
-          physician: new FormControl(this.curRec.schedules[i].physician, Validators.required)
+          physician: new FormControl(this.curRec.schedules[i].physician),
+          contactid: new FormControl(this.curRec.schedules[i].contactid, Validators.required),
+          visitid: new FormControl(this.curRec.schedules[i].visitid)
         });
         this.vaccine_array.push(this.vaccine_schedule);
       } 
@@ -75,9 +81,70 @@ export class FormVaccinesPage {
         vaccine_name: new FormControl(this.curRec.name),
         confirmed: new FormControl(this.curRec.confirmed),
         exp_date: new FormControl(dt, Validators.required),
-        physician: new FormControl(this.curRec.physician, Validators.required)
-      });  
+        physician: new FormControl(this.curRec.physician),
+        contactid: new FormControl(this.curRec.contactid, Validators.required),
+        visitid: new FormControl(this.curRec.visitid)
+    });  
     }
+  }
+
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadContacts();  
+    } else {
+      console.log('Need to login again!!! - Credentials expired from listSleep');
+      this.RestService.appRestart();
+    }
+  }
+
+  loadContacts() {
+    var restURL: string;
+
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
+    
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            contacttype: "doctor"
+        }
+    };
+    var body = '';
+    var self = this;
+    var contacts = [];
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      contacts = result.data;
+      self.listContactService
+      .getData()
+      .then(data => {
+        self.listContacts.items = contacts;
+        self.RestService.refreshCheck();       
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+      self.RestService.refreshCheck();
+      console.log(body);
+      self.loading.dismiss();
+    });
   }
 
   confirmRecord(){
@@ -102,6 +169,10 @@ export class FormVaccinesPage {
           isChanged = true;
           this.vaccineSched.physician = vaccineSaveArray.controls[i].get('physician').value;
         }
+        if (vaccineSaveArray.controls[i].get('contactid').dirty) {
+          isChanged = true;
+          this.vaccineSched.contactid = vaccineSaveArray.controls[i].get('contactid').value;
+        }
         if (isChanged) {
           this.vaccineSched.recordid = vaccineSaveArray.controls[i].get('recordid').value;
           //console.log('Record id: ' + this.vaccineSched.recordid);
@@ -114,6 +185,9 @@ export class FormVaccinesPage {
       }
       if (this.card_form.get('physician').dirty) {
         this.vaccineSave.physician = this.card_form.get('physician').value;
+      }  
+      if (this.card_form.get('contactid').dirty) {
+        this.vaccineSave.contactid = this.card_form.get('contactid').value;
       }  
     }
 
@@ -258,6 +332,10 @@ export class FormVaccinesPage {
           isChanged = true;
           this.vaccineSched.physician = vaccineSaveArray.controls[i].get('physician').value;
         }
+        if (vaccineSaveArray.controls[i].get('contactid').dirty) {
+          isChanged = true;
+          this.vaccineSched.contactid = vaccineSaveArray.controls[i].get('contactid').value;
+        }
         if (isChanged) {
           this.vaccineSched.recordid = vaccineSaveArray.controls[i].get('recordid').value;
           //console.log('Record id: ' + this.vaccineSched.recordid);
@@ -270,6 +348,9 @@ export class FormVaccinesPage {
       }
       if (this.card_form.get('physician').dirty) {
         this.vaccineSave.physician = this.card_form.get('physician').value;
+      }  
+      if (this.card_form.get('contactid').dirty) {
+        this.vaccineSave.contactid = this.card_form.get('contactid').value;
       }  
     }
 

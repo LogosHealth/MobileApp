@@ -1,0 +1,195 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Find Medical Contact</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+    <div>
+        <!-- Segment buttons with text -->
+        <ion-segment [(ngModel)]="categoryList" [ngModelOptions]="{standalone: true}" class="forms-examples-segment">
+          <ion-segment-button class="segment-button" value="physician" (ionClick)="setPhysician()">
+            Physician
+          </ion-segment-button>
+          <ion-segment-button class="segment-button" value="facility" (ionClick)="setFacility()">
+            Facility
+          </ion-segment-button>
+        </ion-segment>
+  
+        <div [ngSwitch]="categoryList" class="forms-examples-segment">
+            <div  *ngSwitchCase="'physician'">
+                <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+                    <section class="form-section">
+                      <h2 class = "section-title">Medical Contact Search</h2>  
+                      <ion-row>
+                        <ion-col no-padding width-50>
+                          <ion-item>
+                            <ion-label floating>First Name</ion-label>
+                            <ion-input type="text" formControlName="firstname"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-50>
+                          <ion-item>
+                            <ion-label floating>Last Name*</ion-label>
+                            <ion-input type="text" formControlName="lastname"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col no-padding width-60>
+                          <ion-item>
+                            <ion-label floating>City**</ion-label>
+                            <ion-input type="text" formControlName="city"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-15>
+                          <ion-item>
+                            <ion-label floating>State**</ion-label>
+                            <ion-select formControlName="state">
+                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
+                            </ion-select>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-25>
+                          <ion-item>
+                            <ion-label floating>Zip Code***</ion-label>
+                            <ion-input type="text"  maxlength="5" pattern="[0-9]{5}" formControlName="zipcode"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <p class="section-footnote">* Required</p>
+                      <p class="section-footnote">** or *** Required</p>
+                    </section>
+                    <section class="form-section">
+                     <ion-row no-padding class="multi-input-row">
+                        <ion-col no-padding width-50>
+                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()">Search</button>
+                        </ion-col>
+                     </ion-row>
+                    </section>
+                    <br>
+                    <section class="list-mini-content" *ngIf="findcontacts.items !== undefined && findcontacts.items.length > 0 || lastSearch" >
+                      <div class="list-mini">
+                          <ion-list radio-group formControlName="contacts">
+                              <div class="list-item" ion-item *ngFor="let item of findcontacts.items;let i=index;">
+                                <ion-label text-wrap class="section-title">{{item.name}} <br/> <p class="item-description">{{item.formatted_address}}</p></ion-label>
+                                <ion-radio value="{{item.place_id}}" (ionSelect)="checkSaveReady()"></ion-radio>
+                              </div>
+                          </ion-list>
+                      </div>
+                      <p class="section-footnote" *ngIf="dsEligible">Can't find your doctor?  Try the deep search button below.</p>
+                      <p class="section-footnote" *ngIf="lastSearch">Can't find your doctor?  Enter a contact manually with the button below.</p>
+                    </section>
+                    <section class="form-section" *ngIf="(findcontacts.items !== undefined && findcontacts.items.length > 0) || lastSearch">
+                        <ion-row *ngIf="findcontacts.items !== undefined && findcontacts.items.length > 0">
+                          <ion-col no-padding width-60>
+                            <ion-item>
+                              <ion-label floating>Physician Type*</ion-label>
+                              <ion-select formControlName="doctortype">
+                                <ion-option *ngFor="let dt of doctorTypeList" [value]="dt.recordid" (ionSelect)="checkSaveReady()">{{dt.dictionarycode}}</ion-option>                
+                              </ion-select>
+                            </ion-item>
+                          </ion-col>
+                          <ion-col no-padding width-40>
+                            <ion-item>
+                              <ion-label floating text-wrap>Covered by Insurance</ion-label>
+                              <ion-select formControlName="covered">
+                                  <ion-option class="section-title" value="Y">Yes</ion-option>
+                                  <ion-option class="section-title" value="N">No</ion-option>
+                                </ion-select>
+                            </ion-item>
+                          </ion-col>
+                      </ion-row>
+                      <ion-row no-padding class="multi-input-row">
+                           <ion-col no-padding width-50>
+                               <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!saveready">Save</button>
+                           </ion-col>
+                           <ion-col no-padding width-50 *ngIf="dsEligible">
+                               <button ion-button block class="form-action-button" type="button" (click)="callDS()" >Deep Search</button>
+                           </ion-col>
+                           <ion-col no-padding width-50 *ngIf="lastSearch">
+                              <button ion-button block class="form-action-button" type="button" (click)="createContact()" >Manual Contact</button>
+                          </ion-col>
+                       </ion-row>
+                    </section>   
+                  </form>                
+            </div>
+
+            <div *ngSwitchCase="'facility'">
+                <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+                    <section class="form-section">
+                      <h2 class = "section-title">Medical Facility Search</h2>  
+                      <ion-row>
+                        <ion-col no-padding>
+                          <ion-item>
+                            <ion-label floating>Facility Type*</ion-label>
+                            <ion-select formControlName="facilitytype">
+                              <ion-option class="section-title" value="Emergency Room">Emergency Room</ion-option>
+                              <ion-option class="section-title" value="Urgent Care">Urgent Care</ion-option>
+                            </ion-select>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <ion-row>
+                        <ion-col no-padding width-60>
+                          <ion-item>
+                            <ion-label floating>City**</ion-label>
+                            <ion-input type="text" formControlName="city"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-15>
+                          <ion-item>
+                            <ion-label floating>State**</ion-label>
+                            <ion-select formControlName="state">
+                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
+                            </ion-select>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-25>
+                          <ion-item>
+                            <ion-label floating>Zip Code***</ion-label>
+                            <ion-input type="text"  maxlength="5" pattern="[0-9]{5}" formControlName="zipcode"></ion-input>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                      <p class="section-footnote">* Required</p>
+                      <p class="section-footnote">** or *** Required</p>
+                    </section>
+                    <section class="form-section">
+                     <ion-row no-padding class="multi-input-row">
+                        <ion-col no-padding width-50>
+                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()">Search</button>
+                        </ion-col>
+                     </ion-row>
+                    </section>
+                    <br>
+                    <section class="list-mini-content" *ngIf="findcontacts.items !== undefined && findcontacts.items.length > 0 || lastSearch" >
+                      <div class="list-mini">
+                          <ion-list radio-group formControlName="contacts">
+                              <div class="list-item" ion-item *ngFor="let item of findcontacts.items;let i=index;">
+                                <ion-label text-wrap class="section-title">{{item.name}} <br/> <p class="item-description">{{item.formatted_address}}</p></ion-label>
+                                <ion-radio value="{{item.place_id}}" (ionSelect)="checkSaveReady()"></ion-radio>
+                              </div>
+                          </ion-list>
+                      </div>
+                      <p class="section-footnote" *ngIf="dsEligible">Can't find the medical facility?  Try the deep search button below.</p>
+                      <p class="section-footnote" *ngIf="lastSearch">Can't find the medical facility?  Enter a contact manually with the button below.</p>
+                    </section>
+                    <section class="form-section" *ngIf="(findcontacts.items !== undefined && findcontacts.items.length > 0) || lastSearch">
+                      <ion-row no-padding class="multi-input-row">
+                           <ion-col no-padding width-50>
+                               <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!saveready">Save</button>
+                           </ion-col>
+                           <ion-col no-padding width-50 *ngIf="dsEligible">
+                               <button ion-button block class="form-action-button" type="button" (click)="callDS()" >Deep Search</button>
+                           </ion-col>
+                           <ion-col no-padding width-50 *ngIf="lastSearch">
+                              <button ion-button block class="form-action-button" type="button" (click)="createContact()" >Manual Contact</button>
+                          </ion-col>
+                       </ion-row>
+                    </section>   
+                  </form>                
+            </div>
+        </div>
+     </div>
+</ion-content>

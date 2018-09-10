@@ -1,8 +1,8 @@
 {
   "name": "LogosHealth",
-  "app_id": "0f127b9d",
   "integrations": {
     "cordova": {}
   },
-  "type": "ionic-angular"
+  "type": "ionic-angular",
+  "pro_id": "0f127b9d"
 }

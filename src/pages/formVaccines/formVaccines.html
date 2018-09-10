@@ -26,15 +26,27 @@
                     <ion-label class = "section-label" *ngIf="sched.get('agerangelow').value > 0 && sched.get('agerangelow').value ==sched.get('agerangehigh').value">{{sched.get('agerangelow').value}} {{sched.get('agerangeunit').value}} </ion-label>
                     <ion-label class = "section-label" *ngIf="sched.get('agerangelow').value==0">{{sched.get('notes').value}}</ion-label>                        
                   </ion-col> 
-
-                  <ion-item>
-                    <ion-label floating>Date</ion-label>
-                    <ion-datetime formControlName="exp_date" displayFormat="MM/DD/YYYY" pickerFormat="MM-DD-YYYY" [max]="today()"></ion-datetime>
-                  </ion-item>
-                  <ion-item>  
-                    <ion-label floating>Physician</ion-label>
-                    <ion-input type="text" formControlName="physician"></ion-input>
-                  </ion-item>
+                </ion-row>
+                <ion-row no-padding class="multi-input-row" [formGroupName]="i">
+                  <ion-col no-padding>
+                    <ion-item>
+                      <ion-label floating>Date</ion-label>
+                      <ion-datetime formControlName="exp_date" displayFormat="MM/DD/YYYY" pickerFormat="MM-DD-YYYY" [max]="today()"></ion-datetime>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+                <ion-row no-padding class="multi-input-row" [formGroupName]="i">
+                  <ion-col no-padding width-70>
+                    <ion-item>  
+                      <ion-label floating>Physician</ion-label>
+                      <ion-select formControlName="contactid">
+                        <ion-option *ngFor="let contact of listContacts.items" [value]="contact.recordid">{{contact.title}}</ion-option>                
+                      </ion-select>
+                      </ion-item>
+                  </ion-col>
+                  <ion-col  class="columnAlign" no-padding width-30>
+                    <button ion-button block class="form-action-button create-card-button"  type="button" (click)="FindContact()">New Contact</button>
+                  </ion-col>
                 </ion-row>
               </div>  
             </div>
@@ -47,7 +59,9 @@
               </ion-item>
               <ion-item>  
                 <ion-label floating>Physician</ion-label>
-                <ion-input type="text" formControlName="physician"></ion-input>
+                <ion-select formControlName="contactid">
+                  <ion-option *ngFor="let contact of listContacts.items" [value]="contact.recordid">{{contact.title}}</ion-option>                
+                </ion-select>
               </ion-item>
             </ion-row>
           </ng-template>

@@ -17,19 +17,30 @@
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
-      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
-        <ion-row no-padding class="content-row one-line">
-          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
-          <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
-            <p class = "item-description">Hours Slept {{item.hoursslept}} hours</p>
-            <p class = "item-description" *ngIf="item.starttime !== null">From: {{formatTime(item.starttime)}} to {{formatTime(item.waketime)}}</p>
-          </ion-col>
-          <ion-col no-padding width-10 class="item-icon">
-            <ion-icon name="arrow-forward"></ion-icon>
-          </ion-col>
-        </ion-row>
-      </button>
+      <ion-item-sliding class="list-item" *ngFor="let item of list2.items;let i=index;">
+          <ion-item  (click)="openRecord(i)">
+              <ion-row no-padding class="content-row one-line">
+                <ion-col no-padding width-90 class="item-content" >
+                  <h3 class="item-title" *ngIf="item.title !== undefined" text-wrap>{{item.title}} </h3>
+                  <h3 class="item-title" *ngIf="item.title == undefined" text-wrap>{{item.firstname}} {{item.lastname}} {{item.suffix}}</h3>
+                  <p class = "item-description" *ngIf="item.facilitytype == undefined">{{item.relationship}}</p>
+                  <p class = "item-description" *ngIf="item.facilitytype !== undefined">{{item.facilitytype}}</p>
+                  <p class = "item-description">{{formatPhone(item.phonenumber)}}</p>
+                </ion-col>
+                <ion-col no-padding width-10 class="item-icon">
+                  <ion-icon name="arrow-forward"></ion-icon>
+                </ion-col>
+              </ion-row>
+          </ion-item>
+          <ion-item-options side="left">
+              <button ion-button color="secondary" (click)="callDoc(i)">
+                  <ion-icon name="call"></ion-icon>Call
+              </button>
+              <button *ngIf="item.active == 'Y'" ion-button color="primary" (click)="scheduleVisit(i)">
+                  <ion-icon name="calendar"></ion-icon>Schedule Visit
+              </button>
+          </ion-item-options>      
+      </ion-item-sliding>
     </ion-list>
   </div>
 </ion-content>

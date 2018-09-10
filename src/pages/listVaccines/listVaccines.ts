@@ -6,6 +6,9 @@ import { ListVaccinesModel } from './listVaccines.model';
 import { ListVaccinesService } from './listVaccines.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
+import { ListContactModel } from '../../pages/listContacts/listContacts.model';
+import { ListContactService } from '../../pages/listContacts/listContacts.service';
+
 
 var moment = require('moment-timezone');
 
@@ -18,10 +21,12 @@ export class ListVaccinesPage {
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
+  listContacts: ListContactModel = new ListContactModel();
 
   constructor(
     public nav: NavController,
     public list2Service: ListVaccinesService,
+    public listContactService: ListContactService,
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController
@@ -77,12 +82,70 @@ export class ListVaccinesPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         self.RestService.refreshCheck();       
+        self.loadContacts();
+      });
+    }).catch( function(result){
+      self.RestService.refreshCheck();
+      console.log(body);
+      self.loading.dismiss();
+    });
+  }
+
+  loadContacts() {
+    var restURL: string;
+
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
+    
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            contacttype: "doctor"
+        }
+    };
+    var body = '';
+    var self = this;
+    var contacts = [];
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      contacts = result.data;
+      self.listContactService
+      .getData()
+      .then(data => {
+        self.listContacts.items = contacts;
+        self.RestService.refreshCheck();       
         self.loading.dismiss();
       });
     }).catch( function(result){
       self.RestService.refreshCheck();
       console.log(body);
+      self.loading.dismiss();
     });
+  }
+
+  getName(contactid) {
+    if(this.listContacts.items !== undefined) {
+      for (var j = 0; j < this.listContacts.items.length; j++) {
+        if (this.listContacts.items[j].recordid == contactid) {
+          return this.listContacts.items[j].title;
+        }
+      }
+    } else {
+      return null;
+    }
   }
 
   openRecord(recordId) {

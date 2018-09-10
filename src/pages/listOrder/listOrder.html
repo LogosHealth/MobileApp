@@ -32,10 +32,10 @@
       <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
-          <ion-col no-padding width-18 class="item-avatar">
-            <preload-image class="avatar-image" [ratio]="{w:1, h:1}" [src]="item.image"></preload-image>
+          <ion-col no-padding width-25 class="item-avatar">
+            <preload-image class="avatar-image" [ratio]="{w:16, h:9}" [src]="item.image"></preload-image>
           </ion-col>    
-          <ion-col no-padding width-72 class="item-content" >
+          <ion-col no-padding width-65 class="item-content" >
             <h3 class="item-title">{{item.name}}</h3>
             <h3 class="item-title">from {{item.restaurantname}}</h3>
             <p class="item-description">Cost: ${{item.cost}}      Calories: {{item.calories}} </p> 

@@ -5,7 +5,9 @@ import 'rxjs/Rx';
 import { ListContactModel } from './listContacts.model';
 import { ListContactService } from './listContacts.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormSleepPage } from '../../pages/formSleep/formSleep';
+import { FormFindContact } from '../../pages/formFindContact/formFindContact';
+import { FormContactPage } from '../../pages/formContact/formContact';
+import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
 
 var moment = require('moment-timezone');
 
@@ -86,30 +88,31 @@ export class ListContactPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get ContactByProfile: ", self.list2.items);
         self.RestService.refreshCheck();
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
         self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormSleepPage, { recId: recordId });
+    this.nav.push(FormContactPage, { recId: recordId });
     //alert('Open Record:' + recordId);
   }  
 
+  callDoc(recordId) {
+    console.log("Call Doc item", recordId);
+    this.nav.push(FormCallNotesPage, { recId: recordId });
+  }
+
   addNew() {
-    this.nav.push(FormSleepPage);
+    this.nav.push(FormFindContact);
   }  
   
   formatDateTime(dateString) {
@@ -119,6 +122,12 @@ export class ListContactPage {
     } else {
       return moment(dateString).format('dddd, MMMM DD');
     }
+  }
+
+  formatPhone(phoneNum) {
+    var strPhone = String(phoneNum);
+    strPhone = '(' + strPhone.substring(0, 3) + ')' + strPhone.substring(3, 6) + '-' + strPhone.substring(6, 10); 
+    return strPhone;
   }
 
   formatTime(timeString) {

@@ -82,7 +82,24 @@ formOrder-page {
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
+			}
+			
+			.section-tips
+			{
+				font-size: 1.4rem;
+				line-height: 1.2;
+				letter-spacing: 1.1px;
+				text-align: left;
+				color: $theme-color-1;
+				font-weight: 400;
+				margin-top: 20px;
+				//margin: 2px;
+				border-style: ridge;
+				border-width: 2px;
+				border-color: $theme-color-1;
+				padding: 5px;
 			}			
+
 			.image-center{
 				display: block;
 				margin-left: auto;
@@ -99,8 +116,28 @@ formOrder-page {
 				color: $white-d;
 				//color: $theme-color-2;
 				//font-weight: 0;
-				margin-top: 0px;
-				margin: 0px;
+				//margin-top: 0px;
+				margin-left: 25px;
+				margin-right: 25px;
+				//margin: 0px;
+				//padding:20px;
+				white-space: pre-wrap;
+				//@include multi-line-ellipsis(10);
+			}
+
+			.section-label2
+			{
+				font-size: 1.1rem;
+				line-height: 1.1;
+				letter-spacing: 1.0px;
+				text-align: left;
+				color: $white-d;
+				//color: $theme-color-2;
+				//font-weight: 0;
+				//margin-top: 0px;
+				margin-left: 40px;
+				margin-right: 25px;
+				//margin: 0px;
 				//padding:20px;
 				white-space: pre-wrap;
 				//@include multi-line-ellipsis(10);

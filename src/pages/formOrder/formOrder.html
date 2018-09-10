@@ -15,35 +15,35 @@
           <ion-row no-padding class="section-label">{{ card_form.get('description').value }}</ion-row>
           <br>
           <ion-row no-padding>              
-              <ion-col no-padding width-33 class="image-center">
-                <preload-image  [ratio]="{w:1, h:1}" [src]="card_form.get('image').value"></preload-image>
+              <ion-col no-padding width-90 class="image-center">
+                <preload-image  [ratio]="{w:16, h:9}" [src]="card_form.get('image').value"></preload-image>
               </ion-col>
               <br>      
           </ion-row>
 
           <br>
           <ion-row no-padding class="section-label"><b>Nutritional Info:</b></ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
               <ion-col no-padding  width-50>Calories: {{ card_form.get('calories').value }}</ion-col>
               <ion-col no-padding  width-50>Protein: {{ card_form.get('protein').value }}</ion-col>
           </ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
             <ion-col no-padding  width-50>Calories from Fat: {{ card_form.get('caloriesfromfat').value }}</ion-col>
             <ion-col no-padding  width-50>Dietary Fiber: {{ card_form.get('dietaryfiber').value }}</ion-col>
           </ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
               <ion-col no-padding  width-50>Total Fat: {{ card_form.get('totalfat').value }}</ion-col>
               <ion-col no-padding  width-50>Carbs: {{ card_form.get('carbs').value }}</ion-col>
           </ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
               <ion-col no-padding  width-50>Saturated Fat: {{ card_form.get('saturatedfat').value }}</ion-col>
               <ion-col no-padding  width-50>Sugars: {{ card_form.get('sugars').value }}</ion-col>
           </ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
               <ion-col no-padding  width-50>Trans Fat: {{ card_form.get('transfat').value }}</ion-col>
               <ion-col no-padding  width-50>Sodium: {{ card_form.get('sodium').value }}</ion-col>
           </ion-row>
-          <ion-row no-padding class="section-label">
+          <ion-row no-padding class="section-label2">
               <ion-col no-padding  width-50>Cholesterol: {{ card_form.get('cholesterol').value }}</ion-col>
           </ion-row>
                 
@@ -52,6 +52,9 @@
               <button ion-button block class="form-action-button create-card-button" type="submit">Order</button>
             </ion-col>
          </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth "Hands Free" Alexa Skill Tip:</b><br><br>Say 
+            <i>"Order a Meal", "Order [Salmon]", or "Order from [My Favorite Restaurant]"</i> to get the food you want which fits your lifestyle without having to set down the baby.
+        </p>
         </section>
       </form>
     </div>

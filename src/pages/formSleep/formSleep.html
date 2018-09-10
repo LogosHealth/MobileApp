@@ -59,6 +59,9 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>    
          </ion-row>
+          <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br>Say <i>"I slept from midnight to 7:00 AM"</i> for easy data entry.
+            <br><br>Say <i>"Bella is napping" and "Bella woke up"</i> for real-time nap tracking.
+          </p>
         </section>
       </form>
     </div>

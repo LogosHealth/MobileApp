@@ -25,6 +25,14 @@
     ],
     "categories": [
         {
+            "title": "Full Medical History",
+            "image": "./assets/images/listing/200x200about.jpg"
+        },
+        {
+            "title": "Medical Contacts",
+            "image": "./assets/images/listing/200x200doctor.jpg"
+        },
+        {
             "title": "Medical Events",
             "image": "./assets/images/listing/200x200condition.jpg"
         },

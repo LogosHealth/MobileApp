@@ -12,7 +12,7 @@ import { DictionaryService } from '../../pages/models/dictionary.service';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVaccines-page',
+  selector: 'formExercise-page',
   templateUrl: 'formLabs.html'
 })
 export class FormLabsPage {
@@ -30,6 +30,7 @@ export class FormLabsPage {
   newRec: boolean = false;
   saving: boolean = false;
   loadingComplete: boolean = false;
+  showTips: boolean = true;
 
   formModelSave: ListMeasureModel  = new ListMeasureModel();
   formSave: ListMeasure = new ListMeasure();

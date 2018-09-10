@@ -39,6 +39,7 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>    
          </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br>Say <i>"I weigh 125 pounds"</i> for easy data entry.</p>
         </section>
       </form>
     </div>

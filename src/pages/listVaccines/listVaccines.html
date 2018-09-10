@@ -23,7 +23,8 @@
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
               <p class="item-description" *ngIf="sched.agerangelow==0">Schedule: {{sched.notes}}</p>              
               <p class="item-description">Date: {{sched.startdate}}</p>
-              <p class="item-description">Physician: {{sched.physician}}</p>
+              <p class="item-description" *ngIf="sched.contactid !== null">Physician: {{getName(sched.contactid)}}</p>
+              <p class="item-description" *ngIf="sched.contactid == null">Physician: {{sched.physician}}</p>
               <br>
             </div>                 
           </ion-col>
@@ -36,7 +37,8 @@
             <ion-col no-padding width-90 class="item-content">
               <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
               <p class="item-description">Date: {{item.startdate}}</p> 
-              <p class="item-description">Physician: {{item.physician}}</p> 
+              <p class="item-description" *ngIf="item.contactid !== null" >Physician: {{getName(item.contactid)}}</p> 
+              <p class="item-description" *ngIf="item.contactid == null" >Physician: {{item.physician}}</p> 
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">
               <ion-icon name="arrow-forward"></ion-icon>

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListSleepModel, ListSleep } from '../../pages/listSleep/listSleep.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
@@ -11,12 +11,12 @@ var moment = require('moment-timezone');
 
 @Component({
   selector: 'formExercise-page',
-  templateUrl: 'formSleep.html'
+  templateUrl: 'formCallNotes.html'
 })
-export class FormSleepPage {
+export class FormCallNotesPage {
   loading: any;
   section: string;
-  formName: string = "formSleep";
+  formName: string = "FormCallNotesPage";
   recId: number;
   card_form: FormGroup;
   goal_array: FormArray;
@@ -24,7 +24,6 @@ export class FormSleepPage {
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
-  showTips: boolean = true;
 
   sleepModelSave: ListSleepModel  = new ListSleepModel();
   sleepSave: ListSleep = new ListSleep();
@@ -41,6 +40,7 @@ export class FormSleepPage {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
+
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId]; 
 
@@ -63,30 +63,16 @@ export class FormSleepPage {
     }
     console.log("Hour Now: " + this.hourNow + ", Minute Now:  " + this.minuteNow + ", Time Now" + this.timeNow);
 
-    if (this.recId !== undefined) {
-      this.card_form = new FormGroup({
-        recordid: new FormControl(this.curRec.recordid),
-        hoursslept: new FormControl(this.curRec.hoursslept, Validators.required),
-        starttime: new FormControl(this.curRec.starttime),
-        waketime: new FormControl(this.curRec.waketime),
-        dateofmeasure: new FormControl(this.formatDateTime2(this.curRec.dateofmeasure)),
-        confirmed: new FormControl(this.curRec.confirmed),
-        profileid: new FormControl(this.curRec.profileid),
-        userid: new FormControl(this.curRec.userid)
-      });    
-    } else {
-      this.newRec = true;
-      this.card_form = new FormGroup({
-        recordid: new FormControl(),
-        hoursslept: new FormControl(),
-        starttime: new FormControl(null, Validators.max(this.timeNow)),
-        waketime: new FormControl(null, Validators.max(this.timeNow)),
-        dateofmeasure: new FormControl(),
-        confirmed: new FormControl(),
-        profileid: new FormControl(),
-        userid: new FormControl()
-      });    
-    }
+    this.card_form = new FormGroup({
+      recordid: new FormControl(),
+      title: new FormControl(this.curRec.title),
+      callnotes: new FormControl(),
+      dateofmeasure: new FormControl(this.formatDateTime2(this.momentNow)),
+      confirmed: new FormControl(),
+      profileid: new FormControl(),
+      userid: new FormControl()
+    });    
+    
   }
 
   ionViewWillEnter() {
@@ -94,79 +80,6 @@ export class FormSleepPage {
     this.loading.present();
     this.nav.getPrevious().data.refresh = false;
     this.loading.dismiss();
-  }
-
-  deleteRecord(){
-    let alert = this.alertCtrl.create({
-      title: 'Confirm Delete',
-      message: 'Are you certain you want to delete this record?',
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
-          }
-        },
-        {
-          text: 'Delete',
-          handler: () => {
-            console.log('Delete clicked');
-            this.saving = true;
-            //alert('Going to delete');
-            this.sleepSave.recordid = this.card_form.get('recordid').value;
-            this.sleepSave.profileid = this.RestService.currentProfile;
-            this.sleepSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-            this.sleepSave.active = 'N';
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
-            if (dtNow < dtExpiration) {
-              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
-    
-              var config = {
-                invokeUrl: restURL,
-                accessKey: this.RestService.AuthData.accessKeyId,
-                secretKey: this.RestService.AuthData.secretKey,
-                sessionToken: this.RestService.AuthData.sessionToken,
-                region:'us-east-1'
-              };
-          
-              var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
-                //pathParameters: this.vaccineSave
-              };
-              var pathTemplate = '';
-              var method = 'POST';
-              var additionalParams = {
-                  queryParams: {
-                      profileid: this.RestService.currentProfile,
-                  }
-              };
-              var body = JSON.stringify(this.sleepSave);
-              var self = this;
-          
-              console.log('Calling Post', this.sleepSave);    
-              apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-              .then(function(result){
-                self.RestService.results = result.data;
-                console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "Sleep";
-                self.nav.pop();      
-              }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
-              });            
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formSleep - DeleteData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-              this.RestService.appRestart();
-            }        
-          }
-        }
-      ]
-    });
-    alert.present();
   }
 
   saveRecord(){

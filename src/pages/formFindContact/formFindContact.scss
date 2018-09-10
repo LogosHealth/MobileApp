@@ -1,4 +1,4 @@
-formSleep-page {
+formFindContact {
 	ion-header {
 		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
 	}
@@ -7,6 +7,29 @@ formSleep-page {
 	{
 		background-color: color($colors, background, base);
 
+
+		.forms-examples-segment
+		{
+			
+			padding: 5px 0px;
+			background-color: $white;
+			@include element-shadow();
+			@include segment-button-styles($theme-color-1);
+
+			.segment-button
+			{
+				@include segment-text-styles($black-d);
+				background-color: $white;
+				//color: $theme-color-2;
+				&.segment-activated
+				{
+					color: $theme-color-1;
+					background-color: $white;
+				}
+			}
+		}
+
+/*
 		.forms-examples-segment
 		{
 			padding: 14px 0px;
@@ -20,7 +43,99 @@ formSleep-page {
 				@include segment-text-styles($white-d);
 			}
 		}
+*/
 
+		.list-mini-content
+		{
+			background-color: color($colors, background, base);
+	
+			.list-mini
+			{
+
+				@include layout-list-styles($theme-color-1, $white-d);
+
+				.section-title
+				{
+					font-size: 1.5rem;
+					line-height: 1.0;
+					letter-spacing: 1.1px;
+					text-align: left;
+					color: $theme-color-1;
+					font-weight: 600;
+					margin: 0px;
+
+					.item-description {
+						color: $black-d;
+						font-weight: 400;
+						font-size: 1.4rem;
+					}
+				}			
+	
+				ion-item {
+					&.item
+					{
+						margin-top: 14px;
+	
+						&.item-label-floating
+						{
+							margin-top: 0px;
+	
+							ion-label {
+								color: $white-d;
+							}
+						}
+	
+						.item-inner
+						{
+							ion-icon {
+								color: $theme-color-2;
+							}
+						}
+					}
+	
+					&:first-of-type {
+						margin-top: 0px;
+					}
+				}
+					
+				ion-list {
+					.list-item
+					{
+						.content-row
+						{
+							.title-notconfirmed{
+								color: $theme-color-3;
+								font-size: 1.6rem;
+								font-weight: 500;
+								letter-spacing: 0.2px;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+							}
+	
+							.item-title{
+								overflow: hidden;
+								text-overflow: ellipsis;
+								white-space: nowrap;
+							}
+	
+							&.one-line
+							{
+								@include align-items(center);
+	
+								.item-description
+								{
+									overflow: hidden;
+									text-overflow: ellipsis;
+									white-space: nowrap;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		.sample-form
 		{
 			.form-section
@@ -39,6 +154,7 @@ formSleep-page {
 				&.item
 				{
 					margin-top: 14px;
+					background-color: $white;
 
 					&.item-label-floating
 					{
@@ -67,11 +183,23 @@ formSleep-page {
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: left;
+				text-align: center;
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
+				margin-top: 5px;
 			}			
+
+			.section-footnote
+            {
+                font-size: 1.0rem;
+                //line-height: 1.2;
+                //letter-spacing: 1.1px;
+                text-align: left;
+                color: $black-d;;
+                font-weight: 100;
+                margin: 0px;
+            }           
 
 			.title-notconfirmed{
 				font-size: 1.8rem;
@@ -180,7 +308,7 @@ formSleep-page {
 					margin-top: 40px;
 					margin-bottom: 30px;
 				}
-	
+
 				@include range-item-styles($white-d, $black-d, $theme-color-1);
 
 				.range-item
@@ -339,7 +467,7 @@ formSleep-page {
 						margin-top: 10px;
 					}
 				}
-				
+
 				.multi-input-row
 				{
 					ion-col {

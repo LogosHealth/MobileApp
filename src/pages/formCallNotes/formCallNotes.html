@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Call Notes</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title">Capture Pertinent Info</h2>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+                <ion-item>
+                  <ion-label floating>Date/Time of Call</ion-label>
+                  <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Physician</ion-label>
+                <ion-input type="text" formControlName="title" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Notes</ion-label>
+                <ion-textarea type="text" formControlName="callnotes" autosize></ion-textarea>  
+              </ion-item>
+            </ion-col>
+          </ion-row>  
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+            </ion-col>
+         </ion-row>
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="button" (click)="createVisit()" [disabled]="!card_form.dirty || !card_form.valid">Create Visit</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="button" (click)="attach2Visit()" [disabled]="!card_form.dirty || !card_form.valid">Attach to Visit</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
 import { NavController, LoadingController, Events } from 'ionic-angular';
-
-//import { FeedPage } from '../feed/feed';
+import 'rxjs/Rx';
 import { FormFoodPref } from '../formFoodPref/formFoodPref';
 import { List2Page } from '../list-2/list-2';
 import { ListGoalsPage } from '../listGoals/listGoals';
 import { FormAboutMe } from '../formAboutMe/formAboutMe';
-
-import 'rxjs/Rx';
 import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
+
 import { RestService } from '../../app/services/restService.service';
 
 var moment = require('moment-timezone');

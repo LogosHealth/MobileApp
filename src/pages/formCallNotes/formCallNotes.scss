@@ -67,7 +67,7 @@ formSleep-page {
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: left;
+				text-align: center;
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
@@ -180,7 +180,7 @@ formSleep-page {
 					margin-top: 40px;
 					margin-bottom: 30px;
 				}
-	
+
 				@include range-item-styles($white-d, $black-d, $theme-color-1);
 
 				.range-item
@@ -339,7 +339,7 @@ formSleep-page {
 						margin-top: 10px;
 					}
 				}
-				
+
 				.multi-input-row
 				{
 					ion-col {
