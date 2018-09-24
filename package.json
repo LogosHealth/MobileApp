@@ -29,6 +29,7 @@
     "@ionic-native/google-plus": "3.4.4",
     "@ionic-native/in-app-browser": "3.4.4",
     "@ionic-native/keyboard": "3.4.4",
+    "@ionic-native/local-notifications": "^4.14.0",
     "@ionic-native/native-storage": "3.4.4",
     "@ionic-native/social-sharing": "3.4.4",
     "@ionic-native/splash-screen": "3.4.4",
@@ -41,12 +42,22 @@
     "aws-sdk": "^2.211.0",
     "bourbon": "4.3.4",
     "call-number": "^1.0.1",
-    "cordova-android": "~7.0.0",
+    "cordova-android": "7.0.0",
+    "cordova-android-support-gradle-release": "^1.4.4",
+    "cordova-plugin-app-event": "^1.2.1",
+    "cordova-plugin-device": "^2.0.1",
+    "cordova-plugin-inappbrowser": "^2.0.2",
     "cordova-plugin-ionic": "^4.1.7",
+    "cordova-plugin-ionic-keyboard": "^2.0.5",
+    "cordova-plugin-ionic-webview": "^1.1.16",
+    "cordova-plugin-splashscreen": "^5.0.2",
+    "cordova-plugin-whitelist": "^1.3.3",
+    "de.appplant.cordova.plugin.local-notification": "^0.8.5",
     "ionic-angular": "^3.9.2",
     "ionicons": "3.0.0",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",
+    "mx.ferreyra.callnumber": "~0.0.2",
     "node-sass": "^4.9.2",
     "rxjs": "^5.5.7",
     "sw-toolbox": "3.4.0",
@@ -105,7 +116,17 @@
       "android"
     ],
     "plugins": {
-      "mx.ferreyra.callnumber": {}
+      "mx.ferreyra.callnumber": {},
+      "de.appplant.cordova.plugin.local-notification": {},
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-device": {},
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-ionic-webview": {},
+      "cordova-plugin-ionic-keyboard": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-android-support-gradle-release": {
+        "ANDROID_SUPPORT_VERSION": "27.+"
+      }
     }
   }
 }

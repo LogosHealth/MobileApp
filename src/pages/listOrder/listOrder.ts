@@ -132,7 +132,7 @@ export class ListOrderPage {
       .getFilter()
       .then(data => {
         self.listFilter.items = result.data;
-        this.setFilteredItems();
+        self.setFilteredItems();
       });
       
       //alert('Async Check from Invoke: ' + self.RestService.results);   

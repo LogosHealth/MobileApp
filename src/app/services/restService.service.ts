@@ -54,7 +54,7 @@ export class RestService {
         this.results = results;
         this.AuthData = AuthData;
         this.CognitoIdentity = cognitoIdentity;
-        this.currentProfile = currentProfile
+        this.currentProfile = currentProfile;
         this.refreshProfiles = refreshProfiles;
         this.nav = nav;
         this.alertCtrl = alertCtrl;

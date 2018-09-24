@@ -2,6 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { Autosize } from '../components/autosize/autosize'
+import { LocalNotifications } from '@ionic-native/local-notifications';
 
 import { ListingPage } from '../pages/listing/listing';
 import { HistoryPage } from '../pages/history/history';
@@ -35,6 +36,8 @@ import { ListNutritionPage } from '../pages/listNutrition/listNutrition';
 import { ListMedicationPage } from '../pages/listMedication/listMedication';
 import { ListEventPage } from '../pages/listEvent/listEvent';
 import { ListContactPage } from '../pages/listContacts/listContacts';
+import { ListVisitPage } from '../pages/listVisit/listVisit';
+import { ListSchedulePage } from '../pages/listSchedule/listSchedule';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -54,6 +57,8 @@ import { FormAllergyPage } from '../pages/formAllergy/formAllergy';
 import { FormFindContact } from '../pages/formFindContact/formFindContact';
 import { FormContactPage } from '../pages/formContact/formContact';
 import { FormCallNotesPage } from '../pages/formCallNotes/formCallNotes';
+import { FormVisitPage } from '../pages/formVisit/formVisit';
+import { FormSchedulePage } from '../pages/formSchedule/formSchedule';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -91,6 +96,8 @@ import { ListMedicationService } from '../pages/listMedication/listMedication.se
 import { ListEventService } from '../pages/listEvent/listEvent.service';
 import { ListContactService } from '../pages/listContacts/listContacts.service';
 import { FormFindContactService } from '../pages/formFindContact/formFindContact.service';
+import { ListVisitService } from '../pages/listVisit/listVisit.service';
+import { ListScheduleService } from '../pages/listSchedule/listSchedule.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -158,6 +165,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicationPage,
     ListEventPage,
     ListContactPage,
+    ListVisitPage,
+    ListSchedulePage,
 
     GridPage,
     FormLayoutPage,
@@ -177,6 +186,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormFindContact,
     FormContactPage,
     FormCallNotesPage,
+    FormVisitPage,
+    FormSchedulePage,
 
     FiltersPage,
     TermsOfServicePage,
@@ -238,6 +249,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicationPage,
     ListEventPage,
     ListContactPage,
+    ListVisitPage,
+    ListSchedulePage,
 
     GridPage,
     FormLayoutPage,
@@ -257,6 +270,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormFindContact,
     FormContactPage,
     FormCallNotesPage,
+    FormVisitPage,
+    FormSchedulePage,
     
     FiltersPage,
     TermsOfServicePage,
@@ -293,7 +308,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListEventService,
     ListContactService,
     FormFindContactService,
-    
+    ListVisitService,
+    ListScheduleService,
+       
     ScheduleService,
     FacebookLoginService,
     GoogleLoginService,
@@ -311,6 +328,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     EmailComposer,
     //MM 3-29-18 Implementing as global Provider 
     RestService,
+    LocalNotifications,
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })

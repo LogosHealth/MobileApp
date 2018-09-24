@@ -1,0 +1,35 @@
+<ion-header>
+    <ion-navbar>
+      <button ion-button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+      </button>
+      <ion-title>
+        <span  class="intro-text" text-wrap>{{ feed.category.title }}</span>
+      </ion-title>
+      <ion-buttons right>
+        <button ion-button icon-only (click)="addNew()">
+          <ion-icon name='add'></ion-icon>
+        </button>
+      </ion-buttons>  
+    </ion-navbar>
+  </ion-header>
+  
+<ion-content class="list-mini-content">
+  <div class="list-mini">
+    <ion-list>
+      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
+        <ion-row no-padding class="content-row one-line">
+          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+          <ion-col no-padding width-90 class="item-content" >
+            <h3 class="item-title">{{item.name}}</h3>
+            <p class = "item-description">Active: {{getActives(item)}}</p>
+            <p class = "item-description">Eligible: {{getEligibles(item)}}</p>
+          </ion-col>
+          <ion-col no-padding width-10 class="item-icon">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </ion-col>
+        </ion-row>
+      </button>
+    </ion-list>
+  </div>
+</ion-content>

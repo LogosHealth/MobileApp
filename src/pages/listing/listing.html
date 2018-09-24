@@ -1,11 +1,13 @@
 <ion-header class="listing-header">
   <ion-navbar>
-    <button ion-button menuToggle>
-      <ion-icon name="menu"></ion-icon>
-    </button>
     <ion-title>
       <b>Conquer Today</b>
     </ion-title>
+    <ion-buttons right>
+        <button ion-button icon-only>
+          <ion-icon name="notifications"></ion-icon>
+        </button>        
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -31,7 +33,7 @@
     <h4 class="categories-title">Manage & Achieve</h4>
   <ion-row class="grid-categories">
     <ion-col width-50 class="category-item" *ngFor="let category of listing.categories">
-      <background-image tappable class="category-heading" [src]="category.image" (click)="goToFeed(category)">
+      <background-image tappable class="category-heading" [src]="category.image" [title]="category.title" (click)="goToFeed(category)">
         <ion-row class="heading-row">
           <ion-col no-padding width-100>
             <h2 class="category-title">{{category.title}}</h2>

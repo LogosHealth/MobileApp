@@ -7,6 +7,8 @@ import { ListGoalsPage } from '../listGoals/listGoals';
 import { FormAboutMe } from '../formAboutMe/formAboutMe';
 import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
+import { ListSchedulePage } from '../listSchedule/listSchedule';
+
 
 import { RestService } from '../../app/services/restService.service';
 
@@ -102,6 +104,8 @@ export class SettingsTabPage {
       this.nav.push(ListGoalsPage, { category: category });      
     } else if (category.title == 'About Me') {
       this.nav.push(FormAboutMe, { category: category, homePage: this });      
+    } else if (category.title == 'Schedules & Alerts') {
+      this.nav.push(ListSchedulePage, { category: category });      
     } else {
       this.nav.push(List2Page, { category: category });      
     }

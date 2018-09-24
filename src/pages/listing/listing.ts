@@ -14,6 +14,7 @@ import { ListExercisePage } from '../listExercise/listExercise';
 import { ListSleepPage } from '../listSleep/listSleep';
 import { ListMeasurePage } from '../listMeasure/listMeasure';
 import { ListNutritionPage } from '../listNutrition/listNutrition';
+import { ListVisitPage } from '../listVisit/listVisit';
 
 var moment = require('moment-timezone');
 
@@ -101,6 +102,8 @@ export class ListingPage {
       this.nav.push(ListMeasurePage, { category: category });
     } else if (category.title == 'Nutrition') {
       this.nav.push(ListNutritionPage, { category: category });
+    } else if (category.title == 'Visit') {
+      this.nav.push(ListVisitPage, { category: category });
     } else {
       this.nav.push(FeedPage, { category: category });
     }

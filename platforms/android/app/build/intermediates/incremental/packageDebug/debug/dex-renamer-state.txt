@@ -1,0 +1,4 @@
+#Sat Sep 22 00:31:35 PDT 2018
+base.0=C\:\\Users\\Marty\\Desktop\\Ionic\\ion2FullApp-PRO-version\\platforms\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
+renamed.0=classes.dex
+file.0=C\:\\Users\\Marty\\Desktop\\Ionic\\ion2FullApp-PRO-version\\platforms\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0\\classes.dex
