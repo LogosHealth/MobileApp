@@ -42,7 +42,7 @@
     "aws-sdk": "^2.211.0",
     "bourbon": "4.3.4",
     "call-number": "^1.0.1",
-    "cordova-android": "7.0.0",
+    "cordova-android": "^7.0.0",
     "cordova-android-support-gradle-release": "^1.4.4",
     "cordova-plugin-app-event": "^1.2.1",
     "cordova-plugin-device": "^2.0.1",
@@ -112,9 +112,7 @@
     "ionic_sass": "./config/sass.config.js"
   },
   "cordova": {
-    "platforms": [
-      "android"
-    ],
+    "platforms": [],
     "plugins": {
       "mx.ferreyra.callnumber": {},
       "de.appplant.cordova.plugin.local-notification": {},
