@@ -41,12 +41,12 @@ export class FormAllergyPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public formBuilder: FormBuilder, public list2Service: ListAllergiesService,
     public listMedicationService: ListMedicationService, public listEventService: ListEventService) {
     this.recId = navParams.get('recId');
 
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -56,7 +56,7 @@ export class FormAllergyPage {
     });
 
     if (this.recId !== undefined) {
-      console.log('Start Date: ' + this.curRec.startdate); 
+      console.log('Start Date: ' + this.curRec.startdate);
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         allergyname: new FormControl(this.curRec.name),
@@ -70,7 +70,7 @@ export class FormAllergyPage {
         active: new FormControl(this.curRec.active),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
-      });    
+      });
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -86,7 +86,7 @@ export class FormAllergyPage {
         active: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
-      });    
+      });
     }
   }
 
@@ -103,7 +103,7 @@ export class FormAllergyPage {
       this.RestService.appRestart();
     }
   }
-  
+
   ionViewWillEnter() {
     this.nav.getPrevious().data.refresh = false;
   }
@@ -112,7 +112,7 @@ export class FormAllergyPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -149,9 +149,9 @@ export class FormAllergyPage {
           self.loadData2();
         });
       } else {
-        console.log('Result.data from getMeds not array: ', result.data);        
+        console.log('Result.data from getMeds not array: ', result.data);
         self.loadData2();
-      }           
+      }
     }).catch( function(result){
         console.log(body);
         self.loadData2();
@@ -162,7 +162,7 @@ export class FormAllergyPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/EventByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -200,10 +200,10 @@ export class FormAllergyPage {
           self.loading.dismiss();
           });
       } else {
-        console.log('Result.data from getEvents not array: ', result.data);        
+        console.log('Result.data from getEvents not array: ', result.data);
         self.RestService.refreshCheck();
         self.loading.dismiss();
-      }           
+      }
     }).catch( function(result){
         console.log(body);
         self.RestService.refreshCheck();
@@ -226,8 +226,8 @@ export class FormAllergyPage {
     console.log('From addExistingMeds listMeds length: ' + this.listMeds.items.length);
     for (var j = 0; j < this.listMeds.items.length; j++) {
       console.log('From addExistingMeds listMeds medication name: ' + this.listMeds.items[j].medicationname);
-      this.currentMeds.push(this.addExistingMed(j));              
-    }    
+      this.currentMeds.push(this.addExistingMed(j));
+    }
     console.log('From addExistingMeds currentMeds length: ' + this.currentMeds.length);
   }
 
@@ -237,7 +237,7 @@ export class FormAllergyPage {
       medicationname: new FormControl(this.listMeds.items[index].medicationname),
       startdate: new FormControl(this.listMeds.items[index].startdate),
     });
-  }  
+  }
 
   addMed() {
     console.log('Coming');
@@ -259,8 +259,8 @@ export class FormAllergyPage {
     this.events = this.card_form.get('events') as FormArray;
     this.events.removeAt(0);
     for (var j = 0; j < this.listEvents.items.length; j++) {
-      this.events.push(this.addExistingEvent(j));              
-    }    
+      this.events.push(this.addExistingEvent(j));
+    }
   }
 
   addExistingEvent(index): FormGroup {
@@ -269,7 +269,7 @@ export class FormAllergyPage {
       medicalevent: new FormControl(this.listEvents.items[index].medicalevent),
       startdate: new FormControl(this.listEvents.items[index].startdate),
     });
-  }  
+  }
 
   addEvent() {
     console.log('Coming');
@@ -298,16 +298,16 @@ export class FormAllergyPage {
 
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               //alert('Going to delete');
               this.formSave.recordid = this.card_form.get('recordid').value;
               this.formSave.profileid = this.RestService.currentProfile;
-              this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+              this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-      
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -315,9 +315,9 @@ export class FormAllergyPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-          
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
                 //pathParameters: this.vaccineSave
               };
               var pathTemplate = '';
@@ -329,18 +329,18 @@ export class FormAllergyPage {
               };
               var body = JSON.stringify(this.formSave);
               var self = this;
-          
-              console.log('Calling Post', this.formSave);    
+
+              console.log('Calling Post', this.formSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Measure";
-                self.nav.pop();      
+                self.nav.pop();
               }).catch( function(result){
                 console.log('Result: ',result);
                 console.log(body);
-              });        
+              });
             } else {
               console.log('Need to login again!!! - Credentials expired from formMood - Delete');
               this.RestService.appRestart();
@@ -357,24 +357,24 @@ export class FormAllergyPage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.profileid = this.RestService.currentProfile;
-      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
       if (this.card_form.get('mood').dirty){
         //this.formSave.mood = this.card_form.get('mood').value;
       }
     } else {
       //this.formSave.mood = this.card_form.get('mood').value;
       this.formSave.profileid = this.RestService.currentProfile;
-      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
     }
-    
+
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -382,9 +382,9 @@ export class FormAllergyPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -396,14 +396,14 @@ export class FormAllergyPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-  
-      console.log('Calling Post', this.formSave);    
+
+      console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Measure";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
@@ -433,7 +433,7 @@ export class FormAllergyPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -454,6 +454,6 @@ export class FormAllergyPage {
     });
     alert.present();
     return canLeave
-  }  
+  }
 
 }

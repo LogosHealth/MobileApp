@@ -124,7 +124,7 @@ export class MapsPage implements OnInit {
 
   clearSearch(){
     let env = this;
-    this.keyboard.close();
+    this.keyboard.hide();
     // Clean map
     env.map_model.cleanMap();
   }

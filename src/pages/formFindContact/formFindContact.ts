@@ -25,25 +25,25 @@ export class FormFindContact {
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   dictionaries: DictionaryModel = new DictionaryModel();
-  findcontacts: FormFindContactModel = new FormFindContactModel(); 
+  findcontacts: FormFindContactModel = new FormFindContactModel();
   stateList: DictionaryItem[];
   doctorTypeList: DictionaryItem[];
   searchready: Boolean = false;
   saveready: Boolean = false;
   dsEligible: Boolean = false;
   lastSearch: Boolean = false;
-  
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public formFindContactService: FormFindContactService, 
+
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public formFindContactService: FormFindContactService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public categoryList: FormsModule, public dictionaryService: DictionaryService) {
 
-      this.categoryList = "physician";  
+      this.categoryList = "physician";
       var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
- 
+
     this.card_form = new FormGroup({
       categoryList: new FormControl(),
       contactid: new FormControl(),
@@ -56,7 +56,7 @@ export class FormFindContact {
       contacts: new FormControl(),
       doctortype: new FormControl(1001),
       covered: new FormControl()
-    });    
+    });
   }
 
   ionViewWillEnter() {
@@ -69,7 +69,7 @@ export class FormFindContact {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -141,17 +141,17 @@ export class FormFindContact {
         hasData = true;
         contactInfo = contactInfo + this.card_form.controls["lastname"].value + " ";
         strLastName = this.card_form.controls["lastname"].value;
-      } 
+      }
       if (this.card_form.controls["firstname"].dirty && this.card_form.controls["firstname"].value !== null) {
         contactInfo = contactInfo + this.card_form.controls["firstname"].value + " ";
         strFirstName = this.card_form.controls["firstname"].value;
-      }  
+      }
     } else {
       if (this.card_form.controls["facilitytype"].value !== null && this.card_form.controls["facilitytype"].value.trim() !== "") {
         hasData = true;
         contactInfo = this.card_form.controls["facilitytype"].value + " near me ";
         strLastName = this.card_form.controls["facilitytype"].value;
-      } 
+      }
     }
 
     if (hasData) {
@@ -179,16 +179,16 @@ export class FormFindContact {
           }
       } else {
         hasData = false;
-      }    
+      }
     }
 
     if (hasData) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-  
+
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -216,7 +216,7 @@ export class FormFindContact {
       };
       var body = '';
       var self = this;
-  
+
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         if (Array.isArray(result.data)) {
@@ -250,9 +250,9 @@ export class FormFindContact {
     } else {
       var message;
       if (this.categoryList == "facility") {
-        message = 'Search requires at least a facility type and [city and state] or valid [zipcode].'; 
+        message = 'Search requires at least a facility type and [city and state] or valid [zipcode].';
       } else {
-        message = 'Search requires at least a last name and [city and state] or valid [zipcode].'; 
+        message = 'Search requires at least a last name and [city and state] or valid [zipcode].';
       }
 
       let alert = this.alertCtrl.create({
@@ -268,10 +268,10 @@ export class FormFindContact {
           }
         ]
       });
-      alert.present();    
+      alert.present();
     }
 
-  } 
+  }
 
   callDS() {
     var restURL: string;
@@ -292,17 +292,17 @@ export class FormFindContact {
         hasData = true;
         contactInfo = contactInfo + this.card_form.controls["lastname"].value + " ";
         strLastName = this.card_form.controls["lastname"].value;
-      } 
+      }
       if (this.card_form.controls["firstname"].dirty && this.card_form.controls["firstname"].value !== null) {
         contactInfo = contactInfo + this.card_form.controls["firstname"].value + " ";
         strFirstName = this.card_form.controls["firstname"].value;
-      }  
+      }
     } else {
       if (this.card_form.controls["facilitytype"].value !== null && this.card_form.controls["facilitytype"].value.trim() !== "") {
         hasData = true;
         contactInfo = this.card_form.controls["facilitytype"].value + " near me ";
         strLastName = this.card_form.controls["facilitytype"].value;
-      } 
+      }
     }
 
     if (hasData) {
@@ -337,16 +337,16 @@ export class FormFindContact {
           }
       } else {
         hasData = false;
-      }    
+      }
     }
 
     if (hasData) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-  
+
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -375,7 +375,7 @@ export class FormFindContact {
       };
       var body = '';
       var self = this;
-  
+
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         if (Array.isArray(result.data)) {
@@ -404,9 +404,9 @@ export class FormFindContact {
     } else {
       var message;
       if (this.categoryList == "facility") {
-        message = 'Deep search requires at least a facility type and [city and state] or valid [zipcode].'; 
+        message = 'Deep search requires at least a facility type and [city and state] or valid [zipcode].';
       } else {
-        message = 'Deep search requires at least a last name and [city and state] or valid [zipcode].'; 
+        message = 'Deep search requires at least a last name and [city and state] or valid [zipcode].';
       }
 
       let alert = this.alertCtrl.create({
@@ -422,7 +422,7 @@ export class FormFindContact {
           }
         ]
       });
-      alert.present();    
+      alert.present();
     }
   }
 
@@ -437,7 +437,7 @@ export class FormFindContact {
         }
       }
     }
-    return retcontactid; 
+    return retcontactid;
   }
 
   createContact() {
@@ -455,13 +455,13 @@ export class FormFindContact {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
 
       this.contactSave.profileid = this.RestService.currentProfile;
-      this.contactSave.userid = this.RestService.currentProfile;
+      this.contactSave.userid = this.RestService.userId;
       this.contactSave.place_id = this.card_form.controls["contacts"].value;
       var checkContactId;
       checkContactId = this.getContactId(this.contactSave.place_id);
       //console.log("CheckContactId = " + checkContactId);
       if ( checkContactId !==null) {
-        this.contactSave.contactid = checkContactId; 
+        this.contactSave.contactid = checkContactId;
       }
       this.contactSave.lastname = this.card_form.controls["lastname"].value;
       if (this.card_form.controls["facilitytype"].value !==null) {
@@ -493,9 +493,9 @@ export class FormFindContact {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -507,18 +507,18 @@ export class FormFindContact {
       };
       var body = JSON.stringify(this.contactSave);
       var self = this;
-  
-      console.log('Calling Post', this.contactSave);    
+
+      console.log('Calling Post', this.contactSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Medical Contacts";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
-      });    
+      });
     } else {
       console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
       this.RestService.appRestart();
@@ -579,7 +579,7 @@ export class FormFindContact {
       if ((wakeHour + wakeMinRatio) >=(startHour + startMinRatio)) {
         duration = (wakeHour + wakeMinRatio) - (startHour + startMinRatio);
       } else {
-        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);  
+        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);
       }
       this.card_form.get('hoursslept').setValue(duration);
     } else {
@@ -595,7 +595,7 @@ export class FormFindContact {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -616,6 +616,6 @@ export class FormFindContact {
     });
     alert.present();
     return canLeave
-  }  
+  }
 
 }

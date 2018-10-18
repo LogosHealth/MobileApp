@@ -38,11 +38,11 @@ export class FormCallNotesPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
 
     this.recId = navParams.get('recId');
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -50,7 +50,7 @@ export class FormCallNotesPage {
         self.userTimezone = results.timezone;
       }
     });
- 
+
     this.momentNow = moment(new Date());
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
       this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
@@ -71,8 +71,8 @@ export class FormCallNotesPage {
       confirmed: new FormControl(),
       profileid: new FormControl(),
       userid: new FormControl()
-    });    
-    
+    });
+
   }
 
   ionViewWillEnter() {
@@ -88,8 +88,8 @@ export class FormCallNotesPage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.sleepSave.recordid = this.card_form.get('recordid').value;
       this.sleepSave.profileid = this.RestService.currentProfile;
-      this.sleepSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.sleepSave.active = 'Y'; 
+      this.sleepSave.userid = this.RestService.userId;
+      this.sleepSave.active = 'Y';
       if (this.card_form.get('hoursslept').dirty){
         this.sleepSave.hoursslept = this.card_form.get('hoursslept').value;
       }
@@ -101,8 +101,8 @@ export class FormCallNotesPage {
       }
     } else {
       this.sleepSave.profileid = this.RestService.currentProfile;
-      this.sleepSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.sleepSave.active = 'Y'; 
+      this.sleepSave.userid = this.RestService.userId;
+      this.sleepSave.active = 'Y';
       if (this.card_form.get('hoursslept').dirty){
         this.sleepSave.hoursslept = this.card_form.get('hoursslept').value;
       }
@@ -117,21 +117,21 @@ export class FormCallNotesPage {
           var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
           var dtDET = moment(this.card_form.get('dateofmeasure').value);
-        }        
+        }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.sleepSave.dateofmeasure = dtDET.utc().toISOString();
       }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.sleepSave.timezone = this.userTimezone;
-      }      
+      }
     }
-    
+
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -139,9 +139,9 @@ export class FormCallNotesPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -153,18 +153,18 @@ export class FormCallNotesPage {
       };
       var body = JSON.stringify(this.sleepSave);
       var self = this;
-  
-      console.log('Calling Post', this.sleepSave);    
+
+      console.log('Calling Post', this.sleepSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Sleep";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
-      });    
+      });
     } else {
       console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
       this.RestService.appRestart();
@@ -205,7 +205,7 @@ export class FormCallNotesPage {
       if ((wakeHour + wakeMinRatio) >=(startHour + startMinRatio)) {
         duration = (wakeHour + wakeMinRatio) - (startHour + startMinRatio);
       } else {
-        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);  
+        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);
       }
       this.card_form.get('hoursslept').setValue(duration);
     } else {
@@ -221,7 +221,7 @@ export class FormCallNotesPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -242,6 +242,6 @@ export class FormCallNotesPage {
     });
     alert.present();
     return canLeave
-  }  
+  }
 
 }

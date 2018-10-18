@@ -3,7 +3,6 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
-
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 
@@ -35,25 +34,25 @@ export class FormVisitPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams) {
     this.recId = navParams.get('recId');
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-    //add caloriesburnedvalue generator    
-    if (this.recId !== undefined) { 
+    //add caloriesburnedvalue generator
+    if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         mood: new FormControl(this.curRec.mood),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
-      });    
+      });
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -63,7 +62,7 @@ export class FormVisitPage {
         dateofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
-      });    
+      });
     }
   }
 
@@ -90,16 +89,16 @@ export class FormVisitPage {
 
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               //alert('Going to delete');
               this.formSave.recordid = this.card_form.get('recordid').value;
               this.formSave.profileid = this.RestService.currentProfile;
-              this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+              this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-      
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -107,9 +106,9 @@ export class FormVisitPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-          
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
                 //pathParameters: this.vaccineSave
               };
               var pathTemplate = '';
@@ -121,18 +120,18 @@ export class FormVisitPage {
               };
               var body = JSON.stringify(this.formSave);
               var self = this;
-          
-              console.log('Calling Post', this.formSave);    
+
+              console.log('Calling Post', this.formSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Measure";
-                self.nav.pop();      
+                self.nav.pop();
               }).catch( function(result){
                 console.log('Result: ',result);
                 console.log(body);
-              });        
+              });
             } else {
               console.log('Need to login again!!! - Credentials expired from formMood - Delete');
               this.RestService.appRestart();
@@ -149,24 +148,24 @@ export class FormVisitPage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.profileid = this.RestService.currentProfile;
-      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
       if (this.card_form.get('mood').dirty){
         this.formSave.mood = this.card_form.get('mood').value;
       }
     } else {
       this.formSave.mood = this.card_form.get('mood').value;
       this.formSave.profileid = this.RestService.currentProfile;
-      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
     }
-    
+
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -174,9 +173,9 @@ export class FormVisitPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -188,14 +187,14 @@ export class FormVisitPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-  
-      console.log('Calling Post', this.formSave);    
+
+      console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Measure";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
@@ -225,7 +224,7 @@ export class FormVisitPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -246,6 +245,6 @@ export class FormVisitPage {
     });
     alert.present();
     return canLeave
-  }  
+  }
 
 }

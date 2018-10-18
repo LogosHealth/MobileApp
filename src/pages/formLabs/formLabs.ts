@@ -44,7 +44,7 @@ export class FormLabsPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService) {
     this.recId = navParams.get('recId');
     this.labForm = navParams.get('labForm');
@@ -55,7 +55,7 @@ export class FormLabsPage {
       console.log ('Lab Form not exist - value = ' + this.labForm);
     }
 
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -64,7 +64,7 @@ export class FormLabsPage {
       }
     });
 
-    //add caloriesburnedvalue generator    
+    //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
 
       this.card_form = new FormGroup({
@@ -80,7 +80,7 @@ export class FormLabsPage {
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid),
         confirmed: new FormControl(this.curRec.confirmed)
-      });    
+      });
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -96,7 +96,7 @@ export class FormLabsPage {
         profileid: new FormControl(),
         userid: new FormControl(),
         confirmed: new FormControl()
-      });    
+      });
     }
   }
 
@@ -107,7 +107,7 @@ export class FormLabsPage {
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
       console.log('Need to login again!!! - Credentials expired from formLabs');
       this.RestService.appRestart();
@@ -123,7 +123,7 @@ export class FormLabsPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -173,7 +173,7 @@ export class FormLabsPage {
             self.unitList = self.getUnitsByLabName(self.curRec.labname);
           } else {
             self.unitList = self.dictionaries.items[0].dictionary[0].dictionary; //index 1 as aligned with sortIndex
-          }  
+          }
         } else {
           self.unitList = self.dictionaries.items[0].dictionary[0].dictionary; //index 1 as aligned with sortIndex
         }
@@ -181,7 +181,7 @@ export class FormLabsPage {
         if (self.isSpecificLabForm) {
           var labFormSplit = self.labForm.split("=");
           var labValue = labFormSplit[1];
-          self.card_form.get('labname').setValue(labValue); 
+          self.card_form.get('labname').setValue(labValue);
           self.labNameChange(self.labsList[0], 0);
         }
         self.RestService.refreshCheck();
@@ -195,14 +195,14 @@ export class FormLabsPage {
         self.loading.dismiss();
     });
   }
-  
+
   confirmRecord(){
     this.saving = true;
     this.formSave.recordid = this.card_form.get('recordid').value;
     this.formSave.profileid = this.RestService.currentProfile;
-    this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-    this.formSave.active = 'Y'; 
-    this.formSave.confirmed = 'Y'; 
+    this.formSave.userid = this.RestService.userId;
+    this.formSave.active = 'Y';
+    this.formSave.confirmed = 'Y';
     if (this.card_form.get('labname').dirty){
       this.formSave.labname = this.card_form.get('labname').value;
     }
@@ -230,7 +230,7 @@ export class FormLabsPage {
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -238,9 +238,9 @@ export class FormLabsPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -252,14 +252,14 @@ export class FormLabsPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-  
-      console.log('Calling Post', this.formSave);    
+
+      console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Labs";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
@@ -288,15 +288,15 @@ export class FormLabsPage {
             console.log('Delete clicked');
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               this.formSave.recordid = this.card_form.get('recordid').value;
               this.formSave.profileid = this.RestService.currentProfile;
-              this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+              this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-      
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -304,9 +304,9 @@ export class FormLabsPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-          
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
                 //pathParameters: this.vaccineSave
               };
               var pathTemplate = '';
@@ -318,18 +318,18 @@ export class FormLabsPage {
               };
               var body = JSON.stringify(this.formSave);
               var self = this;
-          
-              console.log('Calling Post', this.formSave);    
+
+              console.log('Calling Post', this.formSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Labs";
-                self.nav.pop();      
+                self.nav.pop();
               }).catch( function(result){
                 console.log('Result: ',result);
                 console.log(body);
-              });        
+              });
             } else {
               console.log('Need to login again!!! - Credentials expired from formLabs - Delete');
               this.RestService.appRestart();
@@ -347,8 +347,8 @@ export class FormLabsPage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.profileid = this.RestService.currentProfile;
-      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
 
       if (this.card_form.get('labname').dirty){
         this.formSave.labname = this.card_form.get('labname').value;
@@ -375,7 +375,7 @@ export class FormLabsPage {
     } else {
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.formSave.active = 'Y'; 
+      this.formSave.active = 'Y';
       this.formSave.labname = this.card_form.get('labname').value;
       this.formSave.labresult = this.card_form.get('labresult').value;
       if (this.card_form.get('labnametext').dirty){
@@ -400,7 +400,7 @@ export class FormLabsPage {
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -408,9 +408,9 @@ export class FormLabsPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -422,14 +422,14 @@ export class FormLabsPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-  
-      console.log('Calling Post', this.formSave);    
+
+      console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Labs";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
@@ -460,7 +460,7 @@ export class FormLabsPage {
         //console.log('GetUnitsbyLabName dictionaryid: ' + this.labsList[i].recordid);
         //console.log('Found unit list: ', this.labsList[i].dictionary[0]);
         return this.labsList[i].dictionary;
-      }    
+      }
     }
   }
 
@@ -498,7 +498,7 @@ export class FormLabsPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -519,7 +519,7 @@ export class FormLabsPage {
     });
     alert.present();
     return canLeave
-  } 
+  }
 
   attachRecord() {
     alert('Add attach doc here');

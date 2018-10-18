@@ -4,6 +4,45 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+      {
+        "name": "Serve to the browser (ionic serve)",
+        "type": "cordova",
+        "request": "launch",
+        "platform": "serve",
+        "devServerAddress": "localhost",
+        "sourceMaps": true,
+        "ionicLiveReload": true,
+        "cwd": "${workspaceRoot}"
+      },
+      {
+        "name": "Run emulator",
+        "type": "cordova",
+        "request": "launch",
+        "platform": "android",
+        "target": "emulator",
+        "sourceMaps": true,
+        "cwd": "${workspaceRoot}/src/www"
+      },
+      {
+        "name": "Run device",
+        "type": "cordova",
+        "request": "launch",
+        "platform": "android",
+        "target": "device",
+        "sourceMaps": true,
+        "cwd": "${workspaceRoot}"
+      },
+      {
+        "name": "Simulate android",
+        "type": "cordova",
+        "request": "launch",
+        "platform": "android",
+        "target": "chrome",
+        "simulatePort": 8000,
+        "livereload": true,
+        "cwd": "${workspaceRoot}",
+        "sourceMaps": true
+      },
         {
             "type": "chrome",
             "request": "attach",

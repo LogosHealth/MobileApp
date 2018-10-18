@@ -15,7 +15,7 @@ export class FacebookLoginService {
     public nativeStorage: NativeStorage,
     public fb: Facebook
   ){
-    this.fb.browserInit(this.FB_APP_ID, "v2.8");
+    //this.fb.browserInit(this.FB_APP_ID, "v2.8");
   }
 
   doFacebookLogin()

@@ -29,7 +29,7 @@ export class FormAboutMe {
   saving: boolean = false;
 
   primaryUser: any;
-  races: FormArray; 
+  races: FormArray;
   primary: boolean;
   primaryEligible: boolean = false;
   confirmed: boolean = false;
@@ -50,11 +50,11 @@ export class FormAboutMe {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
-    
+
     this.masks = {
       phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
       ssn: [ /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]
-    };    
+    };
 
     this.card_form = new FormGroup({
       profileid: new FormControl(),
@@ -94,7 +94,7 @@ export class FormAboutMe {
       heightinches: new FormControl(null, [Validators.min(0), Validators.max(11)]),
       confirmed: new FormControl(),
       active: new FormControl(),
-    });  
+    });
     //console.log('From constructor - BDay: ' + this.card_form.controls["birthdate"].value);
     //console.log('From constructor - BDay invalid?: ' + this.card_form.controls["birthdate"].invalid);
     if (this.list2.races !== undefined && this.list2.races.length > 0) {
@@ -115,7 +115,7 @@ export class FormAboutMe {
       this.RestService.appRestart();
     }
   }
- 
+
   loadData() {
     var restURL: string;
 
@@ -127,7 +127,7 @@ export class FormAboutMe {
     }
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -159,7 +159,7 @@ export class FormAboutMe {
         if (self.list2[0].primaryuser !== undefined && self.list2[0].primaryuser !== null) {
           self.primaryUser = self.list2[0].primaryuser;
         }
-        self.loadDictionaries();            
+        self.loadDictionaries();
       });
     }).catch( function(result){
         console.log(body);
@@ -172,7 +172,7 @@ export class FormAboutMe {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -216,12 +216,12 @@ export class FormAboutMe {
         if (self.list2[0].ssn !== undefined && self.list2[0].ssn !== null && self.list2[0].ssn !== "") {
           var ssn = String(self.list2[0].ssn);
           var ssnMask = self.masks.ssn;
-          
+
           var conformedSSN = conformToMask(
             ssn,
             ssnMask,
             {guide: false}
-          );          
+          );
           self.card_form.controls["ssn"].setValue(conformedSSN.conformedValue);
         }
 
@@ -244,28 +244,28 @@ export class FormAboutMe {
         if (self.list2[0].phonenumber !== undefined && self.list2[0].phonenumber !== null && self.list2[0].phonenumber !== "") {
           var phoneNumber = String(self.list2[0].phonenumber);
           var phoneNumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-          
+
           var conformedPhoneNumber = conformToMask(
             phoneNumber,
             phoneNumberMask,
             {guide: false}
-          );          
+          );
           self.card_form.controls["phonenumber"].setValue(conformedPhoneNumber.conformedValue);
         }
 
         self.card_form.controls["email"].setValue(self.list2[0].email);
         self.card_form.controls["emergencycontact"].setValue(self.list2[0].emergencycontact);
 
-        if (self.list2[0].emergencycontactphone !== undefined && self.list2[0].emergencycontactphone !== null 
+        if (self.list2[0].emergencycontactphone !== undefined && self.list2[0].emergencycontactphone !== null
           && self.list2[0].emergencycontactphone !== "") {
           var phoneENumber = String(self.list2[0].emergencycontactphone);
           var phoneENumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-          
+
           var conformedEPhoneNumber = conformToMask(
             phoneENumber,
             phoneENumberMask,
             {guide: false}
-          );          
+          );
           //console.log('Emergency Phone Number: ' + conformedEPhoneNumber.conformedValue);
           self.card_form.controls["emergencycontactphone"].setValue(conformedEPhoneNumber.conformedValue);
         }
@@ -276,15 +276,15 @@ export class FormAboutMe {
 
         if (self.list2[0].relationtoprimary !== undefined && self.list2[0].relationtoprimary !== null &&
           self.list2[0].relationtoprimary !== "") {
-            if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Daughter' || 
+            if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Daughter' ||
             self.getRelationTerm(self.list2[0].relationtoprimary) == 'Son' ) {
               self.isChild = true;
               //console.log('isChild true: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
             } else {
               self.isChild = false;
               //console.log('isChild false: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
-            }    
-            if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Husband' || 
+            }
+            if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Husband' ||
               self.getRelationTerm(self.list2[0].relationtoprimary) == 'Wife' ||
               self.getRelationTerm(self.list2[0].relationtoprimary) == 'Spouse' ||
               self.getRelationTerm(self.list2[0].relationtoprimary) == 'Partner') {
@@ -313,7 +313,7 @@ export class FormAboutMe {
               self.isPet = true;
             } else {
               self.isPet = false;
-            }    
+            }
         }
         self.card_form.controls["species"].setValue(self.list2[0].species);
         //self.card_form.controls["breed"].setValue(self.list2[0].breed);
@@ -354,8 +354,8 @@ export class FormAboutMe {
     this.races = this.card_form.get('races') as FormArray;
     this.races.removeAt(0);
     for (var j = 0; j < this.list2[0].races.length; j++) {
-      this.races.push(this.addExistingRace(j));              
-    }    
+      this.races.push(this.addExistingRace(j));
+    }
   }
 
   addExistingRace(index): FormGroup {
@@ -364,16 +364,16 @@ export class FormAboutMe {
       racecode: new FormControl(this.list2[0].races[index].racecode),
       confirmed: new FormControl(this.list2[0].races[index].confirmed),
     });
-  }  
+  }
 
   addRace() {
     this.races = this.card_form.get('races') as FormArray;
-    this.races.push(this.createItem());  
+    this.races.push(this.createItem());
   }
 
   removeRace(i) {
     this.races = this.card_form.get('races') as FormArray;
-    this.races.removeAt(i); 
+    this.races.removeAt(i);
     this.races.markAsDirty();
   }
 
@@ -382,16 +382,16 @@ export class FormAboutMe {
       this.isPet = true;
     } else {
       this.isPet = false;
-    }    
+    }
 
-    if (this.getRelationTerm(relation.recordid) == 'Daughter' || 
+    if (this.getRelationTerm(relation.recordid) == 'Daughter' ||
     this.getRelationTerm(relation.recordid) == 'Son' ) {
       this.isChild = true;
     } else {
       this.isChild = false;
     }
-    
-    if (this.getRelationTerm(relation.recordid) == 'Husband' || 
+
+    if (this.getRelationTerm(relation.recordid) == 'Husband' ||
       this.getRelationTerm(relation.recordid) == 'Wife' ||
       this.getRelationTerm(relation.recordid) == 'Spouse' ||
       this.getRelationTerm(relation.recordid) == 'Partner') {
@@ -411,7 +411,7 @@ export class FormAboutMe {
     if (phonenumber !== undefined && phonenumber !== null){
       if (phonenumber.length > 14 && phonenumber.substring(13, 14) !== "_" && phonenumber.substring(13, 14) !== " ") {
         this.card_form.get('phonenumber').setValue(phonenumber.substring(0,14));
-      }  
+      }
     } else {
       return "";
     }
@@ -423,7 +423,7 @@ export class FormAboutMe {
     if (phonenumber !== undefined && phonenumber !== null){
       if (phonenumber.length > 14 && phonenumber.substring(13, 14) !== "_" && phonenumber.substring(13, 14) !== " ") {
         this.card_form.get('emergencycontactphone').setValue(phonenumber.substring(0,14));
-      }  
+      }
     } else {
       return "";
     }
@@ -435,7 +435,7 @@ export class FormAboutMe {
     if (ssn !== undefined && ssn !== null){
       if (ssn.length > 11 && ssn.substring(10, 11) !== "_" && ssn.substring(10, 11) !== " ") {
         this.card_form.get('ssn').setValue(ssn.substring(0,11));
-      }  
+      }
     } else {
       return "";
     }
@@ -445,8 +445,8 @@ export class FormAboutMe {
     //console.log('From getPrimaryName - primaryUser', this.primaryUser);
     if (this.primaryUser !== undefined) {
       if (this.primaryUser.firstname !== undefined) {
-        return this.primaryUser.firstname; 
-      } 
+        return this.primaryUser.firstname;
+      }
     } else {
       if (this.list2[0] !== undefined) {
         if (this.list2[0].primaryflag == 'Y') {
@@ -464,11 +464,11 @@ export class FormAboutMe {
           setPrimary.insurancename = this.list2[0].insurancename;
           setPrimary.insurancenumber = this.list2[0].insurancenumber;
           this.primaryUser = setPrimary;
-          return this.primaryUser.firstname;      
-        }   
+          return this.primaryUser.firstname;
+        }
       }
     }
-  } 
+  }
 
   getRelationTerm(relationId) {
     var relationTerm = "";
@@ -531,11 +531,11 @@ export class FormAboutMe {
 
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               this.saveModel.profileid = this.list2[0].profileid;
-              this.saveModel.userid = this.list2[0].profileid;
+              this.saveModel.userid = this.RestService.userId;
               this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
               this.saveModel.active = 'N';
               if (this.list2[0].latestheight !== undefined) {
@@ -550,23 +550,23 @@ export class FormAboutMe {
                 lw.active = 'N';
                 this.saveModel.latestweight = lw;
               }
-  
+
               if (this.list2[0].races !== undefined) {
                 var races: Array<RaceCode> = [];
                 for (var j = 0; j < this.list2[0].races.length; j++) {
-                  race = new RaceCode();              
+                  race = new RaceCode();
                   race.raceid = this.list2[0].races[j].raceid;
                   race.active = 'N';
                   races.push(race);
-                }    
-            
+                }
+
                 if (races.length > 0) {
                   this.saveModel.races = races;
-                }  
+                }
               }
-  
+
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-      
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -574,12 +574,12 @@ export class FormAboutMe {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-            
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
                   //pathParameters: this.vaccineSave
               };
-                
+
               var pathTemplate = '';
               var method = 'POST';
               var additionalParams = {
@@ -587,11 +587,11 @@ export class FormAboutMe {
                   profileid: this.RestService.currentProfile,
                 }
               };
-  
+
               var body = JSON.stringify(this.saveModel);
               var self = this;
-            
-              console.log('Calling Post', this.saveModel);    
+
+              console.log('Calling Post', this.saveModel);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
@@ -601,7 +601,7 @@ export class FormAboutMe {
                 }).catch( function(result){
                   console.log('Result: ',result);
                   console.log(body);
-              });     
+              });
               } else {
               console.log('Need to login again!!! - Credentials expired from listSleep');
               this.RestService.appRestart();
@@ -610,7 +610,7 @@ export class FormAboutMe {
         }
       ]
     });
-    alert.present();    
+    alert.present();
   }
 
   confirmRecord(){
@@ -625,7 +625,7 @@ export class FormAboutMe {
       this.saveModel.accountid = this.list2[0].accountid;
     }
 
-    this.saveModel.userid = this.list2[0].profileid;
+    this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
     this.saveModel.confirmed = 'Y';
 
@@ -767,7 +767,7 @@ export class FormAboutMe {
 
     raceChange = raceControls.dirty;
 
-    //Races not touched - confirm as needed         
+    //Races not touched - confirm as needed
     if (!raceChange) {
       for (var j = 0; j < this.list2[0].races.length; j++) {
         race = new RaceCode();
@@ -780,7 +780,7 @@ export class FormAboutMe {
       }
       if (raceArray !== undefined && raceArray.length > 0) {
         this.saveModel.races = raceArray;
-      }      
+      }
     } else {
       if (this.list2[0].races !== undefined) {
         for (var j = 0; j < this.list2[0].races.length; j++) {
@@ -808,10 +808,10 @@ export class FormAboutMe {
             race.active = "N";
             race.raceid = this.list2[0].races[j].raceid;
             raceArray.push(race);
-          } 
+          }
         }
         for (var k = 0; k < raceControls.length; k++) {
-          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
               race.racecode = raceControls.controls[k].get("racecode").value;
@@ -824,7 +824,7 @@ export class FormAboutMe {
         }
       } else {
         for (var k = 0; k < raceControls.length; k++) {
-          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
               race.racecode = raceControls.controls[k].get("racecode").value;
@@ -836,7 +836,7 @@ export class FormAboutMe {
           this.saveModel.races = raceArray;
         }
       }
-    }  
+    }
 
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -851,12 +851,12 @@ export class FormAboutMe {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-    
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
           //pathParameters: this.vaccineSave
       };
-        
+
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -864,18 +864,18 @@ export class FormAboutMe {
           profileid: this.RestService.currentProfile,
         }
       };
-  
+
       var body = JSON.stringify(this.saveModel);
       var self = this;
-    
-      console.log('Calling Post', this.saveModel);    
+
+      console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
           self.RestService.results = result.data;
           if (!self.newUser) {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "About Me";
-            self.nav.pop();        
+            self.nav.pop();
           } else {
             self.navParams.get("homePage").refreshProfiles();
             self.nav.pop();
@@ -884,7 +884,7 @@ export class FormAboutMe {
       }).catch( function(result){
           console.log('Result: ',result);
           console.log(body);
-      });     
+      });
     } else {
       console.log('Need to login again!!! - Credentials expired from listSleep');
       this.RestService.appRestart();
@@ -902,7 +902,7 @@ export class FormAboutMe {
     } else {
       this.saveModel.accountid = this.list2[0].accountid;
     }
-    this.saveModel.userid = this.list2[0].profileid;
+    this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
     if (this.card_form.controls["firstname"].dirty) {
       this.saveModel.firstname = this.card_form.controls["firstname"].value;
@@ -1021,7 +1021,7 @@ export class FormAboutMe {
 
     raceChange = raceControls.dirty;
 
-    //Races not touched - confirm as needed         
+    //Races not touched - confirm as needed
     if (raceChange) {
       if (this.list2[0].races !== undefined) {
         for (var j = 0; j < this.list2[0].races.length; j++) {
@@ -1043,10 +1043,10 @@ export class FormAboutMe {
             race.active = "N";
             race.raceid = this.list2[0].races[j].raceid;
             raceArray.push(race);
-          } 
+          }
         }
         for (var k = 0; k < raceControls.length; k++) {
-          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
               race.racecode = raceControls.controls[k].get("racecode").value;
@@ -1055,10 +1055,10 @@ export class FormAboutMe {
         }
         if (raceArray !== undefined && raceArray.length > 0) {
           this.saveModel.races = raceArray;
-        }  
+        }
       } else {
         for (var k = 0; k < raceControls.length; k++) {
-          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined || 
+          if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
               race.racecode = raceControls.controls[k].get("racecode").value;
@@ -1067,9 +1067,9 @@ export class FormAboutMe {
         }
         if (raceArray !== undefined && raceArray.length > 0) {
           this.saveModel.races = raceArray;
-        }  
+        }
       }
-    }  
+    }
 
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -1084,12 +1084,12 @@ export class FormAboutMe {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-    
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
           //pathParameters: this.vaccineSave
       };
-        
+
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -1097,11 +1097,11 @@ export class FormAboutMe {
           profileid: this.RestService.currentProfile,
         }
       };
-  
+
       var body = JSON.stringify(this.saveModel);
       var self = this;
-    
-      console.log('Calling Post', this.saveModel);    
+
+      console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
           self.RestService.results = result.data;
@@ -1114,11 +1114,11 @@ export class FormAboutMe {
             self.nav.pop();
             // self.nav.goToRoot(this.navParams);
           }
-  
+
       }).catch( function(result){
           console.log('Result: ',result);
           console.log(body);
-      });     
+      });
       } else {
       console.log('Need to login again!!! - Credentials expired from listSleep');
       this.RestService.appRestart();
@@ -1159,7 +1159,7 @@ export class FormAboutMe {
     } else {
       canContinue = true;
     }
-  
+
     if (canContinue) {
       this.newUser = true;
       this.card_form.controls["primaryflag"].setValue('N');
@@ -1203,20 +1203,20 @@ export class FormAboutMe {
   checkSaveEnabled() {
     if (!this.newUser) {
       if (this.primary) {
-        return (!this.card_form.dirty 
+        return (!this.card_form.dirty
         || !(this.card_form.controls["firstname"].value !== undefined && this.card_form.controls["firstname"].value !== null && this.card_form.controls["firstname"].value !== "")
         || !(this.card_form.controls["lastname"].value !== undefined && this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value !== "")
         || !(this.card_form.controls["birthdate"].value !== undefined && this.card_form.controls["birthdate"].value !== null && this.card_form.controls["birthdate"].value !== "")
-        );  
+        );
       } else {
-        return (!this.card_form.dirty 
+        return (!this.card_form.dirty
         || !(this.card_form.controls["firstname"].value !== undefined && this.card_form.controls["firstname"].value !== null && this.card_form.controls["firstname"].value !== "")
         || !(this.card_form.controls["lastname"].value !== undefined && this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value !== "")
         || !(this.card_form.controls["birthdate"].value !== undefined && this.card_form.controls["birthdate"].value !== null && this.card_form.controls["birthdate"].value !== "")
-        || !(this.card_form.controls["relationtoprimary"].value !== undefined && this.card_form.controls["relationtoprimary"].value !== null && this.card_form.controls["relationtoprimary"].value !== ""));  
+        || !(this.card_form.controls["relationtoprimary"].value !== undefined && this.card_form.controls["relationtoprimary"].value !== null && this.card_form.controls["relationtoprimary"].value !== ""));
       }
     } else {
-      return (!this.card_form.controls["firstname"].dirty || !this.card_form.controls["lastname"].dirty 
+      return (!this.card_form.controls["firstname"].dirty || !this.card_form.controls["lastname"].dirty
                 || !this.card_form.controls["birthdate"].dirty || !this.card_form.controls["relationtoprimary"].dirty);
     }
   }

@@ -8,6 +8,7 @@ import { RestService } from '../../app/services/restService.service';
 import { FormFindContact } from '../../pages/formFindContact/formFindContact';
 import { FormContactPage } from '../../pages/formContact/formContact';
 import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
+import { CallNumber } from '@ionic-native/call-number';
 
 var moment = require('moment-timezone');
 
@@ -29,6 +30,7 @@ export class ListContactPage {
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
+    private callNumber: CallNumber
   ) {
     this.feed.category = navParams.get('category');
 
@@ -48,7 +50,7 @@ export class ListContactPage {
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
       console.log('Need to login again!!! - Credentials expired from listContact');
       this.RestService.appRestart();
@@ -59,7 +61,7 @@ export class ListContactPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -104,17 +106,23 @@ export class ListContactPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormContactPage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
-  callDoc(recordId) {
-    console.log("Call Doc item", recordId);
-    this.nav.push(FormCallNotesPage, { recId: recordId });
+  callDoc(phoneNum, recordId) {
+    //console.log("Call Doc item", recordId);
+    this.callNumber.callNumber(phoneNum, true)
+      .then(() =>
+        this.nav.push(FormCallNotesPage, { recId: recordId })
+      )
+      .catch(() =>
+        this.nav.push(FormCallNotesPage, { recId: recordId })
+      );
   }
 
   addNew() {
     this.nav.push(FormFindContact);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
@@ -126,7 +134,7 @@ export class ListContactPage {
 
   formatPhone(phoneNum) {
     var strPhone = String(phoneNum);
-    strPhone = '(' + strPhone.substring(0, 3) + ')' + strPhone.substring(3, 6) + '-' + strPhone.substring(6, 10); 
+    strPhone = '(' + strPhone.substring(0, 3) + ')' + strPhone.substring(3, 6) + '-' + strPhone.substring(6, 10);
     return strPhone;
   }
 

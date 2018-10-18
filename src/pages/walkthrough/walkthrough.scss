@@ -9,32 +9,10 @@ walkthrough-page {
 		// Default background when bouncing isn't disabled
 		background-color: color($colors, walkthrough, base);
 
-		.scroll-content
-		{
-			margin: 0px !important;
-		}
-
 		ion-slide:nth-child(odd)
 		{
 			background-color: color($colors, walkthrough, base);
 			color: color($colors, walkthrough, contrast);
-		}
-
-		ion-slide:nth-child(even)
-		{
-			background-color: color($colors, walkthrough-alt, base);
-			color: color($colors, walkthrough-alt, contrast);
-		}
-
-		.swiper-pagination-bullet
-		{
-		  background: $white;
-			opacity: .5;
-
-			&.swiper-pagination-bullet-active
-			{
-			  opacity: 1;
-			}
 		}
 
 		ion-slides {
@@ -72,55 +50,13 @@ walkthrough-page {
 			}
 			.footer
 			{
-				vertical-align: bottom;
-			}
-		}
-
-		.slide-4
-		{
-			.main-title
-			{
-				margin-top: 15px;
-			}
-
-			.button-bar
-			{
-				@include display(flex);
-				margin: 0 auto;
-				width: 40%;
-				text-align: center;
-				
-				& > .button
-				{
-					@include segment-text-styles(color($colors, button-alt, base));
-					background-color: color($colors, button-alt, contrast);
-					margin: 0px;
-					border-radius: 0px;
-					@include flex(1);
-
-					&:first-child
-					{
-					  border-radius: 6px 0px 0px 6px;
-
-						&::after
-						{
-							content: '';
-							background-color: color($colors, button-alt, base);
-							width: 2px;
-							@include calc(height, "100% - 20px");
-							margin: 10px 0px;
-							position: absolute;
-						  top: 0px;
-						  right: 0px;
-							opacity: 0.6;
-						}
-					}
-					&:last-child
-					{
-					  border-radius: 0px 6px 6px 0px;
-					}
-				}
-			}
-		}
+				@include align-items(flex-end);
+        //left: 0%;
+        //position:relative;
+        //margin-top:0%;
+        //position:absolute;
+        //bottom:0;
+		  }
+    }
 	}
 }

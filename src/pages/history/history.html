@@ -1,8 +1,7 @@
 <ion-header class="listing-header">
   <ion-navbar>
     <ion-title>
-      <i>You don't change the course of history by turning <br> the faces of portraits to the wall</i>
-       - Jawaharlal Nehru
+      <b>Your Whole History</b>
     </ion-title>
   </ion-navbar>
 </ion-header>
@@ -11,11 +10,11 @@
   <h4 class="categories-title">Family</h4>
   <ion-scroll scrollX="true" class="horizontal-categories">
     <ion-row class="categories-row">
-      <ion-col width-20 class="horizontal-item" *ngFor="let popular of listing.populars">
+      <ion-col width-20 class="horizontal-item" *ngFor="let popular of RestService.Profiles;let i=index">
           <label>
-              <input type="radio" name="profile1" [value]="popular.profileid" [checked]="popular.checked" (click)="setProfileID(popular.profileid)"/>
+              <input type="radio" name="profile1" [value]="popular.profileid" [checked]="popular.checked" (click)="setProfileID(popular.profileid, i)"/>
               <img [src]="popular.image" [title]="popular.title">
-          </label>  
+          </label>
       </ion-col>
     </ion-row>
   </ion-scroll>

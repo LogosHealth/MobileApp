@@ -24,6 +24,7 @@ export class ActivatedSchedule {
   contactid:number;
   interval: number;
   nextdate: number;
+  notifyprofiles: string;
   day90alert: string;
   day30alert: string;
   day7alert: string;

@@ -4,21 +4,289 @@
     "uninstalled": []
   },
   "config_munge": {
-    "files": {}
+    "files": {
+      "res/xml/config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"StatusBar\"><param name=\"android-package\" value=\"org.apache.cordova.statusbar.StatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"Badge\"><param name=\"android-package\" value=\"de.appplant.cordova.plugin.badge.Badge\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"LocalNotification\"><param name=\"android-package\" value=\"de.appplant.cordova.plugin.localnotification.LocalNotification\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"CallNumber\"><param name=\"android-package\" value=\"mx.ferreyra.callnumber.CFCallNumber\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"IonicCordovaCommon\"><param name=\"android-package\" onload=\"true\" value=\"com.ionicframework.common.IonicCordovaCommon\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"IonicDeploy\"><param name=\"android-package\" value=\"com.ionicframework.deploy.IonicDeploy\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"Keyboard\"><param name=\"android-package\" onload=\"true\" value=\"io.ionic.keyboard.IonicKeyboard\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "res/values/strings.xml": {
+        "parents": {
+          "/resources": [
+            {
+              "xml": "<string name=\"ionic_app_id\">0f127b9d</string>",
+              "count": 1
+            },
+            {
+              "xml": "<string name=\"ionic_debug\">true</string>",
+              "count": 1
+            },
+            {
+              "xml": "<string name=\"ionic_channel_name\">Master</string>",
+              "count": 1
+            },
+            {
+              "xml": "<string name=\"ionic_update_api\">https://api.ionicjs.com</string>",
+              "count": 1
+            },
+            {
+              "xml": "<string name=\"ionic_update_method\">background</string>",
+              "count": 1
+            },
+            {
+              "xml": "<string name=\"ionic_max_versions\">2</string>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "AndroidManifest.xml": {
+        "parents": {
+          "/manifest/application": [
+            {
+              "xml": "<provider android:authorities=\"${applicationId}.provider\" android:exported=\"false\" android:grantUriPermissions=\"true\" android:name=\"de.appplant.cordova.plugin.notification.util.AssetProvider\"><meta-data android:name=\"android.support.FILE_PROVIDER_PATHS\" android:resource=\"@xml/localnotification_provider_paths\" /></provider>",
+              "count": 1
+            },
+            {
+              "xml": "<receiver android:exported=\"false\" android:name=\"de.appplant.cordova.plugin.localnotification.TriggerReceiver\" />",
+              "count": 1
+            },
+            {
+              "xml": "<receiver android:exported=\"false\" android:name=\"de.appplant.cordova.plugin.localnotification.ClearReceiver\" />",
+              "count": 1
+            },
+            {
+              "xml": "<activity android:exported=\"false\" android:launchMode=\"singleInstance\" android:name=\"de.appplant.cordova.plugin.localnotification.ClickReceiver\" android:theme=\"@android:style/Theme.Translucent\" />",
+              "count": 1
+            }
+          ],
+          "/manifest": [
+            {
+              "xml": "<uses-permission android:name=\"android.permission.WAKE_LOCK\" />",
+              "count": 1
+            }
+          ],
+          "/*": [
+            {
+              "xml": "<uses-permission android:name=\"android.permission.CALL_PHONE\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-feature android:name=\"android.hardware.telephony\" android:required=\"false\" />",
+              "count": 1
+            }
+          ]
+        }
+      }
+    }
   },
   "installed_plugins": {
     "cordova-android-support-gradle-release": {
       "ANDROID_SUPPORT_VERSION": "27.+",
-      "PACKAGE_NAME": "io.ionic.starter"
+      "PACKAGE_NAME": "healthcare.logos.visual"
     },
     "cordova-plugin-app-event": {
-      "PACKAGE_NAME": "io.ionic.starter"
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-inappbrowser": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-ionic": {
+      "APP_ID": "0f127b9d",
+      "CHANNEL_NAME": "Master",
+      "WARN_DEBUG": "true",
+      "UPDATE_API": "https://api.ionicjs.com",
+      "UPDATE_METHOD": "background",
+      "MAX_STORE": "2",
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-ionic-keyboard": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-ionic-webview": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-statusbar": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-badge": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-local-notification": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "mx.ferreyra.callnumber": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },
   "dependent_plugins": {},
-  "modules": [],
+  "modules": [
+    {
+      "id": "cordova-plugin-device.device",
+      "file": "plugins/cordova-plugin-device/www/device.js",
+      "pluginId": "cordova-plugin-device",
+      "clobbers": [
+        "device"
+      ]
+    },
+    {
+      "id": "cordova-plugin-inappbrowser.inappbrowser",
+      "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+      "pluginId": "cordova-plugin-inappbrowser",
+      "clobbers": [
+        "cordova.InAppBrowser.open",
+        "window.open"
+      ]
+    },
+    {
+      "id": "cordova-plugin-splashscreen.SplashScreen",
+      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+      "pluginId": "cordova-plugin-splashscreen",
+      "clobbers": [
+        "navigator.splashscreen"
+      ]
+    },
+    {
+      "id": "cordova-plugin-ionic.common",
+      "file": "plugins/cordova-plugin-ionic/www/common.js",
+      "pluginId": "cordova-plugin-ionic",
+      "clobbers": [
+        "IonicCordova"
+      ],
+      "runs": true
+    },
+    {
+      "id": "cordova-plugin-ionic-keyboard.keyboard",
+      "file": "plugins/cordova-plugin-ionic-keyboard/www/android/keyboard.js",
+      "pluginId": "cordova-plugin-ionic-keyboard",
+      "clobbers": [
+        "window.Keyboard"
+      ]
+    },
+    {
+      "id": "cordova-plugin-statusbar.statusbar",
+      "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+      "pluginId": "cordova-plugin-statusbar",
+      "clobbers": [
+        "window.StatusBar"
+      ]
+    },
+    {
+      "id": "cordova-plugin-badge.Badge",
+      "file": "plugins/cordova-plugin-badge/www/badge.js",
+      "pluginId": "cordova-plugin-badge",
+      "clobbers": [
+        "cordova.plugins.notification.badge"
+      ]
+    },
+    {
+      "id": "cordova-plugin-local-notification.LocalNotification",
+      "file": "plugins/cordova-plugin-local-notification/www/local-notification.js",
+      "pluginId": "cordova-plugin-local-notification",
+      "clobbers": [
+        "cordova.plugins.notification.local"
+      ]
+    },
+    {
+      "id": "cordova-plugin-local-notification.LocalNotification.Core",
+      "file": "plugins/cordova-plugin-local-notification/www/local-notification-core.js",
+      "pluginId": "cordova-plugin-local-notification",
+      "clobbers": [
+        "cordova.plugins.notification.local.core",
+        "plugin.notification.local.core"
+      ]
+    },
+    {
+      "id": "cordova-plugin-local-notification.LocalNotification.Util",
+      "file": "plugins/cordova-plugin-local-notification/www/local-notification-util.js",
+      "pluginId": "cordova-plugin-local-notification",
+      "merges": [
+        "cordova.plugins.notification.local.core",
+        "plugin.notification.local.core"
+      ]
+    },
+    {
+      "id": "mx.ferreyra.callnumber.CallNumber",
+      "file": "plugins/mx.ferreyra.callnumber/www/CallNumber.js",
+      "pluginId": "mx.ferreyra.callnumber",
+      "clobbers": [
+        "call"
+      ]
+    }
+  ],
   "plugin_metadata": {
     "cordova-android-support-gradle-release": "1.4.4",
-    "cordova-plugin-app-event": "1.2.1"
+    "cordova-plugin-app-event": "1.2.1",
+    "cordova-plugin-device": "2.0.1",
+    "cordova-plugin-inappbrowser": "2.0.2",
+    "cordova-plugin-splashscreen": "5.0.2",
+    "cordova-plugin-ionic": "4.1.7",
+    "cordova-plugin-ionic-keyboard": "2.0.5",
+    "cordova-plugin-ionic-webview": "1.1.16",
+    "cordova-plugin-statusbar": "2.4.2",
+    "cordova-plugin-whitelist": "1.3.3",
+    "cordova-plugin-badge": "0.8.7",
+    "cordova-plugin-local-notification": "0.9.0-beta.2",
+    "mx.ferreyra.callnumber": "0.0.2"
   }
 }

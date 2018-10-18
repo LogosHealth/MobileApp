@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { AboutMeService } from '../../pages/formAboutMe/formAboutMe.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
@@ -8,7 +8,6 @@ import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.m
 import { DictionaryService } from '../../pages/models/dictionary.service';
 import { TextMaskModule, conformToMask } from 'angular2-text-mask';
 import { ListContact } from '../../pages/listContacts/listContacts.model';
-import { ListContactService } from '../../pages/listContacts/listContacts.service';
 
 var moment = require('moment-timezone');
 
@@ -43,8 +42,8 @@ export class FormContactPage {
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
 
     this.recId = navParams.get('recId');
-    this.curRec = RestService.results[this.recId]; 
-      
+    this.curRec = RestService.results[this.recId];
+
     if (this.recId !== undefined) {
       //console.log('FacilityType: ' + this.curRec.facilitytype);
       if(this.curRec.facilitytype !== undefined && this.curRec.facilitytype !== null && this.curRec.facilitytype !== "") {
@@ -54,7 +53,7 @@ export class FormContactPage {
 
     this.masks = {
       phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
-    };    
+    };
 
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
@@ -88,13 +87,13 @@ export class FormContactPage {
       });
       if (this.curRec.firstnamelock !== undefined && this.curRec.firstnamelock == 'Y') {
         this.firstnamelock = true;
-      }  
+      }
       if (this.curRec.lastnamelock !== undefined && this.curRec.lastnamelock == 'Y') {
         this.lastnamelock = true;
-      }  
+      }
       if (this.curRec.fromgoogle !== undefined && this.curRec.fromgoogle == 'Y') {
         this.fromgoogle = true;
-      }  
+      }
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -125,8 +124,8 @@ export class FormContactPage {
         profileid: new FormControl(),
         timezone: new FormControl(),
         active: new FormControl(),
-      });  
-      }    
+      });
+      }
   }
 
   ionViewDidLoad() {
@@ -142,12 +141,12 @@ export class FormContactPage {
       this.RestService.appRestart();
     }
   }
- 
+
   loadDictionaries() {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -183,12 +182,12 @@ export class FormContactPage {
         if (self.curRec !== undefined && self.curRec.phonenumber !== undefined && self.curRec.phonenumber !== null && self.curRec.phonenumber !== "") {
           var phoneNumber = String(self.curRec.phonenumber);
           var phoneNumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-          
+
           var conformedPhoneNumber = conformToMask(
             phoneNumber,
             phoneNumberMask,
             {guide: false}
-          );          
+          );
           self.card_form.controls["phonenumber"].setValue(conformedPhoneNumber.conformedValue);
         }
         self.RestService.refreshCheck();
@@ -210,7 +209,7 @@ export class FormContactPage {
     if (phonenumber !== undefined && phonenumber !== null){
       if (phonenumber.length > 14 && phonenumber.substring(13, 14) !== "_" && phonenumber.substring(13, 14) !== " ") {
         this.card_form.get('phonenumber').setValue(phonenumber.substring(0,14));
-      }  
+      }
     } else {
       return "";
     }
@@ -236,17 +235,17 @@ export class FormContactPage {
 
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               this.saveModel.profileid = this.RestService.currentProfile;
-              this.saveModel.userid = this.RestService.currentProfile;
+              this.saveModel.userid = this.RestService.userId;
               this.saveModel.recordid = this.card_form.controls["recordid"].value;
               this.saveModel.profile2contactid = this.card_form.controls["profile2contactid"].value;
               this.saveModel.active = 'N';
-    
+
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-      
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -254,12 +253,12 @@ export class FormContactPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-            
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
                   //pathParameters: this.vaccineSave
               };
-                
+
               var pathTemplate = '';
               var method = 'POST';
               var additionalParams = {
@@ -267,11 +266,11 @@ export class FormContactPage {
                   profileid: this.RestService.currentProfile,
                 }
               };
-  
+
               var body = JSON.stringify(this.saveModel);
               var self = this;
-            
-              console.log('Calling Post', this.saveModel);    
+
+              console.log('Calling Post', this.saveModel);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
@@ -280,7 +279,7 @@ export class FormContactPage {
                 }).catch( function(result){
                   console.log('Result: ',result);
                   console.log(body);
-              });     
+              });
               } else {
               console.log('Need to login again!!! - Credentials expired from formContact');
               this.RestService.appRestart();
@@ -289,13 +288,13 @@ export class FormContactPage {
         }
       ]
     });
-    alert.present();    
+    alert.present();
   }
 
   saveRecord(){
     this.saving = true;
     this.saveModel.profileid = this.RestService.currentProfile;
-    this.saveModel.userid = this.RestService.currentProfile;
+    this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
 
     if (!this.newRec) {
@@ -304,7 +303,7 @@ export class FormContactPage {
     }
 
     this.saveModel.fromgoogle = this.card_form.controls["fromgoogle"].value;
-    
+
     if (this.card_form.controls["firstname"].dirty) {
       this.saveModel.firstname = this.card_form.controls["firstname"].value;
     }
@@ -361,12 +360,12 @@ export class FormContactPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-    
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
           //pathParameters: this.vaccineSave
       };
-        
+
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -374,11 +373,11 @@ export class FormContactPage {
           profileid: this.RestService.currentProfile,
         }
       };
-  
+
       var body = JSON.stringify(this.saveModel);
       var self = this;
-    
-      console.log('Calling Post', this.saveModel);    
+
+      console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
           self.RestService.results = result.data;
@@ -390,11 +389,11 @@ export class FormContactPage {
             self.nav.pop();
             // self.nav.goToRoot(this.navParams);
           }
-  
+
       }).catch( function(result){
           console.log('Result: ',result);
           console.log(body);
-      });     
+      });
       } else {
       console.log('Need to login again!!! - Credentials expired from formContact');
       this.RestService.appRestart();

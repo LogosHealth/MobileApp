@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title *ngIf="!changeUser">First Time Device Login</ion-title>
+    <ion-title *ngIf="changeUser">Switch User</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 *ngIf="!changeUser" class = "section-title">Select Yourself for this Device</h2>
+          <h2 *ngIf="changeUser" class = "section-title">Select Yourself</h2>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Person</ion-label>
+                <ion-select formControlName="profileid">
+                    <ion-option *ngFor="let rec of curRec" [value]="rec.profileid">{{rec.title}}</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </section>
+
+        <section class="form-section">
+         <ion-row *ngIf="!changeUser"  no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.valid">Select</button>
+            </ion-col>
+         </ion-row>
+         <ion-row *ngIf="changeUser"  no-padding class="multi-input-row">
+          <ion-col no-padding width-25>
+            <button ion-button block class="form-action-button" type="button" (click)="updateUser()" [disabled]="!card_form.valid">Select</button>
+          </ion-col>
+          <ion-col no-padding width-50>
+            <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.valid">Make Default</button>
+          </ion-col>
+          <ion-col no-padding width-25>
+            <button ion-button block class="form-action-button" type="button" (click)="cancelAction()" >Cancel</button>
+          </ion-col>
+         </ion-row>
+      </section>
+      </form>
+    </div>
+</ion-content>

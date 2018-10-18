@@ -34,16 +34,16 @@ export class FormExercisePage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
     if (this.goalname == undefined) {
       //alert('No goal name');
       this.goalname = "";
-    }  
+    }
 
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -52,17 +52,17 @@ export class FormExercisePage {
       }
     });
 
-    //add caloriesburnedvalue generator    
+    //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
       var cbSplit;
       var numCB = null;
       if(this.curRec.caloriesburned !== undefined && this.curRec.caloriesburned !== null && this.curRec.caloriesburned !== "") {
-        var cbSplit = this.curRec.caloriesburned.split(" ");                                 
+        var cbSplit = this.curRec.caloriesburned.split(" ");
         if (Number(cbSplit[0]) !== NaN) {
           numCB = cbSplit[0];
         }
       }
- 
+
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         exercisetype: new FormControl(this.curRec.exercisetype, Validators.required),
@@ -77,7 +77,7 @@ export class FormExercisePage {
         confirmed: new FormControl(this.curRec.confirmed),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
-      });    
+      });
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -94,7 +94,7 @@ export class FormExercisePage {
         confirmed: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
-      });    
+      });
     }
   }
 
@@ -119,7 +119,7 @@ export class FormExercisePage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -178,16 +178,16 @@ export class FormExercisePage {
             console.log('Delete clicked');
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               //alert('Going to delete');
               this.saving = true;
               this.exerciseSave.recordid = this.card_form.get('recordid').value;
               this.exerciseSave.profileid = this.RestService.currentProfile;
-              this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+              this.exerciseSave.userid = this.RestService.userId;
               this.exerciseSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-    
+
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -195,9 +195,9 @@ export class FormExercisePage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-        
+
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
-              var params = {        
+              var params = {
               };
               var pathTemplate = '';
               var method = 'POST';
@@ -208,18 +208,18 @@ export class FormExercisePage {
               };
               var body = JSON.stringify(this.exerciseSave);
               var self = this;
-        
-              console.log('Calling Post', this.exerciseSave);    
+
+              console.log('Calling Post', this.exerciseSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
                   self.category.title = "Invest in You";
-                  self.nav.pop();      
+                  self.nav.pop();
                 }).catch( function(result){
                   console.log('Result: ',result);
                   console.log(body);
-                });        
+                });
             } else {
               console.log('Need to login again!!! - Credentials expired from formExercise - Delete');
               this.RestService.appRestart();
@@ -237,8 +237,8 @@ export class FormExercisePage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.exerciseSave.recordid = this.card_form.get('recordid').value;
       this.exerciseSave.profileid = this.RestService.currentProfile;
-      this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.exerciseSave.active = 'Y'; 
+      this.exerciseSave.userid = this.RestService.userId;
+      this.exerciseSave.active = 'Y';
       if (this.card_form.get('exercisetime').dirty){
         this.exerciseSave.exercisetime = this.card_form.get('exercisetime').value;
       }
@@ -256,15 +256,15 @@ export class FormExercisePage {
       }
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
         this.exerciseSave.goalname = this.card_form.get('goalname').value;
-      }      
+      }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.exerciseSave.timezone = this.userTimezone;
-      }      
+      }
     } else {
       this.exerciseSave.exercisetype = this.card_form.get('exercisetype').value;
       this.exerciseSave.profileid = this.RestService.currentProfile;
       this.exerciseSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.exerciseSave.active = 'Y'; 
+      this.exerciseSave.active = 'Y';
       if (this.card_form.get('exercisetime').dirty){
         this.exerciseSave.exercisetime = this.card_form.get('exercisetime').value;
       }
@@ -286,21 +286,21 @@ export class FormExercisePage {
           var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
           var dtDET = moment(this.card_form.get('dateofmeasure').value);
-        }        
+        }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.exerciseSave.dateofmeasure = dtDET.utc().toISOString();
       }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.exerciseSave.timezone = this.userTimezone;
-      }      
+      }
     }
-    
+
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -308,9 +308,9 @@ export class FormExercisePage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -322,8 +322,8 @@ export class FormExercisePage {
       };
       var body = JSON.stringify(this.exerciseSave);
       var self = this;
-  
-      console.log('Calling Post', this.exerciseSave);    
+
+      console.log('Calling Post', this.exerciseSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
@@ -346,7 +346,7 @@ export class FormExercisePage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -376,11 +376,11 @@ export class FormExercisePage {
       .getData()
       .then(data => {
         self.nav.getPrevious().data.refresh = true;
-        self.nav.pop();      
-      });      
+        self.nav.pop();
+      });
     }).catch( function(result){
         console.log('Error in formExercise: apigClient.invokeApi', body);
-        self.nav.pop();      
+        self.nav.pop();
     });
   }
 
@@ -404,24 +404,24 @@ export class FormExercisePage {
     } else {
       var dayoftheweek = momentNow.format('dddd');
     }
-  
-  
+
+
     if (dayoftheweek == 'Sunday') {
       var offSet = 0
     } else if (dayoftheweek == 'Monday') {
-      offSet = 1		
+      offSet = 1
     } else if (dayoftheweek == 'Tuesday') {
-      offSet = 2				
+      offSet = 2
     } else if (dayoftheweek == 'Wednesday') {
-      offSet = 3				
+      offSet = 3
     } else if (dayoftheweek == 'Thursday') {
-      offSet = 4				
+      offSet = 4
     } else if (dayoftheweek == 'Friday') {
-      offSet = 5				
+      offSet = 5
     } else if (dayoftheweek == 'Saturday') {
-      offSet = 6				
+      offSet = 6
     }
-  
+
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
@@ -437,7 +437,7 @@ export class FormExercisePage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -458,6 +458,6 @@ export class FormExercisePage {
     });
     alert.present();
     return canLeave
-  }  
-  
+  }
+
 }

@@ -10,10 +10,10 @@
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -33,13 +33,13 @@
               </ion-row>
           </ion-item>
           <ion-item-options side="left">
-              <button ion-button color="secondary" (click)="callDoc(i)">
+              <button ion-button color="secondary" (click)="callDoc(item.phonenumber, i)">
                   <ion-icon name="call"></ion-icon>Call
               </button>
               <button *ngIf="item.active == 'Y'" ion-button color="primary" (click)="scheduleVisit(i)">
                   <ion-icon name="calendar"></ion-icon>Schedule Visit
               </button>
-          </ion-item-options>      
+          </ion-item-options>
       </ion-item-sliding>
     </ion-list>
   </div>

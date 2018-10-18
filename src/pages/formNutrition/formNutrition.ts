@@ -3,7 +3,6 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListNutritionModel, ListNutrition, ListNutritionDay } from '../../pages/listNutrition/listNutrition.model';
-
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 
@@ -19,7 +18,7 @@ export class FormNutritionPage {
   recId: number;
   goalname: string;
   card_form: FormGroup;
-  meals: FormArray; 
+  meals: FormArray;
   goal_array: FormArray;
   goal_schedule: FormGroup;
   curRec: any;
@@ -27,8 +26,8 @@ export class FormNutritionPage {
   saving: boolean = false;
 
   formModelSave: ListNutritionModel  = new ListNutritionModel();
-  formDaySave: ListNutritionDay = new ListNutritionDay(); 
-  formSave: ListNutrition = new ListNutrition(); 
+  formDaySave: ListNutritionDay = new ListNutritionDay();
+  formSave: ListNutrition = new ListNutrition();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
@@ -36,11 +35,11 @@ export class FormNutritionPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public formBuilder: FormBuilder) {
     this.recId = navParams.get('recId');
 
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
     console.log('Cur Rec: ', this.curRec);
 
     var self = this;
@@ -56,7 +55,7 @@ export class FormNutritionPage {
           meals: this.formBuilder.array([ this.createItem() ]),
           profileid: new FormControl(this.curRec.profileid),
           userid: new FormControl(this.curRec.userid)
-      });  
+      });
       this.addExistingMeals();
     } else {
       this.newRec = true;
@@ -65,7 +64,7 @@ export class FormNutritionPage {
         meals: this.formBuilder.array([ this.createItem() ]),
         profileid: new FormControl(),
         userid: new FormControl()
-      });    
+      });
     }
   }
 
@@ -96,12 +95,12 @@ export class FormNutritionPage {
 
             var dtNow = moment(new Date());
             var dtExpiration = moment(this.RestService.AuthData.expiration);
-        
+
             if (dtNow < dtExpiration) {
               this.saving = true;
               //alert('Going to delete');
               this.formDaySave.meals = [];
-              mealsArray = this.card_form.get('meals') as FormArray;            
+              mealsArray = this.card_form.get('meals') as FormArray;
               for (var j = 0; j < mealsArray.length; j++) {
                 mealSave = new ListNutrition();
                 meal = mealsArray.at(j) as FormGroup;
@@ -109,14 +108,14 @@ export class FormNutritionPage {
                   mealSave.recordid = meal.get("recordid").value;
                   mealSave.active = 'N';
                   mealSave.profileid = this.RestService.currentProfile;
-                  mealSave.userid = this.RestService.currentProfile;
+                  mealSave.userid = this.RestService.userId;
                   this.formDaySave.meals.push(mealSave);
                 }
-              }  
-  
+              }
+
               if (this.formDaySave.meals !== undefined && this.formDaySave.meals.length > 0) {
                 var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
-      
+
                 var config = {
                   invokeUrl: restURL,
                   accessKey: this.RestService.AuthData.accessKeyId,
@@ -124,9 +123,9 @@ export class FormNutritionPage {
                   sessionToken: this.RestService.AuthData.sessionToken,
                   region:'us-east-1'
                 };
-            
+
                 var apigClient = this.RestService.AWSRestFactory.newClient(config);
-                var params = {        
+                var params = {
                   //pathParameters: this.vaccineSave
                 };
                 var pathTemplate = '';
@@ -138,22 +137,22 @@ export class FormNutritionPage {
                 };
                 var body = JSON.stringify(this.formDaySave);
                 var self = this;
-            
-                console.log('Calling Post', this.formDaySave);    
+
+                console.log('Calling Post', this.formDaySave);
                 apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
                   self.category.title = "Nutrition";
-                  self.nav.pop();      
+                  self.nav.pop();
                 }).catch( function(result){
                   console.log('Result: ',result);
                   console.log(body);
-                });     
+                });
               } else {
                 console.log('No saved Records - Delete goes back.');
                 self.category.title = "Nutrition";
-                self.nav.pop();      
+                self.nav.pop();
               }
             } else {
               console.log('Need to login again!!! - Credentials expired from listSleep');
@@ -175,7 +174,7 @@ export class FormNutritionPage {
 
     this.saving = true;
     this.formDaySave.meals = new Array<ListNutrition>() ;
-    mealsArray = this.card_form.get('meals') as FormArray;            
+    mealsArray = this.card_form.get('meals') as FormArray;
     for (var j = 0; j < mealsArray.length; j++) {
       isDirty = false;
       meal = mealsArray.at(j) as FormGroup;
@@ -201,10 +200,10 @@ export class FormNutritionPage {
       }
       if (isDirty) {
         mealSave.profileid = this.RestService.currentProfile;
-        mealSave.userid = this.RestService.currentProfile;
+        mealSave.userid = this.RestService.userId;
         mealSave.active = 'Y';
         if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
-          mealSave.timezone = this.userTimezone;          
+          mealSave.timezone = this.userTimezone;
         }
         this.formDaySave.meals.push(mealSave);
       } else {
@@ -219,15 +218,15 @@ export class FormNutritionPage {
           var dtTranslate = new Date(this.card_form.get('dayofmeasure').value);
           dtDET = moment.tz(dtTranslate.toUTCString(), this.userTimezone);
         } else {
-          var dtTranslate = new Date();         
+          var dtTranslate = new Date();
           dtDET = moment.tz(dtTranslate.toUTCString(), this.userTimezone);
         }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
       } else {
-        var dtTranslate = new Date();         
+        var dtTranslate = new Date();
         dtDET = moment(dtTranslate.toUTCString());
         console.log('No usertimezone: ' + dtDET.format('MM-DD-YYYY HH:mm'));
-      }        
+      }
 
       this.formDaySave.dayofmeasure =  dtDET.utc().format('YYYY-MM-DD HH:mm');
     }
@@ -237,7 +236,7 @@ export class FormNutritionPage {
 
     if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
-    
+
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -245,9 +244,9 @@ export class FormNutritionPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-  
+
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {        
+      var params = {
         //pathParameters: this.vaccineSave
       };
       var pathTemplate = '';
@@ -259,14 +258,14 @@ export class FormNutritionPage {
       };
       var body = JSON.stringify(this.formDaySave);
       var self = this;
-  
-      console.log('Calling Post', this.formDaySave);    
+
+      console.log('Calling Post', this.formDaySave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Nutrition";
-        self.nav.pop();      
+        self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
         console.log(body);
@@ -294,8 +293,8 @@ export class FormNutritionPage {
     this.meals = this.card_form.get('meals') as FormArray;
     this.meals.removeAt(0);
     for (var j = 0; j < this.curRec.meals.length; j++) {
-      this.meals.push(this.addExistingMeal(j));              
-    }    
+      this.meals.push(this.addExistingMeal(j));
+    }
   }
 
   addExistingMeal(index): FormGroup {
@@ -307,7 +306,7 @@ export class FormNutritionPage {
       calories: new FormControl(this.curRec.meals[index].calories),
       active: new  FormControl('Y'),
     });
-  }  
+  }
 
   createItem(): FormGroup {
     return this.formBuilder.group({
@@ -318,8 +317,8 @@ export class FormNutritionPage {
       calories: new FormControl(),
       active: new  FormControl('Y'),
     });
-  }  
-  
+  }
+
   addItem(): void {
     this.meals = this.card_form.get('meals') as FormArray;
     this.meals.push(this.createItem());
@@ -332,24 +331,24 @@ export class FormNutritionPage {
     } else {
       var dayoftheweek = momentNow.format('dddd');
     }
-  
-  
+
+
     if (dayoftheweek == 'Sunday') {
       var offSet = 0
     } else if (dayoftheweek == 'Monday') {
-      offSet = 1		
+      offSet = 1
     } else if (dayoftheweek == 'Tuesday') {
-      offSet = 2				
+      offSet = 2
     } else if (dayoftheweek == 'Wednesday') {
-      offSet = 3				
+      offSet = 3
     } else if (dayoftheweek == 'Thursday') {
-      offSet = 4				
+      offSet = 4
     } else if (dayoftheweek == 'Friday') {
-      offSet = 5				
+      offSet = 5
     } else if (dayoftheweek == 'Saturday') {
-      offSet = 6				
+      offSet = 6
     }
-  
+
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
@@ -365,7 +364,7 @@ export class FormNutritionPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -386,6 +385,6 @@ export class FormNutritionPage {
     });
     alert.present();
     return canLeave
-  }  
-  
+  }
+
 }

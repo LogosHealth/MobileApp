@@ -8,7 +8,7 @@
       </ion-title>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -29,7 +29,7 @@
           </ion-row>
         </ion-item>
         <ion-item-options side="left">
-            <button ion-button color="secondary" (click)="callDoc(i)">
+            <button ion-button color="secondary" (click)="callDoc(item.physician.phonenumber, i)">
                 <ion-icon name="call"></ion-icon>Call
             </button>
             <button *ngIf="item.active == 'Y'" ion-button color="primary" (click)="getDirection(i)">
@@ -41,7 +41,7 @@
             <button ion-button color="primary" (click)="itemFilter(i)">
                 <ion-icon name="funnel"></ion-icon>Filter
             </button>
-        </ion-item-options>      
+        </ion-item-options>
       </ion-item-sliding>
     </ion-list>
   </div>

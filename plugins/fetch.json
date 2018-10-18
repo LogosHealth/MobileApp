@@ -62,7 +62,7 @@
   "mx.ferreyra.callnumber": {
     "source": {
       "type": "registry",
-      "id": "call-number"
+      "id": "call-number@^1.0.1"
     },
     "is_top_level": true,
     "variables": {}
@@ -87,6 +87,30 @@
     "source": {
       "type": "registry",
       "id": "cordova-android-support-gradle-release"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-statusbar": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-statusbar@2.4.2"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-badge": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-badge@>=0.8.5"
+    },
+    "is_top_level": false,
+    "variables": {}
+  },
+  "cordova-plugin-local-notification": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-local-notification@0.9.0-beta.2"
     },
     "is_top_level": true,
     "variables": {}

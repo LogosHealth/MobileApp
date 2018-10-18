@@ -13,6 +13,8 @@ var results = [];
 var cognitoIdentity;
 var AuthData = {} as AuthData;
 var currentProfile: number;
+var userId: number;
+var deviceUUID: string;
 var refreshProfiles: Boolean;
 var nav: NavController;
 var alertCtrl: AlertController;
@@ -27,7 +29,7 @@ interface AuthData {
     key: string,
     email: string,
     cognitoId: string,
-    accessKeyId: string, 
+    accessKeyId: string,
     expiration: Date,
     secretKey: string,
     sessionToken:string
@@ -46,6 +48,8 @@ export class RestService {
     public refreshProfiles: Boolean = false;
     public nav: NavController;
     public alertCtrl: AlertController;
+    public deviceUUID: string;
+    public userId: number;
 
     constructor() {
         this.AWS = AWSme;
@@ -58,37 +62,51 @@ export class RestService {
         this.refreshProfiles = refreshProfiles;
         this.nav = nav;
         this.alertCtrl = alertCtrl;
+        this.deviceUUID = deviceUUID;
+        this.userId = userId;
     }
 
-    anyfunction() {
-        console.log('testing');
+    curUserObj (callback) {
+      var foundObj = false;
+      //console.log("curUserObj currentProfile:" + this.currentProfile);
+      //console.log("curUserObj profiles.length:" + this.Profiles.length);
+      for (var j = 0; j < this.Profiles.length; j++) {
+          if (this.Profiles[j].profileid == this.userId) {
+              foundObj = true;
+              callback(null, this.Profiles[j]);
+          }
+      }
+      if (!foundObj) {
+          callback('Current User Not Found', null);
+      }
     }
+
 
     curProfileObj (callback) {
         var foundObj = false;
-        console.log("curProfileObj currentProfile:" + this.currentProfile);
-        console.log("curProfileObj profiles.length:" + this.Profiles.length);
-        for (var j = 0; j < this.Profiles.length; j++) { 
+        //console.log("curProfileObj currentProfile:" + this.currentProfile);
+        //console.log("curProfileObj profiles.length:" + this.Profiles.length);
+        for (var j = 0; j < this.Profiles.length; j++) {
             if (this.Profiles[j].profileid == this.currentProfile) {
                 foundObj = true;
-                callback(null, this.Profiles[j]); 
+                callback(null, this.Profiles[j]);
             }
         }
         if (!foundObj) {
-            callback('No Active Profile', null); 
-        }    
+            callback('No Active Profile', null);
+        }
     }
 
     refreshCredentials() {
-        console.log('Refresh Credentials - Started!');                          
-        console.log('Current key = ' + this.AuthData.key);                          
-        console.log('Current email = ' + this.AuthData.email);                          
+        console.log('Refresh Credentials - Started!');
+        console.log('Current key = ' + this.AuthData.key);
+        console.log('Current email = ' + this.AuthData.email);
         //alert("ngOnInit begin");
         var self = this;
         var key = self.AuthData.key;
         var email = self.AuthData.email;
         if (key !== "" && email !=="") {
-            self.AWS.config.region = 'us-east-1';        
+            self.AWS.config.region = 'us-east-1';
             self.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: 'us-east-1_CmQLhXc1P',
                 Logins: {'www.amazon.com': key}
@@ -104,7 +122,7 @@ export class RestService {
          //alert ("params = " + params.Logins["www.amazon.com"]);
         cognitoIdentity.getId(params, function(err, data) {
         if (err) {
-           alert ("cognitoidentity.getID error = " + err); 
+           alert ("cognitoidentity.getID error = " + err);
         } else {
            self.AuthData.cognitoId = data.IdentityId;
            //alert ("cognitoidentity.getID success = " + data.IdentityId ); // successful response
@@ -117,15 +135,15 @@ export class RestService {
              if (err) {
                alert('Error in getCred: ' + err); // an error occurred
              } else {
-               self.AuthData.expiration = data.Credentials.Expiration;                   
-               self.AuthData.sessionToken = data.Credentials.SessionToken;                                   
-               self.AuthData.accessKeyId = data.Credentials.AccessKeyId;                                   
-               self.AuthData.secretKey = data.Credentials.SecretKey;          
+               self.AuthData.expiration = data.Credentials.Expiration;
+               self.AuthData.sessionToken = data.Credentials.SessionToken;
+               self.AuthData.accessKeyId = data.Credentials.AccessKeyId;
+               self.AuthData.secretKey = data.Credentials.SecretKey;
                console.log('From Refresh Credentials - Expiration: ' + self.AuthData.expiration);
              } // successful response
-           });            
+           });
          }
-       });        
+       });
      }
   }
 
@@ -135,10 +153,10 @@ export class RestService {
     }
 
     async appRestart() {
-        const shouldLeave = await this.messageTimeout(); 
+        const shouldLeave = await this.messageTimeout();
         this.restart();
     }
-    
+
     messageTimeout(): Promise<Boolean> {
         let resolveLeaving;
         const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -155,15 +173,15 @@ export class RestService {
         alert.present();
         return canLeave
     }
-   
-  
+
+
   public refreshCheck() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.AuthData.expiration);
     var dtDiff = dtExpiration.diff(dtNow, 'minutes');
     if (dtDiff < 30) {
         console.log('Calling Refresh Credentials dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-        this.refreshCredentials();        
+        this.refreshCredentials();
     }
   }
 
@@ -176,21 +194,21 @@ export class RestService {
     var secretKey = "";
     var sessionToken = "";
 
-    return { 
+    return {
       getKey   : function()  { return key; },
       setKey   : function(p) { if(p !== undefined) {key = p}; callback(key, email); },
       getEmail : function()  { return email; },
       setEmail : function(p) { if(p !== undefined) {email = p}; callback(key, email); },
       getCognitoId   : function()  { return cognitoId; },
       setCognitoId : function(p) { if(p !== undefined) {cognitoId = p};},
-      getSessionToken   : function()  { return sessionToken; },      
+      getSessionToken   : function()  { return sessionToken; },
       setSessionToken : function(p) { if(p !== undefined) {sessionToken = p};},
-      getAccessKeyId   : function()  { return accessKeyId; },      
+      getAccessKeyId   : function()  { return accessKeyId; },
       setAccessKeyId : function(p) { if(p !== undefined) {accessKeyId = p};},
-      getExpiration   : function()  { return expiration; },      
+      getExpiration   : function()  { return expiration; },
       setExpiration : function(p) { if(p !== undefined) {expiration = p};},
-      getSecretKey   : function()  { return secretKey; },      
+      getSecretKey   : function()  { return secretKey; },
       setSecretKey : function(p) { if(p !== undefined) {secretKey = p};}
     };
   }
-}    
+}

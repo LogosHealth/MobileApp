@@ -22,14 +22,14 @@ apply plugin: 'com.android.application'
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
         maven {
             url "https://maven.google.com"
         }
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
@@ -91,7 +91,9 @@ ext {
 }
 
 // PLUGIN GRADLE EXTENSIONS START
-apply from: "../cordova-android-support-gradle-release/starter-cordova-android-support-gradle-release.gradle"
+apply from: "../cordova-android-support-gradle-release/visual-cordova-android-support-gradle-release.gradle"
+apply from: "../cordova-plugin-badge/visual-badge.gradle"
+apply from: "../cordova-plugin-local-notification/visual-localnotification.gradle"
 // PLUGIN GRADLE EXTENSIONS END
 
 def hasBuildExtras = file('build-extras.gradle').exists()
@@ -260,6 +262,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     // SUB-PROJECT DEPENDENCIES START
     implementation(project(path: ":CordovaLib"))
+    compile "com.android.support:support-v4:26.+"
     // SUB-PROJECT DEPENDENCIES END
 }
 

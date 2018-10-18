@@ -3,6 +3,8 @@ import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 import { Autosize } from '../components/autosize/autosize'
 import { LocalNotifications } from '@ionic-native/local-notifications';
+import { Device } from '@ionic-native/device';
+import { ModalController } from 'ionic-angular';
 
 import { ListingPage } from '../pages/listing/listing';
 import { HistoryPage } from '../pages/history/history';
@@ -38,6 +40,7 @@ import { ListEventPage } from '../pages/listEvent/listEvent';
 import { ListContactPage } from '../pages/listContacts/listContacts';
 import { ListVisitPage } from '../pages/listVisit/listVisit';
 import { ListSchedulePage } from '../pages/listSchedule/listSchedule';
+import { ListAlertPage } from '../pages/listAlert/listAlert';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -59,6 +62,7 @@ import { FormContactPage } from '../pages/formContact/formContact';
 import { FormCallNotesPage } from '../pages/formCallNotes/formCallNotes';
 import { FormVisitPage } from '../pages/formVisit/formVisit';
 import { FormSchedulePage } from '../pages/formSchedule/formSchedule';
+import { FormChooseProfile } from '../pages/formChooseProfile/formChooseProfile';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -98,6 +102,7 @@ import { ListContactService } from '../pages/listContacts/listContacts.service';
 import { FormFindContactService } from '../pages/formFindContact/formFindContact.service';
 import { ListVisitService } from '../pages/listVisit/listVisit.service';
 import { ListScheduleService } from '../pages/listSchedule/listSchedule.service';
+import { ListAlertService } from '../pages/listAlert/listAlert.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -167,6 +172,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListContactPage,
     ListVisitPage,
     ListSchedulePage,
+    ListAlertPage,
 
     GridPage,
     FormLayoutPage,
@@ -188,6 +194,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormCallNotesPage,
     FormVisitPage,
     FormSchedulePage,
+    FormChooseProfile,
 
     FiltersPage,
     TermsOfServicePage,
@@ -251,6 +258,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListContactPage,
     ListVisitPage,
     ListSchedulePage,
+    ListAlertPage,
 
     GridPage,
     FormLayoutPage,
@@ -272,7 +280,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormCallNotesPage,
     FormVisitPage,
     FormSchedulePage,
-    
+    FormChooseProfile,
+
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -310,7 +319,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormFindContactService,
     ListVisitService,
     ListScheduleService,
-       
+    ListAlertService,
+
+    Device,
+    ModalController,
     ScheduleService,
     FacebookLoginService,
     GoogleLoginService,
@@ -326,7 +338,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     Keyboard,
     Geolocation,
     EmailComposer,
-    //MM 3-29-18 Implementing as global Provider 
+    //MM 3-29-18 Implementing as global Provider
     RestService,
     LocalNotifications,
   ],

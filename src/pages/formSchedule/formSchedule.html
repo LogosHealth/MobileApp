@@ -14,24 +14,24 @@
               <ion-col width-15 class="horizontal-item" *ngFor="let pro of profiles">
                 <label>
                     <input type="radio" formControlName="profile" [value]="pro.profileid"/>
-                    <img [src]="pro.photopath" [title]="pro.firstname"  (click)="setProfileID(pro.profileid)">
-                </label>  
+                    <img [src]="pro.photopath" [title]="pro.firstname"  (click)="setProfileID(pro.profileid)"/>
+                </label>
               </ion-col>
             </ion-row>
-        </ion-scroll>    
+        </ion-scroll>
         <h4 class="categories-title">Who gets notified</h4>
         <ion-scroll scrollX="true" class="horizontal-categories">
             <ion-row class="categories-row">
               <ion-col width-15 class="horizontal-item" formArrayName="profilesnotify" *ngFor="let pro of card_form.get('profilesnotify').controls; let i = index;">
                 <div [formGroupName]="i">
                   <label>
-                    <input type="checkbox" formControlName="selected" [value]="pro.controls['selected'].value"/>
-                    <img [src]="pro.controls['photopath'].value" [title]="pro.controls['firstname'].value" (click)="readProfilesNotify(pro)">
-                  </label>  
+                    <input type="checkbox" formControlName="selected" [value]="pro.controls['selected'].value" (change)="readProfilesNotify()"/>
+                    <img [src]="pro.controls['photopath'].value" [title]="pro.controls['firstname'].value"/>
+                  </label>
                 </div>
               </ion-col>
             </ion-row>
-        </ion-scroll>    
+        </ion-scroll>
         <section class="form-section">
           <ion-row *ngIf="isCustom">
             <ion-col>
@@ -40,7 +40,7 @@
                 <ion-input type="text" formControlName="name"></ion-input>
               </ion-item>
             </ion-col>
-          </ion-row> 
+          </ion-row>
           <ion-row *ngIf="isCustom">
             <ion-col>
               <ion-item>
@@ -48,13 +48,13 @@
                 <ion-input type="text" formControlName="description"></ion-input>
               </ion-item>
             </ion-col>
-          </ion-row> 
+          </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Interval</ion-label>
                 <ion-select formControlName="interval" >
-                    <ion-option *ngFor="let item of intervalList" [value]="item.recordid">{{item.dictionarycode}}</ion-option>                
+                    <ion-option *ngFor="let item of intervalList" [value]="item.recordid">{{item.dictionarycode}}</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -64,25 +64,25 @@
                 <ion-datetime displayFormat="MMM DD, YYYY" formControlName="nextdate" [max]="getMaxDate()" [disabled]="isNotSelected" (click)="readTargetDate()"></ion-datetime>
               </ion-item>
             </ion-col>
-          </ion-row> 
+          </ion-row>
           <ion-row>
             <ion-col no-padding>
-              <ion-item>  
+              <ion-item>
                 <ion-label floating>Doctor*</ion-label>
                 <ion-select formControlName="contactid">
-                  <ion-option *ngFor="let contact of listContacts.items" [value]="contact.recordid" [disabled]="isNotSelected">{{contact.title}}</ion-option>                
+                  <ion-option *ngFor="let contact of listContacts.items" [value]="contact.recordid" [disabled]="isNotSelected">{{contact.title}}</ion-option>
                 </ion-select>
                 </ion-item>
             </ion-col>
-          </ion-row> 
+          </ion-row>
           <p class="section-title">Reminders:</p>
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>90 days</ion-label>
                 <ion-select formControlName="day90alert" [disabled]="isNotSelected">
-                  <ion-option [value]="Y">Yes</ion-option>                
-                  <ion-option [value]="N">No</ion-option>                
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -92,8 +92,8 @@
               <ion-item>
                 <ion-label floating>30 days</ion-label>
                 <ion-select formControlName="day30alert" [disabled]="isNotSelected">
-                  <ion-option [value]="Y">Yes</ion-option>                
-                  <ion-option [value]="N">No</ion-option>                
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -103,8 +103,8 @@
               <ion-item>
                 <ion-label floating>7 days</ion-label>
                 <ion-select formControlName="day7alert" [disabled]="isNotSelected">
-                  <ion-option [value]="Y">Yes</ion-option>                
-                  <ion-option [value]="N">No</ion-option>                
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -113,14 +113,14 @@
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50 *ngIf="hasActiveSched">
-                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid || !notifySelected">Save</button>
             </ion-col>
             <ion-col no-padding width-50 *ngIf="!hasActiveSched">
-              <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.valid">Activate</button>
+              <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.valid || !notifySelected">Activate</button>
           </ion-col>
-          <ion-col no-padding width-50> 
+          <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="!hasActiveSched">Inactivate</button>
-            </ion-col>    
+            </ion-col>
          </ion-row>
         </section>
       </form>

@@ -13,16 +13,22 @@
         <button ion-button icon-only (click)="loadList('mood')">
           <ion-icon name='happy' *ngIf="multiTab"></ion-icon>
         </button>
+        <button ion-button icon-only (click)="loadList('symptom')">
+          <ion-icon name='warning' *ngIf="multiTab"></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="loadList('temp')">
+          <ion-icon name='thermometer' *ngIf="multiTab"></ion-icon>
+        </button>
         <button ion-button icon-only (click)="loadList('bloodGlucose')">
           <ion-icon name='water' *ngIf="multiTab"></ion-icon>
         </button>
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -42,13 +48,13 @@
           <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='bloodGlucose' && item.labunittext !== null">
             <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{formatDateTime(item.dateofmeasure)}}</h3>
             <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
-            <p class = "item-description">Result {{item.labresult}} {{item.labunittext}} </p>
+            <p class = "item-description">Blood Glucose Result {{item.labresult}} {{item.labunittext}} </p>
             <p class = "item-description" *ngIf="item.lowerrange !== null">Range {{item.lowerrange}} to {{item.upperrange}}</p>
           </ion-col>
           <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='bloodGlucose' && item.labunittext == null">
             <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{formatDateTime(item.dateofmeasure)}}</h3>
             <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
-            <p class = "item-description">Result {{item.labresult}}</p>
+            <p class = "item-description">Blood Glucose Result {{item.labresult}}</p>
             <p class = "item-description" *ngIf="item.lowerrange !== null">Range {{item.lowerrange}} to {{item.upperrange}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">

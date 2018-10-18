@@ -35,16 +35,16 @@ export class FormTaskPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
     if (this.goalname == undefined) {
       alert('No goal name');
       this.goalname = "";
-    }  
+    }
 
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -54,9 +54,9 @@ export class FormTaskPage {
     });
 
 
-    //add caloriesburnedvalue generator    
+    //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
- 
+
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         taskname: new FormControl(this.curRec.taskname, Validators.required),
@@ -68,7 +68,7 @@ export class FormTaskPage {
         confirmed: new FormControl(this.curRec.confirmed),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
-      });    
+      });
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -82,7 +82,7 @@ export class FormTaskPage {
         confirmed: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
-      });    
+      });
     }
   }
 
@@ -99,7 +99,7 @@ export class FormTaskPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -129,14 +129,14 @@ export class FormTaskPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
+        //alert('Allergy Response: ' + this.RestService.results);
+        //alert('Transfer to List Items: ' +  this.list2.items);
        console.log("Results Data for Get Goals: ", self.list2.items);
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
+
+      //alert('Async Check from Invoke: ' + self.RestService.results);
+
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
@@ -163,10 +163,10 @@ export class FormTaskPage {
             //alert('Going to delete');
             this.taskSave.recordid = this.card_form.get('recordid').value;
             this.taskSave.profileid = this.RestService.currentProfile;
-            this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+            this.taskSave.userid = this.RestService.userId;
             this.taskSave.active = 'N';
             var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
-    
+
             var config = {
               invokeUrl: restURL,
               accessKey: this.RestService.AuthData.accessKeyId,
@@ -174,9 +174,9 @@ export class FormTaskPage {
               sessionToken: this.RestService.AuthData.sessionToken,
               region:'us-east-1'
             };
-        
+
             var apigClient = this.RestService.AWSRestFactory.newClient(config);
-            var params = {        
+            var params = {
               //pathParameters: this.vaccineSave
             };
             var pathTemplate = '';
@@ -188,18 +188,18 @@ export class FormTaskPage {
             };
             var body = JSON.stringify(this.taskSave);
             var self = this;
-        
-            console.log('Calling Post', this.taskSave);    
+
+            console.log('Calling Post', this.taskSave);
             apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
             .then(function(result){
               self.RestService.results = result.data;
               console.log('Happy Path: ' + self.RestService.results);
               self.category.title = "Invest in You";
-              self.nav.pop();      
+              self.nav.pop();
             }).catch( function(result){
               console.log('Result: ',result);
               console.log(body);
-            });        
+            });
           }
         }
       ]
@@ -213,8 +213,8 @@ export class FormTaskPage {
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.taskSave.recordid = this.card_form.get('recordid').value;
       this.taskSave.profileid = this.RestService.currentProfile;
-      this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.taskSave.active = 'Y'; 
+      this.taskSave.userid = this.RestService.userId;
+      this.taskSave.active = 'Y';
       if (this.card_form.get('tasktime').dirty){
         this.taskSave.tasktime = this.card_form.get('tasktime').value;
       }
@@ -223,15 +223,15 @@ export class FormTaskPage {
       }
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
         this.taskSave.goalname = this.card_form.get('goalname').value;
-      }      
+      }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.taskSave.timezone = this.userTimezone;
-      }      
+      }
     } else {
       this.taskSave.taskname = this.card_form.get('taskname').value;
       this.taskSave.profileid = this.RestService.currentProfile;
       this.taskSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
-      this.taskSave.active = 'Y'; 
+      this.taskSave.active = 'Y';
       if (this.card_form.get('tasktime').dirty){
         this.taskSave.tasktime = this.card_form.get('tasktime').value;
       }
@@ -240,23 +240,23 @@ export class FormTaskPage {
       }
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
         this.taskSave.goalname = this.card_form.get('goalname').value;
-      }      
+      }
       if (this.card_form.get('dateofmeasure').dirty){
         if (this.userTimezone !== undefined) {
           var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
           var dtDET = moment(this.card_form.get('dateofmeasure').value);
-        }        
+        }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.taskSave.dateofmeasure = dtDET.utc().toISOString();
       }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.taskSave.timezone = this.userTimezone;
-      }      
+      }
     }
-    
+
     var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -266,7 +266,7 @@ export class FormTaskPage {
     };
 
     var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {        
+    var params = {
       //pathParameters: this.vaccineSave
     };
     var pathTemplate = '';
@@ -279,7 +279,7 @@ export class FormTaskPage {
     var body = JSON.stringify(this.taskSave);
     var self = this;
 
-    console.log('Calling Post', this.taskSave);    
+    console.log('Calling Post', this.taskSave);
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -298,7 +298,7 @@ export class FormTaskPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -328,11 +328,11 @@ export class FormTaskPage {
       .getData()
       .then(data => {
         self.nav.getPrevious().data.refresh = true;
-        self.nav.pop();      
-      });      
+        self.nav.pop();
+      });
     }).catch( function(result){
         console.log('Error in formExercise: apigClient.invokeApi', body);
-        self.nav.pop();      
+        self.nav.pop();
     });
   }
 
@@ -356,24 +356,24 @@ export class FormTaskPage {
     } else {
       var dayoftheweek = momentNow.format('dddd');
     }
-  
-  
+
+
     if (dayoftheweek == 'Sunday') {
       var offSet = 0
     } else if (dayoftheweek == 'Monday') {
-      offSet = 1		
+      offSet = 1
     } else if (dayoftheweek == 'Tuesday') {
-      offSet = 2				
+      offSet = 2
     } else if (dayoftheweek == 'Wednesday') {
-      offSet = 3				
+      offSet = 3
     } else if (dayoftheweek == 'Thursday') {
-      offSet = 4				
+      offSet = 4
     } else if (dayoftheweek == 'Friday') {
-      offSet = 5				
+      offSet = 5
     } else if (dayoftheweek == 'Saturday') {
-      offSet = 6				
+      offSet = 6
     }
-  
+
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
@@ -389,7 +389,7 @@ export class FormTaskPage {
       return shouldLeave;
     }
   }
-  
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -410,6 +410,6 @@ export class FormTaskPage {
     });
     alert.present();
     return canLeave
-  }  
+  }
 
 }

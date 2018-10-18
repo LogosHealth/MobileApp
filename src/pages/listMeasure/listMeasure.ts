@@ -67,7 +67,7 @@ export class ListMeasurePage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/WeightByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -112,7 +112,7 @@ export class ListMeasurePage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -158,7 +158,52 @@ export class ListMeasurePage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-    
+
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      self.list2Service
+      .getData()
+      .then(data => {
+        self.list2.items = self.RestService.results;
+        self.curObj = "mood";
+        console.log("Results Data for loadDataMood: ", self.list2.items);
+        self.RestService.refreshCheck();
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+        console.log(body);
+        self.RestService.refreshCheck();
+        self.loading.dismiss();
+    });
+  }
+
+  loadDataTemp() {
+    var restURL: string;
+
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -208,7 +253,7 @@ export class ListMeasurePage {
     } else if (this.curObj == "bloodGlucose") {
       this.nav.push(FormLabsPage, { recId: recordId, labForm: 'labName=300' });
     }
-  }  
+  }
 
   addNew() {
     if (this.curObj == "weight") {
@@ -218,8 +263,8 @@ export class ListMeasurePage {
     } else if (this.curObj == "bloodGlucose") {
       this.nav.push(FormLabsPage, {labForm: 'labName=300'});
     }
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
@@ -247,9 +292,11 @@ export class ListMeasurePage {
         this.loadDataBG();
       } else if (dataObj == 'mood') {
         this.loadDataMood();
+      } else if (dataObj == 'temp') {
+        this.loadDataTemp();
       } else {
         console.log ('No data in loadList');
       }
-    } 
+    }
   }
 }

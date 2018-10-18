@@ -26,7 +26,7 @@ formFoodPref-page {
 
 		.forms-examples-segment
 		{
-			
+
 			padding: 0px 0px;
 			//background-color: $white;
 			@include element-shadow();
@@ -54,10 +54,10 @@ formFoodPref-page {
 				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 			}
 
-			.row-category    
+			.row-category
 			{
 				border-bottom: 1px $theme-color-1 solid;
-            }           
+            }
 
 			.section-title
             {
@@ -66,9 +66,9 @@ formFoodPref-page {
                 letter-spacing: 1.1px;
                 //text-align: center;
                 color: $theme-color-1;
-                font-weight: 100;
+                font-weight: 700;
                 margin: 0px;
-            }           
+            }
 
 			.section-checkbox-label
             {
@@ -77,9 +77,9 @@ formFoodPref-page {
                 letter-spacing: 1.1px;
                 text-align: right;
                 color: $theme-color-1;
-                font-weight: 100;
+                font-weight: 700;
                 margin: 0px;
-            }           
+            }
 
             .section-checkbox-label2
             {
@@ -88,9 +88,9 @@ formFoodPref-page {
                 letter-spacing: 1.1px;
                 text-align: left;
                 color: $theme-color-1;
-                font-weight: 100;
+                font-weight: 700;
                 margin: 5px;
-            }           
+            }
 			ion-item {
 				background-color: $white;
 				//@include basic-input-style(color($colors, background, base), $black-d, $white-d);
@@ -104,7 +104,8 @@ formFoodPref-page {
 						margin-top: 0px;
 
 						ion-label {
-							color: $white-d;
+							color: $theme-color-1;
+              font-weight: 150;
 						}
 					}
 
@@ -168,10 +169,10 @@ ion-select {
 		color: $white;
 
 		.alert-radio-button {
-			background: $white;	
+			background: $white;
 		}
 	}
-	
+
 	.alert-button-group
 	{
 		padding: 14px 0px;

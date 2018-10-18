@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, LoadingController, Events } from 'ionic-angular';
+import { NavController, LoadingController, Platform } from 'ionic-angular';
 
 //import { FeedPage } from '../feed/feed';
 import { List2Page } from '../list-2/list-2';
@@ -28,16 +28,11 @@ export class HistoryPage {
     public listingService: HistoryService,
     public loadingCtrl: LoadingController,
     public RestService:RestService,
-    private event:Events
-     
+    private platform: Platform,
   ) {
-    this.loading = this.loadingCtrl.create();
-    this.event.subscribe('ProfileChangeFromListing', (profileid) => {
-      this.setCurrentProfile(profileid);
-    })
-    this.event.subscribe('ProfileChangeFromSettings', (profileid) => {
-      this.setCurrentProfile(profileid);
-    })    
+    this.platform.ready().then((rdy) => {
+      this.loading = this.loadingCtrl.create();
+    });
   }
 
   ionViewDidLoad() {
@@ -47,19 +42,11 @@ export class HistoryPage {
       .then(data => {
         this.listing.banner_image = data.banner_image;
         this.listing.banner_title = data.banner_title;
-
-        for (var i = 0; i < this.RestService.Profiles.length; i++) {
-          if (this.RestService.Profiles[i].profileid == this.RestService.currentProfile) {
-            this.RestService.Profiles[i].checked = "checked";
-            //alert('Yup! ' + this.RestService.Profiles[i].profileid);
-          } else {
-            this.RestService.Profiles[i].checked = "";            
-          }
-        }
-        this.listing.populars = this.RestService.Profiles;
-
+        //this.listing.populars = this.RestService.Profiles;
         this.listing.categories = data.categories;
-        this.loading.dismiss();
+        if (this.loading !==undefined) {
+          this.loading.dismiss();
+        }
       });
   }
 
@@ -68,33 +55,15 @@ export class HistoryPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var dtDiff = dtExpiration.diff(dtNow, 'minutes');
 
-    console.log('ivwe historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-    if (dtDiff <= 0) {
-    	console.log('Need to login again!!! - Credentials expired from historytab');
-    	this.RestService.appRestart();
-    } else if (dtDiff < 30) {
-    	console.log('Calling Refresh Credentials from historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-    	this.RestService.refreshCredentials();
-    }
-  }
-
-
-  setCurrentProfile(profileid: any) {
-    //alert('Start setCurrentProfile');
-    for (var i = 0; i < this.listing.populars.length; i++) {
-      if (this.listing.populars[i].profileid == this.RestService.currentProfile) {
-        this.listing.populars[i].checked = "checked";
-        //alert('Yup CurProfile History! ' + this.listing.populars[i].profileid + ' ' + this.listing.populars[i].checked);
-      } else {
-        this.listing.populars[i].checked = "";            
-        //alert('Nope CurProfile History! ' + this.listing.populars[i].profileid + ' Checked: ' + this.listing.populars[i].checked);
+      if (dtDiff <= 0) {
+        console.log('Need to login again!!! - Credentials expired from Historytab');
+        this.RestService.appRestart();
+      } else if (dtDiff < 30) {
+        console.log('Calling Refresh Credentials from Historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
+        this.RestService.refreshCredentials();
       }
-    }    
   }
-  
-  //ionSelected() {
-    //alert('History Selected');
-  //}
+
 
   goToFeed(category: any) {
     console.log("Clicked goToFeed", category);
@@ -105,17 +74,21 @@ export class HistoryPage {
     } else if (category.title == 'Lab/Test Results') {
       this.nav.push(ListLabsPage, { category: category });
     } else if (category.title == 'Medical Contacts') {
-      this.nav.push(ListContactPage, { category: category });      
+      this.nav.push(ListContactPage, { category: category });
   } else    {
-      this.nav.push(List2Page, { category: category });      
+      this.nav.push(List2Page, { category: category });
     }
   }
 
-  setProfileID(profileID: any) {
+  setProfileID(profileID, index) {
     this.RestService.currentProfile = profileID;
-    this.event.publish('ProfileChangeFromHistory', profileID);
-
-    //alert("Profile selected: " + this.RestService.currentProfile);
+    for (var i = 0; i < this.RestService.Profiles.length; i++) {
+      if (i == index) {
+        this.RestService.Profiles[i].checked = "checked";
+      } else {
+        this.RestService.Profiles[i].checked = "";
+      }
+    }
   }
 
 }
