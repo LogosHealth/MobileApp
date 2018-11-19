@@ -14,7 +14,7 @@ var moment = require('moment-timezone');
 })
 export class FormNutritionPage {
   section: string;
-  formName: string = "formMood";
+  formName: string = "formNutrition";
   recId: number;
   goalname: string;
   card_form: FormGroup;

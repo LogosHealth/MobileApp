@@ -24,10 +24,10 @@ formExercise-page {
 		.list-mini-content
 		{
 			background-color: color($colors, background, base);
-	
+
 			.list-mini
 			{
-	
+
 			@include layout-list-styles($theme-color-1, $white-d);
 				ion-list {
 					.list-item
@@ -43,17 +43,17 @@ formExercise-page {
 								text-overflow: ellipsis;
 								white-space: nowrap;
 							}
-	
+
 							.item-title{
 								overflow: hidden;
 								text-overflow: ellipsis;
 								white-space: nowrap;
 							}
-	
+
 							&.one-line
 							{
 								@include align-items(center);
-	
+
 								.item-description
 								{
 									overflow: hidden;
@@ -66,12 +66,19 @@ formExercise-page {
 				}
 			}
 		}
-		
+
 		.sample-form
 		{
 			.form-section
 			{
 				padding: 0px 14px;
+
+        .columnAlign
+        {
+          margin-top: 30px;
+          vertical-align: bottom;
+        }
+
 
 				.item:first-child
 				{
@@ -117,7 +124,7 @@ formExercise-page {
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
-			}			
+			}
 
 			.section-tips
 			{
@@ -133,7 +140,7 @@ formExercise-page {
 				border-width: 2px;
 				border-color: $theme-color-1;
 				padding: 5px;
-			}			
+			}
 
 			.section-footnote
             {
@@ -144,7 +151,7 @@ formExercise-page {
                 color: $black-d;;
                 font-weight: 100;
                 margin: 0px;
-            }           
+            }
 
 			.title-notconfirmed{
 				font-size: 1.8rem;

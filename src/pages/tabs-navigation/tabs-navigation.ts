@@ -29,7 +29,7 @@ export class TabsNavigationPage {
       this.tab3Root = SettingsTabPage;
       this.tabCount = 0;
 
-     alert("Welcome to Beta version 0.01 Rev 6");
+     alert("Welcome to Beta version 0.0.5");
       this.events.subscribe('updateScreen', () => {
         this.zone.run(() => {
           console.log('force update the screen');

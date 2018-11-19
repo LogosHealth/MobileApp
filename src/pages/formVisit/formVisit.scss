@@ -1,4 +1,4 @@
-formMood-page {
+formVisit1-page {
 	ion-header {
 		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
 	}
@@ -9,44 +9,92 @@ formMood-page {
 
 		.forms-examples-segment
 		{
-			padding: 14px 0px;
-			background-color: $white;
-			@include element-shadow();
 
-			@include segment-button-styles($theme-color-2);
+			padding: 0px 0px;
+			//background-color: $white;
+			@include element-shadow();
+			@include segment-button-styles($theme-color-1);
 
 			.segment-button
 			{
-				@include segment-text-styles($white-d);
+				@include segment-text-styles($black-d);
+				background-color: $white;
+				//color: $theme-color-2;
+				&.segment-activated
+				{
+					color: $theme-color-1;
+					background-color: $white;
+				}
 			}
 		}
 
 		.sample-form
 		{
-			.form-section
+      @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+      background-color: color($colors, background, base);
+
+      .form-section
 			{
 				padding: 0px 14px;
-
 				.item:first-child
 				{
 					margin-top: 20px;
-				}
+        }
 			}
+
+      .columnAlign
+      {
+        margin-top: 5px;
+        margin-right: 3px;
+        vertical-align: bottom;
+      }
+
+      .columnAligntoLabel
+      {
+        margin-top: -15px;
+        margin-right: 3px;
+        vertical-align: top;
+      }
+
+      .columnInline
+      {
+        margin-top: 7px;
+        margin-right: 3px;
+      }
+
+      .columnAlignLeft
+      {
+        margin-top: 40px;
+        margin-left: 3px;
+      }
+
+      .columnAlignLeft2
+      {
+				text-align: left;
+        margin-left: -3px;
+      }
+
+      ion-datetime {
+        padding-left: 0px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        .datetime-text
+        {
+          color: $black-d;
+        }
+      }
 
 			ion-item {
 				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
-
 				&.item
 				{
 					margin-top: 14px;
-
 					&.item-label-floating
 					{
 						margin-top: 0px;
-
 						ion-label {
 							color: $white-d;
-						}
+            }
 					}
 
 					.item-inner
@@ -64,16 +112,19 @@ formMood-page {
 
 			.section-title
 			{
+        color: $white-d;
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: center;
+				text-align: left;
 				color: $theme-color-1;
 				font-weight: 400;
-				margin: 0px;
-			}			
+        margin-top: 14px;
+        margin-left: 10px;
+			}
 
 			.title-notconfirmed{
+				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
@@ -86,11 +137,12 @@ formMood-page {
 
 			.section-label
 			{
+				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 				font-size: 1.5rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
 				text-align: center;
-				color: $theme-color-1;
+				color: $theme-color-2;
 				font-weight: 100;
 				margin-top: 0px;
 				margin: 10px;
@@ -98,302 +150,10 @@ formMood-page {
 
 			.form-action-button
 			{
-				margin: 0px;
+				margin-right: 10px;
 				margin-top: 20px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
-			}
-		}
-
-		.post-example-view
-		{
-			padding-bottom: 20px;
-
-			.post-form
-			{
-				.upload-image-button
-				{
-					border-radius: 6px;
-					background-color: $white;
-					color: $white-d;
-					height: initial;
-					margin: 30px 0px;
-					padding-top: 16px;
-					padding-bottom: 32px;
-					@include element-shadow();
-					contain: style layout;
-
-					.button-inner
-					{
-						@include flex-wrap(wrap);
-
-						ion-icon {
-							flex: 0 0 100%;
-					    max-width: 100%;
-							font-size: 3.8em;
-						}
-
-						.button-title
-						{
-							flex: 0 0 100%;
-					    max-width: 100%;
-							font-size: 1.4rem;
-							color: $white-d;
-							font-weight: 400;
-							margin: 0px;
-						}
-					}
-				}
-
-				.item.item-textarea
-				{
-					background-color: $white;
-					font-size: 1.4rem;
-
-					.item-inner
-					{
-						padding: 0px 14px;
-					}
-				}
-
-				.choose-category-button
-				{
-					border-radius: 6px;
-					background-color: $white;
-					color: $white-d;
-					margin: 30px 0px;
-					@include element-shadow();
-
-					.button-inner
-					{
-						@include justify-content(space-between);
-
-						ion-icon {
-							color: $theme-color-2;
-							font-size: 2.2em;
-						}
-					}
-				}
-
-				.section-title
-				{
-					margin-top: 40px;
-					margin-bottom: 30px;
-				}
-
-				@include range-item-styles($white-d, $black-d, $theme-color-1);
-
-				.range-item
-				{
-					padding: 15px 30px;
-					margin: 0px;
-					background-color: $white;
-
-					ion-label {
-						.range-value
-						{
-							color: $theme-color-1;
-						}
-					}
-				}
-
-				.time-item
-				{
-					padding: 0px 30px;
-					margin: 0px;
-					background-color: $white;
-					border: none !important;
-					@include element-shadow();
-
-					.item-inner
-					{
-						padding: 0px;
-						border: none;
-
-						ion-label {
-							margin: 15px 8px 15px 0px;
-							font-size: 1.4rem;
-							font-weight: 500;
-							letter-spacing: 0.2px;
-							color: $white-d;
-						}
-
-						ion-datetime {
-							padding-right: 0px;
-
-							.datetime-text
-							{
-								font-size: 1.8rem;
-								color: $theme-color-1;
-
-								&::after
-								{
-									content: 'hrs';
-									margin-left: 4px;
-								}
-
-								&:empty::after
-								{
-									display: none;
-								}
-							}
-						}
-					}
-				}
-
-				@include counter-item-styles($white-d, $theme-color-1, $white);
-
-				.counter-item
-				{
-					margin: 0px;
-					background-color: $white;
-
-					.item-inner
-					{
-						.counter-label
-						{
-							margin-left: 30px;
-						}
-
-						counter-input {
-							padding-right: 30px;
-						}
-					}
-				}
-			}
-		}
-
-		.event-example-view
-		{
-			padding-bottom: 20px;
-
-			.event-form
-			{
-				.section-title
-				{
-					margin-top: 30px;
-
-					& + .item-input
-					{
-						margin-top: 20px;
-					}
-				}
-
-				.multi-input-row
-				{
-					@include align-items(flex-end);
-
-					ion-col {
-						padding: 0px 7px;
-
-						&:first-child{
-							padding-left: 0px;
-						}
-
-						&:last-child{
-							padding-right: 0px;
-						}
-					}
-
-					.multi-input
-					{
-						margin: 0px;
-
-						&.item-datetime.item-label-floating
-						{
-							ion-label {
-								margin-top: 7px;
-							}
-
-							ion-datetime {
-								padding-top: 0px;
-							}
-						}
-
-						ion-datetime {
-							padding-left: 0px;
-
-							.datetime-text
-							{
-								color: $black-d;
-							}
-						}
-					}
-				}
-			}
-		}
-
-
-		.card-example-view
-		{
-			padding-bottom: 20px;
-
-			.card-form
-			{
-				.section-title
-				{
-					margin-top: 30px;
-
-					& + .item-label-floating
-					{
-						margin-top: 10px;
-					}
-				}
-
-				.multi-input-row
-				{
-					ion-col {
-						padding: 0px 7px;
-
-						&:first-child{
-							padding-left: 0px;
-						}
-
-						&:last-child{
-							padding-right: 0px;
-						}
-					}
-
-					.multi-input
-					{
-						margin: 0px;
-					}
-				}
-
-				ion-datetime {
-					padding-left: 0px;
-					padding-top: 8px;
-					padding-bottom: 7px;
-
-					.datetime-text
-					{
-						color: $black-d;
-					}
-				}
-
-				.card-preferences
-				{
-					margin: 40px 0px 50px;
-
-					@include switcher-item-styles($white-d, $theme-color-1);
-
-					.switcher-item
-					{
-						padding: 0px 14px;
-					  background: $white;
-
-						.item-inner
-						{
-							ion-label {
-								opacity: 1;
-							}
-
-							ion-toggle {
-								padding-right: 0px;
-							}
-						}
-					}
-				}
 			}
 		}
 	}

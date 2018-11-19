@@ -5,6 +5,11 @@ import { Autosize } from '../components/autosize/autosize'
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { Device } from '@ionic-native/device';
 import { ModalController } from 'ionic-angular';
+import { PhotoLibrary } from '@ionic-native/photo-library';
+import { Camera } from '@ionic-native/camera';
+import { File } from '@ionic-native/file';
+import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
+import { HTTP } from '@ionic-native/http';
 
 import { ListingPage } from '../pages/listing/listing';
 import { HistoryPage } from '../pages/history/history';
@@ -63,6 +68,10 @@ import { FormCallNotesPage } from '../pages/formCallNotes/formCallNotes';
 import { FormVisitPage } from '../pages/formVisit/formVisit';
 import { FormSchedulePage } from '../pages/formSchedule/formSchedule';
 import { FormChooseProfile } from '../pages/formChooseProfile/formChooseProfile';
+import { FormChooseInfo } from '../pages/formChooseInfo/formChooseInfo';
+import { FormTemperaturePage } from '../pages/formTemperature/formTemperature';
+import { FormSymptomPage } from '../pages/formSymptom/formSymptom';
+import { FormChooseNotify } from '../pages/formChooseNotify/formChooseNotify';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -195,6 +204,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormVisitPage,
     FormSchedulePage,
     FormChooseProfile,
+    FormChooseInfo,
+    FormTemperaturePage,
+    FormSymptomPage,
+    FormChooseNotify,
 
     FiltersPage,
     TermsOfServicePage,
@@ -281,6 +294,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormVisitPage,
     FormSchedulePage,
     FormChooseProfile,
+    FormChooseInfo,
+    FormTemperaturePage,
+    FormSymptomPage,
+    FormChooseNotify,
 
     FiltersPage,
     TermsOfServicePage,
@@ -321,6 +338,12 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListScheduleService,
     ListAlertService,
 
+    HTTP,
+    FileTransfer,
+    FileTransferObject,
+    File,
+    Camera,
+    PhotoLibrary,
     Device,
     ModalController,
     ScheduleService,

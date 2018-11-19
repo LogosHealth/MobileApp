@@ -67,7 +67,7 @@ exports.processSessionEnd = function processSessionEnd(callback) {
 };
 
 /*  MM - 2/26/2018   Branch Definitions - for currentProcessor.  These represent the context from which the application expects the next answer to come from (i.e. which menu) 
-	 currentProcessor = 1 - Create a new primary profile
+	 currentProcessor = 1 - Create a new primary profile, confirm Name at intro
 	 currentProcessor = 2 - Yes-No 
 	 currentProcessor = 3 - Answer - within a current interview
 	 currentProcessor = 4 - Create a new profile
@@ -76,7 +76,7 @@ exports.processSessionEnd = function processSessionEnd(callback) {
 	 currentProcessor = 7 - Overwrite food preferences
 	 currentProcessor = 8 - Overwrite diet preferences
 	 currentProcessor = 9 - Order a Meal
-	 currentProcessor = 10 - 
+	 currentProcessor = 10 - Confirm Sleep Time Entry (AM/PM)
 
 */
 
@@ -242,7 +242,7 @@ function displayUnknownContext(accountid, session, callback ) {
 }
 
 function buildSpeechResponse(title, output, repromptText, shouldEndSession) {
-  	console.log(' LogosHelper.buildSpeechResponse >>>>>>');
+  	console.log(' LogosHelper.buildSpeechResponse >>>>>>' + title + ": " + shouldEndSession);
   	return {
         outputSpeech: {
             type: 'PlainText',
@@ -273,10 +273,43 @@ function processIntent(event, context, intentRequest, session, callback) {
     var userName = sessionAttributes.logosname;
     var retUser = sessionAttributes.retUser;
 	var expected = false;
-    
-    var slotValue = "";
+	var isDateValue = false;
+	var slotValue = "";
+	var blnIgnoreIntent = false;
+	
     console.log('ProcessIntent Start: Intent  called >>>>>>  '+intentName+ ' CurrentProcessor: '+ session.attributes.currentProcessor);
-    console.log('ProcessIntent: Intent  called >>>>>>  ', intent.slots);
+	console.log('ProcessIntent: Intent slots >>>>>>  ', intent.slots);
+	
+    console.log('ProcessIntent: SessionAttributes >>>>>>  ', sessionAttributes);
+    console.log('ProcessIntent: SessionAttributes QnA>>>>>>  ', sessionAttributes.qnaObj);
+    console.log('ProcessIntent: SessionAttributes QnA Event>>>>>>  ', sessionAttributes.qnaObj.eventQNArr);
+
+
+	//5-9-2018 MM Reset variable everytime
+	sessionAttributes['answerID'] = '';	
+
+	//5-9-2018 MM Added to check for Dictionary ID from Alexa front end answer
+	if (intent.slots !== undefined) {
+		if (intent.slots.Answer !== undefined) {
+			console.log('Has Answer: ' + intent.slots.Answer.value);
+		
+			if (intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values !== undefined) {
+				console.log('Has Dictionary ID from intent: ' + intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id);
+				//5-9-2018 MM Ensures the ID from Alexa is a number - meaning we set it and it will align with a Dictionary ID; default Alexa IDs which are not manually updated
+				//are hashmaps
+				//(/^\d+(\.\d+)?/.exec(intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id))
+				//x!=x (intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id !=intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id) 
+				if (intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id.length < 17) {
+					sessionAttributes['answerID'] = intent.slots.Answer.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+					console.log('isNaN is true - answerID set'); 
+				} else {
+					console.log('isNaN is false - answerID  not set'); 				
+				}
+			} else {
+				console.log('No Dictionary ID for Answer');
+			}
+		}
+	}
 
 	//6-14-2017 Workaround to call proper menu options as Alexa is not recognizing menu options
 	if (session.attributes.currentProcessor == 5 && intentName == 'AnswerIntent'){
@@ -330,8 +363,47 @@ function processIntent(event, context, intentRequest, session, callback) {
 		if (intentName == 'AnswerIntent') {
 			expected = true;			
 		}
+
+		//MM 9-4-2018 Added Skip functionality
+		if (intentName == 'Skip') {
+			expected = true;
+			blnIgnoreIntent = true;			
+			dbUtil.skipAnswer(intent, session, callback);
+		}
+		//MM 9-4-2018 Added Repeat functionality
+		if (intentName == 'Repeat') {
+			expected = true;
+			blnIgnoreIntent = true;			
+			//var helpText = session.attributes.qnaObj.question;
+			processResponse(session.attributes.qnaObj, session, callback, false);
+			//processHelpResponse(helpText, 3, session, callback);
+		}
+
+		//MM 5-8-18 - Added EnterDate 
+		//MM 5-9-18 - Added Filter Criteria for when expecting a date value within an interview 
+		if ((sessionAttributes.qnaObj.answerType == 'date' && isEmpty(sessionAttributes.qnaObj.eventQNArr)) 
+			|| (!isEmpty(sessionAttributes.qnaObj.eventQNArr) && sessionAttributes.qnaObj.eventQNArr.answerType == 'date')) {
+				console.log('Date FilterQuery Working!!!');
+				if (intentName == 'EnterDate') {
+					slotValue = intent.slots.Date.value;
+					isDateValue = true;
+					if (slotValue == undefined) {
+						slotValue = '--';
+					}
+					if (slotValue.length == 7) {
+						slotValue = slotValue + '-00';
+					}
+					expected = true;			
+				} else {
+					console.log('Add for trying to handle free text date fields');					
+					slotValue = '--';
+					isDateValue = true;
+					expected = true;			
+				}		
+		}
+		
 		intentName = 'AnswerIntent';
-		console.log('AnswerIntent - expected = ' + expected);
+		//console.log('AnswerIntent - expected = ' + expected);
 	}
 
 	if (session.attributes.currentProcessor == 2){
@@ -342,6 +414,89 @@ function processIntent(event, context, intentRequest, session, callback) {
 		} 		
 	}	
 
+	//MM 7-19-2018 Added new handlers for confirm Sleep Timing
+	if (session.attributes.currentProcessor == 10){	
+		console.log("From confirm Sleep timing - intent name = " + intentName);
+		if  (intentName == 'AMAZON.YesIntent') {
+			session.attributes.confirmTime.confirmed = true;
+			blnIgnoreIntent = true;
+			dbUtil.instantSleepSummaryDirect(session.attributes.confirmTime.profileid, session.attributes.confirmTime.strFor, true, intent, session, callback);
+		} else if (intentName == 'AMAZON.NoIntent') {
+			var confirmText = 'Please repeat and state explicitly the sleep times using AM and PM.  For example, I slept from 11PM to 5AM.';
+			blnIgnoreIntent = true;
+			processConfirmResponse(confirmText, 10, session, callback); 
+		} else if (intentName == 'InstantSleepSummary') {
+			if (intent.slots !==undefined) {
+				if (intent.slots.SleepStart !== undefined) {
+					if (intent.slots.SleepStart.value !== undefined) {
+						var sleepStart = intent.slots.SleepStart.value;
+						console.log('SleepStart has value: ' + sleepStart);
+						var sleepSplit = sleepStart.split(":");
+						var sleepHour = Number(sleepSplit[0]);
+						var sleepMinute = sleepSplit[1];
+						if (sleepHour == 0) {
+							var sleepTimeFinalCheck = "12:" + sleepMinute + " AM"; 
+						} else if (sleepHour < 12) {
+							var sleepTimeFinalCheck = sleepHour + ":" + sleepMinute + " AM"; 
+						} else if (sleepHour == 12) {
+							var sleepTimeFinalCheck = "12:" + sleepMinute + " PM"; 
+						} else {
+							var sleepTimeFinalCheck = (Number(sleepHour) - 12) + ":" + sleepMinute + " PM"; 
+						}
+					}
+				} else {
+					console.log('Sleep is undefined');
+				}
+				if (intent.slots.WakeTime !== undefined) {
+					if (intent.slots.WakeTime.value !== undefined) {
+						var wakeTime = intent.slots.WakeTime.value;
+						console.log('WakeTime has value: ' + wakeTime);
+						var wakeSplit = wakeTime.split(":");
+						var wakeHour = Number(wakeSplit[0]);
+						var wakeMinute = wakeSplit[1];
+						if (wakeHour == 0) {
+							var wakeTimeFinalCheck = "12:" + wakeMinute + " AM"; 
+						} else if (wakeHour < 12) {
+							var wakeTimeFinalCheck = wakeHour + ":" + wakeMinute + " AM"; 
+						} else if (wakeHour == 12) {
+							var wakeTimeFinalCheck = "12:" + wakeMinute + " PM"; 
+						} else {
+							var wakeTimeFinalCheck = (Number(wakeHour) - 12) + ":" + wakeMinute + " PM"; 
+						}
+					}
+				} 	
+				if (sleepStart !== undefined || (wakeTime !== undefined && sleepStart !== undefined)) {
+					var confirmTime = {
+						"sleepTimeFinal": sleepStart,
+						"sleepTimeFinalCheck":sleepTimeFinalCheck,
+						"wakeTimeFinal": wakeTime,
+						"wakeTimeFinalCheck": wakeTimeFinalCheck,
+						"profileid": session.attributes.confirmTime.profileid,
+						"strFor": session.attributes.confirmTime.strFor,
+						"confirmed": true
+					}
+					session.attributes.confirmTime = confirmTime;
+					blnIgnoreIntent = true;
+					dbUtil.instantSleepSummaryDirect(session.attributes.confirmTime.profileid, session.attributes.confirmTime.strFor, true, intent, session, callback);				
+				} else {
+					var strMenu = 'This is not a valid sleep entry.  Main menu.  For a list of menu options, simply say, Menu.';
+					session.attributes.currentProcessor = 5;
+					blnIgnoreIntent = true;
+					processMenuResponse(strMenu, session, callback);	
+				}
+			} else {
+				var strMenu = 'This is not a valid sleep entry.  Main menu.  For a list of menu options, simply say, Menu.';
+				session.attributes.currentProcessor = 5;
+				blnIgnoreIntent = true;
+				processMenuResponse(strMenu, session, callback);
+			}
+		} else {
+			var strMenu = 'This is not a valid response for confirming sleep time.  Main menu.  For a list of menu options, simply say, Menu.';
+			session.attributes.currentProcessor = 5;
+			blnIgnoreIntent = true;
+    		processMenuResponse(strMenu, session, callback);
+		}
+	}
 	//MM 2-28-2018 Added new handlers for Order a Meal
 	if (session.attributes.currentProcessor == 9){	
 	  if (intentName == 'FindMeal') {
@@ -378,12 +533,13 @@ function processIntent(event, context, intentRequest, session, callback) {
 			slotValue = intent.slots.Name.value;
 	    	console.log('NameIntent loop getName: '+slotValue);
 			intentName = 'AnswerIntent';	
-		}	
-		if (intentName == 'SpellingIntent') {
+		} else if (intentName == 'SpellingIntent') {
 	    	console.log('SpellingIntent loop Q&A: ', intent.slots);
 			slotValue = spellWord(intent);
 			intentName = 'AnswerIntent';	
-		}	
+		} else {
+			console.log("Error - Expecting Name but Recieved intentName: " + intentName);
+		} 
 	}	
 
 	//MM 7-26-2017 Added new workflow for handling initial logosname
@@ -446,295 +602,367 @@ function processIntent(event, context, intentRequest, session, callback) {
 		}
 	}	
 
-	if (intentName == 'LaunchIntent') {
-    	//Process Generic values if selected from existing
-    		slotValue = intent.slots.Answer.value;
-		console.log('***Intent Name is LaunchIntent...***');
-   	 	console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
-    		processUserGenericInteraction(event, intent, session, callback);
-    }
-    else if (intentName == 'DietMenu') {
-		strHelp = 'Simply say I ate chicken for dinner.  You can also specify a family member like, Bonnie had bacon and eggs for breakfast, or say, we, to apply to the whole family.';
-		//console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
-    	processHelpResponse(strHelp, 5, session, callback);
-    } 	
-    else if (intentName == 'NameIntent') {
-    	slotValue = intent.slots.Name.value;
-    	console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
-        dbUtil.verifyUserProfile(slotValue, accountId, session, callback);
-    } 
-    else if (intentName == 'OpenLogosHealthProfile') {
-        handleOpenLogosHealthProfile(event, context,intent, session, callback);
-    }    
-    else if (intentName == 'CreateLogosHealthProfile') {   
-    	var userName = sessionAttributes.userFirstName;
-	    handleCreateLogosHealthProfile(event, context, userName, session, callback);    
-    } 
-    else if (intentName == 'AddFamilyMember') {   
-      //MM 6-20-17 Add family member
-		var scriptName = '';
-		
-		if(sessionAttributes.isPrimaryProfile){
-			scriptName = "Add a Family Member Profile - User is Primary";	
-		} else {
-			scriptName = "Add a Family Member Profile - User is Not Primary";	
-		}
-		
-      	//MM 6-22-17 Sets the flag to capture that the user is adding data for a family member - not for himself/herself
-		sessionAttributes.onBehalfOf = true;
-		
-		//MM 6-24-17 Add to check if user exists
-		
-        dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
-    } 
-    else if (intentName == 'CreateAllergyHistory') {   
-      //MM 6-6-17 Enter an allergy
-	  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
-    	//console.log(' processIntent: CreateAllergyHistory called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Enter an allergy";
 
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: CreateAllergyHistory  called >>>>>> for name: '+intent.slots.Name.value);		
-			slotValue = intent.slots.Name.value;
-			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
-			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+	if (!blnIgnoreIntent) {
+		if (intentName == 'LaunchIntent') {
+			//Process Generic values if selected from existing
+				slotValue = intent.slots.Answer.value;
+			console.log('***Intent Name is LaunchIntent...***');
+				console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
+				processUserGenericInteraction(event, intent, session, callback);
 		}
-    } 
-    else if (intentName == 'EnterVaccine') {   
-      //MM 6-13-17 Enter an vaccine
-	  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
-    	//console.log(' processIntent: EnterVaccine  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Enter a Vaccine History Record";
-		
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: EnterVaccine  called >>>>>> for name: '+intent.slots.Name.value);		
+		else if (intentName == 'DietMenu') {
+			strHelp = 'Simply say I ate chicken for dinner.  You can also specify a family member like, Bonnie had bacon and eggs for breakfast, or say, we, to apply to the whole family.';
+			//console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
+			processHelpResponse(strHelp, 5, session, callback);
+		} 	
+		else if (intentName == 'NameIntent') {
 			slotValue = intent.slots.Name.value;
+			console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
+			dbUtil.verifyUserProfile(slotValue, accountId, session, callback);
+		} 
+		else if (intentName == 'OpenLogosHealthProfile') {
+			handleOpenLogosHealthProfile(event, context,intent, session, callback);
+		}    
+		else if (intentName == 'CreateLogosHealthProfile') {   
+			var userName = sessionAttributes.userFirstName;
+			handleCreateLogosHealthProfile(event, context, userName, session, callback);    
+		} 
+		else if (intentName == 'AddFamilyMember') {   
+		  //MM 6-20-17 Add family member
+			var scriptName = '';
+			
+			if(sessionAttributes.isPrimaryProfile){
+				scriptName = "Add a Family Member Profile - User is Primary";	
+			} else {
+				scriptName = "Add a Family Member Profile - User is Not Primary";	
+			}
+			
+			  //MM 6-22-17 Sets the flag to capture that the user is adding data for a family member - not for himself/herself
 			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
+			
+			//MM 6-24-17 Add to check if user exists
+			
+			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
+		} 
+		else if (intentName == 'CreateAllergyHistory') {   
+		  //MM 6-6-17 Enter an allergy
+		  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
+			//console.log(' processIntent: CreateAllergyHistory called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Enter an allergy";
+	
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: CreateAllergyHistory  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}
+		} 
+		else if (intentName == 'SetExerciseGoal') {   
+			//MM 6-26-18 Set Exercise Goal
+			var scriptName = "Set Exercise Goal";
 			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
-		}		
-    } 
-    else if (intentName == 'AddMedicalEvent') {   
-	  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
-    	//console.log(' processIntent: AddMedicalEvent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Add Medical Event";
-		
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: AddMedicalEvent  called >>>>>> for name: '+intent.slots.Name.value);		
-			slotValue = intent.slots.Name.value;
-			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
+		} 
+		else if (intentName == 'SetRepeatingTaskGoal') {   
+			//MM 6-26-18 Set Exercise Goal
+			var scriptName = "Set Repeating Task Goal";
 			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
-		}		
-    } 	
-    else if (intentName == 'AddMedicine') {   
-	  //MM 6-26-17 Added functionality to add medicine	
-    	//console.log(' processIntent: AddMedicine  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Add Medication";
-		
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: AddMedicine  called >>>>>> for name: '+intent.slots.Name.value);		
-			slotValue = intent.slots.Name.value;
-			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
+		} 
+		else if (intentName == 'AddLab') {   
+			//MM 7-26-18 Set Exercise Goal
+			var scriptName = "Add Lab";
 			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
-		}		
-    } 	
-    else if (intentName == 'AddVitamin') {   
-	  //MM 6-26-17 Added functionality to add vitamin	
-    	//console.log(' processIntent: AddVitamin  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Add Vitamin";
-		
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: AddVitamin  called >>>>>> for name: '+intent.slots.Name.value);		
-			slotValue = intent.slots.Name.value;
-			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
-			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
-		}		
-    } 	
-    else if (intentName == 'AddExercise') {   
-	  //MM 6-26-17 Added functionality to add vitamin	
-    	//console.log(' processIntent: AddVitamin  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Add Exercise";
-		
-		if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
-	    	console.log(' processIntent: AddExercise  called >>>>>> for name: '+intent.slots.Name.value);		
-			slotValue = intent.slots.Name.value;
-			sessionAttributes.onBehalfOf = true;
-			dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
-		} else {
-			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
-		}		
-    } 	
-	else if (intentName == 'ProvideFeedback') {   
-      //MM 6-13-17 Provide Feedback
-    	//console.log(' processIntent: ProvideFeedback  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Provide Feedback";
-        dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
-    } 
-	else if (intentName == 'SetFoodPreferences') {   
-      //MM 11-21-17 Set Food Preferences
-    	console.log(' processIntent: SetFoodPreferences  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Set Food Preferences";
-		session.attributes.scriptName = scriptName;
-		dbUtil.findExistingFoodPreferences(intent, session, callback);
-        //dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
-    } 
-	else if (intentName == 'SetDietaryPreferences') {   
-      //MM 12-29-17 Set Dietary Preferences
-    	console.log(' processIntent: SetDietaryPreferences  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
-        var scriptName = "Set Dietary Preferences";
-		session.attributes.scriptName = scriptName;
-		dbUtil.findExistingDietPreferences(intent, session, callback);
-    } 
-	else if (intentName == 'FindMeal') {   
-      //MM 11-21-17 Set Food Preferences
-   		console.log(' processIntent: FindMeal  called >>>>>>  ');		
-        var scriptName = "Find a Meal";
-		session.attributes.scriptName = scriptName;
-		if (intent.slots !== undefined) {
-			if(intent.slots.restaurant !== undefined && intent.slots.restaurant.value !== undefined) {
-				console.log('Find a Meal - Restaurant: ', intent.slots.restaurant);
-				session.attributes.orderRestaurant = intent.slots.restaurant.value;
-				console.log('Find a Meal - Restaurant Value: ' + session.attributes.orderRestaurant);
-				if (session.attributes.orderRestaurant.indexOf("\'") != -1) {
-					session.attributes.orderRestaurant = session.attributes.orderRestaurant.split("\'").join("");
-			    		console.log('LogosHelper:FindMeal has apostrophe '+session.attributes.orderRestaurant);	
-				}		
-				console.log('FindMeal Restaurant: ' + session.attributes.orderRestaurant);
+		} 
+		else if (intentName == 'EnterVaccine') {   
+			  //MM 6-13-17 Enter an vaccine
+			  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
+			//console.log(' processIntent: EnterVaccine  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Enter a Vaccine History Record";
+			
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: EnterVaccine  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}		
+		} 
+		else if (intentName == 'AddMedicalEvent') {   
+		  //MM 6-24-17 Added functionality to process the menu for entering on behalf of a family member	
+			//console.log(' processIntent: AddMedicalEvent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Add Medical Event";
+			
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: AddMedicalEvent  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}		
+		} 	
+		else if (intentName == 'AddMedicine') {   
+		  //MM 6-26-17 Added functionality to add medicine	
+			//console.log(' processIntent: AddMedicine  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Add Medication";
+			
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: AddMedicine  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}		
+		} 	
+		else if (intentName == 'AddVitamin') {   
+		  //MM 6-26-17 Added functionality to add vitamin	
+			//console.log(' processIntent: AddVitamin  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Add Vitamin";
+			
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: AddVitamin  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}		
+		} 	
+		else if (intentName == 'AddExercise') {   
+		  //MM 6-26-17 Added functionality to add vitamin	
+			//console.log(' processIntent: AddVitamin  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Add Exercise";
+			
+			if (intent.slots.Name.value !== undefined && (intent.slots.Name.value !=='me' || intent.slots.Name.value !=='myself')){
+				console.log(' processIntent: AddExercise  called >>>>>> for name: '+intent.slots.Name.value);		
+				slotValue = intent.slots.Name.value;
+				sessionAttributes.onBehalfOf = true;
+				dbUtil.setOnBehalfOf(0, scriptName, slotValue, session, callback);					
+			} else {
+				dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);		
+			}		
+		} 	
+		else if (intentName == 'ProvideFeedback') {   
+		  //MM 6-13-17 Provide Feedback
+			//console.log(' processIntent: ProvideFeedback  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Provide Feedback";
+			dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
+		} 
+		else if (intentName == 'SetFoodPreferences') {   
+		  //MM 11-21-17 Set Food Preferences
+			console.log(' processIntent: SetFoodPreferences  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Set Food Preferences";
+			session.attributes.scriptName = scriptName;
+			dbUtil.findExistingFoodPreferences(intent, session, callback);
+			//dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
+		} 
+		else if (intentName == 'SetDietaryPreferences') {   
+		  //MM 12-29-17 Set Dietary Preferences
+			console.log(' processIntent: SetDietaryPreferences  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);		
+			var scriptName = "Set Dietary Preferences";
+			session.attributes.scriptName = scriptName;
+			dbUtil.findExistingDietPreferences(intent, session, callback);
+		} 
+		else if (intentName == 'FindMeal') {   
+		  //MM 11-21-17 Set Food Preferences
+			   console.log(' processIntent: FindMeal  called >>>>>>  ');		
+			var scriptName = "Find a Meal";
+			session.attributes.scriptName = scriptName;
+			if (intent.slots !== undefined) {
+				if(intent.slots.restaurant !== undefined && intent.slots.restaurant.value !== undefined) {
+					console.log('Find a Meal - Restaurant: ', intent.slots.restaurant);
+					session.attributes.orderRestaurant = intent.slots.restaurant.value;
+					console.log('Find a Meal - Restaurant Value: ' + session.attributes.orderRestaurant);
+					if (session.attributes.orderRestaurant.indexOf("\'") != -1) {
+						session.attributes.orderRestaurant = session.attributes.orderRestaurant.split("\'").join("");
+							console.log('LogosHelper:FindMeal has apostrophe '+session.attributes.orderRestaurant);	
+					}		
+					console.log('FindMeal Restaurant: ' + session.attributes.orderRestaurant);
+				} else {
+					session.attributes.orderRestaurant = "";	
+					session.attributes.addtionalRestFilter = "";				
+				} 	
+				if (intent.slots.foodCatFav !== undefined && intent.slots.foodCatFav.value !== undefined) {
+					var foodCatFavId = intent.slots.foodCatFav.resolutions.resolutionsPerAuthority[0].values;
+					if (foodCatFavId  !== undefined) {
+						foodCatFavId = intent.slots.foodCatFav.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+						console.log('Find a Meal - foodCatFav Identification: ' +  foodCatFavId);				
+						session.attributes.orderFoodCatFavId = foodCatFavId;				
+					} else {
+						session.attributes.orderFoodCatFavId = "";									
+					}
+					console.log('Find a Meal - foodCatFav: ', intent.slots.foodCatFav);				
+					session.attributes.orderFoodCatFav = intent.slots.foodCatFav.value;
+				}else {
+					session.attributes.orderFoodCatFav = "";
+					session.attributes.orderFoodCatFavId = "";
+				}	
+				if (intent.slots.exactDish !== undefined && intent.slots.exactDish.value !== undefined) {
+					console.log('Find a Meal - exactDish: ', intent.slots.exactDish);				
+					session.attributes.orderFoodCatFav = intent.slots.exactDish.value;
+				}else {
+					session.attributes.orderFoodCatFav = "";
+				}				
 			} else {
 				session.attributes.orderRestaurant = "";	
 				session.attributes.addtionalRestFilter = "";				
-			} 	
-			if (intent.slots.foodCatFav !== undefined && intent.slots.foodCatFav.value !== undefined) {
-				var foodCatFavId = intent.slots.foodCatFav.resolutions.resolutionsPerAuthority[0].values;
-				if (foodCatFavId  !== undefined) {
-					foodCatFavId = intent.slots.foodCatFav.resolutions.resolutionsPerAuthority[0].values[0].value.id;
-					console.log('Find a Meal - foodCatFav Identification: ' +  foodCatFavId);				
-					session.attributes.orderFoodCatFavId = foodCatFavId;				
-				} else {
-					session.attributes.orderFoodCatFavId = "";									
-				}
-				console.log('Find a Meal - foodCatFav: ', intent.slots.foodCatFav);				
-				session.attributes.orderFoodCatFav = intent.slots.foodCatFav.value;
-			}else {
 				session.attributes.orderFoodCatFav = "";
 				session.attributes.orderFoodCatFavId = "";
-			}	
-			if (intent.slots.exactDish !== undefined && intent.slots.exactDish.value !== undefined) {
-				console.log('Find a Meal - exactDish: ', intent.slots.exactDish);				
-				session.attributes.orderFoodCatFav = intent.slots.exactDish.value;
-			}else {
-				session.attributes.orderFoodCatFav = "";
-			}				
-		} else {
-			session.attributes.orderRestaurant = "";	
-			session.attributes.addtionalRestFilter = "";				
-			session.attributes.orderFoodCatFav = "";
-			session.attributes.orderFoodCatFavId = "";
+			}
+			dbUtil.findExistingFoodPreferencesMeal(intent, session, callback);
+			//dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
+		} 
+		else if (intentName == 'AMAZON.HelpIntent') {        
+			//helpRequest(intent, session, callback);    
+		}    
+		else if (intentName == 'AMAZON.CancelIntent')  {        
+			//quitRequest(intent, session, callback);  
 		}
-		dbUtil.findExistingFoodPreferencesMeal(intent, session, callback);
-        //dbUtil.readQuestsionsForBranch(0, scriptName, slotValue, session, callback);
-    } 
-	else if (intentName == 'AMAZON.HelpIntent') {        
-	    //helpRequest(intent, session, callback);    
-    }    
-    else if (intentName == 'AMAZON.CancelIntent')  {        
-	    //quitRequest(intent, session, callback);  
-    }
-    else if (intentName == 'AMAZON.YesIntent')  {   
-    	//console.log(' AMAZON.YesIntent: Intent  parameter check >>>>>>  '+retUser);
-		if (session.attributes.currentProcessor !== 6 && session.attributes.currentProcessor !== 7 && session.attributes.currentProcessor !== 8) {
-    			slotValue = "Y";
-    			processAnswerIntent(event, slotValue, accountId, session, callback);
+		else if (intentName == 'AMAZON.YesIntent')  {   
+			//console.log(' AMAZON.YesIntent: Intent  parameter check >>>>>>  '+retUser);
+			if (session.attributes.currentProcessor !== 6 && session.attributes.currentProcessor !== 7 && session.attributes.currentProcessor !== 8) {
+					slotValue = "Y";
+					processAnswerIntent(event, slotValue, accountId, session, callback);
+			}
 		}
-    }
-    else if (intentName == 'AMAZON.NoIntent' && session.attributes.currentProcessor == 2)  {   
-    		console.log(' AMAZON.NoIntent: Intent  called for profile creation - exiting app');
-	    	console.log(' AMAZON.MainMenuIntent: retUser: '+retUser);		
-	}
-			
-	    //helpRequest(intent, session, callback);    
-    //}    
-	//MM 6-11-2017 Added bypass in case yes or no intent was answered which leaves Answer undefined 
-    else if (intentName == 'AnswerIntent')  {        
-		if (expected == false && session.attributes.currentProcessor == 3) {
-    		console.log(' processIntent: Unexpected Intent called during Q&A');
-			var errorText = "I did not understand your answer.  Please repeat, but start with I said";
-			processErrorResponse(errorText, 3, session, callback);
-		} else if (session.attributes.currentProcessor == 9) {
-			console.log("AnswerIntent - Found the bug for retrieving next batch of meals");
-		} else {		
+		else if (intentName == 'AMAZON.NoIntent' && session.attributes.currentProcessor == 2)  {   
+				console.log(' AMAZON.NoIntent: Intent  called for profile creation - exiting app');
+				console.log(' AMAZON.MainMenuIntent: retUser: '+retUser);		
+		}
+				
+			//helpRequest(intent, session, callback);    
+		//}    
+		//MM 6-11-2017 Added bypass in case yes or no intent was answered which leaves Answer undefined 
+		else if (intentName == 'AnswerIntent')  {        
+			if (expected == false && session.attributes.currentProcessor == 3) {
+				console.log(' processIntent: Unexpected Intent called during Q&A');
+				var errorText = "I did not understand your answer.  Please repeat, but start with I said";
+				processErrorResponse(errorText, 3, session, callback);
+			} else if (isDateValue == true && isValidDate(slotValue) == false) {
+				var errorText = "Please try again.  Dates must include at least month and year and should be spoken in the following manner: July 4th, 1776.  Please start with the Date is.";
+				processErrorResponse(errorText, 3, session, callback);
+			} else if (session.attributes.currentProcessor == 9) {
+				console.log("AnswerIntent - Found the bug for retrieving next batch of meals");
+			} else {		
+				if (slotValue == ""){
+					slotValue = intent.slots.Answer.value;
+					console.log('Answer: ' + slotValue);
+				}	
+				console.log(' processAnswerIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
+				processAnswerIntent(event, slotValue, accountId, session, callback);
+			}
+				
+		}
+		//MM 6-26-2017 Added date intent to try and better handle date inputs 
+		else if (intentName == 'AnswerDate')  {        
 			if (slotValue == ""){
-				slotValue = intent.slots.Answer.value;
-				console.log('Answer: ' + slotValue);
-			}	
-			console.log(' processAnswerIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
-        	processAnswerIntent(event, slotValue, accountId, session, callback);
+				slotValue = intent.slots.Date.value;		
+			}
+			console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
+			processAnswerIntent(event, slotValue, accountId, session, callback); 
 		}
-			
-    }
-	//MM 6-26-2017 Added date intent to try and better handle date inputs 
-	else if (intentName == 'AnswerDate')  {        
-		if (slotValue == ""){
-			slotValue = intent.slots.Date.value;		
+		//MM 6-26-2017 Added AddDiet intent handler 
+		else if (intentName == 'AddDiet')  {        
+			console.log(' processIntent: AddDiet, Name = '+intent.slots.Name.value+' food = '+intent.slots.Food.value+' meal = '+intent.slots.Meal.value);
+			dbUtil.addDietRecord(intent, session, callback);
 		}
-    	console.log(' processIntent: Intent  called >>>>>>  '+intentName+' the slot value is >>>>> '+slotValue);
-        processAnswerIntent(event, slotValue, accountId, session, callback); 
-    }
-	//MM 6-26-2017 Added AddDiet intent handler 
-	else if (intentName == 'AddDiet')  {        
-    	console.log(' processIntent: AddDiet, Name = '+intent.slots.Name.value+' food = '+intent.slots.Food.value+' meal = '+intent.slots.Meal.value);
-		dbUtil.addDietRecord(intent, session, callback);
-    }
-	//MM 01-01-2018 Added AddFood intent handler 
-	else if (intentName == 'UpdateFoodPreferences')  {        
-    	console.log(' processIntent: UpdateFoodPreferences, Action= '+intent.slots.Action.value+' Category = '+intent.slots.Category.value);
-    	console.log(' processIntent: UpdateFoodPreferences, FoodField= '+intent.slots.FoodField.value+' FoodValue = '+intent.slots.FoodValue.value);
-    //console.log(' processIntent: UpdateFoodPreferences, FoodValueID: ', intent.slots.FoodValue.resolutions.resolutionsPerAuthority[0].values);
-		//console.log(' processIntent: UpdateFoodPreferences, FoodValueID: ', intent.slots.FoodValue.resolutions.resolutionsPerAuthority[0].values[0].value.id);
-		dbUtil.updateFoodPreferences(intent, session, callback);
-    }
-	//MM 01-13-2018 Added AddDiet intent handler 
-	else if (intentName == 'UpdateDietaryPreferences')  {        
-    	console.log(' processIntent: UpdateDietaryPreferences, Action= '+intent.slots.Action.value+' DietCategory = '+intent.slots.DietCategory.value);
-		dbUtil.updateDietaryPreferences(intent, session, callback);
-    }
-	//MM 01-06-2018 Added AddWeight intent handler 
-	else if (intentName == 'AddWeight')  {        
-    	console.log(' processIntent: AddWeight, Action= '+intent.slots.Weight.value+' Name = '+intent.slots.Name.value);
-		dbUtil.addWeightRecord(intent, session, callback);
-    }
-	//MM 6-27-2017 Added CompleteInterview intent handler 
-	else if (intentName == 'CompleteInterview')  {        
-    	console.log(' processIntent: CompleteInterview. ');
-		dbUtil.getInProgressInStaging(sessionAttributes.profileid, session, callback);
-		//processAnswerIntent(event, slotValue, accountId, session, callback); 
-    } 
+		//MM 7-1-2018 Added InstantTaskExercise intent handler 
+		else if (intentName == 'InstantTaskExercise')  {        
+			console.log(' processIntent: InstantTaskExercise, Name = '+intent.slots.Name.value+' Num = '+intent.slots.Num.value+' Tasks = '+intent.slots.Tasks.value+' Duration = '+
+			  intent.slots.Duration.value);
+			dbUtil.instantTaskExercise(intent, session, callback);
+		}
+
+		//MM 7-24-2018 Added InstantMood intent handler 
+		else if (intentName == 'InstantMood')  {        
+			console.log(' processIntent: InstantMood, Mood = '+intent.slots.Mood.value);
+			dbUtil.instantMood(intent, session, callback);
+		}
+
+		//MM 7-26-2018 Added Instant Blood Glucose intent handler 
+		else if (intentName == 'InstantBloodGlucose')  {        
+			console.log(' processIntent: InstantBloodGlucose, Name = '+intent.slots.Name.value + ', Result = ' + intent.slots.Result.value);
+			dbUtil.instantBloodGlucose(intent, session, callback);
+		}
 	
-	//MM 1-8-2017 Added MainMenu Intent Handler 
-	else if (intentName == 'MainMenuIntent')  {        
-    	console.log(' processIntent: MainMenuIntent. ');
-		processNameIntentResponseFull(session.attributes.logosname, session.attributes.profileid, true, true, session, callback);
-		//processAnswerIntent(event, slotValue, accountId, session, callback); 
-    } 
+		//MM 7-17-2018 Added InstantSleepSummary intent handler 
+		else if (intentName == 'InstantSleepSummary')  {        
+			var sleepValueId = intent.slots.SleepTime;
+			if (sleepValueId  !== undefined) {
+				sleepValueId = intent.slots.SleepTime.resolutions;
+			}
+			if (sleepValueId  !== undefined) {
+				sleepValueId = intent.slots.SleepTime.resolutions.resolutionsPerAuthority[0].values;
+			}
+			if (sleepValueId  !== undefined) {
+				sleepValueId = intent.slots.SleepTime.resolutions.resolutionsPerAuthority[0].values[0].value.id;
+				console.log('InstantSleepSummary - sleepValueId) Identification: ' +  sleepValueId);				
+				session.attributes.sleepValueId = sleepValueId;				
+			} else {
+				session.attributes.sleepValueId = "";									
+			}
+			console.log(' processIntent: InstantSleepSummary, Name = '+intent.slots.Name.value);
+			dbUtil.instantSleepSummary(intent, session, callback);
+		}
+		//MM 7-17-2018 Added InstantSleepSleep intent handler 
+		else if (intentName == 'InstantSleepSleep')  {        
+			console.log(' processIntent: InstantSleepSleep, Name = '+intent.slots.Name.value);
+			dbUtil.instantSleepSleep(intent, session, callback);
+		}
+		//MM 7-17-2018 Added InstantSleepWake intent handler 
+		else if (intentName == 'InstantSleepWake')  {        
+			console.log(' processIntent: InstantSleepWake, Name = '+intent.slots.Name.value);
+			dbUtil.instantSleepWake(intent, session, callback);
+		}
 	
-	else if (session.attributes.currentProcessor == 6) {
-		console.log(' processIntent: Handler for Name confirmation called.  Action taken in code above');
+		//MM 01-01-2018 Added AddFood intent handler 
+		else if (intentName == 'UpdateFoodPreferences')  {        
+			console.log(' processIntent: UpdateFoodPreferences, Action= '+intent.slots.Action.value+' Category = '+intent.slots.Category.value);
+			console.log(' processIntent: UpdateFoodPreferences, FoodField= '+intent.slots.FoodField.value+' FoodValue = '+intent.slots.FoodValue.value);
+		//console.log(' processIntent: UpdateFoodPreferences, FoodValueID: ', intent.slots.FoodValue.resolutions.resolutionsPerAuthority[0].values);
+			//console.log(' processIntent: UpdateFoodPreferences, FoodValueID: ', intent.slots.FoodValue.resolutions.resolutionsPerAuthority[0].values[0].value.id);
+			dbUtil.updateFoodPreferences(intent, session, callback);
+		}
+		//MM 01-13-2018 Added AddDiet intent handler 
+		else if (intentName == 'UpdateDietaryPreferences')  {        
+			console.log(' processIntent: UpdateDietaryPreferences, Action= '+intent.slots.Action.value+' DietCategory = '+intent.slots.DietCategory.value);
+			dbUtil.updateDietaryPreferences(intent, session, callback);
+		}
+		//MM 01-06-2018 Added AddWeight intent handler 
+		else if (intentName == 'AddWeight')  {        
+			console.log(' processIntent: AddWeight, Action= '+intent.slots.Weight.value+' Name = '+intent.slots.Name.value);
+			dbUtil.addWeightRecord(intent, session, callback);
+		}
+		//MM 6-27-2017 Added CompleteInterview intent handler 
+		else if (intentName == 'CompleteInterview')  {        
+			console.log(' processIntent: CompleteInterview. ');
+			dbUtil.getInProgressInStaging(sessionAttributes.profileid, session, callback);
+			//processAnswerIntent(event, slotValue, accountId, session, callback); 
+		} 
+		
+		//MM 1-8-2017 Added MainMenu Intent Handler 
+		else if (intentName == 'MainMenuIntent')  {        
+			console.log(' processIntent: MainMenuIntent. ');
+			processNameIntentResponseFull(session.attributes.logosname, session.attributes.profileid, true, true, session, callback);
+			//processAnswerIntent(event, slotValue, accountId, session, callback); 
+		} 
+		
+		else if (session.attributes.currentProcessor == 6) {
+			console.log(' processIntent: Handler for Name confirmation called.  Action taken in code above');
+		}
+		else {
+			var errorText = "This is not a valid menu option.  Please try again.";
+			processErrorResponse(errorText, 5, session, callback);
+			//could be user saying something out of a custom intent, process based on Current processor
+			//processUserGenericInteraction(event, intent, session, callback);
+		}
+	} else {
+		console.log('Menu content ignored from up front branch code');
 	}
-    else {
-		var errorText = "This is not a valid menu option.  Please try again.";
-		processErrorResponse(errorText, 5, session, callback);
-        //could be user saying something out of a custom intent, process based on Current processor
-        //processUserGenericInteraction(event, intent, session, callback);
-    }
 }
 
 function processWelcomeResponse(accountid, accountEmail, session, callback ) {
@@ -757,7 +985,7 @@ function processWelcomeResponse(accountid, accountEmail, session, callback ) {
 	var dateofmeasure = new Date();
 	
 	
-	var qnObj = '';
+	var qnObj = {};
     var sessionAttributes = {
     		'currentProcessor':1,
     		'accountid':accountid,
@@ -784,6 +1012,7 @@ function processWelcomeResponse(accountid, accountEmail, session, callback ) {
 			'continueInProgress': false,
 			'dateofmeasure' :dateofmeasure,
 			'foodcategoryid' :foodCategoryId,
+			'OOChecked': false,
     		'qnaObj':qnObj
     };
     
@@ -819,7 +1048,7 @@ function processRestart(accountid, speechOutput, session, callback) {
 	var dateofmeasure = new Date();
 	
 	
-	var qnObj = '';
+	var qnObj = {};
     var sessionAttributes = {
     		'currentProcessor':1,
     		'accountid':accountid,
@@ -846,6 +1075,7 @@ function processRestart(accountid, speechOutput, session, callback) {
 			'continueInProgress': false,
 			'dateofmeasure' :dateofmeasure,
 			'foodcategoryid' :foodCategoryId,
+			'OOChecked': false,
     		'qnaObj':qnObj
     };
     
@@ -880,6 +1110,7 @@ function processNameIntentResponse(userName, profileId, hasProfile, profileCompl
 	var foodCategoryId = 0;
 	var scriptName = '';
 	var dateofmeasure = new Date();
+	var timezone = session.attributes.userTimezone;
     var accountId = session.attributes.accountid;
 	var accountEmail = session.attributes.accountEmail;
     var isPrimary = session.attributes.isPrimaryProfile == null?false:session.attributes.isPrimaryProfile;
@@ -891,8 +1122,16 @@ function processNameIntentResponse(userName, profileId, hasProfile, profileCompl
 
     		processor = 5;
     } else if (session.attributes.currentProcessor == 1) {
+		var spellName = '';
+		for (var i = 0; i < userName.length; i++) {
+			if (i !== userName.length-1) {
+				spellName = spellName + userName.substring(i, i+1) + '-';
+			} else {
+				spellName = spellName + userName.substring(i, i+1);
+			}
+		} 
 		//MM 7-26-17 Altered the flow to make sure Alexa is hearing the user's name properly
-		speechOutput = 'I understood your name as '+userName+ '.  Is that correct?';
+		speechOutput = 'I understood your name as '+userName+ ', ' + spellName +'.  Is that correct?';
 		processor = 6;
 		//speechOutput = 'Hello '+userName+ ' , No profile found with your name on your Account. "," Would you like to create one?';
     	//processor = 2;
@@ -910,6 +1149,7 @@ function processNameIntentResponse(userName, profileId, hasProfile, profileCompl
     		'logosname':userName,
 			'subjectLogosName':subjectLogosName,
 			'subjectProfileId':0,
+			'userTimezone':timezone, 
 			'onBehalfOf':onBehalfOf,
 			'medicaleventid':0,
     		'isPrimaryProfile':isPrimary,
@@ -928,12 +1168,13 @@ function processNameIntentResponse(userName, profileId, hasProfile, profileCompl
 			'scriptName' :scriptName,
 			'dateofmeasure' :dateofmeasure,
 			'foodcategoryid' :foodCategoryId,
+			'OOChecked': false,
     		'qnaObj':qnObj
     };
     
     session.attributes = sessionAttributes;
     
-    processMenuResponse(speechOutput, session, callback);
+    processSelectionResponse(speechOutput, session, callback);
 
 }
 
@@ -1014,24 +1255,25 @@ function processNameIntentResponseFull(userName, profileId, hasProfile, profileC
 			'scriptName' :scriptName,
 			'dateofmeasure' :dateofmeasure,
 			'foodcategoryid' :foodCategoryId,
+			'OOChecked': false,
     		'qnaObj':qnObj
     };
     
     session.attributes = sessionAttributes;
     
-    processMenuResponse(speechOutput, session, callback);
+    processSelectionResponse(speechOutput, session, callback);
 
 }
 function processAnswerIntent(event, slotValue, accountId, session, callback) {
     // User Name has been processed
-    console.log(' LogosHelper:processAnswerIntent >>>>>> Processor = ' + session.attributes.currentProcessor);
+   // console.log(' LogosHelper:processAnswerIntent >>>>>> Processor = ' + session.attributes.currentProcessor);
     var qnaObj = {};
     //set session attributes
     var sessionAttributes = session.attributes;
     var currentProcessor = sessionAttributes.currentProcessor;
     var isPrimary = sessionAttributes.isPrimaryProfile;
     
-    console.log(' LogosHelper:processAnswerIntent >>>>>>'+currentProcessor+' and is primary profile ?  '+isPrimary);
+    //console.log(' LogosHelper:processAnswerIntent >>>>>>'+currentProcessor+' and is primary profile ?  '+isPrimary);
     console.log(' LogosHelper:processAnswerIntent >>>>>>'+currentProcessor+' and slotValue ?  '+slotValue);
     
     switch(currentProcessor) {
@@ -1149,8 +1391,18 @@ function saveResponseQNA(slotValue, qnaObj, session, callback) {
     	session.attributes.qnaObj.answer = slotValue;
     	
     	if (qnaObj.isDictionary !== null && qnaObj.isDictionary.toLowerCase() == 'y') {
-    		console.log(' LogosHelper.saveResponseQNA : Field is Dictionary type, get ID >>>>>> '+qnaObj.isDictionary);
-    		dbUtil.readDictoinaryId(qnaObj, slotValue, processor, false, session, callback);
+		//MM 5-9-2018 Added handler for setting dictionary id from Alexa intent schema
+			console.log(' LogosHelper.saveResponseQNA : Field is Dictionary type, get ID >>>>>> '+qnaObj.isDictionary);
+			if (sessionAttributes.answerID !== '') {
+				console.log('Loop 1: ' +  sessionAttributes.answerID + ' is the answerid');
+				//qnaObj.answer = sessionAttributes.answerID;
+				//qnaObj.dictanswer = slotValue;
+
+				dbUtil.readDictionaryTerm(qnaObj, session, false, callback);				
+			} else {
+				console.log('Loop 2: Goto read Dictionary');
+				dbUtil.readDictoinaryId(qnaObj, slotValue, processor, false, session, callback);
+			}
     	} else if (qnaObj.formatId && qnaObj.formatId !== null) {
 			console.log(' LogosHelper.saveResponseQNA : Field has format ID to format user input >>>>>> '+qnaObj.formatId);
 			//validate user input against RegEx formatter, if error throw response otherwise continue
@@ -1177,8 +1429,14 @@ function saveResponseQNA(slotValue, qnaObj, session, callback) {
 		eventQNArr.answer = slotValue;
 		
 		if (eventQNArr.isDictionary !== null  && eventQNArr.isDictionary.toLowerCase() == 'y') {
+			//MM 5-9-2018 Added handler for setting dictionary id from Alexa intent schema
 			console.log(' LogosHelper.processEventSpecificResponse : Field is Dictionary type, get ID >>>>>> '+eventQNArr.isDictionary);
-			dbUtil.readDictoinaryId(qnaObj, eventQNArr.answer, processor, true, session, callback);
+			if (sessionAttributes.answerID !== '') {
+				dbUtil.readDictionaryTerm(qnaObj, session, true, callback);				
+			} else {
+				dbUtil.readDictoinaryId(qnaObj, eventQNArr.answer, processor, true, session, callback);
+			}
+
 		} else if (eventQNArr.formatId !== null && eventQNArr.formatId != "") {
 			console.log(' LogosHelper.processEventSpecificResponse : Field is Dictionary type, get ID >>>>>> '+eventQNArr.formatId);
 			dbUtil.validateData(qnaObj, eventQNArr.answer, processor, session, callback);
@@ -1193,6 +1451,7 @@ function saveResponseQNA(slotValue, qnaObj, session, callback) {
 
 function processResponse(qnObj, session, callback, retUser) {
 	console.log('LogosHelper.processResponse : CALLED>>> ');
+	console.log('LogosHelper.processResponse: currentProcess>>> ' + session.attributes.currentProcessor);
 	
     var sessionAttributes = session.attributes;
     var userName = sessionAttributes.logosname;
@@ -1249,8 +1508,8 @@ function processResponse(qnObj, session, callback, retUser) {
 		quest = quest.replace("[primarys]", "your");				
 	}
   } else {
-  	quest = "There is an error retrieving the question.  If this persists, please contact customer service.  Restarting logoshealth.  Please say your first name and start with, My Name is."
-	processRestart(sessionAttributes.accountid, quest, session, callback);  
+  	quest = "There is an error retrieving the question.  If this persists, please contact customer service.  Restarting Logoshealth.  Main menu.  For a list of options, simply say, menu"
+	  processMenuResponse(quest, session, callback);  
   }
 	
 	var speechOutput = "";
@@ -1270,8 +1529,10 @@ function processResponse(qnObj, session, callback, retUser) {
 	var shouldEndSession = false;
 	
 	if (!session.attributes.scriptComplete){
+		console.log("Current Processor being changed from " + session.attributes.currentProcessor + " to 3.");
 		session.attributes.currentProcessor = 3;		
 	}
+
 	
 	session.attributes.qnaObj = qnObj;
 	console.log(' LogosHelper.processResponse >>>>>>: output text is '+speechOutput);
@@ -1528,6 +1789,19 @@ function processConfirmResponse(confirmText, processor, session, callback) {
   
     callback(session.attributes, buildSpeechResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
+function processSelectionResponse(speechOutput, session, callback) {
+	console.log('LogosHelper.processSelectionResponse : CALLED>>> ');
+	
+    var cardTitle = 'Enter Your Profile';
+
+    var repromptText = speechOutput;
+	//Set branch to main menu
+    //session.attributes.currentProcessor = 5;
+  
+    var shouldEndSession = false;
+  
+    callback(session.attributes, buildSpeechResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+}
 
 function processMenuResponse(speechOutput, session, callback) {
 	console.log('LogosHelper.processMenuResponse : CALLED>>> ');
@@ -1590,6 +1864,17 @@ function isEmpty(obj) {
             return false;
     }
     return true;
+}
+
+//MM 5-8-2018 Added function to ensure validity of date values	
+function isValidDate(slotValue) {
+	var equalSplit = slotValue.split("-");
+	if (equalSplit[0] > 1000 && equalSplit[0] < 3000 && equalSplit[1] > 0 && equalSplit[1] < 13 && equalSplit[2] >= 0 && equalSplit[2] < 32) {
+		return true;
+	} else {
+		console.log('IsValidDate is false: year: ' + equalSplit[0] + ' month: ' + equalSplit[1] + ' day: ' + equalSplit[2]);
+		return false;
+	}
 }
 
 function spellWord(intent) {

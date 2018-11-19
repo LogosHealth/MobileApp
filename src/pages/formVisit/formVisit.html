@@ -1,46 +1,183 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Mood Form</ion-title>
+    <ion-title>Visit Form</ion-title>
   </ion-navbar>
 </ion-header>
 
-<ion-content class="forms-examples-content">
+<ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveRecord()">
+    <div>
+        <ion-segment [(ngModel)]="categoryList" [ngModelOptions]="{standalone: true}" class="forms-examples-segment">
+          <ion-segment-button class="segment-button" value="pre">
+            Pre
+          </ion-segment-button>
+          <ion-segment-button class="segment-button" value="post">
+            Post
+          </ion-segment-button>
+        </ion-segment>
 
-    <div class="card-example-view">
-      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
-        <section class="form-section">
-          <h2 class = "section-title" >Mood Record</h2>
+        <div [ngSwitch]="categoryList">
+          <div *ngSwitchCase="'pre'">
+            <ion-card class="sample-form">
+              <ion-row>
+                <ion-col no-padding width-60>
+                  <ion-item>
+                    <ion-label floating>Visit Date</ion-label>
+                    <ion-datetime displayFormat="MMM-DD-YYYY hh:mm A"  formControlName="visitdate" ></ion-datetime>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-35>
+                  <ion-item>
+                    <ion-label floating>For</ion-label>
+                    <ion-input type="text" formControlName="firstname" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding>
+                  <ion-item>
+                    <ion-label floating>Physician</ion-label>
+                    <ion-input type="text" formControlName="physiciantitle" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding>
+                  <ion-item>
+                    <ion-label floating>Reason</ion-label>
+                    <ion-textarea type="text" formControlName="reason" autosize></ion-textarea>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            </ion-card>
 
-          <ion-row>
-            <ion-col no-padding *ngIf="!newRec">
-                <ion-item>
-                  <ion-label floating>Date of Measure</ion-label>
-                  <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
-                </ion-item>
-            </ion-col>
-          </ion-row>
+            <ion-card  class="sample-form">
+              <h2 class = "section-title" >Important Info</h2>
+              <div formArrayName="infos" *ngFor="let info of card_form.get('infos').controls; let i = index;">
+                <ion-row [formGroupName]="i">
+                  <ion-col no-padding width-50>
+                    <ion-item  text-wrap>
+                      <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
+                      <ion-label *ngIf="info.value.type == null" floating>Name</ion-label>
+                      <ion-input type="text" formControlName="namevalue" [disabled]="true">{{info.namevalue}}</ion-input>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col no-padding width-50>
+                    <ion-item text-wrap>
+                      <ion-label floating>Date</ion-label>
+                      <ion-input type="text" formControlName="dateofmeasure" [disabled]="true">{{info.dateofmeasure}}</ion-input>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </div>
 
-          <ion-row>
-            <ion-col no-padding>
-              <ion-item>
-                <ion-label floating>Mood</ion-label>
-                <ion-input type="text" formControlName="mood"></ion-input>  
-              </ion-item>
-            </ion-col>
-          </ion-row>
-  
-        </section>
-        <section class="form-section">
-         <ion-row no-padding class="multi-input-row">
-            <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
-            </ion-col>
-            <ion-col no-padding width-50> 
-              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
-            </ion-col>    
-         </ion-row>
-         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br>Say <i>"I feel inspired"</i> for easy data entry.</p>
-      </section>
-      </form>
+              <ion-row>
+                <ion-col no-padding width-68>
+                  <ion-item>
+                    <ion-label floating>Important Info Category</ion-label>
+                    <ion-select formControlName="importantinfo">
+                      <ion-option class="section-title" value="condition">Condition</ion-option>
+                      <ion-option class="section-title" value="symptom">Symptom</ion-option>
+                      <ion-option class="section-title" value="temperature">Temperature</ion-option>
+                      <ion-option class="section-title" value="mood">Mood</ion-option>
+                      <ion-option class="section-title" value="reminder">Reminder</ion-option>
+                    </ion-select>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-30>
+                  <button ion-button block class="form-action-button"  type="button" [disabled]="categoryEmpty()" (click)="addInfo()">Add</button>
+                </ion-col>
+              </ion-row>
+            </ion-card>
+
+            <ion-card  class="sample-form">
+              <ion-row>
+                <ion-col no-padding width-68>
+                  <h2 class = "section-title" >Key Questions</h2>
+                </ion-col>
+                <ion-col class="columnAligntoLabel"  no-padding width-30>
+                  <button ion-button block class="form-action-button"  type="button" (click)="addQuestion()">Add</button>
+                </ion-col>
+              </ion-row>
+              <div formArrayName="questions" *ngFor="let info of card_form.get('questions').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-item  text-wrap>
+                      <ion-label floating>Question {{ i + 1 }}</ion-label>
+                      <ion-textarea type="text" formControlName="question" autosize></ion-textarea>
+                    </ion-item>
+                  </ion-row>
+                  <ion-row>
+                    <ion-item  text-wrap>
+                      <ion-label floating>Answer</ion-label>
+                      <ion-textarea type="text" formControlName="answer" autosize></ion-textarea>
+                    </ion-item>
+                  </ion-row>
+                </div>
+              </div>
+            </ion-card>
+
+            <ion-card  class="sample-form">
+              <ion-row>
+                <ion-col no-padding width-68>
+                  <h2 class = "section-title" >Tasks</h2>
+                </ion-col>
+                <ion-col class="columnAligntoLabel" no-padding width-30>
+                  <button ion-button block class="form-action-button"  type="button" (click)="addTodo()">Add</button>
+                </ion-col>
+              </ion-row>
+
+              <div formArrayName="todos" *ngFor="let info of card_form.get('todos').controls; let i = index;">
+                <ion-row [formGroupName]="i">
+                  <ion-col class="columnAlignLeft" no-padding width-5>
+                    <ion-checkbox formControlName="completedflag" (click)="setChecked(i)"></ion-checkbox>
+                  </ion-col>
+                  <ion-col class="columnAlignLeft2" no-padding width-50>
+                    <ion-item  text-wrap>
+                      <ion-label floating>Task {{ i + 1 }}</ion-label>
+                      <ion-input type="text" formControlName="taskname" (focusout)="syncTaskName(i)" [disabled]="isComplete(i)"></ion-input>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col no-padding width-35>
+                    <ion-item text-wrap>
+                      <ion-label floating>Task Date</ion-label>
+                      <ion-datetime displayFormat="MMM-DD hh:mm" formControlName="duedate" (focusout)="syncDueDate(i)" [disabled]="isComplete(i)"></ion-datetime>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col class="columnInline" no-padding width-10>
+                    <button ion-button block class="form-action-button"  type="button" (click)="checkReminder(i)" [disabled]="isComplete(i) || pastDue(i) || notReady(i)">
+                      <ion-icon name="alarm"></ion-icon>
+                    </button>
+                  </ion-col>
+                </ion-row>
+              </div>
+
+              <section class="form-section">
+                <ion-row no-padding class="multi-input-row">
+                  <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
+                    <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+                  </ion-col>
+                  <ion-col class="columnInline"no-padding width-49 *ngIf="curRec.recordid ==null">
+                    <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || !card_form.valid">Schedule</button>
+                  </ion-col>
+                  <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
+                    <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Visit</button>
+                  </ion-col>
+                  <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid ==null">
+                    <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Reminder</button>
+                  </ion-col>
+                </ion-row>
+              </section>
+            </ion-card>
+          </div>
+        </div>
+
+        <div [ngSwitch]="categoryList">
+          <div  *ngSwitchCase="'post'">
+            <ion-card class="sample-form">
+              <h2>To be built</h2>
+            </ion-card>
+          </div>
+        </div>
+
     </div>
 </ion-content>

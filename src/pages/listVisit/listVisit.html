@@ -16,11 +16,11 @@
         <ion-item  (click)="openRecord(i)">
           <ion-row no-padding class="content-row one-line">
             <ion-col no-padding width-20 class="item-avatar">
-              <preload-image class="avatar-image" [ratio]="{w:1, h:1}" [src]="item.photopath" [title]="item.firstname"></preload-image>
+              <preload-image class="avatar-image" [ratio]="{w:1, h:1}" [src]="item.imageURL" [title]="item.firstname"></preload-image>
             </ion-col>
             <ion-col no-padding width-70 class="item-content" >
-              <h3 class="item-title">{{item.reason}}</h3>
-              <p class = "item-description">{{formatDateTime(item.visitdate)}}</p>
+              <h3 class="{{item.recordid !==null ? 'item-title' : 'title-notconfirmed'}}" text-wrap>{{item.reason}}</h3>
+              <p class = "item-description">{{formatDateTime(item.visitdate, item.recordid)}}</p>
               <p class = "item-description" text-wrap>{{item.physician.title}}</p>
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">

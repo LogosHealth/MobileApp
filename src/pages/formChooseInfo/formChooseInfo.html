@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Choose all that apply</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="list-mini-content">
+
+      <form [formGroup]="card_form">
+
+        <section class="list-mini">
+         <ion-list>
+            <button class="list-item" ion-item [style.background-color]="item.selected ? '#EAFAF1' : ''" *ngFor="let item of list2.items;let i=index;" (click)="selectRecord(i)">
+              <ion-row no-padding class="content-row one-line">
+                <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+                <ion-col no-padding class="item-content" >
+                  <h3 class="item-title">{{item.namevalue}}</h3>
+                  <p class = "item-description">{{formatDateTime(item.dateofmeasure)}}</p>
+                </ion-col>
+              </ion-row>
+            </button>
+         </ion-list>
+        </section>
+
+        <section class="form-section">
+            <ion-row no-padding class="multi-input-row">
+                <ion-col no-padding >
+                    <ion-item>
+                        <ion-label floating>Add New</ion-label>
+                        <ion-input type="text" formControlName="addNew" [disabled]="isReminder"></ion-input>
+                      </ion-item>
+                </ion-col>
+             </ion-row>
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-33>
+                <button ion-button block class="form-action-button" type="button" [disabled]="isEmpty()" (click)="saveRecord()">Select</button>
+            </ion-col>
+            <ion-col no-padding width-33>
+              <button ion-button block class="form-action-button" type="button" (click)="cancel()">Cancel</button>
+          </ion-col>
+          <ion-col no-padding width-33>
+                <button ion-button block class="form-action-button" type="button" [disabled]="isReminder || noDataPresent()" (click)="addNew()">Add New</button>
+            </ion-col>
+         </ion-row>
+      </section>
+      </form>
+</ion-content>

@@ -10,6 +10,10 @@ export class ListMeasure {
   lowerrange:string;
   upperrange:string;
   unitofmeasure:string;
+  temperature: number;
+  symptomname: string;
+  symptomdescription: string;
+  enddate: string;
   dateofmeasure: string;
   active: string;
   confirmed: string;

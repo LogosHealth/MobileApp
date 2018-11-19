@@ -15,15 +15,43 @@ formSchedule-page {
 		.categories-title
 		{
 			font-size: 1.2rem;
-		
+
 			font-weight: 400;
 			letter-spacing: 0.7px;
 			//color: $white-d;
-			//color of category labels (e.g. Family) 
+			//color of category labels (e.g. Family)
 			color: #403F5E;
 			//bg color around text of category labels
 			//background-color: #E1E5CE;
 			margin: 8px 8px 8px;
+		}
+
+		.categories-title2
+		{
+			font-size: 1.2rem;
+
+			font-weight: 400;
+			letter-spacing: 0.7px;
+			//color: $white-d;
+			//color of category labels (e.g. Family)
+			color: #403F5E;
+			//bg color around text of category labels
+			//background-color: #E1E5CE;
+			margin-top: 0px;
+		}
+
+    .categories-title3
+		{
+			font-size: 1.2rem;
+
+			font-weight: 400;
+			letter-spacing: 0.7px;
+			//color: $white-d;
+			//color of category labels (e.g. Family)
+			color: #403F5E;
+			//bg color around text of category labels
+			//background-color: #E1E5CE;
+			margin-top: -5px;
 		}
 
 		.horizontal-categories
@@ -46,7 +74,7 @@ formSchedule-page {
 				visibility: hidden; /* Makes input not-clickable */
 				position: absolute; /* Remove input from document flow */
 
-			}	
+			}
 
 			label > input + img{ /* IMAGE STYLES */
 				cursor:pointer;
@@ -57,7 +85,7 @@ formSchedule-page {
 				border-radius: 10%;
 				border:2px solid #a61f34;
 			  }
-			
+
 			preload-image {
 				border-radius: 10%;
 
@@ -131,7 +159,7 @@ formSchedule-page {
 				}
 			}
 
-			
+
 			.section-title
 			{
 				font-size: 1.8rem;
@@ -142,7 +170,7 @@ formSchedule-page {
 				font-weight: 400;
 				margin: 0px;
 				//margin-top: 25px;
-			}			
+			}
 
 			.title-notconfirmed{
 				font-size: 1.8rem;
@@ -245,7 +273,7 @@ formSchedule-page {
 						}
 					}
 				}
-	
+
 				@include range-item-styles($white-d, $black-d, $theme-color-1);
 
 				.range-item
@@ -401,7 +429,7 @@ formSchedule-page {
 					{
 						margin-top: 0px;
 					}
-				}				
+				}
 				.multi-input-row
 				{
 					ion-col {

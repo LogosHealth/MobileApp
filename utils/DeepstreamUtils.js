@@ -34,7 +34,7 @@ exports.verifyDeepstreamObj = function verifyDeepstreamObj() {
 };
 
 function openDeepstreamChannel(event, isInsert, qnaObj, session, callback) {
-	console.log(' DeepstreamUtils.openDeepstreamChannel >>>>>>');
+	console.log(' DeepstreamUtils.openDeepstreamChannel Begin>>>>>>');
 	
 	const client = deepstream('wss://logos.healthcare:6020');
 	
@@ -59,6 +59,7 @@ function openDeepstreamChannel(event, isInsert, qnaObj, session, callback) {
             record.set(event.recordname, event.data, err => {
                 if (err) {
                     console.log('Record set with error:', err);
+                    client.close();
                 } else {
                     console.log('Record set without error');
                     client.close();
@@ -70,7 +71,11 @@ function openDeepstreamChannel(event, isInsert, qnaObj, session, callback) {
         } else {
             // extra data can be optionaly sent from deepstream for
             // both successful and unsuccesful logins
-            alert(data)
+            
+            //alert(data);
+	        console.log(' DeepstreamUtils.client login failed!!!!!!!!!');
+            client.close();
+            dbUtil.setTranscriptParentDetails(isInsert, qnaObj, session, callback); 
 
             // client.getConnectionState() will now return
             // 'AWAITING_AUTHENTICATION' or 'CLOSED'
@@ -78,8 +83,14 @@ function openDeepstreamChannel(event, isInsert, qnaObj, session, callback) {
             // attempts has been exceeded.
         }
     })
+
+    client.on( 'error', function( msg, event, topic ){
+        console.log( 'From DeepstreamUtils - on error handler: ' + msg );
+        client.close();
+        dbUtil.setTranscriptParentDetails(isInsert, qnaObj, session, callback);     
+    });
 	
-	console.log(' DeepstreamUtils.openDeepstreamChannel <<<<<<');
+	//console.log(' DeepstreamUtils.openDeepstreamChannel <<<<<<');
 	
     return true;
 }

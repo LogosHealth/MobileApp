@@ -1,0 +1,105 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Reminder(s) Setup</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+  <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <ion-row *ngIf="objectType=='todo for visit'">
+            <p class="section-title">To do: {{titleName}}<br>on {{formatDateTime3(targetDate)}}</p>
+            <p class="categories-title2">In preparation for visit with:<br>{{curRec.physician.title}}<br>Reason: {{curRec.reason}}<br>
+              {{formatDateTime3(curRec.visitdate)}}
+            </p>
+          </ion-row>
+          <h4 class="categories-title">Who gets notified</h4>
+          <ion-scroll scrollX="true" class="horizontal-categories">
+              <ion-row class="categories-row">
+                <ion-col width-15 class="horizontal-item" formArrayName="profilesnotify" *ngFor="let pro of card_form.get('profilesnotify').controls; let i = index;">
+                  <div [formGroupName]="i">
+                    <label>
+                      <input type="checkbox" formControlName="selected" [value]="pro.controls['selected'].value" (change)="readProfilesNotify()"/>
+                      <img [src]="pro.controls['photopath'].value" [title]="pro.controls['firstname'].value"/>
+                    </label>
+                  </div>
+                </ion-col>
+              </ion-row>
+          </ion-scroll>
+
+          <p class="section-title">Reminders:</p>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Day Before (12:00 PM)</ion-label>
+                <ion-select formControlName="daybefore">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Evening Before (7:00 PM)</ion-label>
+                <ion-select formControlName="nightbefore">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Morning of (7:00 AM)</ion-label>
+                <ion-select formControlName="morningof">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>One Hour Before</ion-label>
+                <ion-select formControlName="hourbefore">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Thirty Minutes Before</ion-label>
+                <ion-select formControlName="thirtyminutes">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Fifteen Minutes Before</ion-label>
+                <ion-select formControlName="fifteenminutes">
+                  <ion-option value="Y">Yes</ion-option>
+                  <ion-option value="N">No</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid || !notifySelected">Save</button>
+            </ion-col>
+          <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="leaveRecord()">Cancel</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

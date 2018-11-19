@@ -4,7 +4,7 @@
       <b>Conquer Today {{getCurrentUserName()}}</b>
     </ion-title>
       <ion-buttons right>
-        <button *ngIf="userCount > 1" ion-button icon-only (click)="changeUser()" [title]="getButtonLabel()">
+        <button *ngIf="userCount > 1" ion-button icon-only (click)="changeUser()"  [title]="getButtonLabel()">
           <ion-icon name="person"></ion-icon>
         </button>
     </ion-buttons>
@@ -22,9 +22,9 @@
   <ion-scroll scrollX="true" class="horizontal-categories">
       <ion-row class="categories-row">
         <ion-col width-20 class="horizontal-item" *ngFor="let popular of RestService.Profiles;let i=index">
-            <label>
+            <label class="label-name">
                 <input type="radio" name="profile" [value]="popular.profileid" [checked]="popular.checked" (click)="setProfileID(popular.profileid, i)"/>
-                <img [src]="popular.image" [title]="popular.title" >
+                <img [src]="popular.imageURL" [title]="popular.title" (press)="changePicture(i)">{{popular.title}}
             </label>
         </ion-col>
       </ion-row>

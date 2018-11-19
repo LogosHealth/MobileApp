@@ -45,6 +45,16 @@
             <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
             <p class = "item-description">Mood: {{item.mood}}</p>
           </ion-col>
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='temperature'">
+            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Temperature: {{item.temperature}}</p>
+          </ion-col>
+          <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='symptom'">
+            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
+            <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>
+            <p class = "item-description">Symptom: {{item.symptomname}}</p>
+          </ion-col>
           <ion-col no-padding width-90 class="item-content" *ngIf="curObj =='bloodGlucose' && item.labunittext !== null">
             <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{formatDateTime(item.dateofmeasure)}}</h3>
             <p class = "item-description">Time of Entry: {{formatMeasureTime(item.dateofmeasure)}} </p>

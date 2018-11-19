@@ -48,6 +48,21 @@
     },
     "cordova-plugin-local-notification": {
       "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-photo-library": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-camera": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-file-transfer": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-advanced-http": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },
   "dependent_plugins": {

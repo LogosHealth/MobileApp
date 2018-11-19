@@ -37,7 +37,7 @@
         <ion-col no-padding width-50>
             <ion-item>
               <ion-label floating>Date Identified</ion-label>
-              <ion-datetime displayFormat="MMM-DD-YYYY" [min]="1900-01-01" [max]="today()" (ionChange)="changeSDate()" formControlName="startdate" ></ion-datetime>
+              <ion-datetime displayFormat="MMM-DD-YYYY" [min]="1900-01-01" [max]="today()" formControlName="startdate" ></ion-datetime>
             </ion-item>
         </ion-col>
         <ion-col no-padding width-50>
@@ -69,7 +69,7 @@
             </ion-col>
           </ion-row>
         </div>
-      </div> 
+      </div>
       <div  *ngIf="listEvents !== undefined && listEvents.length > 0" >
         <div formArrayName="events" *ngFor="let med of card_form.get('events').controls; let i = index;">
           <ion-row [formGroupName]="i">
@@ -89,24 +89,24 @@
             </ion-col>
           </ion-row>
         </div>
-      </div>   
+      </div>
     </section>
     <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
             </ion-col>
-            <ion-col no-padding width-50> 
+            <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
-            </ion-col>    
+            </ion-col>
          </ion-row>
          <ion-row no-padding class="multi-input-row">
           <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="openIncidents()" >Incident History</button>
           </ion-col>
-          <ion-col no-padding width-50> 
+          <ion-col no-padding width-50>
             <button ion-button block class="form-action-button" type="button" (click)="openMedications()">Medication History</button>
-          </ion-col>    
+          </ion-col>
        </ion-row>
       </section>
       </form>

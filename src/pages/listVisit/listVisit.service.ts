@@ -3,7 +3,7 @@ import { Http } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
-import { ListVisitModel } from './listVisit.model';
+import { ListVisitModel, ImportantInfos } from './listVisit.model';
 
 @Injectable()
 export class ListVisitService {
@@ -13,6 +13,13 @@ export class ListVisitService {
     return this.http.get('./assets/example_data/lists.json')
      .toPromise()
      .then(response => response.json() as ListVisitModel)
+     .catch(this.handleError);
+  }
+
+  getImportantInfo(): Promise<ImportantInfos> {
+    return this.http.get('./assets/example_data/lists.json')
+     .toPromise()
+     .then(response => response.json() as ImportantInfos)
      .catch(this.handleError);
   }
 

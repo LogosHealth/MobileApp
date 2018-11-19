@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ModalController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListVisitModel } from './listVisit.model';
@@ -8,6 +8,7 @@ import { RestService } from '../../app/services/restService.service';
 import { FormVisitPage } from '../../pages/formVisit/formVisit';
 import { CallNumber } from '@ionic-native/call-number';
 import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
+import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 
 var moment = require('moment-timezone');
 
@@ -30,6 +31,7 @@ export class ListVisitPage {
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
+    public modalCtrl: ModalController,
     private callNumber: CallNumber
   ) {
     this.feed.category = navParams.get('category');
@@ -58,6 +60,8 @@ export class ListVisitPage {
 
   loadData() {
     var restURL: string;
+    var tzoffset = (new Date()).getTimezoneOffset() /60; //offset in hours
+    console.log('TZ Offeset from listVist - loadData: ' + tzoffset);
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
 
@@ -79,13 +83,15 @@ export class ListVisitPage {
     if (this.showAll) {
       additionalParams = {
         queryParams: {
-            accountid: this.RestService.Profiles[0].accountid
+            accountid: this.RestService.Profiles[0].accountid,
+            offset: tzoffset
         }
       };
     } else {
       additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile
+            profileid: this.RestService.currentProfile,
+            offset: tzoffset
         }
       };
     }
@@ -100,8 +106,16 @@ export class ListVisitPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
+        for (var i = 0; i < self.RestService.Profiles.length; i++) {
+          for (var j = 0; j < self.list2.items.length; j++) {
+            if (self.list2.items[j].profileid == self.RestService.Profiles[i].profileid) {
+              self.list2.items[j].imageURL = self.RestService.Profiles[i].imageURL;
+            }
+          }
+        }
         console.log("Results Data for Get Visits: ", self.list2.items);
         self.RestService.refreshCheck();
+        //self.test();
         self.loading.dismiss();
       });
     }).catch( function(result){
@@ -111,6 +125,52 @@ export class ListVisitPage {
     });
   }
 
+  itemAlert(index) {
+    var self = this;
+    console.log('Item from check itemAlert: ', this.list2.items[index]);
+    let profileModal = this.modalCtrl.create(FormChooseNotify, { recId: index, todoIndex: null, object: "visit" });
+
+    profileModal.onDidDismiss(data => {
+      if (data !==undefined && data !== null) {
+        console.log('Data from itemAlert: ', data);
+        console.log('Data index from itemAlert: ', index);
+        self.list2.items[index].visitreminder = data;
+      }
+      console.log('Data from itemAlert data: ', self.list2.items[index].visitreminder);
+    });
+    profileModal.present();
+  }
+
+  /*
+  test() {
+    console.log('Start Test');
+    console.log('Start Date: ' + this.list2.items[0].visitdate);
+    var alertDate = new Date(this.list2.items[0].visitdate);
+    alertDate.setDate(alertDate.getDate() - 1);
+    var alertYear = alertDate.getFullYear();
+    var alertMonth = alertDate.getMonth()+1;
+    var alertDay = alertDate.getDate();
+    var alertDayStr;
+    var alertMonthStr;
+
+    if (alertDay < 10) {
+      alertDayStr = '0' + alertDay;
+    } else {
+      alertDayStr = alertDay.toString();
+    }
+    if (alertMonth < 10) {
+      alertMonthStr = '0' + alertMonth;
+    } else {
+      alertMonthStr = alertMonth.toString();
+    }
+
+    console.log('Start Date - 1: ' + alertYear + "-" + alertMonthStr + "-" + alertDayStr);
+    console.log('Day Before: ' + alertYear + "-" + alertMonthStr + "-" + alertDayStr + "T12:00:00.000Z");
+    var dayBefore = new Date(alertYear + "-" + alertMonthStr + "-" + alertDayStr + "T12:00:00.000Z");
+    console.log('Day Before Final Date: ' + dayBefore.toISOString());
+  }
+*/
+
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
@@ -119,7 +179,7 @@ export class ListVisitPage {
   }
 
   callDoc(phoneNum, recordId) {
-    //console.log("Call Doc item", recordId);
+    console.log("Call Doc item", recordId);
     this.callNumber.callNumber(phoneNum, true)
       .then(() =>
         this.nav.push(FormCallNotesPage, { recId: recordId })
@@ -133,17 +193,27 @@ export class ListVisitPage {
     this.nav.push(FormVisitPage);
   }
 
-  formatDateTime(dateString) {
+  formatDateTime(dateString, recordid) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD hh:mm a');
+    //alert('Record id: ' + recordid);
+    var tzoffset = (new Date()).getTimezoneOffset() /60; //offset in hours
+
+    if (recordid == null) {
+      return 'TBD - Target date is ' + moment(dateString).format('dddd, MMM DD');
     } else {
-      return moment(dateString).format('dddd, MMMM DD hh:mm a');
+        //MM generally, this function accounts for timezone as actual dates are stored in UTC.  However, with scheduled future dates,
+        //these are stored in actual local time so need to add offset back in as moment(datestring) casts from datestring of UTC...
+        //console.log('DateString from formatdatetime - listVisit: ' + dateString);
+        //console.log('moment from formatdatetime - listVisit: ' + moment(dateString).format('dddd, MMMM DD hh:mm a'));
+        var dtConvert = moment(dateString);
+        dtConvert = moment(dtConvert).add(tzoffset, 'hours');
+        //console.log('moment from formatdatetime - listVisit: ' + dtConvert.format('dddd, MMMM DD hh:mm a'));
+        return dtConvert.format('dddd, MMMM DD hh:mm a');
     }
+
   }
 
   formatTime(timeString) {
-    //alert('FormatDateTime called');
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
     var minute = timeSplit[1];

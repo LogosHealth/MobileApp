@@ -80,13 +80,10 @@ export class WalkthroughPage implements OnInit {
       console.log('Get Profiles results: ', resultData);
       if (self.RestService.Profiles == undefined || self.RestService.Profiles == null || self.RestService.Profiles.length == 0 ) {
         console.log('Need to add create new user here.');
-      } else if (self.RestService.Profiles.length > 1){
-        self.getUser();
+        //*********************ADD CREATE USER ******************************/
+
       } else {
-        self.RestService.userId = self.RestService.Profiles[0].profileid;
-        console.log('Only one user for account: setting as default');
-        self.nav.setRoot(self.main_page.component);
-        self.loading.dismiss();
+        self.getUserPics();
       }
     }).catch( function(result){
         alert('There is an error retrieving your information.  Technical support has been notified.  Please try again later');
@@ -94,7 +91,110 @@ export class WalkthroughPage implements OnInit {
     });
   }
 
-  getUser () {
+
+ getUserPics() {
+  var blnHasPics = false;
+  var params;
+  var strKey;
+  var profCount;
+  var profActual = 0;
+  var self;
+
+  console.log('Begin getUserPics');
+  for (var i = 0; i < this.RestService.Profiles.length; i++) {
+    if (this.RestService.Profiles[i].image == 'AWS') {
+      blnHasPics = true;
+    } else {
+      this.RestService.Profiles[i].imageURL = this.RestService.Profiles[i].image;
+    }
+  }
+
+  if (blnHasPics) {
+    var bucketRegion = 'us-east-1';
+    var keyArray = [];
+
+    this.RestService.AWS.config.update({
+      region: bucketRegion,
+      accessKeyId: accountInfo.getAccessKeyId(),
+      secretAccessKey: accountInfo.getSecretKey(),
+      sessionToken: accountInfo.getSessionToken(),
+    });
+
+    profCount = this.RestService.Profiles.length;
+    self = this;
+    for (var i = 0; i < this.RestService.Profiles.length; i++) {
+      if (this.RestService.Profiles[i].image == 'AWS') {
+        strKey = this.RestService.Profiles[i].accountid + "/" + this.RestService.Profiles[i].profileid + "/profilepic.jpeg";
+        keyArray[strKey] = i;
+        console.log('Str Key for profile: ' + this.RestService.Profiles[i].title + ', id - ' + this.RestService.Profiles[i].profileid + ' is ' + strKey);
+        this.getPicURL(strKey, function(err, results) {
+          if (err) {
+            profActual = profActual + 1;
+            if (profActual == profCount) {
+              self.checkUserCount();
+            } else {
+              console.log('getUserPics getURL loop3 (err loop) - profActual = ' + profActual + ', profCount = ' + profCount);
+            }
+          } else {
+            self.RestService.Profiles[keyArray[results.key]].imageURL = results.url;
+            //alert('Get URL: ' + results.url);
+            profActual = profActual + 1;
+            if (profActual == profCount) {
+              self.checkUserCount();
+            } else {
+              console.log('getUserPics getURL loop1  - profActual = ' + profActual + ', profCount = ' + profCount);
+            }
+          }
+        });
+      } else {
+        profActual = profActual + 1;
+        if (profActual == profCount) {
+          this.checkUserCount();
+        } else {
+          console.log('getUserPics getURL loop2  - profActual = ' + profActual + ', profCount = ' + profCount);
+        }
+      }
+    }
+  } else {
+    this.checkUserCount();
+  }
+
+ }
+
+  getPicURL(strKey, callback) {
+    var returnObj;
+
+    const s3 = new this.RestService.AWS.S3();
+
+    var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
+
+    s3.getSignedUrl('getObject', params, function (err, url) {
+      if (err) {
+        console.log('Err in getSignedUrl from getUserPics: ' + err);
+        callback(err, null);
+      } else {
+        returnObj = {
+          key: strKey,
+          url: url,
+        }
+        callback(null, returnObj);
+      }
+    });
+  }
+
+ checkUserCount() {
+   if (this.RestService.Profiles.length > 1) {
+    this.getUser();
+  } else {
+    this.RestService.userId = this.RestService.Profiles[0].profileid;
+    console.log('Only one user for account: setting as default');
+    this.nav.setRoot(this.main_page.component);
+    this.loading.dismiss();
+  }
+ }
+
+
+  getUser() {
     var self = this;
     var token = accountInfo.getSessionToken();
     var accessKey = accountInfo.getAccessKeyId();
@@ -163,7 +263,7 @@ export class WalkthroughPage implements OnInit {
     profileModal.present();
   }
 
-  ngOnInit () {
+  ngOnInit() {
     //alert("ngOnInit begin");
     this.RestService.nav = this.nav;
     this.RestService.alertCtrl = this.alertCtrl;

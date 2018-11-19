@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Symptom Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" >Symptom Record</h2>
+
+          <ion-row>
+            <ion-col no-padding *ngIf="!newRec">
+                <ion-item>
+                  <ion-label floating>Date of Measure</ion-label>
+                  <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col no-padding *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YYYY hh:ss A" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+              </ion-item>
+          </ion-col>
+        </ion-row>
+
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Symptom</ion-label>
+                <ion-input type="text" formControlName="symptom"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Description</ion-label>
+                <ion-textarea type="text" formControlName="symptomdescription" autosize></ion-textarea>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br>Say <i>"I have watery eyes"</i> for easy data entry.</p>
+      </section>
+      </form>
+    </div>
+</ion-content>

@@ -26,11 +26,11 @@
     "categories": [
         {
             "title": "Full Medical History",
-            "image": "./assets/images/listing/200x200about.jpg"
+            "image": "./assets/images/listing/200x200smartphone.jpg"
         },
         {
             "title": "Medical Contacts",
-            "image": "./assets/images/listing/200x200doctor.jpg"
+            "image": "./assets/images/listing/200x200contacts.jpg"
         },
         {
             "title": "Medical Events",

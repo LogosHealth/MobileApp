@@ -8,10 +8,10 @@
 	letter-spacing: 0.4px;
 	//color: #E1E5CE;
 	color: $white;
-	
+
 	//background-color: #FFF000;
 
-	//Color here is the lettering color on the tiles 
+	//Color here is the lettering color on the tiles
 	//color: $color;
 	margin: 0px;
 }
@@ -74,16 +74,27 @@ listing-page {
 		.categories-title
 		{
 			font-size: 1.2rem;
-		
+
 			font-weight: 400;
 			letter-spacing: 0.7px;
 			//color: $white-d;
-			//color of category labels (e.g. Family) 
+			//color of category labels (e.g. Family)
 			color: #403F5E;
 			//bg color around text of category labels
 			//background-color: #E1E5CE;
 			margin: 8px 16px 16px;
 		}
+
+		.label-name
+		{
+			font-size: 1.0rem;
+
+			font-weight: 400;
+			letter-spacing: 0.7px;
+			color: #403F5E;
+      text-align:center
+    }
+
 
 		.horizontal-categories
 		{
@@ -105,7 +116,7 @@ listing-page {
 				visibility: hidden; /* Makes input not-clickable */
 				position: absolute; /* Remove input from document flow */
 
-			}	
+			}
 
 			label > input + img{ /* IMAGE STYLES */
 				cursor:pointer;
@@ -116,7 +127,7 @@ listing-page {
 				border-radius: 50%;
 				border:2px solid #a61f34;
 			  }
-			
+
 			preload-image {
 				border-radius: 50%;
 
@@ -138,7 +149,8 @@ listing-page {
 
 			.horizontal-item
 			{
-				padding: 0px 0px 0px $categories-horizontal-list-padding;
+        padding: 0px 0px 0px $categories-horizontal-list-padding;
+        text-align: center
 			}
 		}
 

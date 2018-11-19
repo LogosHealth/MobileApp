@@ -20,6 +20,12 @@ import { ListAlertPage } from '../listAlert/listAlert';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { Chart } from 'chart.js';
 
+import { PhotoLibrary } from '@ionic-native/photo-library';
+import { Camera, CameraOptions } from '@ionic-native/camera';
+//import { HTTP } from '@ionic-native/http';
+import { HttpClient} from '@angular/common/http';
+import { File } from '@ionic-native/file';
+
 var moment = require('moment-timezone');
 
 @Component({
@@ -34,6 +40,7 @@ export class ListingPage {
   curUser: any;
   userCount: number = 0;
   lineChart: any;
+  myphoto:any;
 
   constructor(
     public nav: NavController,
@@ -43,6 +50,10 @@ export class ListingPage {
     private platform: Platform,
     private localNotifications: LocalNotifications,
     public events: Events,
+    private photoLibrary: PhotoLibrary,
+    private camera: Camera,
+    private http: HttpClient,
+    private file: File,
     public modalCtrl: ModalController
   ) {
     var self = this;
@@ -62,6 +73,29 @@ export class ListingPage {
         }
       });
     });
+
+    this.photoLibrary.requestAuthorization().then(() => {
+      this.photoLibrary.getLibrary().subscribe({
+        next: library => {
+          library.forEach(function(libraryItem) {
+            console.log(libraryItem.id);          // ID of the photo
+            console.log(libraryItem.photoURL);    // Cross-platform access to photo
+            console.log(libraryItem.thumbnailURL);// Cross-platform access to thumbnail
+            console.log(libraryItem.fileName);
+            console.log(libraryItem.width);
+            console.log(libraryItem.height);
+            console.log(libraryItem.creationDate);
+            console.log(libraryItem.latitude);
+            console.log(libraryItem.longitude);
+            console.log(libraryItem.albumIds);    // array of ids of appropriate AlbumItem, only of includeAlbumsData was used
+          });
+        },
+        error: err => { console.log('could not get photos' + err); },
+        complete: () => { console.log('done getting photos'); }
+      });
+    })
+    .catch(err => console.log('permissions weren\'t granted ' + err));
+
   }
 
   ionViewDidLoad() {
@@ -153,8 +187,6 @@ export class ListingPage {
                       data: [1.01, 1.00, .99, .96],
                       spanGaps: false,
                   },
-
-
                     ]
                     }
                 });
@@ -197,6 +229,163 @@ export class ListingPage {
       }
     });
     profileModal.present();
+  }
+
+  changePicture(index) {
+    const s3 = new this.RestService.AWS.S3({
+      signatureVersion: 'v4',
+    });
+    console.log('ChangePicture index: ' + index + ', name: ' + this.RestService.Profiles[index].title);
+
+    //alert('ChangePicture called!');
+    const options: CameraOptions = {
+      quality: 70,
+      destinationType: this.camera.DestinationType.FILE_URI,
+      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
+      encodingType: this.camera.EncodingType.JPEG,
+      mediaType: this.camera.MediaType.PICTURE,
+      saveToPhotoAlbum:false,
+      allowEdit:true,
+      targetWidth:300,
+      targetHeight:300
+
+    }
+
+    var self = this;
+
+    this.camera.getPicture(options).then((imageData) => {
+      // imageData is either a base64 encoded string or a file URI
+      // If it's base64:
+      this.myphoto = 'data:image/jpeg;base64,' + imageData;
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+
+      var strKey = this.RestService.Profiles[0].accountid + "/" + this.RestService.Profiles[index].profileid + "/profilepic.jpeg";
+
+      //ACL: 'bucket-owner-full-control',
+      //ContentType: 'image/jpeg'}
+      var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600, ContentType: 'image/jpeg'};
+      s3.getSignedUrl('putObject', params, function (err, url) {
+        if (err) {
+          console.log('Err in getSignedUrl from getUserPics: ' + err);
+          alert('Err in getSignedUrl from getUserPics: ' + err);
+        } else {
+          self.file.resolveLocalFilesystemUrl(imageData).then(oneFile => {
+            var directory = self.file.tempDirectory;
+            if (directory == null) {
+              //for Android
+              directory = oneFile.nativeURL;
+              var n = directory.lastIndexOf("/");
+              directory = directory.substring(0, n);
+              //directory = "file:///storage/emulated/0/Android/data/healthcare.logos.visual/cache/";
+            }
+
+            // Convert the File to an ArrayBuffer for upload
+            //alert('Checkpoint 2 ' + JSON.stringify(oneFile));
+            //alert('Checkpoint 2.5 ' + directory);
+            //alert('Checkpoint 2.75 ' + oneFile.name);
+
+            self.file.readAsArrayBuffer(directory, oneFile.name).then(realFile => {
+              //alert('Checkpoint 3 ' + realFile);
+              //alert('Checkpoint 3.1 ' + url);
+
+              self.http.put(url, realFile)
+              .subscribe((data) => {
+                self.loading.dismiss();
+                  alert("Profile image upload successfully!");
+                  self.savePicRecord(index);
+                }, (err) => {
+                  self.loading.dismiss();
+                  alert("Upload error: " + JSON.stringify(err, Object.getOwnPropertyNames(err)));
+              });
+            }, (err) => {
+              self.loading.dismiss();
+              alert('read as array buffer err: ' + JSON.stringify(err));
+              //loading.dismiss();
+            });
+          }, (err) => {
+            self.loading.dismiss();
+            alert('resolve local filesystem err: ' + JSON.stringify(err));
+            //loading.dismiss();
+            // Handle error
+          });
+
+        }
+      });
+      //alert('Photo data: ' + imageData);
+    }, (err) => {
+      self.loading.dismiss();
+      alert('Photo data err: ' + err);
+      // Handle error
+    });
+
+  }
+
+  savePicRecord(index) {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+
+    if (dtNow < dtExpiration) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SavePicURL";
+
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.Profiles[index].profileid,
+              userid: this.RestService.userId
+          }
+      };
+      var body = "";
+      var self = this;
+
+      //console.log('Calling Post', this.sleepSave);
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        //self.RestService.results = result.data;
+        console.log('Happy Path: ' + result.data);
+        //alert('Image Profile Record Saved');
+
+        const s3 = new self.RestService.AWS.S3({
+          signatureVersion: 'v4',
+        });
+
+        var strKey = self.RestService.Profiles[index].accountid + "/" + self.RestService.Profiles[index].profileid + "/profilepic.jpeg";
+        var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
+
+        s3.getSignedUrl('getObject', params, function (err, url) {
+          if (err) {
+            console.log('Err in getSignedUrl from getUserPics: ' + err);
+            alert('Updated ImageURL error: ' + JSON.stringify(err));
+          } else {
+            self.RestService.Profiles[index].imageURL = url;
+            alert('Updated ImageURL: ' + url);
+          }
+        });
+
+      }).catch( function(result){
+        console.log('Result for Save error: ',result);
+      });
+    } else {
+      console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
+      this.RestService.appRestart();
+    }
+  }
+
+  triggerAlert() {
+    alert('Press event fired');
   }
 
   getButtonLabel() {
