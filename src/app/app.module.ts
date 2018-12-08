@@ -72,6 +72,7 @@ import { FormChooseInfo } from '../pages/formChooseInfo/formChooseInfo';
 import { FormTemperaturePage } from '../pages/formTemperature/formTemperature';
 import { FormSymptomPage } from '../pages/formSymptom/formSymptom';
 import { FormChooseNotify } from '../pages/formChooseNotify/formChooseNotify';
+import { FormNutritionAdd } from '../pages/formNutritionAdd/formNutritionAdd';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -112,6 +113,7 @@ import { FormFindContactService } from '../pages/formFindContact/formFindContact
 import { ListVisitService } from '../pages/listVisit/listVisit.service';
 import { ListScheduleService } from '../pages/listSchedule/listSchedule.service';
 import { ListAlertService } from '../pages/listAlert/listAlert.service';
+import { CallNoteService } from '../pages/formCallNotes/formCallNotes.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -208,6 +210,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormTemperaturePage,
     FormSymptomPage,
     FormChooseNotify,
+    FormNutritionAdd,
 
     FiltersPage,
     TermsOfServicePage,
@@ -232,7 +235,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     HttpClientModule,
     HttpModule,
     TextMaskModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp, {
+      navExitApp: false
+    })
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -298,6 +303,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormTemperaturePage,
     FormSymptomPage,
     FormChooseNotify,
+    FormNutritionAdd,
 
     FiltersPage,
     TermsOfServicePage,
@@ -337,6 +343,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListVisitService,
     ListScheduleService,
     ListAlertService,
+    CallNoteService,
 
     HTTP,
     FileTransfer,

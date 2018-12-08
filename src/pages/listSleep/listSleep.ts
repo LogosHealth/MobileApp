@@ -41,14 +41,26 @@ export class ListSleepPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    //var dtExpiration = dtNow;  //for testing
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listSleep');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listSleep - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -56,7 +68,7 @@ export class ListSleepPage {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
-    
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -86,12 +98,10 @@ export class ListSleepPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for Get Goals: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
-      });      
+      });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -101,12 +111,12 @@ export class ListSleepPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormSleepPage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormSleepPage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {

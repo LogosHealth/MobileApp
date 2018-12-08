@@ -9,7 +9,6 @@ import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
 import { ListContactModel } from '../../pages/listContacts/listContacts.model';
 import { ListContactService } from '../../pages/listContacts/listContacts.service';
 
-
 var moment = require('moment-timezone');
 
 @Component({
@@ -37,22 +36,31 @@ export class ListVaccinesPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listVaccines');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listVaccines - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -81,11 +89,9 @@ export class ListVaccinesPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        self.RestService.refreshCheck();       
         self.loadContacts();
       });
     }).catch( function(result){
-      self.RestService.refreshCheck();
       console.log(body);
       self.loading.dismiss();
     });
@@ -93,9 +99,7 @@ export class ListVaccinesPage {
 
   loadContacts() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -126,11 +130,9 @@ export class ListVaccinesPage {
       .getData()
       .then(data => {
         self.listContacts.items = contacts;
-        self.RestService.refreshCheck();       
         self.loading.dismiss();
       });
     }).catch( function(result){
-      self.RestService.refreshCheck();
       console.log(body);
       self.loading.dismiss();
     });
@@ -150,6 +152,6 @@ export class ListVaccinesPage {
 
   openRecord(recordId) {
     this.nav.push(FormVaccinesPage, { recId: recordId });
-  }  
-  
+  }
+
 }

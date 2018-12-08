@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Add Meal/Item</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTime(curRec.dayofmeasure) }}</h2>
+          <h2 class = "section-title" *ngIf="newRec">{{ formatDateTime(existingInfo.dayofmeasure) }}</h2>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Food/Item</ion-label>
+                <ion-input type="text" formControlName="food"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Meal</ion-label>
+                <ion-select formControlName="meal">
+                  <ion-option class="section-title" value="breakfast">Breakfast</ion-option>
+                  <ion-option class="section-title" value="lunch">Lunch</ion-option>
+                  <ion-option class="section-title" value="dinner">Dinner</ion-option>
+                  <ion-option class="section-title" value="snack">Snack</ion-option>
+                  <ion-option class="section-title" value="drink">Drink</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Time</ion-label>
+                <ion-datetime displayFormat="hh:mm A" pickerFormat="hh:mm A" formControlName="mealtime"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+                <ion-item>
+                  <ion-label floating>Amount</ion-label>
+                  <ion-input type="text" formControlName="amount"></ion-input>
+                </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Calories</ion-label>
+                <ion-input type="text" formControlName="calories"></ion-input>
+              </ion-item>
+          </ion-col>
+        </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-33>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+            </ion-col>
+            <ion-col no-padding width-33>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+            <ion-col no-padding width-33>
+              <button ion-button block class="form-action-button" type="button" (click)="cancelEntry()">Cancel</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

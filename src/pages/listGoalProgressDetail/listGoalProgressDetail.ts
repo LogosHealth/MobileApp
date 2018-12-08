@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListGoalsModel, ListGoalWeeks } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { RestService } from '../../app/services/restService.service';
@@ -20,7 +18,6 @@ var moment = require('moment');
 export class ListGoalProgressDetailPage {
   list1: ListGoalsModel = new ListGoalsModel();
   list2: Array<ListGoalWeeks>;
-
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
@@ -39,7 +36,7 @@ export class ListGoalProgressDetailPage {
   ) {
     this.recId = navParams.get('recId');
     this.feed.category = navParams.get('category');
-    this.curRec = RestService.results[this.recId]; 
+    this.curRec = RestService.results[this.recId];
     this.freshForm = false;
     this.thumbsUp = "assets/images/thumbsupGreen.jpg";
     this.whiteBox = "assets/images/whiteBox.jpg";
@@ -48,24 +45,46 @@ export class ListGoalProgressDetailPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       if(!this.freshForm) {
         var refresh = this.navParams.get('refresh') || false;
         if (refresh) {
           console.log('ListGoalProgressDetail - Reload data object');
-          this.curRec = this.RestService.results[this.recId]; 
+          this.curRec = this.RestService.results[this.recId];
           this.loading = this.loadingCtrl.create();
           this.loading.present();
-          this.loadData();  
+          this.loadData();
         }
       } else {
         console.log('ListGoalProgressDetail - ionViewWillEnter - Fresh Form');
         this.freshForm = false;
       }
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ListGoalProgressDetail');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          if(!self.freshForm) {
+            var refresh = self.navParams.get('refresh') || false;
+            if (refresh) {
+              console.log('ListGoalProgressDetail - Reload data object');
+              self.curRec = self.RestService.results[this.recId];
+              self.loading = self.loadingCtrl.create();
+              self.loading.present();
+              self.loadData();
+            }
+          } else {
+            console.log('ListGoalProgressDetail - ionViewWillEnter - Fresh Form');
+            self.freshForm = false;
+          }
+        }
+      });
     }
   }
 
@@ -87,7 +106,7 @@ export class ListGoalProgressDetailPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormGoalsPage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
   shortDate(dateString) {
     //console.log('Short Date Date: '+ dateString);
@@ -105,7 +124,7 @@ export class ListGoalProgressDetailPage {
     }
   }
 
-  addToday(item) {    
+  addToday(item) {
     if (this.curRec.goaltype =='exercise') {
       var blnRefresh = new Boolean;
       blnRefresh = false;
@@ -113,7 +132,7 @@ export class ListGoalProgressDetailPage {
     } else if (this.curRec.goaltype =='task') {
       this.nav.push(FormTaskPage, { goalname: this.curRec.goalname, refresh: blnRefresh});
     } else {
-      alert('Goal type: ' + this.curRec.goaltype);    
+      alert('Goal type: ' + this.curRec.goaltype);
     }
   }
 

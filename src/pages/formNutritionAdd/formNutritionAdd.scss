@@ -1,4 +1,4 @@
-formExercise-page {
+formSleep-page {
 	ion-header {
 		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
 	}
@@ -21,69 +21,11 @@ formExercise-page {
 			}
 		}
 
-		.list-mini-content
-		{
-			background-color: color($colors, background, base);
-
-			.list-mini
-			{
-
-			@include layout-list-styles($theme-color-1, $white-d);
-				ion-list {
-					.list-item
-					{
-						.content-row
-						{
-							.title-notconfirmed{
-								color: $theme-color-3;
-								font-size: 1.6rem;
-								font-weight: 500;
-								letter-spacing: 0.2px;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
-							}
-
-							.item-title{
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
-							}
-
-							&.one-line
-							{
-								@include align-items(center);
-
-								.item-description
-								{
-									overflow: hidden;
-									text-overflow: ellipsis;
-									white-space: nowrap;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
 		.sample-form
 		{
 			.form-section
 			{
 				padding: 0px 14px;
-
-        .columnAlign
-        {
-          margin-top: 30px;
-          vertical-align: bottom;
-        }
-
-        .columnInline
-        {
-          margin-top: 7px;
-          margin-right: 3px;
-        }
 
 				.item:first-child
 				{
@@ -125,38 +67,11 @@ formExercise-page {
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: center;
-				color: $theme-color-1;
-				font-weight: 400;
-				margin: 0px;
-			}
-
-			.section-tips
-			{
-				font-size: 1.4rem;
-				line-height: 1.2;
-				letter-spacing: 1.1px;
 				text-align: left;
 				color: $theme-color-1;
 				font-weight: 400;
-				margin-top: 20px;
-				//margin: 2px;
-				border-style: ridge;
-				border-width: 2px;
-				border-color: $theme-color-1;
-				padding: 5px;
-			}
-
-			.section-footnote
-            {
-                font-size: 1.0rem;
-                //line-height: 1.2;
-                //letter-spacing: 1.1px;
-                text-align: left;
-                color: $black-d;;
-                font-weight: 100;
-                margin: 0px;
-            }
+				margin: 0px;
+			}			
 
 			.title-notconfirmed{
 				font-size: 1.8rem;
@@ -183,7 +98,7 @@ formExercise-page {
 
 			.form-action-button
 			{
-				margin-right: 10px;
+				margin: 0px;
 				margin-top: 20px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
@@ -265,7 +180,7 @@ formExercise-page {
 					margin-top: 40px;
 					margin-bottom: 30px;
 				}
-
+	
 				@include range-item-styles($white-d, $black-d, $theme-color-1);
 
 				.range-item
@@ -424,7 +339,7 @@ formExercise-page {
 						margin-top: 10px;
 					}
 				}
-
+				
 				.multi-input-row
 				{
 					ion-col {

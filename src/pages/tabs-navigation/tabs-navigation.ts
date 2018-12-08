@@ -1,11 +1,9 @@
 import { Component, ViewChild, NgZone } from '@angular/core';
 import { NavController, Tabs, Events } from 'ionic-angular';
-
 import { ListingPage } from '../listing/listing';
 import { HistoryPage } from '../history/history';
 import { SettingsTabPage } from '../settingstab/settingstab';
 import { RestService } from '../../app/services/restService.service';
-
 
 @Component({
   selector: 'tabs-navigation',
@@ -13,7 +11,6 @@ import { RestService } from '../../app/services/restService.service';
 })
 export class TabsNavigationPage {
   @ViewChild("myTabs") myTabs: Tabs;
-
   tab1Root: any;
   tab2Root: any;
   tab3Root: any;
@@ -28,8 +25,6 @@ export class TabsNavigationPage {
       this.tab2Root = HistoryPage;
       this.tab3Root = SettingsTabPage;
       this.tabCount = 0;
-
-     alert("Welcome to Beta version 0.0.5");
       this.events.subscribe('updateScreen', () => {
         this.zone.run(() => {
           console.log('force update the screen');
@@ -40,7 +35,6 @@ export class TabsNavigationPage {
   tabSelect(root: String) {
     this.tabCount = this.tabCount + 1;
     console.log ('Times through tabSelect code: ' + this.tabCount);
-
     if (root == 'Today') {
       //alert('From Click Listing Selected Index is: ' + this.myTabs.getSelected().tabTitle);
       this.events.publish('updateScreen');

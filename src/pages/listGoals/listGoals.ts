@@ -32,24 +32,31 @@ export class ListGoalsPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listGoals');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listGoals');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listGoals - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -70,7 +77,6 @@ export class ListGoalsPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -78,30 +84,22 @@ export class ListGoalsPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);   
-        //alert('Transfer to List Items: ' +  this.list2.items);   
-       console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Goals: ", self.list2.items);
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormGoalsPage, { recId: recordId });
-    //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormGoalsPage);
-  }  
-  
+  }
+
 }

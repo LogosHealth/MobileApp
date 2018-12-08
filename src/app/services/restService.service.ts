@@ -2,8 +2,9 @@
 import { Injectable } from '@angular/core';
 import * as AWSme from 'aws-sdk';
 import * as AWS from 'aws-sdk';
-import { NavController, AlertController } from 'ionic-angular';
+import { NavController, Platform, AlertController } from 'ionic-angular';
 import { WalkthroughPage } from '../../pages/walkthrough/walkthrough';
+import { InAppBrowser } from '@ionic-native/in-app-browser';
 
 var moment = require('moment-timezone');
 
@@ -32,7 +33,10 @@ interface AuthData {
     accessKeyId: string,
     expiration: Date,
     secretKey: string,
-    sessionToken:string
+    sessionToken:string,
+    accessCode:string,
+    accessToken:string,
+    refreshToken:string
 };
 
 @Injectable()
@@ -51,7 +55,7 @@ export class RestService {
     public deviceUUID: string;
     public userId: number;
 
-    constructor() {
+    constructor(public iab: InAppBrowser, private platform: Platform) {
         this.AWS = AWSme;
         this.AWSRestFactory = apigClientFactory;
         this.Profiles = profiles;
@@ -97,91 +101,220 @@ export class RestService {
         }
     }
 
-    refreshCredentials() {
-        console.log('Refresh Credentials - Started!');
-        console.log('Current key = ' + this.AuthData.key);
-        console.log('Current email = ' + this.AuthData.email);
-        //alert("ngOnInit begin");
-        var self = this;
-        var key = self.AuthData.key;
-        var email = self.AuthData.email;
-        if (key !== "" && email !=="") {
+    refreshCredentials(callback) {
+      console.log('Refresh Credentials Test - Started!');
+      const LWA_PROXY_REFRESH = "https://logoshealth.github.io/getRefresh.html";
+      const LWA_PROXY_REFRESH_MOBILE = "https://logoshealth.github.io/getRefreshMobile.html";
+      var self = this;
+
+      if (this.platform.is("core")) {
+        var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+        var eventer = window[eventMethod];
+        var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+        // Listen to message from child window
+        eventer(messageEvent,function(e) {
+          var key = e.message ? "message" : "data";
+          var data = e[key];
+          console.log('Event Handled!!! data = ', data);
+          //console.log('Event Handled!!! event = ', e);
+          console.log('Event Handled!!! event data ', e.data);
+          var returnAuth = e.data;
+          var jsonObject = JSON.parse(returnAuth);
+          console.log('RestService refresh from Browser jsonObject', jsonObject);
+          console.log('RestService refresh from Browser jsonObject.access_token', jsonObject.access_token);
+          console.log('RestService refresh from Browser jsonObject.refresh_token', jsonObject.refresh_token);
+          newWindow.close();
+          var token = jsonObject.access_token;
+          var refreshToken = jsonObject.refresh_token;
+          if (token !== undefined && token !== null && token !== "") {
+            self.AuthData.key = token;
+            self.AuthData.refreshToken = refreshToken;
+            console.log('Successfully set token from refresh token for Browser!!!' + token);
+
+            var key = self.AuthData.key;
+
             self.AWS.config.region = 'us-east-1';
             self.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: 'us-east-1_CmQLhXc1P',
-                Logins: {'www.amazon.com': key}
+              IdentityPoolId: 'us-east-1_CmQLhXc1P',
+              Logins: {'www.amazon.com': key}
             });
+
             self.CognitoIdentity = new AWS.CognitoIdentity();
             var cognitoIdentity = self.CognitoIdentity;
 
             var params = {
-            IdentityPoolId: 'us-east-1:7a457959-5bc7-4134-9370-a008ab517339', /* required */
-            //AccountId: 'STRING_VALUE',
-            Logins: {'www.amazon.com': key}
-        };
-         //alert ("params = " + params.Logins["www.amazon.com"]);
-        cognitoIdentity.getId(params, function(err, data) {
-        if (err) {
-           alert ("cognitoidentity.getID error = " + err);
-        } else {
-           self.AuthData.cognitoId = data.IdentityId;
-           //alert ("cognitoidentity.getID success = " + data.IdentityId ); // successful response
+              IdentityPoolId: 'us-east-1:7a457959-5bc7-4134-9370-a008ab517339', /* required */
+              Logins: {'www.amazon.com': key}
+            };
+            cognitoIdentity.getId(params, function(err, data) {
+              if (err) {
+                alert ("cognitoidentity.getID error = " + err);
+                callback('Error', null);
+              } else {
+               self.AuthData.cognitoId = data.IdentityId;
+               //alert ("cognitoidentity.getID success = " + data.IdentityId ); // successful response
 
-           var params2 = {
-             IdentityId: self.AuthData.cognitoId, /* required */
-             Logins: {'www.amazon.com': key}
-           };
-           cognitoIdentity.getCredentialsForIdentity(params2, function(err, data) {
-             if (err) {
-               alert('Error in getCred: ' + err); // an error occurred
-             } else {
-               self.AuthData.expiration = data.Credentials.Expiration;
-               self.AuthData.sessionToken = data.Credentials.SessionToken;
-               self.AuthData.accessKeyId = data.Credentials.AccessKeyId;
-               self.AuthData.secretKey = data.Credentials.SecretKey;
-               console.log('From Refresh Credentials - Expiration: ' + self.AuthData.expiration);
-             } // successful response
+               var params2 = {
+                 IdentityId: self.AuthData.cognitoId, /* required */
+                 Logins: {'www.amazon.com': key}
+               };
+               cognitoIdentity.getCredentialsForIdentity(params2, function(err, data) {
+                 if (err) {
+                  alert('Error in getCred: ' + err); // an error occurred
+                  callback('Error', null);
+                } else {
+                  console.log('Browser Credentials Successfully Refreshed!!!');
+                  self.AuthData.expiration = data.Credentials.Expiration;
+                  self.AuthData.sessionToken = data.Credentials.SessionToken;
+                  self.AuthData.accessKeyId = data.Credentials.AccessKeyId;
+                  self.AuthData.secretKey = data.Credentials.SecretKey;
+                  console.log('From Refresh Browser Credentials - Expiration: ' + self.AuthData.expiration);
+                  callback(null, 'Success');
+                 } // successful response
+               });
+             }
            });
-         }
-       });
-     }
+          } else {
+            alert('Refresh Token failure: ' + token); // an error occurred
+            return false;
+            //Put error handling Token access failure code -- goto app restart
+          }
+        },false);
+
+        var urlSend = LWA_PROXY_REFRESH + "?refresh_token=" + self.AuthData.refreshToken;
+        console.log('Refresh URL for Browser: ' + urlSend);
+        let newWindow = window.open(urlSend, 'LogosHealth Login Refresh', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none');
+        newWindow.focus();
+      } else if (this.platform.is("android")) {
+        var readCount = 0;
+        var urlSend = LWA_PROXY_REFRESH_MOBILE + "?refresh_token=" + self.AuthData.refreshToken;
+        const browser = this.iab.create(urlSend, '_blank');
+        browser.hide();
+        browser.on('loadstop').subscribe(e => {
+          if (e.url.includes("access_token")) {
+            browser.close();
+            var token = self.getAccessToken(e.url);
+            var refreshToken = self.getRefreshToken(e.url);
+            if (token !== 'Error') {
+              self.AuthData.key = token;
+              self.AuthData.refreshToken = refreshToken;
+              console.log('Successfully refreshed token for Android!!!' + token);
+              var key = self.AuthData.key;
+              self.AWS.config.region = 'us-east-1';
+              self.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: 'us-east-1_CmQLhXc1P',
+                Logins: {'www.amazon.com': key}
+              });
+              self.CognitoIdentity = new AWS.CognitoIdentity();
+              var cognitoIdentity = self.CognitoIdentity;
+              var params = {
+                IdentityPoolId: 'us-east-1:7a457959-5bc7-4134-9370-a008ab517339', /* required */
+                Logins: {'www.amazon.com': key}
+              };
+              cognitoIdentity.getId(params, function(err, data) {
+                if (err) {
+                  alert ("cognitoidentity.getID error = " + err);
+                  callback('Error', null);
+                } else {
+                 self.AuthData.cognitoId = data.IdentityId;
+                 var params2 = {
+                   IdentityId: self.AuthData.cognitoId, /* required */
+                   Logins: {'www.amazon.com': key}
+                 };
+                 cognitoIdentity.getCredentialsForIdentity(params2, function(err, data) {
+                   if (err) {
+                    alert('Error in getCred: ' + err); // an error occurred
+                    callback('Error', null);
+                  } else {
+                    console.log('Browser Credentials Successfully Refreshed!!!');
+                    self.AuthData.expiration = data.Credentials.Expiration;
+                    self.AuthData.sessionToken = data.Credentials.SessionToken;
+                    self.AuthData.accessKeyId = data.Credentials.AccessKeyId;
+                    self.AuthData.secretKey = data.Credentials.SecretKey;
+                    console.log('From Refresh Browser Credentials - Expiration: ' + self.AuthData.expiration);
+                    callback(null, 'Success');
+                   } // successful response
+                 });
+                }
+              });
+             } else {
+              alert('There is an error in authenticating your account.  Please try again later. ' + e.url);
+              return false;
+            }
+          } else {
+            readCount = readCount + 1;
+            console.log('Read Count for Token Refresh url change: ' + readCount);
+            console.log('Current URL from read count: ' + e.url);
+            //self.loading.dismiss();
+          }
+        });
+      }
+    }
+
+  getAccessToken(url) {
+    var startVal = url.indexOf("access_token=") + 13;
+    var endVal = url.indexOf("&", startVal);
+    var fragment = url.substring(startVal, endVal);
+    console.log('URL from getAceessToken: ' + url);
+    console.log('Fragment from getAceessToken: ' + fragment);
+    if (fragment !== undefined && fragment !== null && fragment !== "") {
+      return fragment;
+    } else {
+      return "Error";
+    }
   }
 
-    public restart() {
-        console.log('Need to login again!!! - Credentials expired');
-        this.nav.setRoot(WalkthroughPage);
-    }
+  getRefreshToken(url) {
+    var startVal = url.indexOf("refresh_token=") + 14;
+      //var endVal = url.indexOf("&", startVal);
+    var fragment = url.substring(startVal);
+    console.log('URL from getRefreshToken: ' + url);
+    console.log('Fragment from getRefreshToken: ' + fragment);
+    return fragment;
+  }
 
-    async appRestart() {
-        const shouldLeave = await this.messageTimeout();
-        this.restart();
-    }
+  public restart() {
+    console.log('Need to login again!!! - Credentials expired');
+    this.nav.setRoot(WalkthroughPage);
+  }
 
-    messageTimeout(): Promise<Boolean> {
-        let resolveLeaving;
-        const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
-        const alert = this.alertCtrl.create({
-            title: 'User Session Expired',
-            message: 'For your data security, please reauthenticate after one hour of inactivity.  Click OK to continue.',
-            buttons: [
-            {
-                text: 'OK',
-                handler: () => resolveLeaving(true)
-            }
-            ]
-        });
-        alert.present();
-        return canLeave
-    }
+  async appRestart() {
+    const shouldLeave = await this.messageTimeout();
+    this.restart();
+  }
 
+  messageTimeout(): Promise<Boolean> {
+      let resolveLeaving;
+      const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+      const alert = this.alertCtrl.create({
+        title: 'User Session Expired',
+        message: 'For your data security, please reauthenticate after one hour of inactivity.  Click OK to continue.',
+        buttons: [
+          {
+            text: 'OK',
+            handler: () => resolveLeaving(true)
+          }
+        ]
+      });
+      alert.present();
+      return canLeave;
+  }
 
   public refreshCheck() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.AuthData.expiration);
-    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
-    if (dtDiff < 30) {
-        console.log('Calling Refresh Credentials dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-        this.refreshCredentials();
+    //var dtExpiration = dtNow;  //for testing
+    var self = this;
+
+    if (dtNow > dtExpiration) {
+      this.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from refreshCheck');
+          self.appRestart();
+        } else {
+          console.log('From refreshCheck - Credentials refreshed!');
+        }
+      });
     }
   }
 

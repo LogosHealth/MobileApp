@@ -39,24 +39,31 @@ export class ListNutritionPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listNutrition');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listNutrition - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -86,32 +93,24 @@ export class ListNutritionPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for Get Goals: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormNutritionPage, { recId: recordId });
-    //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormNutritionPage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -120,7 +119,6 @@ export class ListNutritionPage {
   }
 
   formatTime(timeString) {
-    //alert('FormatDateTime called');
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
     var minute = timeSplit[1];
@@ -139,6 +137,7 @@ export class ListNutritionPage {
       }
     }
   }
+
   caloriesTotal(index) {
     var totalCalories = 0;
     //console.log ('index : ', index);
@@ -151,4 +150,5 @@ export class ListNutritionPage {
     }
     return totalCalories;
   }
+
 }

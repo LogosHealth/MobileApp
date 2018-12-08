@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { RestService } from '../../app/services/restService.service';
@@ -36,22 +34,31 @@ export class ListGoalProgressPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listGoalProgress');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listGoalProgress');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listGoalProgress - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -73,7 +80,6 @@ export class ListGoalProgressPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -82,9 +88,8 @@ export class ListGoalProgressPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for Get Goals: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
-      });      
+      });
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
@@ -97,5 +102,5 @@ export class ListGoalProgressPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(ListGoalProgressDetailPage, { recId: recordId, category: this.category });
     //alert('Open Record:' + recordId);
-  }  
+  }
 }

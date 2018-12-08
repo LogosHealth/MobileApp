@@ -34,13 +34,10 @@ export class ListAlertPage {
     public loadingCtrl: LoadingController,
     private localNotifications: LocalNotifications,
   ) {
-
     var self = this;
-
     this.platform.ready().then((rdy) => {
       self.autoload = navParams.get('autoload');
       console.log('listAlerts - autoload: ' + self.autoload);
-
       self.localNotifications.on('trigger').subscribe((notification) => {
         console.log("notification id from trigger event " + notification.id);
         this.setAlertDone(notification.id);
@@ -52,28 +49,36 @@ export class ListAlertPage {
         }
       });
     });
-
   }
 
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listAlert');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listAlert');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listAlert - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AlertsByUser";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -94,7 +99,6 @@ export class ListAlertPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       var results = result.data;
@@ -103,7 +107,6 @@ export class ListAlertPage {
       .then(data => {
         self.list2.items = results;
         console.log("Results Data for Get Alerts: ", self.list2.items);
-        self.RestService.refreshCheck();
         var offSet;
         var dtNow = moment(new Date());
         var dtOffset;
@@ -125,7 +128,6 @@ export class ListAlertPage {
                   trigger: {at: new Date(new Date().getTime() + offSet)},
                   data: { secret: self.list2.items[i].reftable }
                 });
-
               } else {
                 self.localNotifications.schedule({
                   id: self.list2.items[i].recordid,
@@ -147,16 +149,33 @@ export class ListAlertPage {
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   setAlertDone(recordid) {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.setAlertDoneDo(recordid);
+    } else {
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listAlert');
+          self.RestService.appRestart();
+        } else {
+          console.log('From listAlert - Credentials refreshed!');
+          self.setAlertDoneDo(recordid);
+        }
+      });
+    }
+  }
+
+  setAlertDoneDo(recordid) {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AlertsByUser";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -175,22 +194,17 @@ export class ListAlertPage {
             userid: this.RestService.userId
         }
     };
-
     this.alertSave.userid = this.RestService.userId;
     this.alertSave.recordid = recordid;
     this.alertSave.active = 'Y';
     this.alertSave.triggered = 'Y';
-
     var body = JSON.stringify(this.alertSave);
     var self = this;
-
     console.log('Calling Post listAlert setAlertDone', this.alertSave);
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
       console.log('Happy Path from listAlert setAlertDone: ' + self.RestService.results);
-      //self.category.title = "Measure";
-      //self.nav.pop();
     }).catch( function(result){
       console.log('Result: ',result);
       console.log(body);
@@ -237,4 +251,5 @@ export class ListAlertPage {
       }
     }
   }
+
 }

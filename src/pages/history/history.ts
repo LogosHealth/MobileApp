@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
 import { NavController, LoadingController, Platform } from 'ionic-angular';
-
-//import { FeedPage } from '../feed/feed';
 import { List2Page } from '../list-2/list-2';
 import { ListAllergiesPage } from '../listAllergies/listAllergies';
 import { ListVaccinesPage } from '../listVaccines/listVaccines';
 import { ListLabsPage } from '../listLabs/listLabs';
 import { ListContactPage } from '../listContacts/listContacts';
-
 import 'rxjs/Rx';
 import { HistoryModel } from './history.model';
 import { HistoryService } from './history.service';
@@ -53,17 +50,23 @@ export class HistoryPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
-    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
+    var self = this;
 
-      if (dtDiff <= 0) {
-        console.log('Need to login again!!! - Credentials expired from Historytab');
-        this.RestService.appRestart();
-      } else if (dtDiff < 30) {
-        console.log('Calling Refresh Credentials from Historytab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-        this.RestService.refreshCredentials();
-      }
+    //if expired - refresh token
+    if (dtNow > dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from history');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From history - Credentials refreshed!');
+        }
+      });
+    }
   }
-
 
   goToFeed(category: any) {
     console.log("Clicked goToFeed", category);

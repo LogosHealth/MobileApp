@@ -22,7 +22,6 @@ export class FormChooseProfile {
   changeUser: boolean = false;
   userUpdated: boolean = false;
   userAction:string;
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -36,29 +35,40 @@ export class FormChooseProfile {
     } else {
       console.log('User Action is set User: ', this.userAction);
     }
-
     console.log('Choose Profile curRec: ', this.curRec);
-
     this.card_form = new FormGroup({
         profileid: new FormControl(null, Validators.required),
     });
   }
 
-  ionViewWillEnter() {
-    this.loading = this.loadingCtrl.create();
-    this.loading.present();
-    this.loading.dismiss();
-  }
-
   saveRecord(){
-    this.saving = true;
-
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/UserByDevice";
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formChooseProfile.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formChooseProfile.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
 
+  saveRecordDo(){
+    this.saving = true;
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/UserByDevice";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -66,7 +76,6 @@ export class FormChooseProfile {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -78,7 +87,6 @@ export class FormChooseProfile {
               //profileid: this.RestService.currentProfile
           }
       };
-
       var profileData;
       console.log('Device ID from Save Data in Choose Profile: ' + this.RestService.deviceUUID);
       var userid = this.card_form.get('profileid').value;
@@ -97,25 +105,21 @@ export class FormChooseProfile {
           'action':'update',
         };
       }
-
       var body = JSON.stringify(profileData);
       var self = this;
-
       console.log('Calling Post', profileData);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         console.log('Happy Path Chooose Profile Save: ', result);
         self.RestService.userId = userid;
         self.userUpdated = true;
+        self.loading.dismiss();
         self.dismiss();
       }).catch( function(result){
         console.log('formChooseProfile Save Error: ',result);
+        self.loading.dismiss();
         self.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-      this.RestService.appRestart();
-    }
   }
 
   updateUser() {
@@ -133,4 +137,5 @@ export class FormChooseProfile {
     let data = { 'userUpdated': this.userUpdated };
     this.viewCtrl.dismiss(data);
   }
+
 }

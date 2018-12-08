@@ -13,9 +13,6 @@ import { TabsNavigationPage } from '../tabs-navigation/tabs-navigation';
 
 import * as AWS from 'aws-sdk';
 import { RestService } from '../../app/services/restService.service';
-import { HttpClient} from '@angular/common/http';
-
-//import { CodeBuild } from 'aws-sdk';
 
 declare var window: any;
 declare var amazon: any;
@@ -34,18 +31,17 @@ interface AccountProfile {
 })
 
 export class WalkthroughPage implements OnInit {
+
   AccountProfiles$: Observable<AccountProfile[]>;
   lastSlide = false;
   loading: any;
   main_page: { component: any };
-  lwaWindow: Window;
-  ignore: boolean = false;
 
   @ViewChild('slider') slider: Slides;
 
   constructor(public nav: NavController, private platform: Platform, private alertCtrl: AlertController, public loadingCtrl: LoadingController, public iab: InAppBrowser,
-    public modalCtrl: ModalController, private device: Device, private http: HttpClient, public RestService: RestService)
-    {this.main_page = { component: TabsNavigationPage };
+    public modalCtrl: ModalController, private device: Device, public RestService: RestService) {this.main_page = { component: TabsNavigationPage };
+
   }
 
   getProfiles () {
@@ -78,6 +74,7 @@ export class WalkthroughPage implements OnInit {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
+      //console.log(result.data);
       var resultData = JSON.stringify(result.data);
       self.RestService.Profiles = result.data;
       console.log('Get Profiles results: ', resultData);
@@ -93,6 +90,7 @@ export class WalkthroughPage implements OnInit {
         console.log('Get Profiles error results: ', result);
     });
   }
+
 
  getUserPics() {
   var blnHasPics = false;
@@ -160,11 +158,14 @@ export class WalkthroughPage implements OnInit {
   } else {
     this.checkUserCount();
   }
+
  }
 
   getPicURL(strKey, callback) {
     var returnObj;
+
     const s3 = new this.RestService.AWS.S3();
+
     var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
 
     s3.getSignedUrl('getObject', params, function (err, url) {
@@ -191,6 +192,7 @@ export class WalkthroughPage implements OnInit {
     this.loading.dismiss();
   }
  }
+
 
   getUser() {
     var self = this;
@@ -310,6 +312,7 @@ export class WalkthroughPage implements OnInit {
                 self.RestService.AuthData.accessKeyId = data.Credentials.AccessKeyId;
                 accountInfo.setSecretKey(data.Credentials.SecretKey);
                 self.RestService.AuthData.secretKey = data.Credentials.SecretKey;
+
                 //alert('Expiration: ' +  accountInfo.getExpiration());
                 //alert('Success in getCred Session Token: ' + data.Credentials.SessionToken);
                 self.getProfiles();
@@ -353,149 +356,69 @@ export class WalkthroughPage implements OnInit {
     this.nav.push(SignupPage);
   }
 
-  checkHash(event) {
-    console.log("from Check Hash: Window - ", this.lwaWindow);
-    console.log("event from checkHash", event);
-  }
-
   public login() {
-    const LWA_PROXY = "https://logoshealth.github.io";
-    const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
-    const LWA_PROXY_AT_MOBILE = "https://logoshealth.github.io/getATMobile.html";
-    const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
-    //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
-    var atURL;
-
-    alert('Welcome to LogosHealth: Beta version 0.0.8');
     console.log("Starting Login Process v100");
-    //console.log("Platforms:" + this.platform.platforms());
+    console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
       var self = this;
-      //var options = { scope : 'profile', popup : 'false', response_type: 'code' };
+      var options = { scope : 'profile', popup : 'false' };
       self.loading = self.loadingCtrl.create();
       self.loading.present();
+      console.log('Moving to authorize v100');
       if (this.platform.is("core")) {
-        console.log('Moving to authorize v100');
-        var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-        var eventer = window[eventMethod];
-        var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
-        var firstLoopDone = false;
-        // Listen to message from child window
-        eventer(messageEvent,function(e) {
-         if(!self.ignore) {
-          var key = e.message ? "message" : "data";
-          var data = e[key];
-          console.log('Event Handled!!! data = ', data);
-          //console.log('Event Handled!!! event = ', e);
-          console.log('Event Handled!!! event data ', e.data);
-          if (!firstLoopDone) {
-            var LWAcodeURL = e.data;
-            var LWAcode = self.getCode(LWAcodeURL);
-            console.log('LWA CODE '+ LWAcode);
-            newWindow.close();
-            atURL = LWA_PROXY_AT + "?code=" + LWAcode;
-            console.log('var atURL: ' + atURL);
-            let newWindow2 = window.open(atURL, 'LogosHealth Login with Amazon', "menubar=1,resizable=1,width=660px,height=390px,top=0,left=0");
-            self.lwaWindow = newWindow2;
-            newWindow2.focus();
-            firstLoopDone = true;
+        amazon.Login.authorize(options,function(response) {
+          if ( response.error ) {
+            alert('oauth error ' + response.error);
+            self.loading.dismiss();
           } else {
-            self.lwaWindow.close();
-            self.ignore = true;
-            //messageEvent = eventMethod == "detachEvent" ? "onmessage" : "message";
-            //eventMethod = window.removeEventListener ? "addEventListener" : "attachEvent";
-            var returnAuth = e.data;
-            var jsonObject = JSON.parse(returnAuth);
-            console.log('jsonObject', jsonObject);
-            console.log('jsonObject.access_token', jsonObject.access_token);
-            console.log('jsonObject.refresh_token', jsonObject.refresh_token);
-            var token = jsonObject.access_token;
-            var refreshToken = jsonObject.refresh_token;
-            if (token !== undefined && token !== null && token !== "") {
-              self.RestService.AuthData.accessToken = token;
-              self.RestService.AuthData.refreshToken = refreshToken;
-              console.log('Successfully set token for Browser!!!' + token);
-              accountInfo.setKey(token);
-              amazon.Login.retrieveProfile(token, function(response) {
-                console.log('Response from android amazon.login: ', response);
-                self.RestService.AuthData.email = response.profile.PrimaryEmail;
-                accountInfo.setEmail(response.profile.PrimaryEmail);
-              });
-            } else {
-              console.log('Token error');
-              alert('There is an error in authenticating your account.  Please try again later.');
-              self.loading.dismiss();
-            }
-
+            console.log('Successfully authorized: ', response);
+            self.RestService.AuthData.key = response.access_token;
+            accountInfo.setKey(response.access_token);
+            amazon.Login.retrieveProfile(response.access_token, function(response) {
+              console.log('Response from web amazon.login: ', response);
+              self.RestService.AuthData.email = response.profile.PrimaryEmail;
+              accountInfo.setEmail(response.profile.PrimaryEmail);
+            });
           }
-        }
-        },false);
-
-        let newWindow = window.open(LWA_PROXY, 'LogosHealth Login with Amazon', "menubar=1,resizable=1,width=660px,height=390px,top=0,left=0");
-        this.lwaWindow = newWindow;
-        newWindow.focus();
-
+        });
       } else if (this.platform.is("android")) {
+        var options = { scope : 'profile', popup : 'false' };
         console.log('Calling AmazonLoginPlugin from Android v100');
         //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
-        //const LWA_PROXY = "https://logoshealth.github.io";
-        //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
-        //const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
+        const LWA_PROXY = "https://logoshealth.github.io";
+        const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
+
         const browser = this.iab.create(LWA_PROXY, '_blank');
-
         browser.on('loadstop').subscribe(e => {
-          //alert('LoadStop from Browser called');
           if (e.url.includes(LWA_PROXY_RETURN)) {
-            //browser.close();
+            browser.close();
             if (e.url.includes(LWA_PROXY_RETURN)) {
-              var code = self.getCode(e.url);
-              var atURL = LWA_PROXY_AT_MOBILE + "?code=" + code;
+              var token = this.handleReturnedHash(e.url);
+              if (token !== 'Error') {
+                token = token.replace("%7C", "|");
+                console.log('Successfully set token for Android!!!' + token);
+                accountInfo.setKey(token);
+                amazon.Login.retrieveProfile(token, function(response) {
+                  console.log('Response from android amazon.login: ', response);
+                  self.RestService.AuthData.email = response.profile.PrimaryEmail;
+                  accountInfo.setEmail(response.profile.PrimaryEmail);
+                });
 
-              var readCount = 0;
-
-              const browser2 = self.iab.create(atURL, '_blank');
-              //alert('Started browser2');
-              //browser2.on('loadstart').subscribe(e => {
-              //  console.log('Loading Final Auth Window ',  e);
-                //alert('Loading Final Auth Window ' + e.url);
-              //});
-
-              browser2.on('loaderror').subscribe(e => {
-                console.log('Error Loading Final Auth Window ', e);
-                alert('Error Loading Final Auth Window ' + e.message);
-              });
-
-              browser2.on('loadstop').subscribe(e => {
-                  //alert("url from final auth android: " + e.url);
-                  if (e.url.includes("access_token")) {
-                    browser2.close();
-                    var token = self.getAccessToken(e.url);
-                    var refreshToken = self.getRefreshToken(e.url);
-                    if (token !== 'Error') {
-                      self.RestService.AuthData.accessToken = token;
-                      self.RestService.AuthData.refreshToken = refreshToken;
-                      console.log('Successfully set token for Android!!!' + token);
-                      accountInfo.setKey(token);
-                      amazon.Login.retrieveProfile(token, function(response) {
-                        console.log('Response from android amazon.login: ', response);
-                        self.RestService.AuthData.email = response.profile.PrimaryEmail;
-                        accountInfo.setEmail(response.profile.PrimaryEmail);
-                      });
-                    } else {
-                      alert('There is an error in authenticating your account.  Please try again later. ' + e.url);
-                      alert('Token error');
-                      self.loading.dismiss();
-                    }
-                  } else {
-                    readCount = readCount + 1;
-                    console.log('Read Count for Final url change: ' + readCount);
-                    //self.loading.dismiss();
+/*
+                const getProfileURL = "https://api.amazon.com/user/profile?access_token=" + token;
+                const browser2 = this.iab.create( getProfileURL, '_blank', "hidden=yes");
+                browser2.on('loadstop').subscribe(e => {
+                  if (e.url.includes("email")) {
+                    browser.close();
                   }
-              });
+                });
+                accountInfo.setEmail("anaerobicbug@hotmail.com");
+*/
 
-            } else {
-              alert('Error in first level authentication return for Android');
-              self.loading.dismiss();
+              } else {
+                console.log('Token error');
+                self.loading.dismiss();
+              }
             }
           }
        });
@@ -503,7 +426,7 @@ export class WalkthroughPage implements OnInit {
     });
   }
 
-  handleReturnedHash(hashVal, valType) {
+  handleReturnedHash(hashVal) {
     var fragment = hashVal.split("#");
     console.log('Fragment from handleReturnedHash: ' + fragment);
     if (fragment.length < 2) {
@@ -516,43 +439,12 @@ export class WalkthroughPage implements OnInit {
       vals[subvals[0]] = subvals[1];
     });
 
-    if (!(valType in vals)) {
-      console.log('No ' + valType + ' in handleReturnedHash');
+    if (!("access_token" in vals)) {
+      console.log('No Access Token in handleReturnedHash');
       return "Error";
     } else {
-      return vals[valType];
+      return vals["access_token"];
     }
-  }
-
-  getCode(url) {
-    var startVal = url.indexOf("code=") + 5;
-    var endVal = url.search("&");
-    var fragment = url.substring(startVal, endVal);
-    console.log('URL from getCode: ' + url);
-    console.log('Fragment from getCode: ' + fragment);
-    return fragment;
-  }
-
-  getAccessToken(url) {
-    var startVal = url.indexOf("access_token=") + 13;
-    var endVal = url.indexOf("&", startVal);
-    var fragment = url.substring(startVal, endVal);
-    console.log('URL from getAceessToken: ' + url);
-    console.log('Fragment from getAceessToken: ' + fragment);
-    if (fragment !== undefined && fragment !== null && fragment !== "") {
-      return fragment;
-    } else {
-      return "Error";
-    }
-  }
-
-  getRefreshToken(url) {
-    var startVal = url.indexOf("refresh_token=") + 14;
-    //var endVal = url.indexOf("&", startVal);
-    var fragment = url.substring(startVal);
-    console.log('URL from getRefreshToken: ' + url);
-    console.log('Fragment from getRefreshToken: ' + fragment);
-    return fragment;
   }
 
   public accountInfoObj(callback) {

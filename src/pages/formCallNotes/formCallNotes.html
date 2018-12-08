@@ -29,10 +29,10 @@
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Notes</ion-label>
-                <ion-textarea type="text" formControlName="callnotes" autosize></ion-textarea>  
+                <ion-textarea type="text" formControlName="callnotes" autosize></ion-textarea>
               </ion-item>
             </ion-col>
-          </ion-row>  
+          </ion-row>
         </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
@@ -40,9 +40,9 @@
                 <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
             </ion-col>
          </ion-row>
-         <ion-row no-padding class="multi-input-row">
+         <ion-row no-padding class="multi-input-row" *ngIf="fromVisit == false">
             <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="button" (click)="createVisit()" [disabled]="!card_form.dirty || !card_form.valid">Create Visit</button>
+                <button ion-button block class="form-action-button" type="button" (click)="createVisit()" [disabled]="!card_form.dirty || !card_form.valid">New Visit</button>
             </ion-col>
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="button" (click)="attach2Visit()" [disabled]="!card_form.dirty || !card_form.valid">Attach to Visit</button>

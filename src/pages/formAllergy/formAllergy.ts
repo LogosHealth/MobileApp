@@ -7,7 +7,6 @@ import { ListMedicationModel, ListMedication } from '../../pages/listMedication/
 import { ListMedicationService } from '../../pages/listMedication/listMedication.service';
 import { ListEventModel, ListEvent } from '../../pages/listEvent/listEvent.model';
 import { ListEventService } from '../../pages/listEvent/listEvent.service';
-
 import { ListAllergiesModel, ListAllergies } from '../../pages/listAllergies/listAllergies.model';
 import { ListAllergiesService } from '../../pages/listAllergies/listAllergies.service';
 
@@ -32,29 +31,25 @@ export class FormAllergyPage {
   list2: ListAllergiesModel = new ListAllergiesModel();
   listMeds: ListMedicationModel = new ListMedicationModel();
   listEvents: ListEventModel = new ListEventModel();
-
   formModelSave: ListAllergiesModel  = new ListAllergiesModel();
   formSave: ListAllergies = new ListAllergies();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public formBuilder: FormBuilder, public list2Service: ListAllergiesService,
     public listMedicationService: ListMedicationService, public listEventService: ListEventService) {
+
     this.recId = navParams.get('recId');
-
     this.curRec = RestService.results[this.recId];
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
     if (this.recId !== undefined) {
       console.log('Start Date: ' + this.curRec.startdate);
       this.card_form = new FormGroup({
@@ -93,14 +88,25 @@ export class FormAllergyPage {
   ionViewDidLoad() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from formAllergy');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAllergy');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAllergy - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -110,9 +116,7 @@ export class FormAllergyPage {
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -133,7 +137,6 @@ export class FormAllergyPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       if (Array.isArray(result.data)) {
@@ -160,9 +163,7 @@ export class FormAllergyPage {
 
   loadData2() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/EventByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -183,7 +184,6 @@ export class FormAllergyPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       if (Array.isArray(result.data)) {
@@ -196,20 +196,16 @@ export class FormAllergyPage {
           if (self.listEvents !== undefined && self.listEvents !== null && self.listEvents.items.length > 0) {
             self.addExistingEvents();
           }
-          self.RestService.refreshCheck();
           self.loading.dismiss();
           });
       } else {
         console.log('Result.data from getEvents not array: ', result.data);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       }
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-
 }
 
   createMed () {
@@ -280,6 +276,31 @@ export class FormAllergyPage {
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAllergy.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAllergy.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to delete this record?',
@@ -288,6 +309,7 @@ export class FormAllergyPage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -295,19 +317,12 @@ export class FormAllergyPage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               this.saving = true;
-              //alert('Going to delete');
               this.formSave.recordid = this.card_form.get('recordid').value;
               this.formSave.profileid = this.RestService.currentProfile;
               this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -315,7 +330,6 @@ export class FormAllergyPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
                 //pathParameters: this.vaccineSave
@@ -329,22 +343,18 @@ export class FormAllergyPage {
               };
               var body = JSON.stringify(this.formSave);
               var self = this;
-
               console.log('Calling Post', this.formSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Measure";
+                self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
                 console.log('Result: ',result);
-                console.log(body);
+                self.loading.dismiss();
               });
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formMood - Delete');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -353,28 +363,43 @@ export class FormAllergyPage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAllergy.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAllergy.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
-      if (this.card_form.get('mood').dirty){
-        //this.formSave.mood = this.card_form.get('mood').value;
-      }
     } else {
-      //this.formSave.mood = this.card_form.get('mood').value;
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -382,7 +407,6 @@ export class FormAllergyPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -396,22 +420,18 @@ export class FormAllergyPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-
       console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Measure";
+        self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
-        console.log(body);
+        self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }
   }
 
   public today() {

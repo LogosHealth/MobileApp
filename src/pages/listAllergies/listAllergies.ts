@@ -32,15 +32,25 @@ export class ListAllergiesPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      console.log ('This.loading not undefined: ', this.loading);
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listAllergies');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listAllergies');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listAllergies - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -78,14 +88,12 @@ export class ListAllergiesPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        self.RestService.refreshCheck();       
         if (self.loading !== undefined) {
           //console.log ('This.loading not undefined in loaddata: ', self.loading);
           self.loading.dismiss();
         }
       });
     }).catch( function(result){
-      self.RestService.refreshCheck();
       self.loading.dismiss();
       console.log(body);
     });
@@ -96,10 +104,10 @@ export class ListAllergiesPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormAllergyPage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormAllergyPage);
-  }  
+  }
 
 }

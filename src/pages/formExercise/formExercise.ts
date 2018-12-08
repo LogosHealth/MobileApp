@@ -30,7 +30,6 @@ export class FormExercisePage {
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
   saving: boolean = false;
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -39,19 +38,15 @@ export class FormExercisePage {
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
     if (this.goalname == undefined) {
-      //alert('No goal name');
       this.goalname = "";
     }
-
     this.curRec = RestService.results[this.recId];
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
     //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
       var cbSplit;
@@ -62,7 +57,6 @@ export class FormExercisePage {
           numCB = cbSplit[0];
         }
       }
-
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         exercisetype: new FormControl(this.curRec.exercisetype, Validators.required),
@@ -101,6 +95,7 @@ export class FormExercisePage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
@@ -108,18 +103,24 @@ export class FormExercisePage {
       this.nav.getPrevious().data.refresh = false;
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formExercise');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formExercise - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -141,7 +142,6 @@ export class FormExercisePage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -150,17 +150,40 @@ export class FormExercisePage {
         .then(data => {
           self.list2.items = self.RestService.results;
           console.log("Results Data for Get Goals: ", self.list2.items);
-          self.RestService.refreshCheck();
           self.loading.dismiss();
         });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to delete this record?',
@@ -169,6 +192,7 @@ export class FormExercisePage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -176,18 +200,12 @@ export class FormExercisePage {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
-              //alert('Going to delete');
               this.saving = true;
               this.exerciseSave.recordid = this.card_form.get('recordid').value;
               this.exerciseSave.profileid = this.RestService.currentProfile;
               this.exerciseSave.userid = this.RestService.userId;
               this.exerciseSave.active = 'N';
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -195,7 +213,6 @@ export class FormExercisePage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
               };
@@ -208,22 +225,18 @@ export class FormExercisePage {
               };
               var body = JSON.stringify(this.exerciseSave);
               var self = this;
-
               console.log('Calling Post', this.exerciseSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
                   self.category.title = "Invest in You";
+                  self.loading.dismiss();
                   self.nav.pop();
                 }).catch( function(result){
                   console.log('Result: ',result);
-                  console.log(body);
+                  self.loading.dismiss();
                 });
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formExercise - Delete');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -232,8 +245,32 @@ export class FormExercisePage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
-    //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.exerciseSave.recordid = this.card_form.get('recordid').value;
       this.exerciseSave.profileid = this.RestService.currentProfile;
@@ -294,13 +331,7 @@ export class FormExercisePage {
         this.exerciseSave.timezone = this.userTimezone;
       }
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -308,7 +339,6 @@ export class FormExercisePage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -322,7 +352,6 @@ export class FormExercisePage {
       };
       var body = JSON.stringify(this.exerciseSave);
       var self = this;
-
       console.log('Calling Post', this.exerciseSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
@@ -332,21 +361,13 @@ export class FormExercisePage {
         self.loadData2();
       }).catch( function(result){
         console.log('Result: ',result);
-        console.log(body);
+        self.loading.dismiss()
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }
   }
 
   loadData2() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -368,7 +389,6 @@ export class FormExercisePage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -376,10 +396,12 @@ export class FormExercisePage {
       .getData()
       .then(data => {
         self.nav.getPrevious().data.refresh = true;
+        self.loading.dismiss();
         self.nav.pop();
       });
     }).catch( function(result){
         console.log('Error in formExercise: apigClient.invokeApi', body);
+        self.loading.dismiss();
         self.nav.pop();
     });
   }
@@ -389,7 +411,6 @@ export class FormExercisePage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
@@ -404,8 +425,6 @@ export class FormExercisePage {
     } else {
       var dayoftheweek = momentNow.format('dddd');
     }
-
-
     if (dayoftheweek == 'Sunday') {
       var offSet = 0
     } else if (dayoftheweek == 'Monday') {
@@ -427,7 +446,6 @@ export class FormExercisePage {
     } else {
       var startofWeek = moment(momentNow).subtract(offSet, 'days');
     }
-    //console.log('Start of Week: ' + startofWeek);
     return startofWeek.format("YYYY-MM-DD");
   }
 

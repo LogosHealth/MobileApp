@@ -9,6 +9,7 @@ import { FormFindContact } from '../../pages/formFindContact/formFindContact';
 import { FormContactPage } from '../../pages/formContact/formContact';
 import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
 import { CallNumber } from '@ionic-native/call-number';
+import { FormVisitPage } from '../../pages/formVisit/formVisit';
 
 var moment = require('moment-timezone');
 
@@ -46,14 +47,25 @@ export class ListContactPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listContact');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listContacts');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listContacts - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -91,12 +103,10 @@ export class ListContactPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for Get ContactByProfile: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -108,14 +118,20 @@ export class ListContactPage {
     //alert('Open Record:' + recordId);
   }
 
+  scheduleVisit(index) {
+    var contact = this.RestService.results[index];
+    this.nav.push(FormVisitPage, { contact: contact });
+  }
+
   callDoc(phoneNum, recordId) {
     //console.log("Call Doc item", recordId);
+    var contact = this.RestService.results[recordId];
     this.callNumber.callNumber(phoneNum, true)
       .then(() =>
-        this.nav.push(FormCallNotesPage, { recId: recordId })
+        this.nav.push(FormCallNotesPage, { contact: contact, fromVisit: false })
       )
       .catch(() =>
-        this.nav.push(FormCallNotesPage, { recId: recordId })
+        this.nav.push(FormCallNotesPage, { contact: contact, fromVisit: false })
       );
   }
 

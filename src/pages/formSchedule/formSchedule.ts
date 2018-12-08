@@ -9,7 +9,6 @@ import { DictionaryService } from '../../pages/models/dictionary.service';
 import { ListContactModel } from '../../pages/listContacts/listContacts.model';
 import { ListContactService } from '../../pages/listContacts/listContacts.service';
 
-
 var moment = require('moment-timezone');
 
 @Component({
@@ -32,9 +31,7 @@ export class FormSchedulePage {
   notifySelected: boolean = false;
   hasActiveSched: boolean = true;
   activeProfileID: number;
-
   profiles = [];
-  //profilesNotify = FormArray;
   scheduleModelSave: ListSchedule  = new ListSchedule();
   scheduleSave: ActivatedSchedule = new ActivatedSchedule();
   scheduleSaveArray: ActivatedSchedules = new ActivatedSchedules();
@@ -48,28 +45,24 @@ export class FormSchedulePage {
   yearNow: any;
   monthDefaultNext: any;
   yearDefaultNext: any;
-
   dictionaries: DictionaryModel = new DictionaryModel();
   intervalList: DictionaryItem[];
   listContacts: ListContactModel = new ListContactModel();
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService,
     public listContactService: ListContactService, public formBuilder: FormBuilder) {
+
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
-    console.log('formSchedule curRec: ', this.curRec);
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
     this.momentNow = moment(new Date());
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
       this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
@@ -77,7 +70,6 @@ export class FormSchedulePage {
       this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
       this.monthNow = this.momentNow.tz(this.userTimezone).format('MM');
       this.yearNow = this.momentNow.tz(this.userTimezone).format('YYYY');
-
     } else {
       this.hourNow = this.momentNow.format('HH');
       this.minuteNow = this.momentNow.format('mm');
@@ -94,18 +86,13 @@ export class FormSchedulePage {
         this.monthDefaultNext = String(this.monthDefaultNext);
         this.yearDefaultNext = String(this.yearNow);
       }
-      console.log('Month Next: ' + this.monthDefaultNext);
     } else if (this.monthNow == 11) {
       this.monthDefaultNext = '01';
-      console.log('Month Next: ' + this.monthDefaultNext);
       this.yearDefaultNext = String(Number(this.yearNow) +1);
     } else { //month is 12
       this.monthDefaultNext = '02';
       this.yearDefaultNext = String(Number(this.yearNow) +1);
-      console.log('Month Next: ' + this.monthDefaultNext);
     }
-    console.log('Month Default Next:' + this.monthDefaultNext);
-
     if (this.curRec !== undefined && this.curRec !== null) {
       var eligibles = [];
       if (this.curRec.accountid !== undefined && this.curRec.accountid !== null && this.curRec.accountid > 0) {
@@ -122,7 +109,6 @@ export class FormSchedulePage {
         }
       }
       this.profiles = eligibles;
-      //console.log('Eligibles info: ', this.profiles);
     } else {
       var eligibles = [];
       var eligible: Eligible = new Eligible();
@@ -136,9 +122,7 @@ export class FormSchedulePage {
         eligibles.push(eligible);
       }
       this.profiles = eligibles;
-      //console.log('Eligibles info2: ', this.profiles);
     }
-
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         profile: new FormControl(),
@@ -181,77 +165,33 @@ export class FormSchedulePage {
   }
 
   ionViewWillEnter() {
-    this.loading = this.loadingCtrl.create();
-    this.loading.present();
-    this.loadDictionaries();
-  }
-
-  loadContacts(listFilter) {
-    var restURL: string;
-
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-
-    var config = {
-      invokeUrl: restURL,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-    var apigClient = this.RestService.AWSRestFactory.newClient(config);
-    var params = {
-    };
-    var pathTemplate = '';
-    var method = 'GET';
-    var additionalParams;
-
-    if (listFilter !== '') {
-      additionalParams = {
-        queryParams: {
-            profileid: this.activeProfileID,
-            contacttype: "doctor",
-            filter: listFilter
-        }
-      };
-    } else {
-      additionalParams = {
-        queryParams: {
-            profileid: this.activeProfileID,
-            contacttype: "doctor"
-        }
-      };
-    }
-
-
-    var body = '';
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
-    var contacts = [];
 
-    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-    .then(function(result){
-      contacts = result.data;
-      self.listContactService
-      .getData()
-      .then(data => {
-        self.listContacts.items = contacts;
-        self.RestService.refreshCheck();
-        self.card_form.markAsPristine();
-        console.log('From loadContacts - contactid value: ' + self.card_form.controls["contactid"].value);
-        self.loading.dismiss();
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadDictionaries();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName);
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + ' - Credentials refreshed!');
+          self.loadDictionaries();
+        }
       });
-    }).catch( function(result){
-      self.RestService.refreshCheck();
-      console.log(body);
-      self.card_form.markAsPristine();
-      self.loading.dismiss();
-    });
+    }
   }
 
   loadDictionaries() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -272,7 +212,6 @@ export class FormSchedulePage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -282,17 +221,118 @@ export class FormSchedulePage {
         self.dictionaries.items = self.RestService.results;
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.intervalList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
-        self.RestService.refreshCheck();
-        console.log(body);
+        console.log('Error result from formSchedule.loadDictionary: ', result);
         self.loading.dismiss();
     });
   }
 
+  loadContacts(listFilter){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadContactsDo(listFilter);
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.loadContacts');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.loadContacts - Credentials refreshed!');
+          self.loadContactsDo(listFilter);
+        }
+      });
+    }
+  }
+
+  loadContactsDo(listFilter) {
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams;
+    if (listFilter !== '') {
+      additionalParams = {
+        queryParams: {
+            profileid: this.activeProfileID,
+            contacttype: "doctor",
+            filter: listFilter
+        }
+      };
+    } else {
+      additionalParams = {
+        queryParams: {
+            profileid: this.activeProfileID,
+            contacttype: "doctor"
+        }
+      };
+    }
+    var body = '';
+    var self = this;
+    var contacts = [];
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      contacts = result.data;
+      self.listContactService
+      .getData()
+      .then(data => {
+        self.listContacts.items = contacts;
+        self.card_form.markAsPristine();
+        console.log('From loadContacts - contactid value: ' + self.card_form.controls["contactid"].value);
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+      console.log('Error results from formSchedule.loadContacts: ', result);
+      self.card_form.markAsPristine();
+      self.loading.dismiss();
+    });
+  }
+
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Inactivation',
       message: 'Are you certain you want to inactivate this scheduled reminder?',
@@ -301,6 +341,7 @@ export class FormSchedulePage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -309,18 +350,11 @@ export class FormSchedulePage {
           handler: () => {
             console.log('Inactivate clicked');
             this.saving = true;
-            //alert('Going to delete');
             this.scheduleSave.recordid =  this.card_form.controls["actschedid"].value;
             this.scheduleSave.profileid = this.card_form.get('profile').value;
             this.scheduleSave.userid = this.RestService.userId;
             this.scheduleSave.active = 'N';
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SchedulesByAccount";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -328,7 +362,6 @@ export class FormSchedulePage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
                 //pathParameters: this.vaccineSave
@@ -342,22 +375,18 @@ export class FormSchedulePage {
               };
               var body = JSON.stringify(this.scheduleSave);
               var self = this;
-
               console.log('Calling Post', this.scheduleSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Sleep";
+                self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
+                console.log('Error result from formSchedule.delete: ',result);
+                self.loading.dismiss();
               });
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formSleep - DeleteData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -366,11 +395,34 @@ export class FormSchedulePage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     var strProfiles = "";
     this.saving = true;
-
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray
-    //The activated schedule record exists - this is an update, not an insert
     if (this.card_form.get('actschedid').value !==undefined && this.card_form.get('actschedid').value !==null) {
       this.scheduleSave.recordid = this.card_form.get('actschedid').value;
       this.scheduleSave.profileid = this.card_form.get('profile').value;
@@ -380,14 +432,12 @@ export class FormSchedulePage {
         for (var j = 0; j < this.profilesNotify.length; j++) {
           if (this.profilesNotify.at(j).value.selected) {
             strProfiles = strProfiles + this.profilesNotify.at(j).value.profileid + ', ';
-            //console.log('Profile Id for profile Notify: ' + this.profilesNotify.at(j).value.profileid);
           }
         }
         strProfiles = strProfiles.substring(0, strProfiles.length -2);
         console.log('String Profiles final: ' + strProfiles);
         this.scheduleSave.notifyprofiles = strProfiles;
       }
-
       if (this.card_form.get('interval').dirty){
         this.scheduleSave.interval = this.card_form.get('interval').value;
       }
@@ -414,7 +464,6 @@ export class FormSchedulePage {
       for (var j = 0; j < this.profilesNotify.length; j++) {
         if (this.profilesNotify.at(j).value.selected) {
           strProfiles = strProfiles + this.profilesNotify.at(j).value.profileid + ', ';
-          //console.log('Profile Id for profile Notify: ' + this.profilesNotify.at(j).value.profileid);
         }
       }
       strProfiles = strProfiles.substring(0, strProfiles.length -2);
@@ -427,7 +476,6 @@ export class FormSchedulePage {
       this.scheduleSave.day30alert = this.card_form.get('day30alert').value;
       this.scheduleSave.day7alert = this.card_form.get('day7alert').value;
     }
-
     var customDirty = false;
     if (this.isCustom) {
       if (!this.newRec) {
@@ -460,13 +508,7 @@ export class FormSchedulePage {
         this.scheduleModelSave.activatedschedules = this.scheduleSaveArray;
       }
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SchedulesByAccount";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -474,7 +516,6 @@ export class FormSchedulePage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -487,7 +528,6 @@ export class FormSchedulePage {
           }
       };
       var body;
-
       //MM 10-5-18 Custom dirty represents that the scheduleModelSave object needs to be sent
       if (!customDirty) {
         body = JSON.stringify(this.scheduleSave);
@@ -496,25 +536,20 @@ export class FormSchedulePage {
         body = JSON.stringify(this.scheduleModelSave);
         console.log('Calling Post Model', body);
       }
-
       var self = this;
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.card_form.markAsPristine();
-        //alert('This notification schedule has been successfully updated.');
         self.category.title = "Schedules & Alerts";
+        self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
         alert('There is an error in updating the schedule.  It has been logged and will be reviewed by technical support');
-        console.log('Result: ',result);
-        console.log(body);
+        console.log('result error form formSchedule.save: ',result);
+        self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formSchedule - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-      this.RestService.appRestart();
-    }
   }
 
   public today() {
@@ -522,7 +557,6 @@ export class FormSchedulePage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -531,7 +565,6 @@ export class FormSchedulePage {
   }
 
   formatDateTime2(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
@@ -539,30 +572,6 @@ export class FormSchedulePage {
     }
   }
 
-  /*
-  updateCalc() {
-    if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
-      var startSplit = this.card_form.get('starttime').value.split(":");
-      var startHour = Number(startSplit[0]);
-      var startMinRatio = (Number(startSplit[1]))/60;
-      var wakeSplit = this.card_form.get('waketime').value.split(":");
-      var wakeHour = Number(wakeSplit[0]);
-      var wakeMinRatio = (Number(wakeSplit[1]))/60;
-      var duration;
-
-      if ((wakeHour + wakeMinRatio) >=(startHour + startMinRatio)) {
-        duration = (wakeHour + wakeMinRatio) - (startHour + startMinRatio);
-      } else {
-        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);
-      }
-      this.card_form.get('hoursslept').setValue(duration);
-    } else {
-      if (this.card_form.get('starttime').value !== null || this.card_form.get('waketime').value !== null) {
-        this.card_form.get('hoursslept').setValue(null);
-      }
-    }
-  }
-  */
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();
@@ -598,7 +607,6 @@ export class FormSchedulePage {
   setProfileID(profileid) {
     var isActivated = false;
     var listFilter = "";
-
     let alert = this.alertCtrl.create({
       title: 'Unsaved changes',
       message: 'Do you want to leave user without saving changes?',
@@ -619,7 +627,6 @@ export class FormSchedulePage {
             for (var j = 0; j < this.profilesNotify.length; j++) {
               this.profilesNotify.at(j).get('selected').setValue(false);
             }
-
             if (this.curRec !== undefined && this.curRec.physiciantypes !== undefined && this.curRec.physiciantypes !== '') {
               listFilter = this.curRec.physiciantypes;
             }
@@ -667,7 +674,6 @@ export class FormSchedulePage {
                   }
                 }
                 this.card_form.markAsPristine();
-                //console.log('No Alert: card_form dirty5: ' + this.card_form.dirty);
               }
               if (!isActivated) {
                 this.hasActiveSched = false;
@@ -677,12 +683,10 @@ export class FormSchedulePage {
                 this.card_form.controls["contactid"].setValue(null);
                 console.log('ContactId should be null - 4: ' + this.card_form.controls["contactid"].value);
                 var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
-                //console.log('Next Date: ' + strNextDate);
-                  this.card_form.controls["day90alert"].setValue('N');
+                this.card_form.controls["day90alert"].setValue('N');
                 this.card_form.controls["day30alert"].setValue('Y');
                 this.card_form.controls["day7alert"].setValue('N');
                 this.card_form.markAsPristine();
-                //console.log('No Alert: card_form dirty6: ' + this.card_form.dirty);
               }
             } else {
               this.hasActiveSched = false;
@@ -702,7 +706,6 @@ export class FormSchedulePage {
               this.card_form.controls["day30alert"].setValue('Y');
               this.card_form.controls["day7alert"].setValue('N');
               this.card_form.markAsPristine();
-              //console.log('No Alert: card_form dirty7: ' + this.card_form.dirty);
             }
           }
         }
@@ -710,16 +713,13 @@ export class FormSchedulePage {
     });
 
     if (!this.saving && this.card_form.dirty) {
-      //console.log('Going to Alert: card_form dirty: ' + this.card_form.dirty);
       alert.present();
     } else {
       this.isNotSelected = false;
-
       this.profilesNotify = this.card_form.get('profilesnotify') as FormArray
       for (var j = 0; j < this.profilesNotify.length; j++) {
         this.profilesNotify.at(j).get('selected').setValue(false);
       }
-
       if (this.curRec !== undefined && this.curRec.physiciantypes !== undefined && this.curRec.physiciantypes !== '') {
         listFilter = this.curRec.physiciantypes;
       }
@@ -751,24 +751,19 @@ export class FormSchedulePage {
               this.card_form.controls["day7alert"].setValue('N');
             }
             var notifys = this.curRec.activatedSchedules[j].notifyprofiles;
-            //console.log('Starting Set Notifys: ' + notifys);
             notifys = notifys.split(",");
             this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
             for (var l = 0; l < notifys.length; l++) {
-              //console.log('profilesNotify: ', this.profilesNotify);
               for (var k = 0; k < this.profilesNotify.length; k++) {
-                //console.log('profilesNotify: ', this.profilesNotify.at(k));
                 if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
                   var setSelected = this.profilesNotify.at(k) as FormGroup;
                   setSelected.controls["selected"].setValue(true);
-                  //console.log('Set selected lining up: ' + this.profilesNotify.at(k).value.profileid);
                 } else {
                   //console.log ('Nofifys id: ' + notifys[l].trim() + ' profilesNotify id: ' + this.profilesNotify.at(k).value.profileid);
                 }
               }
             }
             this.card_form.markAsPristine();
-            //console.log('No Alert: card_form dirty1: ' + this.card_form.dirty);
           }
         }
         if (!isActivated) {
@@ -777,7 +772,6 @@ export class FormSchedulePage {
           this.card_form.controls["actschedid"].setValue(null);
           this.card_form.controls["interval"].setValue(this.curRec.interval);
           var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
-          //console.log('Next Date: ' + strNextDate);
           this.card_form.controls["nextdate"].setValue(strNextDate);
           this.card_form.controls["contactid"].setValue(null);
           console.log('ContactId should be null - 2: ' + this.card_form.controls["contactid"].value);
@@ -785,7 +779,6 @@ export class FormSchedulePage {
           this.card_form.controls["day30alert"].setValue('Y');
           this.card_form.controls["day7alert"].setValue('N');
           this.card_form.markAsPristine();
-          //console.log('No Alert: card_form dirty2: ' + this.card_form.dirty);
         }
       } else {
         this.hasActiveSched = false;
@@ -805,10 +798,8 @@ export class FormSchedulePage {
         this.card_form.controls["day30alert"].setValue('Y');
         this.card_form.controls["day7alert"].setValue('N');
         this.card_form.markAsPristine();
-        //console.log('No Alert: card_form dirty3: ' + this.card_form.dirty);
       }
       this.card_form.markAsPristine();
-      //console.log('No Alert: card_form dirty4: ' + this.card_form.dirty);
     }
   }
 
@@ -825,11 +816,9 @@ export class FormSchedulePage {
   readProfilesNotify() {
     var isSelected = false;
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
-    //console.log("from readProfilesNotify - profilesNotify.length: ", this.profilesNotify);
     for (var j = 0; j < this.profilesNotify.length; j++) {
       if (this.profilesNotify.at(j).value.selected) {
         isSelected = true;
-        //console.log("from readProfilesNotify - j = " + j + " answer is " + this.profilesNotify.at(j).value.selected);
       } else {
         //console.log("from readProfilesNotify - j = " + j + " answer is " + this.profilesNotify.at(j).value.selected);
       }
@@ -858,7 +847,6 @@ export class FormSchedulePage {
     for (var j = 0; j < this.RestService.Profiles.length; j++) {
       this.profilesNotify.push(this.addExistingProfile(j));
     }
-    //console.log('Profiles Notify ', this.profilesNotify);
   }
 
   addExistingProfile(index): FormGroup {

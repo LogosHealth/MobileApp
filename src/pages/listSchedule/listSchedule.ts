@@ -29,7 +29,6 @@ export class ListSchedulePage {
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -41,22 +40,31 @@ export class ListSchedulePage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSchedule');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listSchedule');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listSchedule - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SchedulesByAccount";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -77,7 +85,6 @@ export class ListSchedulePage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -86,29 +93,24 @@ export class ListSchedulePage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for list Schedules: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
-      });      
+      });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormSchedulePage, { recId: recordId });
-    //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormSchedulePage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -117,7 +119,6 @@ export class ListSchedulePage {
   }
 
   formatTime(timeString) {
-    //alert('FormatDateTime called');
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
     var minute = timeSplit[1];
@@ -138,14 +139,12 @@ export class ListSchedulePage {
   }
 
   getActives(item) {
-    //console.log('Item for getActives: ', item);
     var strReturn = '';
     if (item.activatedSchedules !== undefined && item.activatedSchedules.length > 0) {
-      //console.log('Active schedules count: ' + item.activatedSchedules.length);
-      for (var j = 0; j < item.activatedSchedules.length; j++) {		
+      for (var j = 0; j < item.activatedSchedules.length; j++) {
         strReturn = strReturn + item.activatedSchedules[j].firstname + ', ';
       }
-    } 
+    }
     if (strReturn !== '') {
       strReturn = strReturn.substr(0, strReturn.length - 2);
     }
@@ -153,14 +152,12 @@ export class ListSchedulePage {
   }
 
   getEligibles(item) {
-    //console.log('Item for getEligibles: ', item);
     var strReturn = '';
     if (item.eligibles !== undefined  && item.eligibles.length > 0) {
-      //console.log('Eligibles count: ' + item.eligibles.length);
-      for (var j = 0; j < item.eligibles.length; j++) {		
+      for (var j = 0; j < item.eligibles.length; j++) {
         strReturn = strReturn + item.eligibles[j].firstname + ', ';
       }
-    } 
+    }
     if (strReturn !== '') {
       strReturn = strReturn.substr(0, strReturn.length - 2);
     }

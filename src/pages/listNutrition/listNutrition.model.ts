@@ -2,6 +2,8 @@ export class ListNutrition {
   recordid: number;
   food: string;
   meal:string;
+  mealtime: string;
+  mealtimeformat: string;
   amount:string;
   calories:string;
   dateofmeasure: string;

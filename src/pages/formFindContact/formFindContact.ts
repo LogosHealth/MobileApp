@@ -20,7 +20,6 @@ export class FormFindContact {
   formName: string = "formFindContact";
   card_form: FormGroup;
   saving: boolean = false;
-
   contactSave: FormFindContactItem = new FormFindContactItem();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
@@ -43,7 +42,6 @@ export class FormFindContact {
         self.userTimezone = results.timezone;
       }
     });
-
     this.card_form = new FormGroup({
       categoryList: new FormControl(),
       contactid: new FormControl(),
@@ -60,16 +58,33 @@ export class FormFindContact {
   }
 
   ionViewWillEnter() {
-    this.loading = this.loadingCtrl.create();
-    this.loading.present();
-    this.loadDictionaries();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.loadDictionaries();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName);
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + ' - Credentials refreshed!');
+          self.loadDictionaries();
+        }
+      });
+    }
   }
 
   loadDictionaries() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -90,7 +105,6 @@ export class FormFindContact {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -101,12 +115,9 @@ export class FormFindContact {
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.stateList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
         self.doctorTypeList = self.dictionaries.items[1].dictionary; //index 1 as aligned with sortIndex
-
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
-        self.RestService.refreshCheck();
         console.log(body);
         self.loading.dismiss();
     });
@@ -123,6 +134,31 @@ export class FormFindContact {
   }
 
   findContacts() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.findContactsDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.findContacts');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + '.findContacts - Credentials refreshed!');
+          self.findContactsDo();
+        }
+      });
+    }
+  }
+
+  findContactsDo() {
     var restURL: string;
     var contactInfo = "Dr. ";
     var hasData = false;
@@ -135,7 +171,6 @@ export class FormFindContact {
     var profileid = this.RestService.currentProfile;
 
     console.log('FindContacts categoryList: ' + this.categoryList);
-
     if (this.categoryList == "physician") {
       if (this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value.trim() !== "") {
         hasData = true;
@@ -185,10 +220,8 @@ export class FormFindContact {
     if (hasData) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -216,7 +249,6 @@ export class FormFindContact {
       };
       var body = '';
       var self = this;
-
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         if (Array.isArray(result.data)) {
@@ -233,17 +265,14 @@ export class FormFindContact {
               self.lastSearch = true;
             }
             console.log("Results Data for FindContactByNameZip: ", self.findcontacts.items);
-            self.RestService.refreshCheck();
             self.loading.dismiss();
           });
         } else {
           self.dsEligible = false;
           self.lastSearch = true;
-          self.RestService.refreshCheck();
           self.loading.dismiss();
         }
       }).catch( function(result){
-          self.RestService.refreshCheck();
           console.log(body);
           self.loading.dismiss();
       });
@@ -270,10 +299,34 @@ export class FormFindContact {
       });
       alert.present();
     }
-
   }
 
   callDS() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.callDSDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.callDS');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + '.callDS - Credentials refreshed!');
+          self.callDSDo();
+        }
+      });
+    }
+  }
+
+  callDSDo() {
     var restURL: string;
     var contactInfo = "Dr. ";
     var hasData = false;
@@ -284,8 +337,6 @@ export class FormFindContact {
     var strStateCode = "";
     var intZipCode = "";
     var placeids = "";
-
-    console.log('FindContacts categoryList: ' + this.categoryList);
 
     if (this.categoryList == "physician") {
       if (this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value.trim() !== "") {
@@ -312,7 +363,6 @@ export class FormFindContact {
       }
       placeids = placeids.substring(0, placeids.length - 1);
       console.log('Place ID string: ' + placeids);
-
       if ((this.card_form.controls["city"].dirty && this.card_form.controls["city"].value.length > 2) && this.card_form.controls["state"].dirty) {
         contactInfo = contactInfo + this.card_form.controls["city"].value + " ";
         strCity = this.card_form.controls["city"].value;
@@ -343,10 +393,8 @@ export class FormFindContact {
     if (hasData) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -375,7 +423,6 @@ export class FormFindContact {
       };
       var body = '';
       var self = this;
-
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         if (Array.isArray(result.data)) {
@@ -387,17 +434,14 @@ export class FormFindContact {
             self.dsEligible = false;
             self.lastSearch = true;
             console.log("Results Data for FindContactByNameZip: ", self.findcontacts.items);
-            self.RestService.refreshCheck();
             self.loading.dismiss();
           });
         } else {
           self.dsEligible = false;
           self.lastSearch = true;
-          self.RestService.refreshCheck();
           self.loading.dismiss();
         }
       }).catch( function(result){
-          self.RestService.refreshCheck();
           console.log(body);
           self.loading.dismiss();
       });
@@ -408,7 +452,6 @@ export class FormFindContact {
       } else {
         message = 'Deep search requires at least a last name and [city and state] or valid [zipcode].';
       }
-
       let alert = this.alertCtrl.create({
         title: 'More data needed for search',
         message: message,
@@ -446,20 +489,38 @@ export class FormFindContact {
   }
 
   saveRecord(){
-    this.saving = true;
-
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
 
+  saveRecordDo(){
+    this.saving = true;
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
       this.contactSave.profileid = this.RestService.currentProfile;
       this.contactSave.userid = this.RestService.userId;
       this.contactSave.place_id = this.card_form.controls["contacts"].value;
       var checkContactId;
       checkContactId = this.getContactId(this.contactSave.place_id);
-      //console.log("CheckContactId = " + checkContactId);
       if ( checkContactId !==null) {
         this.contactSave.contactid = checkContactId;
       }
@@ -485,7 +546,6 @@ export class FormFindContact {
       if (this.card_form.controls["zipcode"].value !==null) {
         this.contactSave.zipcode = this.card_form.controls["zipcode"].value;
       }
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -493,7 +553,6 @@ export class FormFindContact {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -507,31 +566,25 @@ export class FormFindContact {
       };
       var body = JSON.stringify(this.contactSave);
       var self = this;
-
       console.log('Calling Post', this.contactSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Medical Contacts";
+        self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
         console.log('Result: ',result);
-        console.log(body);
+        self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-      this.RestService.appRestart();
-    }
   }
 
   setPhysician() {
-    //console.log('Called setPHysician');
     this.categoryList = "physician";
   }
 
   setFacility() {
-    //console.log('Called setFacility');
     this.categoryList = "facility";
   }
 
@@ -550,7 +603,6 @@ export class FormFindContact {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -559,13 +611,13 @@ export class FormFindContact {
   }
 
   formatDateTime2(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
       return moment(dateString).format('MM-DD-YYYY hh:mm a');
     }
   }
+
   updateCalc() {
     if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
       var startSplit = this.card_form.get('starttime').value.split(":");

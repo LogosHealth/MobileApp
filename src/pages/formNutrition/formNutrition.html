@@ -29,35 +29,41 @@
               <ion-row [formGroupName]="i">
                   <ion-col no-padding width-50>
                     <ion-item text-wrap>
-                      <ion-label *ngIf="meal.value.meal !== null" floating>{{meal.value.meal}}</ion-label>
-                      <ion-label *ngIf="meal.value.meal == null" floating>meal</ion-label>
+                      <ion-label *ngIf="meal.value.meal !== null && meal.value.mealtimeformat !== null" floating>{{meal.value.meal}} {{meal.value.mealtimeformat}}</ion-label>
+                      <ion-label *ngIf="meal.value.meal !== null && meal.value.mealtimeformat == null" floating>{{meal.value.meal}}</ion-label>
+                      <ion-label *ngIf="meal.value.meal == null  && meal.value.mealtimeformat == null" floating>meal</ion-label>
                       <ion-input type="text" formControlName="food">{{meal.food}}</ion-input>
                     </ion-item>
                   </ion-col>
-                  <ion-col no-padding width-25>
+                  <ion-col no-padding width-20>
                     <ion-item  text-wrap>
                       <ion-label floating>Amount</ion-label>
                       <ion-input type="text" formControlName="amount">{{meal.amount}}</ion-input>
                     </ion-item>
                   </ion-col>
-                  <ion-col no-padding width-25>
+                  <ion-col no-padding width-20>
                     <ion-item  text-wrap>
                       <ion-label floating>Calories</ion-label>
                       <ion-input type="text" formControlName="calories">{{meal.calories}}</ion-input>
                     </ion-item>
+                  </ion-col>
+                  <ion-col class="columnAlign" no-padding width-10>
+                    <button ion-button block class="form-action-button"  type="button" (click)=" updateMeal(i)">
+                      <ion-icon name="share-alt"></ion-icon>
+                    </button>
                   </ion-col>
                 </ion-row>
               </div>
         </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
-            <ion-col no-padding width-34>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+            <ion-col no-padding width-33>
+                <button ion-button block class="form-action-button" type="button" (click)="addMeal()" [disabled]="!card_form.valid">Add</button>
             </ion-col>
             <ion-col no-padding width-33>
-                <button ion-button block class="form-action-button" type="button" (click)="addItem()">Add</button>
-            </ion-col>
-            <ion-col no-padding width-33>
+              <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
+          </ion-col>
+          <ion-col no-padding width-33>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>

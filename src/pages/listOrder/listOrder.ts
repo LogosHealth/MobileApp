@@ -37,34 +37,40 @@ export class ListOrderPage {
     this.searchControl = new FormControl();
   }
 
-  ionViewDidLoad() {
-    //alert('Begin:' + this.searchTerm);
+  ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
       this.searchControl.valueChanges.debounceTime(700).subscribe(search => {
-        //alert('Working');
         this.setFilteredItems();
       });
     } else {
-      console.log('Need to login again!!! - Credentials expired from listOrder');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listOrder');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listOrder - Credentials refreshed!');
+          self.loadData();
+          self.searchControl.valueChanges.debounceTime(700).subscribe(search => {
+            self.setFilteredItems();
+          });
+        }
+      });
     }
-
-
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/OrderAMeal";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -85,7 +91,6 @@ export class ListOrderPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -93,12 +98,8 @@ export class ListOrderPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        self.RestService.refreshCheck();       
-        self.loading.dismiss();       
+        self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
     });
@@ -112,7 +113,6 @@ export class ListOrderPage {
       sessionToken: this.RestService.AuthData.sessionToken,
       region:'us-east-1'
     };
-
     var apigClient2 = this.RestService.AWSRestFactory.newClient(config2);
     var params2 = {
       //email: accountInfo.getEmail()
@@ -125,7 +125,6 @@ export class ListOrderPage {
         }
     };
     var body2 = '';
-
     apigClient2.invokeApi(params2, pathTemplate2, method2, additionalParams2, body2)
     .then(function(result){
       self.list2Service
@@ -134,17 +133,12 @@ export class ListOrderPage {
         self.listFilter.items = result.data;
         self.setFilteredItems();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
     });
-    
-
   }
 
-  setFilteredItems() {  
+  setFilteredItems() {
       this.items = this.filterItems(this.searchTerm);
       //alert('Search Term:' + this.searchTerm);
   }
@@ -157,7 +151,7 @@ export class ListOrderPage {
       } else {
         return this.listFilter.items.filter((item) => {
           return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
-        });    
+        });
       }
     } else {
       return [];
@@ -166,35 +160,53 @@ export class ListOrderPage {
 
   openRecord(recordId) {
     this.nav.push(FormOrderPage, { recId: recordId });
-    //alert('Open Record:' + recordId);
-  }  
- 
+  }
+
   searchListTerm(idx) {
-    //alert('Called searchListTerm');
     this.searchTerm = this.items[idx].name;
     this.getSearchData(idx);
-
-    //alert('iscategory: ' + item.iscategory);
   }
 
   runSearch() {
-    //alert('Run Search!!!');    
     this.getSearchData(-1);
   }
 
   getSearchData(idx) {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.getSearchDataDo(idx);
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listOrder.getSearchData');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listOrder.getSearchData - Credentials refreshed!');
+          this.getSearchDataDo(idx);
+        }
+      });
+    }
+  }
+
+  getSearchDataDo(idx) {
     var term;
     var recordid = -1;
     var iscategory;
     var restURL: string;
 
     idx = idx || -1;
-    this.loading.present();
-
     if (idx !== -1) {
       term = this.items[idx].name.toLowerCase();
       recordid = this.items[idx].recordid;
-      iscategory = this.items[idx].iscategory;      
+      iscategory = this.items[idx].iscategory;
     } else if ((this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(this.searchTerm.toLowerCase()) ===0;}).length ==1 &&
       this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(this.searchTerm.toLowerCase()) ===0;})[0].name.toLowerCase() == this.searchTerm.toLowerCase() )) {
         term =  this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(this.searchTerm.toLowerCase()) ===0;})[0].name.toLowerCase();
@@ -203,10 +215,7 @@ export class ListOrderPage {
     } else {
       term = this.searchTerm.toLowerCase();
     }
-    //alert('Term: ' + term + ', recordid: ' + recordid + ', iscategory: ' + iscategory);
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/OrderAMeal";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -221,12 +230,11 @@ export class ListOrderPage {
     var pathTemplate = '';
     var method = 'GET';
     var additionalParams;
-
     if (recordid !== -1) {
       additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
-            term: term, 
+            term: term,
             recordid: recordid,
             iscategory: iscategory
         }
@@ -235,11 +243,10 @@ export class ListOrderPage {
       additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
-            term: term 
+            term: term
         }
-      };      
+      };
     }
-
     var body = '';
     var self = this;
 
@@ -255,15 +262,14 @@ export class ListOrderPage {
         .getData()
         .then(data => {
           self.list2.items = self.RestService.results;
-          //alert('Allergy Response: ' + this.RestService.results);   
-          //alert('Transfer to List Items: ' +  this.list2.items);   
-          self.getFilterPane();     
+          self.getFilterPane();
           self.loading.dismiss();
-        });  
+        });
       }
     }).catch( function(result){
         console.log(body);
-    });
+        self.loading.dismiss();
+      });
   }
 
   getFilterPane() {

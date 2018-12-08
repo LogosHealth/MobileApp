@@ -25,38 +25,31 @@ export class FormTaskPage {
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
-
   taskModelSave: FormTaskModel  = new FormTaskModel();
   taskSave: FormTask = new FormTask();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
+
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
     if (this.goalname == undefined) {
       alert('No goal name');
       this.goalname = "";
     }
-
     this.curRec = RestService.results[this.recId];
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
-
-    //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
-
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         taskname: new FormControl(this.curRec.taskname, Validators.required),
@@ -87,19 +80,12 @@ export class FormTaskPage {
   }
 
   ionViewWillEnter() {
-    this.loading = this.loadingCtrl.create();
-    this.loading.present();
     this.nav.getPrevious().data.refresh = false;
-    this.loadData();
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -121,7 +107,6 @@ export class FormTaskPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -129,21 +114,41 @@ export class FormTaskPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        //alert('Allergy Response: ' + this.RestService.results);
-        //alert('Transfer to List Items: ' +  this.list2.items);
        console.log("Results Data for Get Goals: ", self.list2.items);
         self.loading.dismiss();
       });
-
-      //alert('Async Check from Invoke: ' + self.RestService.results);
-
     }).catch( function(result){
-        console.log(body);
+        console.log('Error is formTask.loadData: ', result);
         self.loading.dismiss();
     });
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Do you certain you want to delete this record?',
@@ -152,6 +157,7 @@ export class FormTaskPage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -160,13 +166,11 @@ export class FormTaskPage {
           handler: () => {
             console.log('Delete clicked');
             this.saving = true;
-            //alert('Going to delete');
             this.taskSave.recordid = this.card_form.get('recordid').value;
             this.taskSave.profileid = this.RestService.currentProfile;
             this.taskSave.userid = this.RestService.userId;
             this.taskSave.active = 'N';
             var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
-
             var config = {
               invokeUrl: restURL,
               accessKey: this.RestService.AuthData.accessKeyId,
@@ -174,7 +178,6 @@ export class FormTaskPage {
               sessionToken: this.RestService.AuthData.sessionToken,
               region:'us-east-1'
             };
-
             var apigClient = this.RestService.AWSRestFactory.newClient(config);
             var params = {
               //pathParameters: this.vaccineSave
@@ -188,17 +191,17 @@ export class FormTaskPage {
             };
             var body = JSON.stringify(this.taskSave);
             var self = this;
-
             console.log('Calling Post', this.taskSave);
             apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
             .then(function(result){
               self.RestService.results = result.data;
               console.log('Happy Path: ' + self.RestService.results);
               self.category.title = "Invest in You";
+              self.loading.dismiss();
               self.nav.pop();
             }).catch( function(result){
-              console.log('Result: ',result);
-              console.log(body);
+              console.log('Error in formTask.delete: ',result);
+              self.loading.dismiss();
             });
           }
         }
@@ -208,8 +211,32 @@ export class FormTaskPage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
-    //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.taskSave.recordid = this.card_form.get('recordid').value;
       this.taskSave.profileid = this.RestService.currentProfile;
@@ -256,7 +283,6 @@ export class FormTaskPage {
     }
 
     var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -264,7 +290,6 @@ export class FormTaskPage {
       sessionToken: this.RestService.AuthData.sessionToken,
       region:'us-east-1'
     };
-
     var apigClient = this.RestService.AWSRestFactory.newClient(config);
     var params = {
       //pathParameters: this.vaccineSave
@@ -278,7 +303,6 @@ export class FormTaskPage {
     };
     var body = JSON.stringify(this.taskSave);
     var self = this;
-
     console.log('Calling Post', this.taskSave);
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
@@ -288,17 +312,13 @@ export class FormTaskPage {
       self.loadData2();
     }).catch( function(result){
       console.log('Result: ',result);
-      console.log(body);
+      self.loading.dismiss()
     });
   }
 
   loadData2() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -320,7 +340,6 @@ export class FormTaskPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -328,10 +347,12 @@ export class FormTaskPage {
       .getData()
       .then(data => {
         self.nav.getPrevious().data.refresh = true;
+        self.loading.dismiss();
         self.nav.pop();
       });
     }).catch( function(result){
         console.log('Error in formExercise: apigClient.invokeApi', body);
+        self.loading.dismiss();
         self.nav.pop();
     });
   }
@@ -356,7 +377,6 @@ export class FormTaskPage {
     } else {
       var dayoftheweek = momentNow.format('dddd');
     }
-
 
     if (dayoftheweek == 'Sunday') {
       var offSet = 0

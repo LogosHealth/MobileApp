@@ -1,13 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { NavController, LoadingController, Platform, ModalController, Events } from 'ionic-angular';
-
 import { FeedPage } from '../feed/feed';
 import 'rxjs/Rx';
-
 import { ListingModel } from './listing.model';
 import { ListingService } from './listing.service';
 import { RestService } from '../../app/services/restService.service';
-
 import { ListOrderPage } from '../listOrder/listOrder';
 import { ListGoalProgressPage } from '../listGoalProgress/listGoalProgress';
 import { ListExercisePage } from '../listExercise/listExercise';
@@ -19,10 +16,8 @@ import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 import { ListAlertPage } from '../listAlert/listAlert';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { Chart } from 'chart.js';
-
 import { PhotoLibrary } from '@ionic-native/photo-library';
 import { Camera, CameraOptions } from '@ionic-native/camera';
-//import { HTTP } from '@ionic-native/http';
 import { HttpClient} from '@angular/common/http';
 import { File } from '@ionic-native/file';
 
@@ -34,7 +29,6 @@ var moment = require('moment-timezone');
 })
 export class ListingPage {
   @ViewChild('lineCanvas') lineCanvas;
-
   listing: ListingModel = new ListingModel();
   loading: any;
   curUser: any;
@@ -59,17 +53,11 @@ export class ListingPage {
     var self = this;
     this.platform.ready().then((rdy) => {
       this.loading = this.loadingCtrl.create();
-
       self.localNotifications.on('click').subscribe((notification)  => {
         console.log("notification id from click event " + notification.id);
-        //alert("notification id = " + notification.id);
-        //alert("page from = " + notification.data.secret);
         if (notification.data.secret == 'scheduleinstance') {
           console.log('Click Notification - state of nav: ', self.nav);
           alert("Please go to the Visit tile and schedule this appointment");
-          //self.nav.popToRoot();
-          //self.nav.push(ListVisitPage);
-          //self.events.publish('updateScreen');
         }
       });
     });
@@ -95,29 +83,50 @@ export class ListingPage {
       });
     })
     .catch(err => console.log('permissions weren\'t granted ' + err));
+  }
 
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      if (this.loading !== undefined) {
+        this.loading.dismiss();
+      }
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listing');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listing - Credentials refreshed!');
+          if (this.loading !== undefined) {
+            this.loading.dismiss();
+          }
+        }
+      });
+    }
   }
 
   ionViewDidLoad() {
     this.loading.present();
-
     this.userCount = this.RestService.Profiles.length;
-
     this.listingService
       .getData()
       .then(data => {
         this.listing.banner_image = data.banner_image;
         this.listing.banner_title = data.banner_title;
-        //this.listing.populars = this.RestService.Profiles;
         this.listing.categories = data.categories;
-
         var self = this;
         this.RestService.curUserObj(function (error, results) {
           if (!error) {
             self.curUser = results;
             console.log('Initial curUser', self.curUser);
             self.RestService.currentProfile = self.RestService.userId;
-
             self.lineChart = new Chart(self.lineCanvas.nativeElement, {
               type: 'line',
               data: {
@@ -187,9 +196,9 @@ export class ListingPage {
                       data: [1.01, 1.00, .99, .96],
                       spanGaps: false,
                   },
-                    ]
-                    }
-                });
+                  ]
+                }
+            });
 
             //Initial setting of checked field
             for (var i = 0; i < self.RestService.Profiles.length; i++) {
@@ -218,7 +227,6 @@ export class ListingPage {
 
   changeUser() {
     let profileModal = this.modalCtrl.create(FormChooseProfile, { action: 'changeUser' });
-
     profileModal.onDidDismiss(data => {
       console.log('Data from getDefaultUser: ', data);
       if (data !== undefined) {
@@ -236,7 +244,6 @@ export class ListingPage {
       signatureVersion: 'v4',
     });
     console.log('ChangePicture index: ' + index + ', name: ' + this.RestService.Profiles[index].title);
-
     //alert('ChangePicture called!');
     const options: CameraOptions = {
       quality: 70,
@@ -248,11 +255,9 @@ export class ListingPage {
       allowEdit:true,
       targetWidth:300,
       targetHeight:300
-
     }
 
     var self = this;
-
     this.camera.getPicture(options).then((imageData) => {
       // imageData is either a base64 encoded string or a file URI
       // If it's base64:
@@ -261,9 +266,6 @@ export class ListingPage {
       this.loading.present();
 
       var strKey = this.RestService.Profiles[0].accountid + "/" + this.RestService.Profiles[index].profileid + "/profilepic.jpeg";
-
-      //ACL: 'bucket-owner-full-control',
-      //ContentType: 'image/jpeg'}
       var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600, ContentType: 'image/jpeg'};
       s3.getSignedUrl('putObject', params, function (err, url) {
         if (err) {
@@ -280,15 +282,7 @@ export class ListingPage {
               //directory = "file:///storage/emulated/0/Android/data/healthcare.logos.visual/cache/";
             }
 
-            // Convert the File to an ArrayBuffer for upload
-            //alert('Checkpoint 2 ' + JSON.stringify(oneFile));
-            //alert('Checkpoint 2.5 ' + directory);
-            //alert('Checkpoint 2.75 ' + oneFile.name);
-
             self.file.readAsArrayBuffer(directory, oneFile.name).then(realFile => {
-              //alert('Checkpoint 3 ' + realFile);
-              //alert('Checkpoint 3.1 ' + url);
-
               self.http.put(url, realFile)
               .subscribe((data) => {
                 self.loading.dismiss();
@@ -306,7 +300,6 @@ export class ListingPage {
           }, (err) => {
             self.loading.dismiss();
             alert('resolve local filesystem err: ' + JSON.stringify(err));
-            //loading.dismiss();
             // Handle error
           });
 
@@ -324,10 +317,28 @@ export class ListingPage {
   savePicRecord(index) {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SavePicURL";
+      this.savePicRecordDo(index);
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listing.savePicRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listing.savePicRecord - Credentials refreshed!');
+          this.savePicRecordDo(index);
+        }
+      });
+    }
+  }
 
+  savePicRecordDo(index) {
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SavePicURL";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -350,21 +361,15 @@ export class ListingPage {
       };
       var body = "";
       var self = this;
-
-      //console.log('Calling Post', this.sleepSave);
-      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
-        //self.RestService.results = result.data;
         console.log('Happy Path: ' + result.data);
         //alert('Image Profile Record Saved');
-
         const s3 = new self.RestService.AWS.S3({
           signatureVersion: 'v4',
         });
-
         var strKey = self.RestService.Profiles[index].accountid + "/" + self.RestService.Profiles[index].profileid + "/profilepic.jpeg";
         var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
-
         s3.getSignedUrl('getObject', params, function (err, url) {
           if (err) {
             console.log('Err in getSignedUrl from getUserPics: ' + err);
@@ -374,14 +379,9 @@ export class ListingPage {
             alert('Updated ImageURL: ' + url);
           }
         });
-
       }).catch( function(result){
         console.log('Result for Save error: ',result);
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formSleep - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-      this.RestService.appRestart();
-    }
   }
 
   triggerAlert() {
@@ -394,27 +394,6 @@ export class ListingPage {
     } else {
       return "";
     }
-  }
-
-  ionViewWillEnter() {
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
-
-      if (dtDiff <= 0) {
-        console.log('Need to login again!!! - Credentials expired from Listingtab');
-        this.RestService.appRestart();
-      } else if (dtDiff < 30) {
-        console.log('Calling Refresh Credentials from Listingtab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-        this.RestService.refreshCredentials();
-        if (this.loading !== undefined) {
-          this.loading.dismiss();
-        }
-      } else {
-        if (this.loading !== undefined) {
-          this.loading.dismiss();
-        }
-      }
   }
 
   goToFeed(category: any) {

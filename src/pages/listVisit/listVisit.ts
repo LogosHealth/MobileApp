@@ -47,14 +47,25 @@ export class ListVisitPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listVisit');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listVisit');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listVisit - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -114,13 +125,10 @@ export class ListVisitPage {
           }
         }
         console.log("Results Data for Get Visits: ", self.list2.items);
-        self.RestService.refreshCheck();
-        //self.test();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -141,36 +149,6 @@ export class ListVisitPage {
     profileModal.present();
   }
 
-  /*
-  test() {
-    console.log('Start Test');
-    console.log('Start Date: ' + this.list2.items[0].visitdate);
-    var alertDate = new Date(this.list2.items[0].visitdate);
-    alertDate.setDate(alertDate.getDate() - 1);
-    var alertYear = alertDate.getFullYear();
-    var alertMonth = alertDate.getMonth()+1;
-    var alertDay = alertDate.getDate();
-    var alertDayStr;
-    var alertMonthStr;
-
-    if (alertDay < 10) {
-      alertDayStr = '0' + alertDay;
-    } else {
-      alertDayStr = alertDay.toString();
-    }
-    if (alertMonth < 10) {
-      alertMonthStr = '0' + alertMonth;
-    } else {
-      alertMonthStr = alertMonth.toString();
-    }
-
-    console.log('Start Date - 1: ' + alertYear + "-" + alertMonthStr + "-" + alertDayStr);
-    console.log('Day Before: ' + alertYear + "-" + alertMonthStr + "-" + alertDayStr + "T12:00:00.000Z");
-    var dayBefore = new Date(alertYear + "-" + alertMonthStr + "-" + alertDayStr + "T12:00:00.000Z");
-    console.log('Day Before Final Date: ' + dayBefore.toISOString());
-  }
-*/
-
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
@@ -180,12 +158,13 @@ export class ListVisitPage {
 
   callDoc(phoneNum, recordId) {
     console.log("Call Doc item", recordId);
+    var visit = this.RestService.results[recordId];
     this.callNumber.callNumber(phoneNum, true)
       .then(() =>
-        this.nav.push(FormCallNotesPage, { recId: recordId })
+        this.nav.push(FormCallNotesPage, { visit: visit, fromVisit: true })
       )
       .catch(() =>
-        this.nav.push(FormCallNotesPage, { recId: recordId })
+        this.nav.push(FormCallNotesPage, { visit: visit, fromVisit: true })
       );
   }
 
@@ -232,4 +211,5 @@ export class ListVisitPage {
       }
     }
   }
+
 }

@@ -32,10 +32,8 @@ export class FormContactPage {
   masks: any;
   textMask: TextMaskModule = new TextMaskModule();
   isfacility: boolean = false;
-
   stateList: DictionaryItem[];
   doctorTypeList: DictionaryItem[];
-
   saveModel: ListContact = new ListContact();
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
@@ -43,18 +41,15 @@ export class FormContactPage {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
-
     if (this.recId !== undefined) {
       //console.log('FacilityType: ' + this.curRec.facilitytype);
       if(this.curRec.facilitytype !== undefined && this.curRec.facilitytype !== null && this.curRec.facilitytype !== "") {
         this.isfacility = true;
       }
     }
-
     this.masks = {
       phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
     };
-
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
@@ -128,25 +123,34 @@ export class FormContactPage {
       }
   }
 
-  ionViewDidLoad() {
+  ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadDictionaries();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listSleep');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listSleep - Credentials refreshed!');
+          self.loadDictionaries();
+        }
+      });
     }
   }
 
   loadDictionaries() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -167,7 +171,6 @@ export class FormContactPage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -178,11 +181,9 @@ export class FormContactPage {
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.stateList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
         self.doctorTypeList = self.dictionaries.items[1].dictionary;
-
         if (self.curRec !== undefined && self.curRec.phonenumber !== undefined && self.curRec.phonenumber !== null && self.curRec.phonenumber !== "") {
           var phoneNumber = String(self.curRec.phonenumber);
           var phoneNumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-
           var conformedPhoneNumber = conformToMask(
             phoneNumber,
             phoneNumberMask,
@@ -190,12 +191,11 @@ export class FormContactPage {
           );
           self.card_form.controls["phonenumber"].setValue(conformedPhoneNumber.conformedValue);
         }
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
-        self.RestService.refreshCheck();
-        console.log(body);
+        console.log('Catch Result from formContact.loadDictionaries: ', result);
+        self.loading.dismiss();
     });
   }
 
@@ -216,7 +216,31 @@ export class FormContactPage {
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formContact.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formContact.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to inactivate this medical contact?',
@@ -225,6 +249,7 @@ export class FormContactPage {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -232,20 +257,13 @@ export class FormContactPage {
           text: 'Inactivate',
           handler: () => {
             console.log('Inactivate clicked');
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               this.saving = true;
               this.saveModel.profileid = this.RestService.currentProfile;
               this.saveModel.userid = this.RestService.userId;
               this.saveModel.recordid = this.card_form.controls["recordid"].value;
               this.saveModel.profile2contactid = this.card_form.controls["profile2contactid"].value;
               this.saveModel.active = 'N';
-
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -253,12 +271,10 @@ export class FormContactPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
                   //pathParameters: this.vaccineSave
               };
-
               var pathTemplate = '';
               var method = 'POST';
               var additionalParams = {
@@ -266,24 +282,19 @@ export class FormContactPage {
                   profileid: this.RestService.currentProfile,
                 }
               };
-
               var body = JSON.stringify(this.saveModel);
               var self = this;
-
               console.log('Calling Post', this.saveModel);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
+                  self.loading.dismiss();
                   self.nav.pop();
                 }).catch( function(result){
                   console.log('Result: ',result);
-                  console.log(body);
+                  self.loading.dismiss();
               });
-              } else {
-              console.log('Need to login again!!! - Credentials expired from formContact');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -292,18 +303,40 @@ export class FormContactPage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formContacts.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formContacts.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
     this.saveModel.profileid = this.RestService.currentProfile;
     this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
-
     if (!this.newRec) {
       this.saveModel.recordid = this.curRec.recordid;
       this.saveModel.profile2contactid = this.curRec.profile2contactid;
     }
-
     this.saveModel.fromgoogle = this.card_form.controls["fromgoogle"].value;
-
     if (this.card_form.controls["firstname"].dirty) {
       this.saveModel.firstname = this.card_form.controls["firstname"].value;
     }
@@ -346,13 +379,7 @@ export class FormContactPage {
     if (this.card_form.controls["covered"].dirty) {
       this.saveModel.covered = this.card_form.controls["covered"].value;
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -360,12 +387,10 @@ export class FormContactPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
           //pathParameters: this.vaccineSave
       };
-
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -373,10 +398,8 @@ export class FormContactPage {
           profileid: this.RestService.currentProfile,
         }
       };
-
       var body = JSON.stringify(this.saveModel);
       var self = this;
-
       console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
@@ -384,20 +407,16 @@ export class FormContactPage {
           if (!self.newRec) {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "Medical Contacts";
+            self.loading.dismiss();
             self.nav.pop();
           } else {
+            self.loading.dismiss();
             self.nav.pop();
-            // self.nav.goToRoot(this.navParams);
           }
-
       }).catch( function(result){
           console.log('Result: ',result);
-          console.log(body);
-      });
-      } else {
-      console.log('Need to login again!!! - Credentials expired from formContact');
-      this.RestService.appRestart();
-    }
+          self.loading.dismiss();
+        });
   }
 
   async ionViewCanLeave() {
@@ -428,4 +447,5 @@ export class FormContactPage {
     alert.present();
     return canLeave
   }
+
 }

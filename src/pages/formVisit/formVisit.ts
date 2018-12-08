@@ -5,10 +5,8 @@ import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { FormChooseInfo } from '../../pages/formChooseInfo/formChooseInfo';
 import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } from '../../pages/listVisit/listVisit.model';
-import { ListVisitService } from '../../pages/listVisit/listVisit.service';
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
-
 
 var moment = require('moment-timezone');
 
@@ -23,6 +21,8 @@ export class FormVisitPage {
   card_form: FormGroup;
   card_formPost: FormGroup;
   curRec: any;
+  contact: any;
+  curProfile: any;
   loading: any;
   newRec: boolean = false;
   saving: boolean = false;
@@ -33,11 +33,9 @@ export class FormVisitPage {
   iiBlankAdded: boolean = false;
   selectedItems: ImportantInfos = new ImportantInfos();
   importantInfos: ImportantInfos = new ImportantInfos();
-
   formSave: ListVisit = new ListVisit();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -45,17 +43,22 @@ export class FormVisitPage {
     public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
+    if (this.curRec == undefined) {
+      this.curRec = {
+        recordid: null
+      }
+    }
+    this.contact = navParams.get('contact');
     this.selectedItems.items = [];
     this.importantInfos.items = [];
     this.categoryList = 'pre';
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
+        self.curProfile = results;
       }
     });
-
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
@@ -75,11 +78,20 @@ export class FormVisitPage {
       this.addExistingTodos();
     } else {
       this.newRec = true;
+      var title = null;
+      var firstNameVal = null;
+      if (this.contact !==undefined && this.contact !==null) {
+        title = this.contact.title;
+      }
+      if (this.curProfile !==undefined && this.curProfile !==null) {
+        firstNameVal = this.curProfile.title;
+        console.log("curProfile: ", this.curProfile);
+      }
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         visitdate: new FormControl(),
-        firstname: new FormControl(this.curRec.firstname),
-        physiciantitle: new FormControl(),
+        firstname: new FormControl(firstNameVal),
+        physiciantitle: new FormControl(title),
         reason: new FormControl(),
         infos: this.formBuilder.array([]),
         questions: this.formBuilder.array([]),
@@ -89,10 +101,34 @@ export class FormVisitPage {
         userid: new FormControl()
       });
     }
-
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to cancel this visit record (please ensure you have informed the physician)?',
@@ -101,6 +137,7 @@ export class FormVisitPage {
           text: 'No',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -108,13 +145,7 @@ export class FormVisitPage {
           text: 'Yes',
           handler: () => {
             console.log('Delete clicked');
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               this.saving = true;
-
               if (this.card_form.get('recordid').value !== undefined && this.card_form.get('recordid').value !== null) {
                 this.formSave.recordid = this.card_form.get('recordid').value;
               }
@@ -124,10 +155,7 @@ export class FormVisitPage {
               this.formSave.active = 'N';
               this.formSave.profileid = this.curRec.profileid;
               this.formSave.userid = this.RestService.userId;
-
-              //alert('Going to delete');
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -135,7 +163,6 @@ export class FormVisitPage {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
                 //pathParameters: this.vaccineSave
@@ -149,22 +176,18 @@ export class FormVisitPage {
               };
               var body = JSON.stringify(this.formSave);
               var self = this;
-
               console.log('Calling Post', this.formSave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Visit";
+                self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
+                console.log('error in formVisit.delete: ',result);
+                self.loading.dismiss();
               });
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formMood - Delete');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -173,16 +196,41 @@ export class FormVisitPage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
     this.loading = this.loadingCtrl.create();
     this.loading.present();
-  console.log('Save record in formVisit called!');
+    console.log('Save record in formVisit called!');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.active = 'Y';
-      this.formSave.profileid = this.curRec.profileid;
+      console.log('Cur Profile: ', this.curProfile);
+      this.formSave.profileid = this.curProfile.profileid;
       this.formSave.userid = this.RestService.userId;
-
       if (this.card_form.get('reason').dirty) {
         this.formSave.reason = this.card_form.get('reason').value;
       }
@@ -191,23 +239,22 @@ export class FormVisitPage {
       }
     } else {
       this.formSave.active = 'Y';
-      this.formSave.profileid = this.curRec.profileid;
+      console.log('Cur Profile: ', this.curProfile);
+      this.formSave.profileid = this.curProfile.profileid;
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
-      this.formSave.contactid = this.curRec.contactid;
+      this.formSave.contactid = this.contact.recordid;
       this.formSave.accountid = this.RestService.Profiles[0].accountid;
       if (this.curRec.scheduleinstanceid !== undefined && this.curRec.scheduleinstanceid !== null) {
         this.formSave.scheduleinstanceid = this.curRec.scheduleinstanceid;
       }
     }
-
     this.infos = this.card_form.get('infos') as FormArray;
     if (this.infos.dirty) {
       var impInfos: ImportantInfos = new ImportantInfos();
       var impInfo: ImportantInfo;
       var infoForm;
-
       console.log('formVisit Save - infos dirty', this.selectedItems);
       impInfos.items = [];
       for (var j = 0; j < this.infos.length; j++) {
@@ -232,13 +279,11 @@ export class FormVisitPage {
     } else {
       console.log('formVisit Save - infos not dirty');
     }
-
     this.todos = this.card_form.get('todos') as FormArray;
     if (this.todos.dirty) {
       var impTodos: ToDos = new ToDos();
       var impTodo: ToDo;
       var todoForm;
-
       console.log('formVisit Save - todos dirty');
       impTodos.items = [];
       for (var j = 0; j < this.todos.length; j++) {
@@ -269,13 +314,11 @@ export class FormVisitPage {
     } else {
       console.log('formVisit Save - todos not dirty');
     }
-
     this.questions = this.card_form.get('questions') as FormArray;
     if (this.questions.dirty) {
       var impQuestions: Questions = new Questions();
       var impQuestion: Question;
       var questionForm;
-
       console.log('formVisit Save - quest dirty');
       impQuestions.items = [];
       for (var j = 0; j < this.questions.length; j++) {
@@ -299,13 +342,7 @@ export class FormVisitPage {
     } else {
       console.log('formVisit Save - quest not dirty');
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -313,7 +350,6 @@ export class FormVisitPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -327,7 +363,6 @@ export class FormVisitPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-
       console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
@@ -337,15 +372,9 @@ export class FormVisitPage {
         self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
+        console.log('Error in formVisit.save: ',result);
         self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formVisit');
-      this.loading.dismiss();
-      this.RestService.appRestart();
-    }
   }
 
   addInfo() {
@@ -374,7 +403,6 @@ export class FormVisitPage {
     }
     console.log('Check reminder data: recid = ' + this.recId + ", index = " + index);
     let profileModal = this.modalCtrl.create(FormChooseNotify, { recId: this.recId, todoIndex: index, object: "todo for visit" });
-
     profileModal.onDidDismiss(data => {
       if (data !==undefined && data !== null) {
         console.log('Data from checkReminder: ', data);
@@ -389,7 +417,6 @@ export class FormVisitPage {
       console.log('Data from checkReminder data: ', self.curRec.todos.items[index].notifyschedule);
     });
     profileModal.present();
-
   }
 
   public today() {
@@ -397,7 +424,6 @@ export class FormVisitPage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
@@ -407,14 +433,12 @@ export class FormVisitPage {
 
   addExistingInfos() {
     this.infos = this.card_form.get('infos') as FormArray;
-
     if (this.curRec.importantinfo !== undefined && this.curRec.importantinfo.items !== undefined && this.curRec.importantinfo.items.length > 0) {
       if (this.iiBlankAdded) {
         this.infos.removeAt(0);
         this.iiBlankAdded = false;
         console.log('Flipped iiBlank from AddExistingInfos');
       }
-
       for (var j = 0; j < this.curRec.importantinfo.items.length; j++) {
         this.importantInfos.items.push(this.curRec.importantinfo.items[j]);
         this.infos.push(this.addExistingInfo(j));
@@ -439,7 +463,6 @@ export class FormVisitPage {
   addSelectedInfos() {
     var startCount = 0;
     var rowCount;
-
     this.infos = this.card_form.get('infos') as FormArray;
     console.log('Entered addSelectedInfos', this.selectedItems.items);
     if (this.selectedItems.items !== undefined  && this.selectedItems.items.length > 0) {
@@ -448,7 +471,6 @@ export class FormVisitPage {
         this.infos.removeAt(0);
         this.iiBlankAdded = false;
       }
-
       if (this.infos.length > 0) {
         startCount = this.infos.length;
       }
@@ -515,10 +537,8 @@ export class FormVisitPage {
 
   addExistingQuestions() {
     this.questions = this.card_form.get('questions') as FormArray;
-
     if (this.curRec.questions !== undefined && this.curRec.questions.items !== undefined && this.curRec.questions.items.length > 0) {
       this.questions.removeAt(0);
-
       for (var j = 0; j < this.curRec.questions.items.length; j++) {
         this.questions.push(this.addExistingQuestion(j));
       }
@@ -552,10 +572,8 @@ export class FormVisitPage {
 
   addExistingTodos() {
     this.todos = this.card_form.get('todos') as FormArray;
-
     if (this.curRec.todos !== undefined && this.curRec.todos.items !== undefined && this.curRec.todos.items.length > 0) {
       this.todos.removeAt(0);
-
       for (var j = 0; j < this.curRec.todos.items.length; j++) {
         this.todos.push(this.addExistingTodo(j));
       }
@@ -564,7 +582,6 @@ export class FormVisitPage {
 
   addExistingTodo(index): FormGroup {
     var selected = false;
-
     if (this.curRec.todos.items[index].completedflag == 'Y') {
       selected = true;
     }
@@ -583,7 +600,6 @@ export class FormVisitPage {
 
     todoArray = this.card_form.get('todos') as FormArray;
     todo = todoArray.at(index) as FormGroup;
-
     if (todo.get("completedflag").value) {
       this.curRec.todos.items[index].completedflag = 'Y';
     } else {
@@ -591,15 +607,12 @@ export class FormVisitPage {
     }
   }
 
-
   isComplete(index) {
     if (this.curRec.todos !== undefined) {
       if (this.curRec.todos.items[index] !== undefined) {
         if (this.curRec.todos.items[index].completedflag == 'Y') {
-          //console.log('Is Complete is Y');
           return true;
         } else {
-          //console.log('Is Complete is N');
           return false;
         }
       } else {
@@ -608,27 +621,20 @@ export class FormVisitPage {
     } else {
       return false;
     }
-
   }
 
   pastDue(index) {
     var dtNow = new Date();
     var dtTarget;
-
     if (this.curRec.todos !== undefined) {
       if (this.curRec.todos.items[index] !== undefined) {
         dtTarget = new Date(this.curRec.todos.items[index].duedate);
         var timedifference = new Date().getTimezoneOffset();
         timedifference = timedifference/60;
-        //console.log('timedifference: ' + timedifference);
         dtNow.setHours(dtNow.getHours() - timedifference);
-        //console.log('DtNow: ' + dtNow.toISOString());
-        //console.log('DtTarget: ' + dtTarget.toISOString());
         if (dtNow > dtTarget) {
-          //console.log('Is Complete is Y');
           return true;
         } else {
-          //console.log('Is Complete is N');
           return false;
         }
       } else {
@@ -637,7 +643,6 @@ export class FormVisitPage {
     } else {
       return false;
     }
-
   }
 
   notReady(index) {
@@ -645,10 +650,8 @@ export class FormVisitPage {
       if (this.curRec.todos.items[index] !== undefined) {
         if (this.curRec.todos.items[index].taskname !== undefined && this.curRec.todos.items[index].taskname !== null && this.curRec.todos.items[index].taskname !== "" &&
           this.curRec.todos.items[index].duedate !== undefined && this.curRec.todos.items[index].duedate !== null && this.curRec.todos.items[index].duedate !== "") {
-          //console.log('Is Complete is Y');
           return false;
         } else {
-          //console.log('Is Complete is N');
           return true;
         }
       } else {
@@ -657,15 +660,12 @@ export class FormVisitPage {
     } else {
       return true;
     }
-
   }
 
   syncTaskName(index) {
-    //console.log('Start syncTaskName');
     var todoArray = this.card_form.get('todos') as FormArray;
     var todo = todoArray.at(index) as FormGroup;
     var todoObj: ToDo  = new ToDo;
-
     if (todo.get("taskname").value !==null && todo.get("taskname").value !=="") {
       if (this.curRec.todos !== undefined) {
         console.log('todos: ', this.curRec.todos);
@@ -684,16 +684,12 @@ export class FormVisitPage {
         this.curRec.todos.items.push(todoObj);
       }
     }
-
   }
 
   syncDueDate(index) {
-    //console.log('Start syncTaskName');
     var todoArray = this.card_form.get('todos') as FormArray;
     var todo = todoArray.at(index) as FormGroup;
     var todoObj: ToDo  = new ToDo;
-
-    console.log('Due Date value from sync: ' + todo.get("duedate").value);
     if (todo.get("duedate").value !==null && todo.get("duedate").value !=="") {
       if (this.curRec.todos !== undefined) {
         console.log('todos: ', this.curRec.todos);
@@ -712,7 +708,6 @@ export class FormVisitPage {
         this.curRec.todos.items.push(todoObj);
       }
     }
-
   }
 
   categoryEmpty() {

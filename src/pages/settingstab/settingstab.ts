@@ -8,8 +8,6 @@ import { FormAboutMe } from '../formAboutMe/formAboutMe';
 import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
 import { ListSchedulePage } from '../listSchedule/listSchedule';
-
-
 import { RestService } from '../../app/services/restService.service';
 
 var moment = require('moment-timezone');
@@ -52,15 +50,22 @@ export class SettingsTabPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
-    var dtDiff = dtExpiration.diff(dtNow, 'minutes');
+    var self = this;
 
-      if (dtDiff <= 0) {
-        console.log('Need to login again!!! - Credentials expired from settingstab');
-        this.RestService.appRestart();
-      } else if (dtDiff < 30) {
-        console.log('Calling Refresh Credentials from settingstab dtDiff: ' + dtDiff + ' dtExp: ' + dtExpiration + ' dtNow: ' + dtNow);
-        this.RestService.refreshCredentials();
-      }
+    //if expired - refresh token
+    if (dtNow > dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from history');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From history - Credentials refreshed!');
+        }
+      });
+    }
   }
 
   goToFeed(category: any) {
@@ -90,11 +95,35 @@ export class SettingsTabPage {
   }
 
   refreshProfiles() {
-    alert('Refresh Profiles called!');
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.refreshProfilesDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listSleep');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listSleep - Credentials refreshed!');
+          self.refreshProfilesDo();
+        }
+      });
+    }
+  }
+
+  refreshProfilesDo() {
+    //alert('Refresh Profiles called!');
     console.log('Refresh Profiles called!');
     var self = this;
     var email = this.RestService.AuthData.email;
-
     var config = {
       invokeUrl: "https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetProfilesByEmail",
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -114,7 +143,6 @@ export class SettingsTabPage {
         }
     };
     var body = '';
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       //console.log(result.data);
@@ -122,9 +150,10 @@ export class SettingsTabPage {
       self.RestService.Profiles = result.data;
       console.log('Body: ', resultData);
       self.listing.populars = self.RestService.Profiles;
-        //This is where you would put a success callback
+      self.loading.dismiss();
     }).catch( function(result){
         console.log(body);
+        self.loading.dismiss();
     });
   }
 

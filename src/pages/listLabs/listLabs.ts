@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListLabsModel } from './listLabs.model';
 import { ListLabsService } from './listLabs.service';
 import { RestService } from '../../app/services/restService.service';
@@ -30,7 +28,6 @@ export class ListLabsPage {
     public loadingCtrl: LoadingController
   ) {
     this.feed.category = navParams.get('category');
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -42,22 +39,31 @@ export class ListLabsPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listLabs');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listLabs');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listLabs - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -87,12 +93,10 @@ export class ListLabsPage {
       .then(data => {
         self.list2.items = self.RestService.results;
         console.log("Results Data for Get Labs: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -101,12 +105,12 @@ export class ListLabsPage {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormLabsPage, { recId: recordId });
-  }  
+  }
 
   addNew() {
     this.nav.push(FormLabsPage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -144,5 +148,5 @@ export class ListLabsPage {
       }
     }
   }
-  
+
 }

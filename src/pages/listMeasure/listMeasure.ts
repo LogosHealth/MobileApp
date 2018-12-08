@@ -48,6 +48,7 @@ export class ListMeasurePage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
@@ -60,16 +61,30 @@ export class ListMeasurePage {
         this.loadData();
       }
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listMeasure');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listMeasure - Credentials refreshed!');
+          if (self.curObj == 'mood') {
+            self.loadDataMood();
+          } else if (self.curObj == 'bloodGlucose') {
+            self.loadDataBG();
+          } else {
+            self.loadData();
+          }
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/WeightByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -100,21 +115,17 @@ export class ListMeasurePage {
         self.list2.items = self.RestService.results;
         self.curObj = "weight";
         console.log("Results Data for Get Weight: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   loadDataBG() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -146,21 +157,17 @@ export class ListMeasurePage {
         self.list2.items = self.RestService.results;
         self.curObj = "bloodGlucose";
         console.log("Results Data for loadDataBG: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   loadDataMood() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -191,21 +198,17 @@ export class ListMeasurePage {
         self.list2.items = self.RestService.results;
         self.curObj = "mood";
         console.log("Results Data for loadDataMood: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   loadDataTemp() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TemperatureByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -236,21 +239,17 @@ export class ListMeasurePage {
         self.list2.items = self.RestService.results;
         self.curObj = "temperature";
         console.log("Results Data for loadTemperature: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
 
   loadDataSymptom() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SymptomByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -281,12 +280,10 @@ export class ListMeasurePage {
         self.list2.items = self.RestService.results;
         self.curObj = "symptom";
         console.log("Results Data for loadSymptom: ", self.list2.items);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
   }
@@ -339,21 +336,58 @@ export class ListMeasurePage {
   }
 
   loadList(dataObj) {
-    //alert('FormatDateTime called');
-    if (dataObj !== this.curObj) {
-      if (dataObj == 'weight') {
-        this.loadData();
-      } else if (dataObj == 'bloodGlucose') {
-        this.loadDataBG();
-      } else if (dataObj == 'mood') {
-        this.loadDataMood();
-      } else if (dataObj == 'temp') {
-        this.loadDataTemp();
-      } else if (dataObj == 'symptom') {
-        this.loadDataSymptom();
-      } else {
-        console.log ('No data in loadList');
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      if (dataObj !== this.curObj) {
+        this.loading = this.loadingCtrl.create();
+        this.loading.present();
+        if (dataObj == 'weight') {
+          this.loadData();
+        } else if (dataObj == 'bloodGlucose') {
+          this.loadDataBG();
+        } else if (dataObj == 'mood') {
+          this.loadDataMood();
+        } else if (dataObj == 'temp') {
+          this.loadDataTemp();
+        } else if (dataObj == 'symptom') {
+          this.loadDataSymptom();
+        } else {
+          console.log ('No data in loadList');
+          self.loading.dismiss();
+        }
       }
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listMeasure');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listMeasure - Credentials refreshed!');
+          if (dataObj !== this.curObj) {
+            if (dataObj == 'weight') {
+              this.loadData();
+            } else if (dataObj == 'bloodGlucose') {
+              this.loadDataBG();
+            } else if (dataObj == 'mood') {
+              this.loadDataMood();
+            } else if (dataObj == 'temp') {
+              this.loadDataTemp();
+            } else if (dataObj == 'symptom') {
+              this.loadDataSymptom();
+            } else {
+              console.log ('No data in loadList');
+              self.loading.dismiss();
+            }
+          }
+        }
+      });
     }
   }
+
 }

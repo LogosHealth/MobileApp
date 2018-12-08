@@ -40,22 +40,31 @@ export class ListMedicationPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listMedication');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listMedication - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -84,19 +93,13 @@ export class ListMedicationPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
-        self.RestService.refreshCheck();
+        console.log("Results Data for Get Medications: ", self.list2.items);
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
-        self.RestService.refreshCheck();
         self.loading.dismiss();
     });
-
   }
 
   openRecord(recordId) {
@@ -104,12 +107,12 @@ export class ListMedicationPage {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormSleepPage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormSleepPage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
@@ -139,4 +142,5 @@ export class ListMedicationPage {
       }
     }
   }
+
 }

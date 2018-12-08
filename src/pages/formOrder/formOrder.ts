@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController} from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController} from 'ionic-angular';
 import { FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListOrderModel, ListOrder } from '../../pages/listOrder/listOrder.model';
@@ -12,6 +12,8 @@ import { CallNumber } from '@ionic-native/call-number';
 })
 export class FormOrderPage {
   section: string;
+  formName: string = "formOrder";
+  loading: any;
   recId: number;
   card_form: FormGroup;
   form_array: FormArray;
@@ -19,23 +21,18 @@ export class FormOrderPage {
   curRec: any;
   saving: boolean = false;
   showTips: boolean = true;
-
   modelSave: ListOrderModel  = new ListOrderModel();
   listSave: ListOrder = new ListOrder();
   category: HistoryItemModel = new HistoryItemModel();
-  
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, 
+  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public navParams: NavParams, private callNumber: CallNumber) {
-    this.recId = navParams.get('recId');
-   // this.section = "event";
 
-    this.curRec = RestService.results[this.recId]; 
-    
+    this.recId = navParams.get('recId');
+    this.curRec = RestService.results[this.recId];
     this.card_form = new FormGroup({
-        //exp_date: new FormControl(this.curRec.startdate, Validators.required),
         recordid: new FormControl(this.curRec.recordid),
         name: new FormControl(this.curRec.name),
         description: new FormControl(this.curRec.description),
@@ -57,7 +54,7 @@ export class FormOrderPage {
         city: new FormControl(this.curRec.city),
         phone: new FormControl(this.curRec.phone),
         image: new FormControl(this.curRec.image)
-      });  
+      });
   }
 
   call2Order(){

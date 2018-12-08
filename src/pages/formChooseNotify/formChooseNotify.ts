@@ -3,13 +3,12 @@ import { NavController, NavParams, AlertController, LoadingController, ViewContr
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListSchedule, ActivatedSchedule, ActivatedSchedules, Eligibles, Eligible } from '../../pages/listSchedule/listSchedule.model';
+import { ListSchedule, ActivatedSchedule, ActivatedSchedules, Eligible } from '../../pages/listSchedule/listSchedule.model';
 import { ToDoNotify } from '../../pages/listVisit/listVisit.model';
 import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
 import { DictionaryService } from '../../pages/models/dictionary.service';
 import { ListContactModel } from '../../pages/listContacts/listContacts.model';
 import { ListContactService } from '../../pages/listContacts/listContacts.service';
-
 
 var moment = require('moment-timezone');
 
@@ -38,15 +37,11 @@ export class FormChooseNotify {
   notifySelected: boolean = false;
   hasActiveSched: boolean = true;
   activeProfileID: number;
-
   profiles = [];
-  //profilesNotify = FormArray;
   scheduleModelSave: ListSchedule  = new ListSchedule();
   scheduleSave: ActivatedSchedule = new ActivatedSchedule();
   scheduleSaveArray: ActivatedSchedules = new ActivatedSchedules();
-
   modelSave: ToDoNotify  = new ToDoNotify();
-
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   timeNow: any;
@@ -57,11 +52,9 @@ export class FormChooseNotify {
   yearNow: any;
   monthDefaultNext: any;
   yearDefaultNext: any;
-
   dictionaries: DictionaryModel = new DictionaryModel();
   intervalList: DictionaryItem[];
   listContacts: ListContactModel = new ListContactModel();
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -77,7 +70,6 @@ export class FormChooseNotify {
     this.todoIndex = navParams.get('todoIndex');
     this.objectType = navParams.get('object');
     this.curRec = RestService.results[this.recId];
-    console.log('choooseNotify inputs: recId: ' + this.recId + ', todoindex: ' + this.todoIndex);
     console.log('Cur rec from chooseInfo: ', this.curRec);
 
   //MM 10-30-18 We will use the objectType to drive population into a generic todo object
@@ -115,7 +107,6 @@ export class FormChooseNotify {
       }
     } else if (this.objectType == "task") {
       console.log('Put task code here: ');
-
     } else if (this.objectType == "todo for visit") {
       this.titleName = this.curRec.todos.items[this.todoIndex].taskname;
       this.targetDate = this.curRec.todos.items[this.todoIndex].duedate;
@@ -155,17 +146,14 @@ export class FormChooseNotify {
     } else {
       console.log('Obj type not found: ' + this.objectType);
     }
-
     console.log('Visit Obj from formChooseNotify curRec: ', this.curRec);
     console.log('Model Save Loaded', this.modelSave);
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
       }
     });
-
     this.momentNow = moment(new Date());
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
       this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
@@ -173,7 +161,6 @@ export class FormChooseNotify {
       this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
       this.monthNow = this.momentNow.tz(this.userTimezone).format('MM');
       this.yearNow = this.momentNow.tz(this.userTimezone).format('YYYY');
-
     } else {
       this.hourNow = this.momentNow.format('HH');
       this.minuteNow = this.momentNow.format('mm');
@@ -201,7 +188,6 @@ export class FormChooseNotify {
       //console.log('Month Next: ' + this.monthDefaultNext);
     }
     //console.log('Month Default Next:' + this.monthDefaultNext);
-
     var eligibles = [];
     var eligible: Eligible = new Eligible();
     for (var j = 0; j < this.RestService.Profiles.length; j++) {
@@ -212,8 +198,6 @@ export class FormChooseNotify {
       eligibles.push(eligible);
     }
     this.profiles = eligibles;
-
-
     if (!this.newRec) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.modelSave.recordid),
@@ -255,28 +239,45 @@ export class FormChooseNotify {
     this.addExistingProfiles();
   }
 
-  ionViewWillEnter() {
-    //this.loading = this.loadingCtrl.create();
-    //this.loading.present();
-  }
-
   leaveRecord() {
     this.nav.pop();
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formChooseNotify.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formChooseNotify.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     var strProfiles = "";
     this.saving = true;
-
     this.loading = this.loadingCtrl.create();
     this.loading.present();
-
 
     if (this.profilesNotify.dirty) {
       for (var j = 0; j < this.profilesNotify.length; j++) {
         if (this.profilesNotify.at(j).value.selected) {
           strProfiles = strProfiles + this.profilesNotify.at(j).value.profileid + ', ';
-          //console.log('Profile Id for profile Notify: ' + this.profilesNotify.at(j).value.profileid);
         }
       }
       strProfiles = strProfiles.substring(0, strProfiles.length -2);
@@ -301,14 +302,7 @@ export class FormChooseNotify {
     if (this.card_form.get('fifteenminutes').dirty){
       this.modelSave.fifteenminute = this.card_form.get('fifteenminutes').value;
     }
-
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ReminderByEvent";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -316,7 +310,6 @@ export class FormChooseNotify {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -324,7 +317,6 @@ export class FormChooseNotify {
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams;
-
       if (!this.newTask) {
         additionalParams = {
           queryParams: {
@@ -341,22 +333,16 @@ export class FormChooseNotify {
         console.log('New task');
       }
       var body;
-
       //MM 10-5-18 Custom dirty represents that the scheduleModelSave object needs to be sent
       body = JSON.stringify(this.modelSave);
-
       var self = this;
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
-        //self.RestService.results = result.data;
-        console.log('Happy Path: ', self.RestService.results);
         self.card_form.markAsPristine();
-        //alert('This notification schedule has been successfully updated.');
         self.category.title = "Visit";
         self.saved = true;
         self.loading.dismiss();
         self.dismiss();
-        //self.nav.pop();
       }).catch( function(result){
         alert('There is an error in updating the schedule.  It has been logged and will be reviewed by technical support');
         console.log('Result: ',result);
@@ -364,13 +350,7 @@ export class FormChooseNotify {
         self.category.title = "Visit";
         self.loading.dismiss();
         self.dismiss();
-        //self.nav.pop();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formSchedule - SaveData dtExpiration = ' + dtExpiration + ' dtNow = ' + dtNow);
-      this.loading.dismiss();
-      this.RestService.appRestart();
-    }
   }
 
   public today() {
@@ -378,7 +358,6 @@ export class FormChooseNotify {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -387,7 +366,6 @@ export class FormChooseNotify {
   }
 
   formatDateTime2(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
@@ -451,9 +429,6 @@ export class FormChooseNotify {
     for (var j = 0; j < this.profilesNotify.length; j++) {
       if (this.profilesNotify.at(j).value.selected) {
         isSelected = true;
-        //console.log("from readProfilesNotify - j = " + j + " answer is " + this.profilesNotify.at(j).value.selected);
-      } else {
-        //console.log("from readProfilesNotify - j = " + j + " answer is " + this.profilesNotify.at(j).value.selected);
       }
     }
     this.notifySelected = isSelected;
@@ -464,21 +439,17 @@ export class FormChooseNotify {
   if (this.modelSave.notifyprofiles !== undefined && this.modelSave.notifyprofiles !== null && this.modelSave.notifyprofiles !== "") {
     var notp = this.modelSave.notifyprofiles;
     var notifys = notp.split(",");
-
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
     for (var l = 0; l < notifys.length; l++) {
       for (var k = 0; k < this.profilesNotify.length; k++) {
         if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
           this.profilesNotify.at(k).get("selected").setValue(true);
           //console.log('Set selected for ' + this.profilesNotify.at(k).value.profileid);
-        } else {
-          //console.log ('Nofifys id: ' + notifys[l].trim() + ' profilesNotify id: ' + this.profilesNotify.at(k).value.profileid);
         }
       }
     }
     this.card_form.markAsPristine();
   }
-
 }
 
   createItem(): FormGroup {
@@ -525,4 +496,5 @@ export class FormChooseNotify {
     }
     this.viewCtrl.dismiss(data);
   }
+
 }

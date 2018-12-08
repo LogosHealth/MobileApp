@@ -3,7 +3,6 @@ import { NavController, NavParams, AlertController, LoadingController } from 'io
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
-
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
@@ -31,7 +30,6 @@ export class FormLabsPage {
   saving: boolean = false;
   loadingComplete: boolean = false;
   showTips: boolean = true;
-
   formModelSave: ListMeasureModel  = new ListMeasureModel();
   formSave: ListMeasure = new ListMeasure();
   category: HistoryItemModel = new HistoryItemModel();
@@ -40,7 +38,6 @@ export class FormLabsPage {
   dictionaries: DictionaryModel = new DictionaryModel();
   labsList: DictionaryItem[];
   unitList = [];
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -54,9 +51,7 @@ export class FormLabsPage {
     } else {
       console.log ('Lab Form not exist - value = ' + this.labForm);
     }
-
     this.curRec = RestService.results[this.recId];
-
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -64,9 +59,7 @@ export class FormLabsPage {
       }
     });
 
-    //add caloriesburnedvalue generator
     if (this.recId !== undefined) {
-
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         labnametext: new FormControl(this.curRec.labnametext, Validators.required),
@@ -103,14 +96,25 @@ export class FormLabsPage {
   ionViewDidLoad() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from formLabs');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName);
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + ' - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
@@ -119,11 +123,8 @@ export class FormLabsPage {
   }
 
   loadData() {
-    console.log('GetDictionaries by Form: formLabs');
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -138,7 +139,6 @@ export class FormLabsPage {
     var pathTemplate = '';
     var method = 'GET';
     var additionalParams;
-
     if (this.isSpecificLabForm) {
       additionalParams = {
         queryParams: {
@@ -153,21 +153,18 @@ export class FormLabsPage {
         }
       };
     }
-
     var body = '';
     var self = this;
-    console.log('Calling getDictionaries from FormLabs');
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
-      console.log('RestService Results ', self.RestService.results);
+      console.log('formLabs.loadData Results ', self.RestService.results);
       self.dictionaryService
       .getData()
       .then(data => {
         self.dictionaries.items = self.RestService.results;
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.labsList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
-        //console.log("Results Data Active LabName: " +  self.curRec.labname);
         if (self.curRec !== undefined) {
           if (self.curRec.labname !== undefined && self.curRec.labname !== null && Number(self.curRec.labname) > 0) {
             self.unitList = self.getUnitsByLabName(self.curRec.labname);
@@ -177,19 +174,16 @@ export class FormLabsPage {
         } else {
           self.unitList = self.dictionaries.items[0].dictionary[0].dictionary; //index 1 as aligned with sortIndex
         }
-
         if (self.isSpecificLabForm) {
           var labFormSplit = self.labForm.split("=");
           var labValue = labFormSplit[1];
           self.card_form.get('labname').setValue(labValue);
           self.labNameChange(self.labsList[0], 0);
         }
-        self.RestService.refreshCheck();
         self.loadingComplete = true;
         self.loading.dismiss();
       });
     }).catch( function(result){
-        self.RestService.refreshCheck();
         console.log(body);
         self.loadingComplete = true;
         self.loading.dismiss();
@@ -197,6 +191,31 @@ export class FormLabsPage {
   }
 
   confirmRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.confirmRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.confirmRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.confirmRecord - Credentials refreshed!');
+          self.confirmRecordDo();
+        }
+      });
+    }
+  }
+
+  confirmRecordDo(){
     this.saving = true;
     this.formSave.recordid = this.card_form.get('recordid').value;
     this.formSave.profileid = this.RestService.currentProfile;
@@ -224,13 +243,7 @@ export class FormLabsPage {
     if (this.card_form.get('upperrange').dirty){
       this.formSave.upperrange = this.card_form.get('upperrange').value;
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -238,7 +251,6 @@ export class FormLabsPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -252,25 +264,46 @@ export class FormLabsPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-
       console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Labs";
+        self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
+        console.log('Error results from formLabs.confirm: ',result);
+        self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formLabs - Confirm');
-      this.RestService.appRestart();
-    }
   }
 
   deleteRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Do you certain you want to delete this record?',
@@ -280,16 +313,13 @@ export class FormLabsPage {
           role: 'cancel',
           handler: () => {
             console.log('Cancel clicked');
+            this.loading.dismiss();
           }
         },
         {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               this.saving = true;
               this.formSave.recordid = this.card_form.get('recordid').value;
               this.formSave.profileid = this.RestService.currentProfile;
@@ -325,15 +355,12 @@ export class FormLabsPage {
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Labs";
+                self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
-                console.log('Result: ',result);
-                console.log(body);
+                console.log('Error results from formLabs.delete: ',result);
+                self.loading.dismiss();
               });
-            } else {
-              console.log('Need to login again!!! - Credentials expired from formLabs - Delete');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -342,14 +369,37 @@ export class FormLabsPage {
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     this.saving = true;
-    //alert('Save Button Selected');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
-
       if (this.card_form.get('labname').dirty){
         this.formSave.labname = this.card_form.get('labname').value;
       }
@@ -361,7 +411,6 @@ export class FormLabsPage {
       }
       if (this.card_form.get('labunit').dirty){
         this.formSave.labunit = this.card_form.get('labunit').value;
-
       }
       if (this.card_form.get('labunittext').dirty){
         this.formSave.labunittext = this.card_form.get('labunittext').value;
@@ -394,13 +443,7 @@ export class FormLabsPage {
         this.formSave.upperrange = this.card_form.get('upperrange').value;
       }
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -408,7 +451,6 @@ export class FormLabsPage {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
         //pathParameters: this.vaccineSave
@@ -422,22 +464,18 @@ export class FormLabsPage {
       };
       var body = JSON.stringify(this.formSave);
       var self = this;
-
       console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
         self.category.title = "Labs";
+        self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
-        console.log('Result: ',result);
-        console.log(body);
+        console.log('Error results from formLabs.save: ',result);
+        self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from formLabs - Save');
-      this.RestService.appRestart();
-    }
   }
 
   public today() {
@@ -445,7 +483,6 @@ export class FormLabsPage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
@@ -457,8 +494,6 @@ export class FormLabsPage {
     console.log('GetUnitsbyLabName Index: ' + index);
     for (var i = 0; i < this.labsList.length; i++) {
       if (this.labsList[i].recordid == index) {
-        //console.log('GetUnitsbyLabName dictionaryid: ' + this.labsList[i].recordid);
-        //console.log('Found unit list: ', this.labsList[i].dictionary[0]);
         return this.labsList[i].dictionary;
       }
     }
@@ -470,11 +505,8 @@ export class FormLabsPage {
     if (this.loadingComplete) {
       this.card_form.get('labnametext').markAsDirty();
     }
-
     this.unitList = this.getUnitsByLabName(lab.recordid);
-    //console.log('Unit List from labNameChange: ', this.unitList);
     if (this.unitList !== undefined && this.unitList.length > 0 && this.card_form.get('labunit').value == null) {
-      //console.log('Labunit field value: ' + this.card_form.get('labunit').value);
       for (var i = 0; i < this.unitList.length; i++) {
         if (this.unitList[i].defaultSelection == 'Y' ) {
           this.card_form.get('labunit').setValue(this.unitList[i].recordid);

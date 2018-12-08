@@ -13,6 +13,7 @@ var moment = require('moment-timezone');
   templateUrl: 'formFoodPref.html'
 })
 export class FormFoodPref {
+  formName: string = "formFoodPref";
   section: string;
   recId: number;
   card_form: FormGroup;
@@ -24,14 +25,11 @@ export class FormFoodPref {
   category: HistoryItemModel = new HistoryItemModel();
   loading: any;
   saving: boolean = false;
-
-  categoryKey = []; 
+  categoryKey = [];
   controlKey = [];
   control2Category = [];
-
   savePref: FoodPref = new FoodPref();
   savePrefModel: FoodPrefModel = new FoodPrefModel();
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
@@ -39,7 +37,7 @@ export class FormFoodPref {
     public navParams: NavParams, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.categoryList = "food";
-    
+
     this.card_form = new FormGroup({
       categoryList: new FormControl(),
       foodpreferenceid: new FormControl(),
@@ -110,34 +108,43 @@ export class FormFoodPref {
       UK: new FormControl(),
       African: new FormControl(),
       Indian: new FormControl(),
-      MiddleEastern: new FormControl(),      
+      MiddleEastern: new FormControl(),
     });
   }
 
-  ionViewDidLoad() {
+  ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }  
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName);
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From '+ self.formName + ' - Credentials refreshed!');
+          self.loadData();
+        }
+      });
+    }
   }
- 
+
   loadData() {
     var restURL: string;
-
     if (this.RestService.currentProfile == undefined || this.RestService.currentProfile <= 0) {
       this.loading.dismiss();
       return;
     } else {
       console.log('currentProfile: ' + this.RestService.currentProfile);
     }
-
     this.controlKey["foodpreferenceid"] = "food";
     this.controlKey["maxcost"] = "food";
     this.controlKey["deliveryrange"] = "food";
@@ -161,7 +168,6 @@ export class FormFoodPref {
     this.controlKey["ishalal"] = "diet";
     this.controlKey["iskosher"] = "diet";
     this.controlKey["familydiet"] = "diet";
-
     this.controlKey["American"] = "category";
     this.control2Category["American"] = "American";
     this.controlKey["Bakeries"] = "category";
@@ -244,7 +250,6 @@ export class FormFoodPref {
     this.control2Category["MiddleEastern"] = "Middle Eastern";
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetFoodPreferences";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -289,7 +294,7 @@ export class FormFoodPref {
           for (var i = 0; i < self.foodcategories.items.length; i++) {
             self.categoryKey[self.foodcategories.items[i].categoryname] = i;
           }
-        } 
+        }
         self.card_form.controls["foodpreferenceid"].setValue(self.FoodPrefModel[indexFPM].foodpreferenceid);
         self.card_form.controls["maxcost"].setValue(self.FoodPrefModel[indexFPM].maxcost);
         self.card_form.controls["deliveryrange"].setValue(self.FoodPrefModel[indexFPM].deliveryrange);
@@ -360,7 +365,7 @@ export class FormFoodPref {
         if (self.FoodPrefModel[indexFPM].haspeanutallergy == 'Y') {
           blnPeanut = true;} else {blnPeanut = false;}
         self.card_form.controls["haspeanutallergy"].setValue(blnPeanut);
-        self.card_form.controls["haspeanutallergy"].disable();        
+        self.card_form.controls["haspeanutallergy"].disable();
         var blnNut;
         if (self.FoodPrefModel[indexFPM].hasnutallergy == 'Y') {
           blnNut = true;} else {blnNut = false;}
@@ -396,7 +401,7 @@ export class FormFoodPref {
         var blnBreakfast;
         if (self.foodcategories.items[self.categoryKey["Breakfast"]].answervalue == 'Y') {
           blnBreakfast = true;} else {blnBreakfast = false;}
-          self.card_form.controls["Breakfast"].setValue(blnBreakfast);              
+          self.card_form.controls["Breakfast"].setValue(blnBreakfast);
         var blnBurgers;
         if (self.foodcategories.items[self.categoryKey["Burgers"]].answervalue == 'Y') {
           blnBurgers = true;} else {blnBurgers = false;}
@@ -412,7 +417,7 @@ export class FormFoodPref {
         var blnDelis;
         if (self.foodcategories.items[self.categoryKey["Delis and Sandwiches"]].answervalue == 'Y') {
           blnDelis = true;} else {blnDelis = false;}
-          self.card_form.controls["Delis"].setValue(blnDelis);  
+          self.card_form.controls["Delis"].setValue(blnDelis);
         var blnDiners;
         if (self.foodcategories.items[self.categoryKey["Diners"]].answervalue == 'Y') {
           blnDiners = true;} else {blnDiners = false;}
@@ -488,7 +493,7 @@ export class FormFoodPref {
         var blnJamaican;
         if (self.foodcategories.items[self.categoryKey["Jamaican"]].answervalue == 'Y') {
           blnJamaican = true;} else {blnJamaican = false;}
-          self.card_form.controls["Jamaican"].setValue(blnJamaican);  
+          self.card_form.controls["Jamaican"].setValue(blnJamaican);
         var blnMexican;
         if (self.foodcategories.items[self.categoryKey["Mexican"]].answervalue == 'Y') {
           blnMexican = true;} else {blnMexican = false;}
@@ -506,7 +511,7 @@ export class FormFoodPref {
         if (self.foodcategories.items[self.categoryKey["French"]].answervalue == 'Y') {
           blnFrench = true;} else {blnFrench = false;}
           self.card_form.controls["French"].setValue(blnFrench);
-        var blnGerman;  
+        var blnGerman;
         if (self.foodcategories.items[self.categoryKey["German"]].answervalue == 'Y') {
           blnGerman = true;} else {blnGerman = false;}
           self.card_form.controls["German"].setValue(blnGerman);
@@ -514,7 +519,7 @@ export class FormFoodPref {
         if (self.foodcategories.items[self.categoryKey["Greek"]].answervalue == 'Y') {
           blnGreek = true;} else {blnGreek = false;}
           self.card_form.controls["Greek"].setValue(blnGreek);
-        var blnItalian;  
+        var blnItalian;
         if (self.foodcategories.items[self.categoryKey["Italian"]].answervalue == 'Y') {
           blnItalian = true;} else {blnItalian = false;}
           self.card_form.controls["Italian"].setValue(blnItalian);
@@ -526,11 +531,11 @@ export class FormFoodPref {
         if (self.foodcategories.items[self.categoryKey["Scandanavian"]].answervalue == 'Y') {
           blnScandanavian = true;} else {blnScandanavian = false;}
           self.card_form.controls["Scandanavian"].setValue(blnScandanavian);
-        var blnSpanish;  
+        var blnSpanish;
         if (self.foodcategories.items[self.categoryKey["Spanish and Tapas"]].answervalue == 'Y') {
           blnSpanish = true;} else {blnSpanish = false;}
           self.card_form.controls["Spanish"].setValue(blnSpanish);
-        var blnUK;  
+        var blnUK;
         if (self.foodcategories.items[self.categoryKey["United Kingdom"]].answervalue == 'Y') {
           blnUK = true;} else {blnUK = false;}
           self.card_form.controls["UK"].setValue(blnUK);
@@ -539,21 +544,19 @@ export class FormFoodPref {
         if (self.foodcategories.items[self.categoryKey["African"]].answervalue == 'Y') {
           blnAfrican = true;} else {blnAfrican = false;}
           self.card_form.controls["African"].setValue(blnAfrican);
-        var blnIndian;  
+        var blnIndian;
         if (self.foodcategories.items[self.categoryKey["Indian"]].answervalue == 'Y') {
           blnIndian = true;} else {blnIndian = false;}
           self.card_form.controls["Indian"].setValue(blnIndian);
-        var blnMiddleEastern;  
+        var blnMiddleEastern;
         if (self.foodcategories.items[self.categoryKey["Middle Eastern"]].answervalue == 'Y') {
           blnMiddleEastern = true;} else {blnMiddleEastern = false;}
           self.card_form.controls["MiddleEastern"].setValue(blnMiddleEastern);
-            
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
-        self.RestService.refreshCheck();
+        console.log('Error Result from foodPref.loadData: ', result);
+        self.loading.dismiss();
     });
   }
 
@@ -567,292 +570,292 @@ export class FormFoodPref {
       if (this.card_form.controls["Bakeries"].value == false) {
         this.card_form.controls["Bakeries"].setValue(true);
         this.card_form.controls["Bakeries"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Barfood"].value == false) {
         this.card_form.controls["Barfood"].setValue(true);
         this.card_form.controls["Barfood"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Barbeque"].value == false) {
         this.card_form.controls["Barbeque"].setValue(true);
         this.card_form.controls["Barbeque"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Breakfast"].value == false) {
         this.card_form.controls["Breakfast"].setValue(true);
         this.card_form.controls["Breakfast"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Burgers"].value == false) {
         this.card_form.controls["Burgers"].setValue(true);
         this.card_form.controls["Burgers"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Cajun"].value == false) {
         this.card_form.controls["Cajun"].setValue(true);
         this.card_form.controls["Cajun"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Chickenhouse"].value == false) {
         this.card_form.controls["Chickenhouse"].setValue(true);
         this.card_form.controls["Chickenhouse"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Delis"].value == false) {
         this.card_form.controls["Delis"].setValue(true);
         this.card_form.controls["Delis"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Diners"].value == false) {
         this.card_form.controls["Diners"].setValue(true);
         this.card_form.controls["Diners"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Hawaiian"].value == false) {
         this.card_form.controls["Hawaiian"].setValue(true);
         this.card_form.controls["Hawaiian"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Pizza"].value == false) {
         this.card_form.controls["Pizza"].setValue(true);
         this.card_form.controls["Pizza"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Seafood"].value == false) {
         this.card_form.controls["Seafood"].setValue(true);
         this.card_form.controls["Seafood"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Southwest"].value == false) {
         this.card_form.controls["Southwest"].setValue(true);
         this.card_form.controls["Southwest"].markAsDirty();
-      } 
+      }
       if (this.card_form.controls["Steakhouse"].value == false) {
         this.card_form.controls["Steakhouse"].setValue(true);
         this.card_form.controls["Steakhouse"].markAsDirty();
-      } 
+      }
      } else if (master == 'Asian') {
       if (this.card_form.controls["Chinese"].value == false) {
         this.card_form.controls["Chinese"].setValue(true);
         this.card_form.controls["Chinese"].markAsDirty();
-      }  
+      }
       if (this.card_form.controls["Japanese"].value == false) {
         this.card_form.controls["Japanese"].setValue(true);
         this.card_form.controls["Japanese"].markAsDirty();
-      }  
+      }
       if (this.card_form.controls["Korean"].value == false) {
         this.card_form.controls["Korean"].setValue(true);
         this.card_form.controls["Korean"].markAsDirty();
-      }  
+      }
       if (this.card_form.controls["OtherAsian"].value == false) {
         this.card_form.controls["OtherAsian"].setValue(true);
         this.card_form.controls["OtherAsian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Thai"].value == false) {
         this.card_form.controls["Thai"].setValue(true);
         this.card_form.controls["Thai"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Vietnamese"].value == false) {
         this.card_form.controls["Vietnamese"].setValue(true);
         this.card_form.controls["Vietnamese"].markAsDirty();
-      }           
+      }
      } else if (master == 'LatinAmerican') {
       if (this.card_form.controls["Argentinian"].value == false) {
         this.card_form.controls["Argentinian"].setValue(true);
         this.card_form.controls["Argentinian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Brazilian"].value == false) {
         this.card_form.controls["Brazilian"].setValue(true);
         this.card_form.controls["Brazilian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Caribbean"].value == false) {
         this.card_form.controls["Caribbean"].setValue(true);
         this.card_form.controls["Caribbean"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Cuban"].value == false) {
         this.card_form.controls["Cuban"].setValue(true);
         this.card_form.controls["Cuban"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Jamaican"].value == false) {
         this.card_form.controls["Jamaican"].setValue(true);
         this.card_form.controls["Jamaican"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Mexican"].value == false) {
         this.card_form.controls["Mexican"].setValue(true);
         this.card_form.controls["Mexican"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["OtherLatin"].value == false) {
         this.card_form.controls["OtherLatin"].setValue(true);
         this.card_form.controls["OtherLatin"].markAsDirty();
-      }           
+      }
     } else if (master == 'Mediterranean') {
       if (this.card_form.controls["French"].value == false) {
         this.card_form.controls["French"].setValue(true);
         this.card_form.controls["French"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["German"].value == false) {
         this.card_form.controls["German"].setValue(true);
         this.card_form.controls["German"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Greek"].value == false) {
         this.card_form.controls["Greek"].setValue(true);
         this.card_form.controls["Greek"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Italian"].value == false) {
         this.card_form.controls["Italian"].setValue(true);
         this.card_form.controls["Italian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Russian"].value == false) {
         this.card_form.controls["Russian"].setValue(true);
         this.card_form.controls["Russian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Scandanavian"].value == false) {
         this.card_form.controls["Scandanavian"].setValue(true);
         this.card_form.controls["Scandanavian"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["Spanish"].value == false) {
         this.card_form.controls["Spanish"].setValue(true);
         this.card_form.controls["Spanish"].markAsDirty();
-      }           
+      }
       if (this.card_form.controls["UK"].value == false) {
         this.card_form.controls["UK"].setValue(true);
         this.card_form.controls["UK"].markAsDirty();
-      }           
+      }
      }
     } else {
       if (master == 'American') {
         if (this.card_form.controls["Bakeries"].value == true) {
           this.card_form.controls["Bakeries"].setValue(false);
           this.card_form.controls["Bakeries"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Barfood"].value == true) {
           this.card_form.controls["Barfood"].setValue(false);
           this.card_form.controls["Barfood"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Barbeque"].value == true) {
           this.card_form.controls["Barbeque"].setValue(false);
           this.card_form.controls["Barbeque"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Breakfast"].value == true) {
           this.card_form.controls["Breakfast"].setValue(false);
           this.card_form.controls["Breakfast"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Burgers"].value == true) {
           this.card_form.controls["Burgers"].setValue(false);
           this.card_form.controls["Burgers"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Cajun"].value == true) {
           this.card_form.controls["Cajun"].setValue(false);
           this.card_form.controls["Cajun"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Chickenhouse"].value == true) {
           this.card_form.controls["Chickenhouse"].setValue(false);
           this.card_form.controls["Chickenhouse"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Delis"].value == true) {
           this.card_form.controls["Delis"].setValue(false);
           this.card_form.controls["Delis"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Diners"].value == true) {
           this.card_form.controls["Diners"].setValue(false);
           this.card_form.controls["Diners"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Hawaiian"].value == true) {
           this.card_form.controls["Hawaiian"].setValue(false);
           this.card_form.controls["Hawaiian"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Pizza"].value == true) {
           this.card_form.controls["Pizza"].setValue(false);
           this.card_form.controls["Pizza"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Seafood"].value == true) {
           this.card_form.controls["Seafood"].setValue(false);
           this.card_form.controls["Seafood"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Southwest"].value == true) {
           this.card_form.controls["Southwest"].setValue(false);
           this.card_form.controls["Southwest"].markAsDirty();
-        } 
+        }
         if (this.card_form.controls["Steakhouse"].value == true) {
           this.card_form.controls["Steakhouse"].setValue(false);
           this.card_form.controls["Steakhouse"].markAsDirty();
-        } 
+        }
       } else if (master == 'Asian') {
         if (this.card_form.controls["Chinese"].value == true) {
           this.card_form.controls["Chinese"].setValue(false);
           this.card_form.controls["Chinese"].markAsDirty();
-        }  
+        }
         if (this.card_form.controls["Japanese"].value == true) {
           this.card_form.controls["Japanese"].setValue(false);
           this.card_form.controls["Japanese"].markAsDirty();
-        }  
+        }
         if (this.card_form.controls["Korean"].value == true) {
           this.card_form.controls["Korean"].setValue(false);
           this.card_form.controls["Korean"].markAsDirty();
-        }  
+        }
         if (this.card_form.controls["OtherAsian"].value == true) {
           this.card_form.controls["OtherAsian"].setValue(false);
           this.card_form.controls["OtherAsian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Thai"].value == true) {
           this.card_form.controls["Thai"].setValue(false);
           this.card_form.controls["Thai"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Vietnamese"].value == true) {
           this.card_form.controls["Vietnamese"].setValue(false);
           this.card_form.controls["Vietnamese"].markAsDirty();
-        }           
+        }
        } else if (master == 'LatinAmerican') {
         if (this.card_form.controls["Argentinian"].value == true) {
           this.card_form.controls["Argentinian"].setValue(false);
           this.card_form.controls["Argentinian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Brazilian"].value == true) {
           this.card_form.controls["Brazilian"].setValue(false);
           this.card_form.controls["Brazilian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Caribbean"].value == true) {
           this.card_form.controls["Caribbean"].setValue(false);
           this.card_form.controls["Caribbean"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Cuban"].value == true) {
           this.card_form.controls["Cuban"].setValue(false);
           this.card_form.controls["Cuban"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Jamaican"].value == true) {
           this.card_form.controls["Jamaican"].setValue(false);
           this.card_form.controls["Jamaican"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Mexican"].value == true) {
           this.card_form.controls["Mexican"].setValue(false);
           this.card_form.controls["Mexican"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["OtherLatin"].value == true) {
           this.card_form.controls["OtherLatin"].setValue(false);
           this.card_form.controls["OtherLatin"].markAsDirty();
-        }           
+        }
       } else if (master == 'Mediterranean') {
         if (this.card_form.controls["French"].value == true) {
           this.card_form.controls["French"].setValue(false);
           this.card_form.controls["French"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["German"].value == true) {
           this.card_form.controls["German"].setValue(false);
           this.card_form.controls["German"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Greek"].value == true) {
           this.card_form.controls["Greek"].setValue(false);
           this.card_form.controls["Greek"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Italian"].value == true) {
           this.card_form.controls["Italian"].setValue(false);
           this.card_form.controls["Italian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Russian"].value == true) {
           this.card_form.controls["Russian"].setValue(false);
           this.card_form.controls["Russian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Scandanavian"].value == true) {
           this.card_form.controls["Scandanavian"].setValue(false);
           this.card_form.controls["Scandanavian"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["Spanish"].value == true) {
           this.card_form.controls["Spanish"].setValue(false);
           this.card_form.controls["Spanish"].markAsDirty();
-        }           
+        }
         if (this.card_form.controls["UK"].value == true) {
           this.card_form.controls["UK"].setValue(false);
           this.card_form.controls["UK"].markAsDirty();
-        }           
+        }
        }
     }
   }
@@ -864,7 +867,7 @@ export class FormFoodPref {
       }
     } else {
       if (master == 'American') {
-        if (this.card_form.controls["Bakeries"].value == true && this.card_form.controls["Barfood"].value == true && this.card_form.controls["Barbeque"].value == true && 
+        if (this.card_form.controls["Bakeries"].value == true && this.card_form.controls["Barfood"].value == true && this.card_form.controls["Barbeque"].value == true &&
           this.card_form.controls["Breakfast"].value == true && this.card_form.controls["Burgers"].value == true && this.card_form.controls["Cajun"].value == true &&
           this.card_form.controls["Chickenhouse"].value == true && this.card_form.controls["Delis"].value == true && this.card_form.controls["Diners"].value == true &&
           this.card_form.controls["Hawaiian"].value == true && this.card_form.controls["Pizza"].value == true && this.card_form.controls["Seafood"].value == true &&
@@ -873,37 +876,61 @@ export class FormFoodPref {
             this.card_form.controls[master].markAsDirty();
         }
       } else if (master == 'Asian') {
-        if (this.card_form.controls["Chinese"].value == true && this.card_form.controls["Japanese"].value == true && this.card_form.controls["Korean"].value == true && 
+        if (this.card_form.controls["Chinese"].value == true && this.card_form.controls["Japanese"].value == true && this.card_form.controls["Korean"].value == true &&
           this.card_form.controls["OtherAsian"].value == true && this.card_form.controls["Thai"].value == true && this.card_form.controls["Vietnamese"].value == true) {
-            this.card_form.controls[master].setValue(true);            
+            this.card_form.controls[master].setValue(true);
             this.card_form.controls[master].markAsDirty();
         }
       } else if (master == 'LatinAmerican') {
-        if (this.card_form.controls["Argentinian"].value == true && this.card_form.controls["Brazilian"].value == true && this.card_form.controls["Caribbean"].value == true && 
+        if (this.card_form.controls["Argentinian"].value == true && this.card_form.controls["Brazilian"].value == true && this.card_form.controls["Caribbean"].value == true &&
           this.card_form.controls["Cuban"].value == true && this.card_form.controls["Jamaican"].value == true && this.card_form.controls["Mexican"].value == true &&
           this.card_form.controls["OtherLatin"].value == true) {
             this.card_form.controls[master].setValue(true);
             this.card_form.controls[master].markAsDirty();
-        }                
+        }
       } else if (master == 'Mediterranean') {
-            if (this.card_form.controls["French"].value == true && this.card_form.controls["German"].value == true && this.card_form.controls["Greek"].value == true && 
+            if (this.card_form.controls["French"].value == true && this.card_form.controls["German"].value == true && this.card_form.controls["Greek"].value == true &&
               this.card_form.controls["Italian"].value == true && this.card_form.controls["Russian"].value == true && this.card_form.controls["Scandanavian"].value == true &&
               this.card_form.controls["Spanish"].value == true && this.card_form.controls["UK"].value == true) {
-                this.card_form.controls[master].setValue(true);            
+                this.card_form.controls[master].setValue(true);
                 this.card_form.controls[master].markAsDirty();
-              }
+            }
       }
     }
   }
 
-  saveData() {
+  saveData(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveDataDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.saveDataDo();
+        }
+      });
+    }
+  }
+
+  saveDataDo() {
     var indexFPM
     var blnDietChanged = false;
     var blnFoodChanged = false;
     var changeObject;
     var saveCategory: FoodPrefCategory;
     var saveCategoryModel: FoodPrefCategoryModel;
-   
     this.saving = true;
     saveCategoryModel = new FoodPrefCategoryModel();
     saveCategoryModel.items = new Array<FoodPrefCategory>();
@@ -915,9 +942,7 @@ export class FormFoodPref {
       indexFPM = 0;
     } else if (this.FoodPrefModel[1].foodpreferenceid !== undefined) {
       indexFPM = 1;
-    } 
-
-    //console.log('indexFPM:' + indexFPM);
+    }
     Object.keys(this.card_form.controls).forEach(key => {
       if (this.card_form.get(key).dirty) {
         changeObject = this.controlKey[key];
@@ -937,14 +962,14 @@ export class FormFoodPref {
           console.log("SavePref: " , this.savePref);
         } else if (changeObject == 'category') {
           saveCategory = new FoodPrefCategory();
-          //console.log("saveCategory key: ", key);          
+          //console.log("saveCategory key: ", key);
           saveCategory.foodcategorypreferenceid = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].foodcategorypreferenceid;
           saveCategory.ismaster = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].ismaster;
           saveCategory.master_category = this.foodcategories.items[this.categoryKey[this.control2Category[key]]].master_category;
           if (this.card_form.get(key).value == true) {
             saveCategory.answervalue = 'Y';
           } else {
-            saveCategory.answervalue = 'N';            
+            saveCategory.answervalue = 'N';
           }
           console.log("saveCategory: ", saveCategory);
           saveCategoryModel.items.push(saveCategory);
@@ -953,20 +978,12 @@ export class FormFoodPref {
           alert("Check Data");
         }
       }
-    });    
-
+    });
     if(saveCategoryModel.items.length > 0) {
       this.savePref.categories.items = saveCategoryModel.items;
     }
-
-    console.log("savePref Final: ", this.savePref);    
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
+    console.log("savePref Final: ", this.savePref);
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetFoodPreferences";
-        
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -974,10 +991,8 @@ export class FormFoodPref {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-      
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
-  
-      var params = {        
+      var params = {
             //pathParameters: this.vaccineSave
           };
       var pathTemplate = '';
@@ -989,34 +1004,28 @@ export class FormFoodPref {
       };
       var body = JSON.stringify(this.savePref);
       var self = this;
-      
-      console.log('Calling Post', this.savePref);    
+      console.log('Calling Post', this.savePref);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
-        self.RestService.results = result.data;
-        console.log('Happy Path: ' + self.RestService.results);
-          //alert("Record Saved");
+          self.RestService.results = result.data;
+          console.log('Happy Path: ' + self.RestService.results);
           self.loadData();
           Object.keys(self.card_form.controls).forEach(control => {
             self.card_form.controls[control].markAsPristine();
           });
         }).catch( function(result){
           console.log('Result: ',result);
-          console.log(body);
+          self.loading.dismiss();
         });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }
   }
-  
+
   async ionViewCanLeave() {
       if (!this.saving && this.card_form.dirty) {
         const shouldLeave = await this.confirmLeave();
         return shouldLeave;
       }
   }
-    
+
   confirmLeave(): Promise<Boolean> {
       let resolveLeaving;
       const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -1037,6 +1046,6 @@ export class FormFoodPref {
       });
       alert.present();
       return canLeave
-  }  
-      
+  }
+
 }

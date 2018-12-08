@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListExerciseModel } from './listExercise.model';
 import { ListExerciseService } from './listExercise.service';
 import { RestService } from '../../app/services/restService.service';
@@ -41,24 +39,31 @@ export class ListExercisePage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
-      this.loadData();  
+      this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listExercise');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listExercise - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ExerciseByProfile";
-    
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -79,7 +84,6 @@ export class ListExercisePage {
     };
     var body = '';
     var self = this;
-
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
@@ -87,13 +91,9 @@ export class ListExercisePage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
-        self.RestService.refreshCheck();
+        console.log("Results Data for Get Exercise: ", self.list2.items);
         self.loading.dismiss();
       });
-      
-      //alert('Async Check from Invoke: ' + self.RestService.results);   
-      
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
@@ -103,15 +103,14 @@ export class ListExercisePage {
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormExercisePage, { recId: recordId });
     //alert('Open Record:' + recordId);
-  }  
+  }
 
   addNew() {
     this.nav.push(FormExercisePage);
-  }  
-  
+  }
+
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {

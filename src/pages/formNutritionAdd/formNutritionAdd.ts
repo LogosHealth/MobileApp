@@ -1,35 +1,36 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
+import { NavController, NavParams, AlertController, LoadingController, ViewController } from 'ionic-angular';
+import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { ListSleepModel, ListSleep } from '../../pages/listSleep/listSleep.model';
+import { ListNutritionModel, ListNutrition, ListNutritionDay } from '../../pages/listNutrition/listNutrition.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
-import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'formExercise-page',
-  templateUrl: 'formSleep.html'
+  templateUrl: 'formNutritionAdd.html'
 })
-export class FormSleepPage {
+export class FormNutritionAdd {
   loading: any;
   section: string;
-  formName: string = "formSleep";
+  formName: string = "formNutritionAdd";
+  dayofmeasure: string;
+  formattedDate: string;
+  action: string;
   recId: number;
   card_form: FormGroup;
-  goal_array: FormArray;
-  goal_schedule: FormGroup;
   curRec: any;
+  curMeal: any;
+  existingInfo: any;
   newRec: boolean = false;
   saving: boolean = false;
   showTips: boolean = true;
-  sleepModelSave: ListSleepModel  = new ListSleepModel();
-  sleepSave: ListSleep = new ListSleep();
+  mealModelSave: ListNutritionModel  = new ListNutritionModel();
+  mealSave: ListNutrition = new ListNutrition();
+  formDaySave: ListNutritionDay = new ListNutritionDay();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
-  list2: ListGoalsModel = new ListGoalsModel();
   timeNow: any;
   hourNow: any;
   minuteNow: any;
@@ -38,10 +39,18 @@ export class FormSleepPage {
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
-    public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
+    public navParams: NavParams, public loadingCtrl: LoadingController,  public viewCtrl: ViewController) {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
+    if (this.curRec !== undefined && this.curRec !== null) {
+      var index = navParams.get('index');
+      this.curMeal = this.curRec.meals[index];
+    }
+    console.log('formNutritionAdd init curRec: ', this.curRec);
+    console.log('formNutritionAdd init index: ' + index + ', curMeal: ', this.curMeal);
+    this.existingInfo = navParams.get('existingInfo');
+
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -58,14 +67,30 @@ export class FormSleepPage {
       this.minuteNow = this.momentNow.format('mm');
       this.timeNow = this.momentNow.format('HH:mm');
     }
+    if (this.curRec !== undefined && this.curRec !==null) {
+      this.dayofmeasure = this.curRec.dayofmeasure;
+      this.formattedDate = moment(this.curRec.dayofmeasure).format('YYYY-MM-DD');
+    } else if (this.existingInfo !== undefined && this.existingInfo !==null) {
+      this.dayofmeasure = this.existingInfo.dayofmeasure;
+      this.formattedDate = moment(this.existingInfo.dayofmeasure).format('YYYY-MM-DD');
+      //console.log('Formatted date from existingInfo: ' + this.formattedDate);
+    } else {
+      if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+        this.dayofmeasure = this.momentNow.tz(this.userTimezone).format('MMM-DD-YY');
+      } else {
+        this.dayofmeasure = this.momentNow.format('MMM-DD-YY');
+      }
+    }
+    //console.log('Day of Measure formNutritionAdd - ' + this.dayofmeasure);
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
-        recordid: new FormControl(this.curRec.recordid),
-        hoursslept: new FormControl(this.curRec.hoursslept, Validators.required),
-        starttime: new FormControl(this.curRec.starttime),
-        waketime: new FormControl(this.curRec.waketime),
-        dateofmeasure: new FormControl(this.formatDateTime2(this.curRec.dateofmeasure)),
-        confirmed: new FormControl(this.curRec.confirmed),
+        recordid: new FormControl(this.curMeal.recordid),
+        food: new FormControl(this.curMeal.food, Validators.required),
+        meal: new FormControl(this.curMeal.meal),
+        mealtime: new FormControl(this.formatDateTime2(this.curMeal.mealtime)),
+        amount: new FormControl(this.curMeal.amount),
+        calories: new FormControl(this.curMeal.calories),
+        dateofmeasure: new FormControl(this.formatDateTime2(this.curMeal.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
       });
@@ -73,11 +98,12 @@ export class FormSleepPage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        hoursslept: new FormControl(),
-        starttime: new FormControl(null, Validators.max(this.timeNow)),
-        waketime: new FormControl(null, Validators.max(this.timeNow)),
+        food: new FormControl(null, Validators.required),
+        meal: new FormControl(),
+        mealtime: new FormControl(),
+        amount: new FormControl(),
+        calories: new FormControl(),
         dateofmeasure: new FormControl(),
-        confirmed: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -85,7 +111,7 @@ export class FormSleepPage {
   }
 
   ionViewWillEnter() {
-    this.nav.getPrevious().data.refresh = false;
+    //this.nav.getPrevious().data.refresh = false;
   }
 
   deleteRecord(){
@@ -116,7 +142,7 @@ export class FormSleepPage {
   deleteRecordDo(){
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
-      message: 'Are you certain you want to delete this record?',
+      message: 'Are you certain you want to delete this meal?',
       buttons: [
         {
           text: 'Cancel',
@@ -131,11 +157,14 @@ export class FormSleepPage {
           handler: () => {
             console.log('Delete clicked');
             this.saving = true;
-            this.sleepSave.recordid = this.card_form.get('recordid').value;
-            this.sleepSave.profileid = this.RestService.currentProfile;
-            this.sleepSave.userid = this.RestService.userId;
-            this.sleepSave.active = 'N';
-              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+            this.action = 'save';
+            this.mealSave.recordid = this.card_form.get('recordid').value;
+            this.mealSave.profileid = this.RestService.currentProfile;
+            this.mealSave.userid = this.RestService.userId;
+            this.mealSave.active = 'N';
+            this.formDaySave.meals = [];
+            this.formDaySave.meals.push(this.mealSave);
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -154,19 +183,20 @@ export class FormSleepPage {
                       profileid: this.RestService.currentProfile,
                   }
               };
-              var body = JSON.stringify(this.sleepSave);
+              var body = JSON.stringify(this.formDaySave);
               var self = this;
-              console.log('Calling Post', this.sleepSave);
+              console.log('Calling Post', this.formDaySave);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "Sleep";
+                self.category.title = "Nutrition";
                 self.loading.dismiss();
-                self.nav.pop();
+                self.dismiss();
               }).catch( function(result){
-                console.log('Error from formSleep.delete: ',result);
+                console.log('Error from formNutrtionAdd.delete: ',result);
                 self.loading.dismiss();
+                self.dismiss();
               });
           }
         }
@@ -202,47 +232,70 @@ export class FormSleepPage {
 
   saveRecordDo(){
     this.saving = true;
+    this.action = 'save';
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
-      this.sleepSave.recordid = this.card_form.get('recordid').value;
-      this.sleepSave.profileid = this.RestService.currentProfile;
-      this.sleepSave.userid = this.RestService.userId;
-      this.sleepSave.active = 'Y';
-      if (this.card_form.get('hoursslept').dirty){
-        this.sleepSave.hoursslept = this.card_form.get('hoursslept').value;
+      this.mealSave.recordid = this.card_form.get('recordid').value;
+      this.mealSave.profileid = this.RestService.currentProfile;
+      this.mealSave.userid = this.RestService.userId;
+      this.mealSave.active = 'Y';
+      if (this.card_form.get('food').dirty){
+        this.mealSave.food = this.card_form.get('food').value;
       }
-      if (this.card_form.get('starttime').dirty){
-        this.sleepSave.starttime = this.card_form.get('starttime').value;
+      if (this.card_form.get('meal').dirty){
+        this.mealSave.meal = this.card_form.get('meal').value;
       }
-      if (this.card_form.get('waketime').dirty){
-        this.sleepSave.waketime = this.card_form.get('waketime').value;
+      if (this.card_form.get('mealtime').dirty){
+        this.mealSave.mealtime = this.card_form.get('mealtime').value;
+        this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
       }
+      if (this.card_form.get('amount').dirty){
+        this.mealSave.amount = this.card_form.get('amount').value;
+      }
+      if (this.card_form.get('calories').dirty){
+        this.mealSave.calories = this.card_form.get('calories').value;
+      }
+      var offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+      var offset = offsetDate.getTimezoneOffset() / 60;
+      console.log('formNutritionAdd - save-update Day of Measure: ' + this.dayofmeasure + ', offset: ' + offset);
+      if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+        //console.log('IsoString: ' + moment(this.dayofmeasure).toISOString());
+        this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+        console.log('formNutrionAdd update - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
+      } else {
+        this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      }
+      //console.log('Day of Measure Update formNutritionAdd - ' + this.mealSave.dateofmeasure);
     } else {
-      this.sleepSave.profileid = this.RestService.currentProfile;
-      this.sleepSave.userid = this.RestService.userId;
-      this.sleepSave.active = 'Y';
-      if (this.card_form.get('hoursslept').dirty){
-        this.sleepSave.hoursslept = this.card_form.get('hoursslept').value;
+      this.mealSave.profileid = this.RestService.currentProfile;
+      this.mealSave.userid = this.RestService.userId;
+      this.mealSave.active = 'Y';
+      if (this.card_form.get('food').dirty){
+        this.mealSave.food = this.card_form.get('food').value;
       }
-      if (this.card_form.get('starttime').dirty){
-        this.sleepSave.starttime = this.card_form.get('starttime').value;
+      if (this.card_form.get('meal').dirty){
+        this.mealSave.meal = this.card_form.get('meal').value;
       }
-      if (this.card_form.get('waketime').dirty){
-        this.sleepSave.waketime = this.card_form.get('waketime').value;
+      if (this.card_form.get('mealtime').dirty){
+        this.mealSave.mealtime = this.card_form.get('mealtime').value;
+        this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
       }
-      if (this.card_form.get('dateofmeasure').dirty){
-        if (this.userTimezone !== undefined) {
-          var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
-        } else {
-          var dtDET = moment(this.card_form.get('dateofmeasure').value);
-        }
-        console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
-        this.sleepSave.dateofmeasure = dtDET.utc().toISOString();
+      if (this.card_form.get('amount').dirty){
+        this.mealSave.amount = this.card_form.get('amount').value;
       }
-      if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        this.sleepSave.timezone = this.userTimezone;
+      if (this.card_form.get('calories').dirty){
+        this.mealSave.calories = this.card_form.get('calories').value;
+      }
+      var offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+      var offset = offsetDate.getTimezoneOffset() / 60;
+      if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+        //console.log('IsoString: ' + moment(this.dayofmeasure).toISOString());
+        this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+        console.log('formNutrionAdd insert - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
+      } else {
+        this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
       }
     }
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -261,20 +314,33 @@ export class FormSleepPage {
               profileid: this.RestService.currentProfile
           }
       };
-      var body = JSON.stringify(this.sleepSave);
+      this.formDaySave.meals = [];
+      this.formDaySave.meals.push(this.mealSave);
+      var body = JSON.stringify(this.formDaySave);
       var self = this;
-      console.log('Calling Post', this.sleepSave);
+      console.log('Calling Post', this.formDaySave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
-        self.category.title = "Sleep";
+        self.category.title = "Nutrition";
         self.loading.dismiss();
-        self.nav.pop();
+        self.dismiss();
       }).catch( function(result){
         console.log('Error from formSleep.save: ',result);
         self.loading.dismiss();
+        self.dismiss();
       });
+  }
+
+  cancelEntry() {
+    this.action = 'cancel';
+    this.dismiss();
+  }
+
+  dismiss() {
+    let data = { 'action': this.action };
+    this.viewCtrl.dismiss(data);
   }
 
   public today() {

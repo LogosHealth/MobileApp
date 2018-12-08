@@ -27,7 +27,6 @@ export class FormAboutMe {
   category: HistoryItemModel = new HistoryItemModel();
   loading: any;
   saving: boolean = false;
-
   primaryUser: any;
   races: FormArray;
   primary: boolean;
@@ -37,7 +36,6 @@ export class FormAboutMe {
   isPet: boolean;
   masks: any;
   textMask: TextMaskModule = new TextMaskModule();
-
   stateList: DictionaryItem[];
   relationList: DictionaryItem[];
   bloodTypeList: DictionaryItem[];
@@ -45,7 +43,6 @@ export class FormAboutMe {
   raceList: DictionaryItem[];
   ethnicityList: DictionaryItem[];
   speciesList: DictionaryItem[];
-
   saveModel: AboutMe = new AboutMe();
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
@@ -95,8 +92,6 @@ export class FormAboutMe {
       confirmed: new FormControl(),
       active: new FormControl(),
     });
-    //console.log('From constructor - BDay: ' + this.card_form.controls["birthdate"].value);
-    //console.log('From constructor - BDay invalid?: ' + this.card_form.controls["birthdate"].invalid);
     if (this.list2.races !== undefined && this.list2.races.length > 0) {
       this.addExistingRaces();
     }
@@ -105,29 +100,37 @@ export class FormAboutMe {
   ionViewDidLoad() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
     if (dtNow < dtExpiration) {
       this.loading = this.loadingCtrl.create();
       this.loading.present();
       this.loadData();
     } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listSleep');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listSleep - Credentials refreshed!');
+          self.loadData();
+        }
+      });
     }
   }
 
   loadData() {
     var restURL: string;
-
     if (this.RestService.currentProfile == undefined || this.RestService.currentProfile <= 0) {
       this.loading.dismiss();
       return;
     } else {
       console.log('currentProfile: ' + this.RestService.currentProfile);
     }
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -167,12 +170,8 @@ export class FormAboutMe {
   }
 
   loadDictionaries() {
-    //alert('Feed Category: ' + this.feed.category.title);
-    //alert('Current Profile ID: ' + this.RestService.currentProfile);
     var restURL: string;
-
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -209,14 +208,11 @@ export class FormAboutMe {
         self.raceList = self.dictionaries.items[4].dictionary; //index 0 as aligned with sortIndex
         self.ethnicityList = self.dictionaries.items[5].dictionary; //index 0 as aligned with sortIndex
         self.speciesList = self.dictionaries.items[6].dictionary; //index 0 as aligned with sortIndex
-
         self.card_form.controls["firstname"].setValue(self.list2[0].firstname);
         self.card_form.controls["lastname"].setValue(self.list2[0].lastname);
-
         if (self.list2[0].ssn !== undefined && self.list2[0].ssn !== null && self.list2[0].ssn !== "") {
           var ssn = String(self.list2[0].ssn);
           var ssnMask = self.masks.ssn;
-
           var conformedSSN = conformToMask(
             ssn,
             ssnMask,
@@ -224,7 +220,6 @@ export class FormAboutMe {
           );
           self.card_form.controls["ssn"].setValue(conformedSSN.conformedValue);
         }
-
         self.card_form.controls["primaryflag"].setValue(self.list2[0].primaryflag);
         if (self.list2[0].primaryflag == 'Y') {
           self.primary = true;
@@ -240,11 +235,9 @@ export class FormAboutMe {
         self.card_form.controls["latitude"].setValue(self.list2[0].latitude);
         self.card_form.controls["longitude"].setValue(self.list2[0].longitude);
         self.card_form.controls["timezone"].setValue(self.list2[0].timezone);
-
         if (self.list2[0].phonenumber !== undefined && self.list2[0].phonenumber !== null && self.list2[0].phonenumber !== "") {
           var phoneNumber = String(self.list2[0].phonenumber);
           var phoneNumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-
           var conformedPhoneNumber = conformToMask(
             phoneNumber,
             phoneNumberMask,
@@ -252,37 +245,30 @@ export class FormAboutMe {
           );
           self.card_form.controls["phonenumber"].setValue(conformedPhoneNumber.conformedValue);
         }
-
         self.card_form.controls["email"].setValue(self.list2[0].email);
         self.card_form.controls["emergencycontact"].setValue(self.list2[0].emergencycontact);
-
         if (self.list2[0].emergencycontactphone !== undefined && self.list2[0].emergencycontactphone !== null
           && self.list2[0].emergencycontactphone !== "") {
           var phoneENumber = String(self.list2[0].emergencycontactphone);
           var phoneENumberMask = ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-
           var conformedEPhoneNumber = conformToMask(
             phoneENumber,
             phoneENumberMask,
             {guide: false}
           );
-          //console.log('Emergency Phone Number: ' + conformedEPhoneNumber.conformedValue);
           self.card_form.controls["emergencycontactphone"].setValue(conformedEPhoneNumber.conformedValue);
         }
         self.card_form.controls["emergencycontactrelation"].setValue(self.list2[0].emergencycontactrelation);
         self.card_form.controls["insurancename"].setValue(self.list2[0].insurancename);
         self.card_form.controls["insurancenumber"].setValue(self.list2[0].insurancenumber);
         self.card_form.controls["relationtoprimary"].setValue(self.list2[0].relationtoprimary);
-
         if (self.list2[0].relationtoprimary !== undefined && self.list2[0].relationtoprimary !== null &&
           self.list2[0].relationtoprimary !== "") {
             if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Daughter' ||
             self.getRelationTerm(self.list2[0].relationtoprimary) == 'Son' ) {
               self.isChild = true;
-              //console.log('isChild true: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
             } else {
               self.isChild = false;
-              //console.log('isChild false: ' + self.getRelationTerm(self.list2[0].relationtoprimary));
             }
             if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Husband' ||
               self.getRelationTerm(self.list2[0].relationtoprimary) == 'Wife' ||
@@ -295,18 +281,13 @@ export class FormAboutMe {
         }
         self.card_form.controls["biologicalparent"].setValue(self.list2[0].biologicalparent);
         self.card_form.controls["medicalconsent"].setValue(self.list2[0].medicalconsent);
-
-        //console.log('From load dictionaries - BDay from list2: ' + self.list2[0].birthdate);
         if (self.list2[0].birthdate !== undefined && self.list2[0].birthdate !== null && self.list2[0].birthdate !== "" && self.list2[0].birthdate !== "0000-00-00") {
           self.card_form.controls["birthdate"].setValue(self.list2[0].birthdate);
         }
-        //console.log('From load dictionaries - BDay: ' + self.card_form.controls["birthdate"].value);
-        //console.log('From load dictionaries - BDay invalid?: ' + self.card_form.controls["birthdate"].invalid);
         self.card_form.controls["age"].setValue(self.list2[0].age);
         self.card_form.controls["bloodtype"].setValue(self.list2[0].bloodtype);
         self.card_form.controls["gender"].setValue(self.list2[0].gender);
         self.card_form.controls["ethnicity"].setValue(self.list2[0].ethnicity);
-
         if (self.list2[0].relationtoprimary !== undefined && self.list2[0].relationtoprimary !== null &&
           self.list2[0].relationtoprimary !== "") {
             if (self.getRelationTerm(self.list2[0].relationtoprimary) == 'Pet') {
@@ -316,8 +297,6 @@ export class FormAboutMe {
             }
         }
         self.card_form.controls["species"].setValue(self.list2[0].species);
-        //self.card_form.controls["breed"].setValue(self.list2[0].breed);
-        //self.card_form.controls["breed"].setValue(self.list2[0].breed);
         if (self.list2[0].races !== undefined && self.list2[0].races.length > 0) {
           self.addExistingRaces();
         }
@@ -332,11 +311,9 @@ export class FormAboutMe {
         if (self.list2[0].confirmed !== undefined && self.list2[0].confirmed == 'Y') {
           self.confirmed = true;
         }
-        self.RestService.refreshCheck();
         self.loading.dismiss();
       });
     }).catch( function(result){
-        self.RestService.refreshCheck();
         console.log(body);
     });
   }
@@ -347,7 +324,6 @@ export class FormAboutMe {
       racecode: new FormControl(),
       confirmed: new FormControl(),
     });
-
   }
 
   addExistingRaces() {
@@ -511,8 +487,32 @@ export class FormAboutMe {
   }
 
   deleteRecord(){
-    var race: RaceCode = new RaceCode();
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
 
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.deleteRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAboutMe.deleteRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAboutMe.deleteRecord - Credentials refreshed!');
+          self.deleteRecordDo();
+        }
+      });
+    }
+  }
+
+  deleteRecordDo(){
+    var race: RaceCode = new RaceCode();
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to inactivate this profile?  By doing so, all information associated with ' + this.list2[0].firstname + ' will become unavailable.',
@@ -521,6 +521,7 @@ export class FormAboutMe {
           text: 'Cancel',
           role: 'cancel',
           handler: () => {
+            this.loading.dismiss();
             console.log('Cancel clicked');
           }
         },
@@ -528,11 +529,6 @@ export class FormAboutMe {
           text: 'Delete',
           handler: () => {
             console.log('Delete clicked');
-
-            var dtNow = moment(new Date());
-            var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-            if (dtNow < dtExpiration) {
               this.saving = true;
               this.saveModel.profileid = this.list2[0].profileid;
               this.saveModel.userid = this.RestService.userId;
@@ -550,7 +546,6 @@ export class FormAboutMe {
                 lw.active = 'N';
                 this.saveModel.latestweight = lw;
               }
-
               if (this.list2[0].races !== undefined) {
                 var races: Array<RaceCode> = [];
                 for (var j = 0; j < this.list2[0].races.length; j++) {
@@ -559,14 +554,11 @@ export class FormAboutMe {
                   race.active = 'N';
                   races.push(race);
                 }
-
                 if (races.length > 0) {
                   this.saveModel.races = races;
                 }
               }
-
               var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -574,12 +566,10 @@ export class FormAboutMe {
                 sessionToken: this.RestService.AuthData.sessionToken,
                 region:'us-east-1'
               };
-
               var apigClient = this.RestService.AWSRestFactory.newClient(config);
               var params = {
                   //pathParameters: this.vaccineSave
               };
-
               var pathTemplate = '';
               var method = 'POST';
               var additionalParams = {
@@ -587,25 +577,20 @@ export class FormAboutMe {
                   profileid: this.RestService.currentProfile,
                 }
               };
-
               var body = JSON.stringify(this.saveModel);
               var self = this;
-
               console.log('Calling Post', this.saveModel);
               apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
                   self.navParams.get("homePage").refreshProfiles();
+                  self.loading.dismiss();
                   self.nav.pop();
                 }).catch( function(result){
                   console.log('Result: ',result);
-                  console.log(body);
+                  self.loading.dismiss();
               });
-              } else {
-              console.log('Need to login again!!! - Credentials expired from listSleep');
-              this.RestService.appRestart();
-            }
           }
         }
       ]
@@ -614,9 +599,33 @@ export class FormAboutMe {
   }
 
   confirmRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.confirmRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAboutMe.confirmRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAboutMe.confirmRecord - Credentials refreshed!');
+          self.confirmRecordDo();
+        }
+      });
+    }
+  }
+
+  confirmRecordDo(){
     var race: RaceCode = new RaceCode();
     this.saving = true;
-
     if (!this.newUser) {
       this.saveModel.profileid = this.list2[0].profileid;
       this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
@@ -624,11 +633,9 @@ export class FormAboutMe {
     } else {
       this.saveModel.accountid = this.list2[0].accountid;
     }
-
     this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
     this.saveModel.confirmed = 'Y';
-
     if (this.card_form.controls["firstname"].dirty) {
       this.saveModel.firstname = this.card_form.controls["firstname"].value;
     }
@@ -713,7 +720,6 @@ export class FormAboutMe {
     if (this.card_form.controls["breed"].dirty) {
       this.saveModel.breed = this.card_form.controls["breed"].value;
     }
-
     var lw: LatestWeight = new LatestWeight();
     if (this.list2[0].latestweight !== undefined && this.list2[0].latestweight.confirmed !== 'Y') {
       lw.confirmed = 'Y';
@@ -730,7 +736,6 @@ export class FormAboutMe {
       }
       this.saveModel.latestweight = lw;
     }
-
     var hw: LatestHeight = new LatestHeight();
     if (this.list2[0].latestheight !== undefined && this.list2[0].latestheight.confirmed !== 'Y') {
       hw.confirmed = 'Y';
@@ -755,23 +760,17 @@ export class FormAboutMe {
       }
       this.saveModel.latestheight = hw;
     }
-
     //Race mgmgt logic needed
     var raceArray: Array<RaceCode> = [];
     var raceControls = this.card_form.get('races') as FormArray;
-    var raceControlCount = raceControls.length;
     var raceChange: boolean = false;
-    var raceItemCount = this.list2[0].races.length;
     var race: RaceCode;
     var match: boolean;
-
     raceChange = raceControls.dirty;
-
     //Races not touched - confirm as needed
     if (!raceChange) {
       for (var j = 0; j < this.list2[0].races.length; j++) {
         race = new RaceCode();
-
         if (this.list2[0].races[j].confirmed !== 'Y') {
           race.raceid = this.list2[0].races[j].raceid;
           race.confirmed = 'Y';
@@ -837,13 +836,8 @@ export class FormAboutMe {
         }
       }
     }
-
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
+    //Save to db logic
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -851,12 +845,10 @@ export class FormAboutMe {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
           //pathParameters: this.vaccineSave
       };
-
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -864,10 +856,8 @@ export class FormAboutMe {
           profileid: this.RestService.currentProfile,
         }
       };
-
       var body = JSON.stringify(this.saveModel);
       var self = this;
-
       console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
@@ -875,26 +865,47 @@ export class FormAboutMe {
           if (!self.newUser) {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "About Me";
+            self.loading.dismiss();
             self.nav.pop();
           } else {
             self.navParams.get("homePage").refreshProfiles();
+            self.loading.dismiss();
             self.nav.pop();
-            //self.nav.goToRoot(this.navParams);
           }
       }).catch( function(result){
           console.log('Result: ',result);
-          console.log(body);
+          self.loading.dismiss();
       });
-    } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }
   }
 
   saveRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.saveRecordDo();
+    } else {
+      this.loading = this.loadingCtrl.create();
+      this.loading.present();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formAboutMe.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formAboutMe.saveRecord - Credentials refreshed!');
+          self.saveRecordDo();
+        }
+      });
+    }
+  }
+
+  saveRecordDo(){
     var race: RaceCode = new RaceCode();
     this.saving = true;
-
     if (!this.newUser) {
       this.saveModel.profileid = this.list2[0].profileid;
       this.saveModel.physicalprofileid = this.list2[0].physicalprofileid;
@@ -1012,15 +1023,12 @@ export class FormAboutMe {
       this.saveModel.latestheight = hw;
     }
 
-    //Race mgmgt logic needed
     var raceArray: Array<RaceCode> = [];
     var raceControls = this.card_form.get('races') as FormArray;
     var raceChange: boolean = false;
     var race: RaceCode;
     var match: boolean;
-
     raceChange = raceControls.dirty;
-
     //Races not touched - confirm as needed
     if (raceChange) {
       if (this.list2[0].races !== undefined) {
@@ -1071,12 +1079,7 @@ export class FormAboutMe {
       }
     }
 
-    var dtNow = moment(new Date());
-    var dtExpiration = moment(this.RestService.AuthData.expiration);
-
-    if (dtNow < dtExpiration) {
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
-
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -1084,12 +1087,10 @@ export class FormAboutMe {
         sessionToken: this.RestService.AuthData.sessionToken,
         region:'us-east-1'
       };
-
       var apigClient = this.RestService.AWSRestFactory.newClient(config);
       var params = {
           //pathParameters: this.vaccineSave
       };
-
       var pathTemplate = '';
       var method = 'POST';
       var additionalParams = {
@@ -1097,10 +1098,8 @@ export class FormAboutMe {
           profileid: this.RestService.currentProfile,
         }
       };
-
       var body = JSON.stringify(this.saveModel);
       var self = this;
-
       console.log('Calling Post', this.saveModel);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
@@ -1108,21 +1107,17 @@ export class FormAboutMe {
           if (!self.newUser) {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "About Me";
+            self.loading.dismiss();
             self.nav.pop();
           } else {
             self.navParams.get("homePage").refreshProfiles();
+            self.loading.dismiss();
             self.nav.pop();
-            // self.nav.goToRoot(this.navParams);
           }
-
       }).catch( function(result){
           console.log('Result: ',result);
-          console.log(body);
+          self.loading.dismiss();
       });
-      } else {
-      console.log('Need to login again!!! - Credentials expired from listSleep');
-      this.RestService.appRestart();
-    }
   }
 
   async confirmPrimaryChange() {
@@ -1220,4 +1215,5 @@ export class FormAboutMe {
                 || !this.card_form.controls["birthdate"].dirty || !this.card_form.controls["relationtoprimary"].dirty);
     }
   }
+
 }
