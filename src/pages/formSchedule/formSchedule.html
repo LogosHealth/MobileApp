@@ -13,7 +13,7 @@
             <ion-row class="categories-row">
               <ion-col width-15 class="horizontal-item" *ngFor="let pro of profiles">
                 <label>
-                    <input type="radio" formControlName="profile" [value]="pro.profileid"/>
+                    <input type="radio" formControlName="profile" [value]="pro.profileid" [checked]="pro.selected"/>
                     <img [src]="pro.photopath" [title]="pro.firstname"  (click)="setProfileID(pro.profileid)"/>
                 </label>
               </ion-col>

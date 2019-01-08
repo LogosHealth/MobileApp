@@ -68,4 +68,24 @@ export class FormOrderPage {
     return new Date().toISOString().substring(0,10);
   }
 
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
+  }
+
 }

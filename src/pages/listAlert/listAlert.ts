@@ -7,7 +7,6 @@ import { ListAlertService } from './listAlert.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormSleepPage } from '../../pages/formSleep/formSleep';
 import { LocalNotifications } from '@ionic-native/local-notifications';
-import { ListVisitPage } from '../listVisit/listVisit';
 
 var moment = require('moment-timezone');
 
@@ -20,6 +19,7 @@ export class ListAlertPage {
   feed: FeedModel = new FeedModel();
   alertSave: ListAlert = new ListAlert();
   loading: any;
+  formName: string = "today";
   resultData: any;
   userTimezone: any;
   autoload: boolean = false;
@@ -57,12 +57,10 @@ export class ListAlertPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadData();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listAlert');
@@ -159,11 +157,14 @@ export class ListAlertPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
       this.setAlertDoneDo(recordid);
     } else {
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listAlert');
+          self.loading.dismiss();
           self.RestService.appRestart();
         } else {
           console.log('From listAlert - Credentials refreshed!');
@@ -205,9 +206,11 @@ export class ListAlertPage {
     .then(function(result){
       self.RestService.results = result.data;
       console.log('Happy Path from listAlert setAlertDone: ' + self.RestService.results);
+      self.loading.dismiss();
     }).catch( function(result){
       console.log('Result: ',result);
       console.log(body);
+      self.loading.dismiss();
     });
   }
 
@@ -250,6 +253,26 @@ export class ListAlertPage {
         return hour + ":" + minute + " AM";
       }
     }
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

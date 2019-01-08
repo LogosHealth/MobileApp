@@ -82,6 +82,7 @@ export class FormVisitPage {
       var firstNameVal = null;
       if (this.contact !==undefined && this.contact !==null) {
         title = this.contact.title;
+        console.log('contact title from init: ' + this.contact.title);
       }
       if (this.curProfile !==undefined && this.curProfile !==null) {
         firstNameVal = this.curProfile.title;
@@ -109,12 +110,10 @@ export class FormVisitPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.deleteRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
@@ -201,12 +200,10 @@ export class FormVisitPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.saveRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
@@ -222,8 +219,6 @@ export class FormVisitPage {
 
   saveRecordDo(){
     this.saving = true;
-    this.loading = this.loadingCtrl.create();
-    this.loading.present();
     console.log('Save record in formVisit called!');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
@@ -240,11 +235,12 @@ export class FormVisitPage {
     } else {
       this.formSave.active = 'Y';
       console.log('Cur Profile: ', this.curProfile);
-      this.formSave.profileid = this.curProfile.profileid;
+      this.formSave.profileid = this.curRec.profileid;
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
-      this.formSave.contactid = this.contact.recordid;
+      //console.log('Contact from promote to visit', this.contact);
+      this.formSave.contactid = this.curRec.physician.recordid;
       this.formSave.accountid = this.RestService.Profiles[0].accountid;
       if (this.curRec.scheduleinstanceid !== undefined && this.curRec.scheduleinstanceid !== null) {
         this.formSave.scheduleinstanceid = this.curRec.scheduleinstanceid;
@@ -746,6 +742,26 @@ export class FormVisitPage {
     });
     alert.present();
     return canLeave
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

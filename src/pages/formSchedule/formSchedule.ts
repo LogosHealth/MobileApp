@@ -57,6 +57,7 @@ export class FormSchedulePage {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
+    console.log('Cur Rec from formSchedule: ', this.curRec);
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -100,11 +101,13 @@ export class FormSchedulePage {
       }
       if (this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
         for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
+          //console.log('Added from ActivatedSchedules for index: ' + j, this.curRec.activatedSchedules[j]);
           eligibles.push(this.curRec.activatedSchedules[j]);
         }
       }
       if (this.curRec.eligibles !== undefined && this.curRec.eligibles.length > 0) {
         for (var j = 0; j < this.curRec.eligibles.length; j++) {
+          //console.log('Added from Eligibles for index: ' + j, this.curRec.eligibles[j]);
           eligibles.push(this.curRec.eligibles[j]);
         }
       }
@@ -118,7 +121,9 @@ export class FormSchedulePage {
         eligible = new Eligible();
         eligible.profileid = this.RestService.Profiles[j].profileid;
         eligible.firstname = this.RestService.Profiles[j].title;
-        eligible.photopath = this.RestService.Profiles[j].image;
+        eligible.photopath = this.RestService.Profiles[j].imageURL;
+        //console.log('Photopath for index: ' + j + ', ' + this.RestService.Profiles[j].imageURL);
+        //console.log('Eligible: ', eligible);
         eligibles.push(eligible);
       }
       this.profiles = eligibles;
@@ -170,12 +175,10 @@ export class FormSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadDictionaries();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName);
@@ -221,7 +224,7 @@ export class FormSchedulePage {
         self.dictionaries.items = self.RestService.results;
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.intervalList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
-        self.loading.dismiss();
+        self.setDefault(self.profiles[0].profileid);
       });
     }).catch( function(result){
         console.log('Error result from formSchedule.loadDictionary: ', result);
@@ -235,16 +238,21 @@ export class FormSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      if (this.loading == undefined) {
+        //console.log('From loadContacts: loading is undefined');
+        this.presentLoadingDefault();
+      } else {
+        //console.log('From loadContacts: loading is already set');
+      }
       this.loadContactsDo(listFilter);
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.loadContacts');
-          self.loading.dismiss();
+          if (self.loading !== undefined) {
+            self.loading.dismiss();
+          }
           self.RestService.appRestart();
         } else {
           console.log('From ' + self.formName + '.loadContacts - Credentials refreshed!');
@@ -302,9 +310,8 @@ export class FormSchedulePage {
       });
     }).catch( function(result){
       console.log('Error results from formSchedule.loadContacts: ', result);
-      self.card_form.markAsPristine();
       self.loading.dismiss();
-    });
+  });
   }
 
   deleteRecord(){
@@ -313,12 +320,10 @@ export class FormSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.deleteRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.deleteRecord');
@@ -380,7 +385,7 @@ export class FormSchedulePage {
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "Sleep";
+                self.category.title = "Schedule";
                 self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
@@ -400,12 +405,10 @@ export class FormSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.saveRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
@@ -637,7 +640,7 @@ export class FormSchedulePage {
             if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
               for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
                 if (profileid == this.curRec.activatedSchedules[j].profileid) {
-                  console.log('Found in activated schedule when navigating from dirty!');
+                  //console.log('Found in activated schedule when navigating from dirty!');
                   isActivated = true;
                   this.hasActiveSched = true;
                   this.card_form.controls["actschedid"].setValue(this.curRec.activatedSchedules[j].recordid);
@@ -664,11 +667,12 @@ export class FormSchedulePage {
                   this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
                   for (var l = 0; l < notifys.length; l++) {
                     for (var k = 0; k < this.profilesNotify.length; k++) {
-                      if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
-                        this.profilesNotify.at(k).setValue(true);
-                        console.log('Set selected for ' + this.profilesNotify.at(k).value.profileid);
+                      var setSelected = this.profilesNotify.at(k) as FormGroup;
+                      if (Number(notifys[l].trim()) == setSelected.value.profileid) {
+                        setSelected.controls["selected"].setValue(true);
+                        console.log('Set selected for ' + setSelected.value.profileid);
                       } else {
-                        console.log ('Nofifys id: ' + notifys[l].trim() + ' profilesNotify id: ' + this.profilesNotify.at(k).value.profileid);
+                        //console.log ('Nofifys id: ' + notifys[l].trim() + ' profilesNotify id: ' + setSelected.value.profileid);
                       }
                     }
                   }
@@ -724,13 +728,14 @@ export class FormSchedulePage {
         listFilter = this.curRec.physiciantypes;
       }
       this.activeProfileID = profileid;
+      this.card_form.controls["profile"].setValue(profileid);
       this.loadContacts(listFilter);
       if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
         for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
           if (profileid == this.curRec.activatedSchedules[j].profileid) {
             isActivated = true;
             this.hasActiveSched = true;
-            console.log('Found in activated schedule when navigating from clean: ' + this.curRec.activatedSchedules[j].recordid);
+            //console.log('Found in activated schedule when navigating from clean: ' + this.curRec.activatedSchedules[j].recordid);
             this.card_form.controls["actschedid"].setValue(this.curRec.activatedSchedules[j].recordid);
             this.card_form.controls["contactid"].setValue(this.curRec.activatedSchedules[j].contactid);
             this.card_form.controls["interval"].setValue(this.curRec.activatedSchedules[j].interval);
@@ -803,6 +808,99 @@ export class FormSchedulePage {
     }
   }
 
+  setDefault(profileid) {
+    var isActivated = false;
+    var listFilter = "";
+
+    this.isNotSelected = false;
+    this.profilesNotify = this.card_form.get('profilesnotify') as FormArray
+    for (var j = 0; j < this.profilesNotify.length; j++) {
+      this.profilesNotify.at(j).get('selected').setValue(false);
+    }
+    if (this.curRec !== undefined && this.curRec.physiciantypes !== undefined && this.curRec.physiciantypes !== '') {
+      listFilter = this.curRec.physiciantypes;
+    }
+    this.activeProfileID = profileid;
+    this.card_form.controls["profile"].setValue(profileid);
+    if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
+      for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
+        if (profileid == this.curRec.activatedSchedules[j].profileid) {
+          isActivated = true;
+          this.hasActiveSched = true;
+          console.log('Found in activated schedule when navigating from clean: ' + this.curRec.activatedSchedules[j].recordid);
+          this.card_form.controls["actschedid"].setValue(this.curRec.activatedSchedules[j].recordid);
+          this.card_form.controls["contactid"].setValue(this.curRec.activatedSchedules[j].contactid);
+          this.card_form.controls["interval"].setValue(this.curRec.activatedSchedules[j].interval);
+          this.card_form.controls["nextdate"].setValue(this.curRec.activatedSchedules[j].nextdate);
+          if (this.curRec.activatedSchedules[j].day90alert == 'Y') {
+            this.card_form.controls["day90alert"].setValue('Y');
+          } else if (this.curRec.activatedSchedules[j].day90alert == 'N') {
+            this.card_form.controls["day90alert"].setValue('N');
+          }
+          if (this.curRec.activatedSchedules[j].day30alert == 'Y') {
+            this.card_form.controls["day30alert"].setValue('Y');
+          } else if (this.curRec.activatedSchedules[j].day30alert == 'N') {
+            this.card_form.controls["day30alert"].setValue('N');
+          }
+          if (this.curRec.activatedSchedules[j].day7alert == 'Y') {
+            this.card_form.controls["day7alert"].setValue('Y');
+          } else if (this.curRec.activatedSchedules[j].day7alert == 'N') {
+            this.card_form.controls["day7alert"].setValue('N');
+          }
+          var notifys = this.curRec.activatedSchedules[j].notifyprofiles;
+          notifys = notifys.split(",");
+          this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
+          for (var l = 0; l < notifys.length; l++) {
+            for (var k = 0; k < this.profilesNotify.length; k++) {
+              if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
+                var setSelected = this.profilesNotify.at(k) as FormGroup;
+                setSelected.controls["selected"].setValue(true);
+              } else {
+                //console.log ('Nofifys id: ' + notifys[l].trim() + ' profilesNotify id: ' + this.profilesNotify.at(k).value.profileid);
+              }
+            }
+          }
+          this.card_form.markAsPristine();
+        }
+      }
+      if (!isActivated) {
+        this.hasActiveSched = false;
+        console.log('Schedule is not activated for profile: ' + this.activeProfileID);
+        this.card_form.controls["actschedid"].setValue(null);
+        this.card_form.controls["interval"].setValue(this.curRec.interval);
+        var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+        this.card_form.controls["nextdate"].setValue(strNextDate);
+        this.card_form.controls["contactid"].setValue(null);
+        console.log('ContactId should be null - 2: ' + this.card_form.controls["contactid"].value);
+        this.card_form.controls["day90alert"].setValue('N');
+        this.card_form.controls["day30alert"].setValue('Y');
+        this.card_form.controls["day7alert"].setValue('N');
+        this.card_form.markAsPristine();
+      }
+    } else {
+      this.hasActiveSched = false;
+      if (this.curRec !== undefined) {
+        this.card_form.controls["interval"].setValue(this.curRec.interval);
+      } else {
+        this.card_form.controls["interval"].setValue(296); //Annually as default
+      }
+      console.log('Schedule is not activated for profile: ' + this.activeProfileID);
+      this.card_form.controls["actschedid"].setValue(null);
+      var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+      console.log('Next Date: ' + strNextDate);
+      this.card_form.controls["nextdate"].setValue(strNextDate);
+      this.card_form.controls["contactid"].setValue(null);
+      console.log('ContactId should be null - 1: ' + this.card_form.controls["contactid"].value);
+      this.card_form.controls["day90alert"].setValue('N');
+      this.card_form.controls["day30alert"].setValue('Y');
+      this.card_form.controls["day7alert"].setValue('N');
+      this.card_form.markAsPristine();
+    }
+    this.readProfilesNotify();
+    this.loadContacts(listFilter);
+
+  }
+
   readTargetDate() {
     console.log('Target Value: ' + this.card_form.controls["nextdate"].value);
     console.log('Target: ', this.card_form.controls["nextdate"]);
@@ -853,9 +951,30 @@ export class FormSchedulePage {
     return this.formBuilder.group({
       profileid: new FormControl(this.RestService.Profiles[index].profileid),
       firstname: new FormControl(this.RestService.Profiles[index].title),
-      photopath: new FormControl(this.RestService.Profiles[index].image),
+      photopath: new FormControl(this.RestService.Profiles[index].imageURL),
       selected: new FormControl(false),
     });
+  }
+
+  presentLoadingDefault() {
+    //console.log('present Loading');
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

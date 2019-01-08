@@ -31,6 +31,7 @@ export class ListingPage {
   @ViewChild('lineCanvas') lineCanvas;
   listing: ListingModel = new ListingModel();
   loading: any;
+  formName: string = "today";
   curUser: any;
   userCount: number = 0;
   lineChart: any;
@@ -52,11 +53,10 @@ export class ListingPage {
   ) {
     var self = this;
     this.platform.ready().then((rdy) => {
-      this.loading = this.loadingCtrl.create();
       self.localNotifications.on('click').subscribe((notification)  => {
-        console.log("notification id from click event " + notification.id);
+        //console.log("notification id from click event " + notification.id);
         if (notification.data.secret == 'scheduleinstance') {
-          console.log('Click Notification - state of nav: ', self.nav);
+          //console.log('Click Notification - state of nav: ', self.nav);
           alert("Please go to the Visit tile and schedule this appointment");
         }
       });
@@ -90,30 +90,24 @@ export class ListingPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
-    if (dtNow < dtExpiration) {
-      if (this.loading !== undefined) {
-        this.loading.dismiss();
-      }
-    } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+    //if expired - refresh token
+    if (dtNow > dtExpiration) {
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listing');
+          console.log('Need to login again!!! - Credentials expired from history');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listing - Credentials refreshed!');
-          if (this.loading !== undefined) {
-            this.loading.dismiss();
-          }
+          console.log('From history - Credentials refreshed!');
+          self.loading.dismiss();
         }
       });
     }
   }
 
   ionViewDidLoad() {
-    this.loading.present();
+    //this.presentLoadingDefault();
     this.userCount = this.RestService.Profiles.length;
     this.listingService
       .getData()
@@ -262,15 +256,14 @@ export class ListingPage {
       // imageData is either a base64 encoded string or a file URI
       // If it's base64:
       this.myphoto = 'data:image/jpeg;base64,' + imageData;
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
 
       var strKey = this.RestService.Profiles[0].accountid + "/" + this.RestService.Profiles[index].profileid + "/profilepic.jpeg";
       var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600, ContentType: 'image/jpeg'};
       s3.getSignedUrl('putObject', params, function (err, url) {
         if (err) {
           console.log('Err in getSignedUrl from getUserPics: ' + err);
-          alert('Err in getSignedUrl from getUserPics: ' + err);
+          alert('Err in getSignedUrl from getUserPics for: ' + strKey + ', ' + err);
         } else {
           self.file.resolveLocalFilesystemUrl(imageData).then(oneFile => {
             var directory = self.file.tempDirectory;
@@ -295,14 +288,11 @@ export class ListingPage {
             }, (err) => {
               self.loading.dismiss();
               alert('read as array buffer err: ' + JSON.stringify(err));
-              //loading.dismiss();
             });
           }, (err) => {
             self.loading.dismiss();
             alert('resolve local filesystem err: ' + JSON.stringify(err));
-            // Handle error
           });
-
         }
       });
       //alert('Photo data: ' + imageData);
@@ -322,8 +312,7 @@ export class ListingPage {
     if (dtNow < dtExpiration) {
       this.savePicRecordDo(index);
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listing.savePicRecord');
@@ -369,18 +358,22 @@ export class ListingPage {
           signatureVersion: 'v4',
         });
         var strKey = self.RestService.Profiles[index].accountid + "/" + self.RestService.Profiles[index].profileid + "/profilepic.jpeg";
+        console.log('get s3 key: ' + strKey);
         var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
         s3.getSignedUrl('getObject', params, function (err, url) {
           if (err) {
             console.log('Err in getSignedUrl from getUserPics: ' + err);
-            alert('Updated ImageURL error: ' + JSON.stringify(err));
+            alert('Updated ImageURL error: ' + JSON.stringify(err) + ', key - ' + strKey);
+            self.loading.dismiss();
           } else {
             self.RestService.Profiles[index].imageURL = url;
             alert('Updated ImageURL: ' + url);
+            self.loading.dismiss();
           }
         });
       }).catch( function(result){
         console.log('Result for Save error: ',result);
+        self.loading.dismiss();
       });
   }
 
@@ -426,6 +419,26 @@ export class ListingPage {
         this.RestService.Profiles[i].checked = "";
       }
     }
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

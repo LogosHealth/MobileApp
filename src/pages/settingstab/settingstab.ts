@@ -19,6 +19,7 @@ var moment = require('moment-timezone');
 export class SettingsTabPage {
   listing: SettingsModel = new SettingsModel();
   loading: any;
+  formName: string = "settings";
 
   constructor(
     public nav: NavController,
@@ -28,12 +29,12 @@ export class SettingsTabPage {
     public RestService:RestService,
   ) {
     this.platform.ready().then((rdy) => {
-      this.loading = this.loadingCtrl.create();
+      console.log('SettingTab Platform ready');
     });
   }
 
   ionViewDidLoad() {
-    this.loading.present();
+    this.presentLoadingDefault();
     this.listingService
       .getData()
       .then(data => {
@@ -54,14 +55,14 @@ export class SettingsTabPage {
 
     //if expired - refresh token
     if (dtNow > dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from history');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
+          self.loading.dismiss();
           console.log('From history - Credentials refreshed!');
         }
       });
@@ -100,12 +101,10 @@ export class SettingsTabPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.refreshProfilesDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listSleep');
@@ -155,6 +154,26 @@ export class SettingsTabPage {
         console.log(body);
         self.loading.dismiss();
     });
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

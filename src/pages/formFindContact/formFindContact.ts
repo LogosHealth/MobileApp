@@ -63,12 +63,10 @@ export class FormFindContact {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadDictionaries();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName);
@@ -139,12 +137,10 @@ export class FormFindContact {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.findContactsDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.findContacts');
@@ -218,8 +214,6 @@ export class FormFindContact {
     }
 
     if (hasData) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
       var config = {
@@ -277,6 +271,7 @@ export class FormFindContact {
           self.loading.dismiss();
       });
     } else {
+      self.loading.dismiss();
       var message;
       if (this.categoryList == "facility") {
         message = 'Search requires at least a facility type and [city and state] or valid [zipcode].';
@@ -307,12 +302,10 @@ export class FormFindContact {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.callDSDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.callDS');
@@ -391,8 +384,6 @@ export class FormFindContact {
     }
 
     if (hasData) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
       console.log('Contact Info from findContacts: ' + contactInfo);
       restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/FindContactByNameZip";
       var config = {
@@ -446,6 +437,7 @@ export class FormFindContact {
           self.loading.dismiss();
       });
     } else {
+      self.loading.dismiss();
       var message;
       if (this.categoryList == "facility") {
         message = 'Deep search requires at least a facility type and [city and state] or valid [zipcode].';
@@ -494,12 +486,10 @@ export class FormFindContact {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.saveRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
@@ -668,6 +658,26 @@ export class FormFindContact {
     });
     alert.present();
     return canLeave
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

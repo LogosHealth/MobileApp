@@ -103,12 +103,10 @@ export class FormAboutMe {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadData();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listSleep');
@@ -166,7 +164,8 @@ export class FormAboutMe {
       });
     }).catch( function(result){
         console.log(body);
-    });
+        self.loading.dismiss();
+      });
   }
 
   loadDictionaries() {
@@ -314,7 +313,8 @@ export class FormAboutMe {
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+      self.loading.dismiss();
+      console.log(body);
     });
   }
 
@@ -492,12 +492,10 @@ export class FormAboutMe {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.deleteRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from formAboutMe.deleteRecord');
@@ -604,12 +602,10 @@ export class FormAboutMe {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.confirmRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from formAboutMe.confirmRecord');
@@ -884,12 +880,10 @@ export class FormAboutMe {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.saveRecordDo();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from formAboutMe.saveRecord');
@@ -1214,6 +1208,26 @@ export class FormAboutMe {
       return (!this.card_form.controls["firstname"].dirty || !this.card_form.controls["lastname"].dirty
                 || !this.card_form.controls["birthdate"].dirty || !this.card_form.controls["relationtoprimary"].dirty);
     }
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

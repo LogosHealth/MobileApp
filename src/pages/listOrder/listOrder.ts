@@ -37,21 +37,19 @@ export class ListOrderPage {
     this.searchControl = new FormControl();
   }
 
-  ionViewWillEnter() {
+  ionViewDidLoad() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadData();
       this.searchControl.valueChanges.debounceTime(700).subscribe(search => {
         this.setFilteredItems();
       });
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listOrder');
@@ -66,6 +64,9 @@ export class ListOrderPage {
         }
       });
     }
+  }
+
+  ionViewWillEnter() {
   }
 
   loadData() {
@@ -102,6 +103,7 @@ export class ListOrderPage {
       });
     }).catch( function(result){
         console.log(body);
+        self.loading.dismiss();
     });
 
     var restURLFilter: string;
@@ -132,9 +134,11 @@ export class ListOrderPage {
       .then(data => {
         self.listFilter.items = result.data;
         self.setFilteredItems();
+        self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
+        self.loading.dismiss();
     });
   }
 
@@ -177,12 +181,10 @@ export class ListOrderPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.getSearchDataDo(idx);
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listOrder.getSearchData');
@@ -255,6 +257,7 @@ export class ListOrderPage {
       if (result.data == 'No data found') {
         alert('Your search yielded no results.');
         self.searchTerm = '';
+        self.loading.dismiss();
       } else {
         self.RestService.results = result.data;
         console.log('Data', result.data);
@@ -279,6 +282,26 @@ export class ListOrderPage {
     } else {
       this.show = true;
     }
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

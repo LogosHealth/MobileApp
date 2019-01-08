@@ -40,6 +40,7 @@ export class WalkthroughPage implements OnInit {
   main_page: { component: any };
   lwaWindow: Window;
   ignore: boolean = false;
+  formName: string = "walkthrough";
 
   @ViewChild('slider') slider: Slides;
 
@@ -107,7 +108,7 @@ export class WalkthroughPage implements OnInit {
     if (this.RestService.Profiles[i].image == 'AWS') {
       blnHasPics = true;
     } else {
-      this.RestService.Profiles[i].imageURL = this.RestService.Profiles[i].image;
+      this.RestService.Profiles[i].imageURL = './assets/images/listing/Family/300x300AddImageWithText.jpg';
     }
   }
 
@@ -132,6 +133,7 @@ export class WalkthroughPage implements OnInit {
         this.getPicURL(strKey, function(err, results) {
           if (err) {
             profActual = profActual + 1;
+            self.RestService.Profiles[keyArray[results.key]].imageURL = './assets/images/listing/Family/300x300AddImageWithText.jpg';
             if (profActual == profCount) {
               self.checkUserCount();
             } else {
@@ -165,11 +167,13 @@ export class WalkthroughPage implements OnInit {
   getPicURL(strKey, callback) {
     var returnObj;
     const s3 = new this.RestService.AWS.S3();
+    console.log('Str Key from getPicURL ' + strKey);
     var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
 
     s3.getSignedUrl('getObject', params, function (err, url) {
       if (err) {
-        console.log('Err in getSignedUrl from getUserPics: ' + err);
+        console.log('Str Key from getPicURL2 ' + strKey);
+        console.log('Err in getSignedUrl from getUserPics for strKey ' + strKey + ', ' + err);
         callback(err, null);
       } else {
         returnObj = {
@@ -366,14 +370,13 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth: Beta version 0.0.8');
-    console.log("Starting Login Process v100");
+    alert('Welcome to LogosHealth: Beta version 0.0.13');
+    //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
       var self = this;
       //var options = { scope : 'profile', popup : 'false', response_type: 'code' };
-      self.loading = self.loadingCtrl.create();
-      self.loading.present();
+      this.presentLoadingDefault();
       if (this.platform.is("core")) {
         console.log('Moving to authorize v100');
         var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -450,15 +453,8 @@ export class WalkthroughPage implements OnInit {
             if (e.url.includes(LWA_PROXY_RETURN)) {
               var code = self.getCode(e.url);
               var atURL = LWA_PROXY_AT_MOBILE + "?code=" + code;
-
               var readCount = 0;
-
               const browser2 = self.iab.create(atURL, '_blank');
-              //alert('Started browser2');
-              //browser2.on('loadstart').subscribe(e => {
-              //  console.log('Loading Final Auth Window ',  e);
-                //alert('Loading Final Auth Window ' + e.url);
-              //});
 
               browser2.on('loaderror').subscribe(e => {
                 console.log('Error Loading Final Auth Window ', e);
@@ -581,4 +577,25 @@ export class WalkthroughPage implements OnInit {
       setSecretKey : function(p) { if(p !== undefined) {secretKey = p};}
     };
   }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 100000);
+  }
+
 }

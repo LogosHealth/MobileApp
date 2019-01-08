@@ -14,7 +14,8 @@ var moment = require('moment-timezone');
   templateUrl: 'listSchedule.html'
 })
 export class ListSchedulePage {
-  list2: ListScheduleModel = new ListScheduleModel();
+  //list2: ListScheduleModel = new ListScheduleModel();
+  list2: any;
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
@@ -28,6 +29,9 @@ export class ListSchedulePage {
     public RestService:RestService,
     public loadingCtrl: LoadingController,
   ) {
+    this.list2 = {
+      items: []
+    };
     this.feed.category = navParams.get('category');
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -43,12 +47,10 @@ export class ListSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.loadData();
     } else {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listSchedule');
@@ -92,6 +94,7 @@ export class ListSchedulePage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
+        self.updatePicURLs();
         console.log("Results Data for list Schedules: ", self.list2.items);
         self.loading.dismiss();
       });
@@ -162,6 +165,61 @@ export class ListSchedulePage {
       strReturn = strReturn.substr(0, strReturn.length - 2);
     }
     return strReturn;
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
+  }
+
+  updatePicURLs() {
+    for (var j = 0; j < this.list2.items.length; j++) {
+      //console.log('UpdatePicUrls item: ', this.list2.items[j]);
+      //console.log('UpdatePicUrls item: ', this.list2.items[j].activatedSchedules);
+      if (this.list2.items[j].activatedSchedules !== undefined && this.list2.items[j].activatedSchedules !== null && this.list2.items[j].activatedSchedules.length > 0) {
+        for (var k = 0; k < this.list2.items[j].activatedSchedules.length; k++) {
+         //console.log('updatePicURLs number of activated schedule items: ' + k);
+          //console.log('updatePicURLs Activated schedule item: ', this.list2.items[j].activatedSchedules[k]);
+          if (this.list2.items[j].activatedSchedules[k].photopath == 'AWS') {
+            for (var z = 0; z < this.RestService.Profiles.length; z++) {
+              if (this.RestService.Profiles[z].profileid == this.list2.items[j].activatedSchedules[k].profileid) {
+                this.list2.items[j].activatedSchedules[k].photopath = this.RestService.Profiles[z].imageURL;
+                //console.log('updatePicURL - url updated: ', this.list2.items[j].activatedSchedules[k]);
+              }
+            }
+          }
+        }
+      }
+      if (this.list2.items[j].eligibles !== undefined && this.list2.items[j].eligibles !== null && this.list2.items[j].eligibles.length > 0) {
+        for (var k = 0; k < this.list2.items[j].eligibles.length; k++) {
+         // console.log('updatePicURLs number of activated schedule items: ' + k);
+          //console.log('updatePicURLs Activated schedule item: ', this.list2.items[j].eligibles[k]);
+          if (this.list2.items[j].eligibles[k].photopath == 'AWS') {
+            for (var z = 0; z < this.RestService.Profiles.length; z++) {
+              if (this.RestService.Profiles[z].profileid == this.list2.items[j].eligibles[k].profileid) {
+                this.list2.items[j].eligibles[k].photopath = this.RestService.Profiles[z].imageURL;
+                //console.log('updatePicURL - url updated: ', this.list2.items[j].eligibles[k]);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
 }

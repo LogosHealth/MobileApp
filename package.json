@@ -2,7 +2,7 @@
   "name": "healthcare.logos.visual",
   "author": "LogosHealth",
   "homepage": "https://logos.healthcare",
-  "version": "0.0.8",
+  "version": "0.0.12",
   "displayName": "LogosHealth Mobile App",
   "scripts": {
     "clean": "ionic-app-scripts clean",

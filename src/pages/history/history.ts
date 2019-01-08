@@ -19,6 +19,7 @@ var moment = require('moment-timezone');
 export class HistoryPage {
   listing: HistoryModel = new HistoryModel();
   loading: any;
+  formName: string = "history";
 
   constructor(
     public nav: NavController,
@@ -28,12 +29,12 @@ export class HistoryPage {
     private platform: Platform,
   ) {
     this.platform.ready().then((rdy) => {
-      this.loading = this.loadingCtrl.create();
+      console.log('History platform ready');
     });
   }
 
   ionViewDidLoad() {
-    this.loading.present();
+    this.presentLoadingDefault();
     this.listingService
       .getData()
       .then(data => {
@@ -54,8 +55,7 @@ export class HistoryPage {
 
     //if expired - refresh token
     if (dtNow > dtExpiration) {
-      this.loading = this.loadingCtrl.create();
-      this.loading.present();
+      this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from history');
@@ -63,6 +63,7 @@ export class HistoryPage {
           self.RestService.appRestart();
         } else {
           console.log('From history - Credentials refreshed!');
+          self.loading.dismiss();
         }
       });
     }
@@ -92,6 +93,26 @@ export class HistoryPage {
         this.RestService.Profiles[i].checked = "";
       }
     }
+  }
+
+  presentLoadingDefault() {
+    this.loading = this.loadingCtrl.create({
+    spinner: 'hide',
+    content: `
+      <div class="custom-spinner-container">
+        <div class="custom-spinner-box">
+           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+           Loading...
+        </div>
+      </div>`,
+    });
+
+    this.loading.present();
+
+    setTimeout(() => {
+      this.loading.dismiss();
+      //console.log('Timeout for spinner called ' + this.formName);
+    }, 15000);
   }
 
 }

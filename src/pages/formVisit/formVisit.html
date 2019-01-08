@@ -19,6 +19,14 @@
           <div *ngSwitchCase="'pre'">
             <ion-card class="sample-form">
               <ion-row>
+                <ion-col no-padding>
+                  <ion-item>
+                    <ion-label floating>Physician</ion-label>
+                    <ion-input type="text" formControlName="physiciantitle" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
                 <ion-col no-padding width-60>
                   <ion-item>
                     <ion-label floating>Visit Date</ion-label>
@@ -29,14 +37,6 @@
                   <ion-item>
                     <ion-label floating>For</ion-label>
                     <ion-input type="text" formControlName="firstname" [disabled]="true"></ion-input>
-                  </ion-item>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col no-padding>
-                  <ion-item>
-                    <ion-label floating>Physician</ion-label>
-                    <ion-input type="text" formControlName="physiciantitle" [disabled]="true"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -156,13 +156,13 @@
                   <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
                     <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
                   </ion-col>
-                  <ion-col class="columnInline"no-padding width-49 *ngIf="curRec.recordid ==null">
+                  <ion-col class="columnInline"no-padding width-49 *ngIf="curRec == undefined || curRec.recordid == null">
                     <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || !card_form.valid">Schedule</button>
                   </ion-col>
                   <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
                     <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Visit</button>
                   </ion-col>
-                  <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid ==null">
+                  <ion-col class="columnInline" no-padding width-49 *ngIf="curRec == undefined || curRec.recordid == null">
                     <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Reminder</button>
                   </ion-col>
                 </ion-row>

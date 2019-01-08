@@ -81,7 +81,8 @@ formSchedule-page {
 				border-radius: 10%;
 				border:2px solid transparent;
 			  }
-			label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
+
+      label > input:checked + img{ /* (RADIO CHECKED) IMAGE STYLES */
 				border-radius: 10%;
 				border:2px solid #a61f34;
 			  }
