@@ -94,6 +94,7 @@ export class ListOrderPage {
     var self = this;
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
+      console.log('Meal Results: ', result.data);
       self.RestService.results = result.data;
       self.list2Service
       .getData()

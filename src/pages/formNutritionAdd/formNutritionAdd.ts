@@ -87,13 +87,14 @@ export class FormNutritionAdd {
         recordid: new FormControl(this.curMeal.recordid),
         food: new FormControl(this.curMeal.food, Validators.required),
         meal: new FormControl(this.curMeal.meal),
-        mealtime: new FormControl(this.formatDateTime2(this.curMeal.mealtime)),
+        mealtime: new FormControl(this.formatDateTime3(this.curMeal.dateofmeasure)),
         amount: new FormControl(this.curMeal.amount),
         calories: new FormControl(this.curMeal.calories),
         dateofmeasure: new FormControl(this.formatDateTime2(this.curMeal.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
       });
+      console.log('Loading date time for: ' + this.curMeal.dateofmeasure + ' transformed to: ' + this.formatDateTime3(this.curMeal.dateofmeasure));
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -273,6 +274,7 @@ export class FormNutritionAdd {
       }
       if (this.card_form.get('mealtime').dirty){
         this.mealSave.mealtime = this.card_form.get('mealtime').value;
+        console.log('Mealtime value: ' + this.card_form.get('mealtime').value);
         this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
       }
       if (this.card_form.get('amount').dirty){
@@ -355,7 +357,15 @@ export class FormNutritionAdd {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MM-DD-YYYY hh:mm A');
+    }
+  }
+
+  formatDateTime3(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('YYYY-MM-DDTHH:mm');
+    } else {
+      return moment(dateString).format('YYYY-MM-DDTHH:mm');
     }
   }
 
