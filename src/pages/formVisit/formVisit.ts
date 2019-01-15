@@ -235,12 +235,12 @@ export class FormVisitPage {
     } else {
       this.formSave.active = 'Y';
       console.log('Cur Profile: ', this.curProfile);
-      this.formSave.profileid = this.curRec.profileid;
+      this.formSave.profileid = this.curProfile.profileid;
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
-      //console.log('Contact from promote to visit', this.contact);
-      this.formSave.contactid = this.curRec.physician.recordid;
+      console.log('Contact from promote to visit', this.contact);
+      this.formSave.contactid = this.contact.recordid;
       this.formSave.accountid = this.RestService.Profiles[0].accountid;
       if (this.curRec.scheduleinstanceid !== undefined && this.curRec.scheduleinstanceid !== null) {
         this.formSave.scheduleinstanceid = this.curRec.scheduleinstanceid;
