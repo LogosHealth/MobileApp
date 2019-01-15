@@ -1,13 +1,12 @@
-#import "CDVSplashScreen+IonicDeploy.h"
+#import "CDVSplashScreen+IonicCordovaCommon.h"
 #import <objc/runtime.h>
 #import <Cordova/CDVViewController.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
 
-@implementation CDVSplashScreen(Deploy)
+@implementation CDVSplashScreen(IonicCommon)
 
-- (void)swizzled_hideViews
-{
-    if ([IonicDeploy isPluginUpdating]) {
+- (void)swizzled_hideViews {
+    if ([IonicCordovaCommon shouldShowSplash]) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (uint64_t) 1 * NSEC_PER_SEC), dispatch_get_main_queue(), CFBridgingRelease(CFBridgingRetain(^(void) {
             [self hideViews];
         })));
@@ -16,9 +15,8 @@
     }
 }
 
-- (void)swizzled_destroyViews
-{
-    if ([IonicDeploy isPluginUpdating]) {
+- (void)swizzled_destroyViews {
+    if ([IonicCordovaCommon shouldShowSplash]) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (uint64_t) 1 * NSEC_PER_SEC), dispatch_get_main_queue(), CFBridgingRelease(CFBridgingRetain(^(void) {
             [self destroyViews];
         })));
@@ -27,8 +25,7 @@
     }
 }
 
-+ (void)swizzle:(SEL)originalSelector newImp:(SEL)swizzledSelector
-{
++ (void)swizzle:(SEL)originalSelector newImp:(SEL)swizzledSelector {
     Class class = [self class];
     Method originalMethod = class_getInstanceMethod(class, originalSelector);
     Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
@@ -47,19 +44,21 @@
     }
 }
 
-+ (void)load
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        Class class = [self class];
-        
-        SEL originalHide = @selector(hideViews);
-        SEL swizzledHide = @selector(swizzled_hideViews);
-        [class swizzle:originalHide newImp:swizzledHide];
-        
-        SEL originalDestroy = @selector(destroyViews);
-        SEL swizzledDestroy = @selector(swizzled_destroyViews);
-        [class swizzle:originalDestroy newImp:swizzledDestroy];
-    });
++ (void)load {
+    if (@available(iOS 10.3, *)) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            Class class = [self class];
+
+            SEL originalHide = @selector(hideViews);
+            SEL swizzledHide = @selector(swizzled_hideViews);
+            [class swizzle:originalHide newImp:swizzledHide];
+
+            SEL originalDestroy = @selector(destroyViews);
+            SEL swizzledDestroy = @selector(swizzled_destroyViews);
+            [class swizzle:originalDestroy newImp:swizzledDestroy];
+        });
+    }
 }
+
 @end

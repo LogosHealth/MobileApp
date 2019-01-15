@@ -1,8 +1,8 @@
 {
   "_from": "cordova-plugin-ionic@^4.1.7",
-  "_id": "cordova-plugin-ionic@4.1.7",
+  "_id": "cordova-plugin-ionic@4.2.0",
   "_inBundle": false,
-  "_integrity": "sha512-ckFP1ImmSgIRKXCi1Gog4ZzD5rbAyPdUhjLlmzi54aXSMRn7KSJi5e7FUJ7LbblRiv7sibynmX+54cbTjbEFdQ==",
+  "_integrity": "sha512-r7g3wDKsHjrgP6zgrCa5Gcv6uHgL2Q80rG7cI1xtxaNd0oM+qYygj4Gku7nh5EE9z1sC45R9La8RWq79eI82fg==",
   "_location": "/cordova-plugin-ionic",
   "_phantomChildren": {},
   "_requested": {
@@ -19,10 +19,10 @@
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/cordova-plugin-ionic/-/cordova-plugin-ionic-4.1.7.tgz",
-  "_shasum": "62f486689ef7255b996279a5eafddb0ad7f7f109",
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-ionic/-/cordova-plugin-ionic-4.2.0.tgz",
+  "_shasum": "6ca8e0fe2de1b6d948be52cbbf6355bec54428c7",
   "_spec": "cordova-plugin-ionic@^4.1.7",
-  "_where": "C:\\Users\\Marty\\Desktop\\Ionic\\ion2FullApp-PRO-version",
+  "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\ion2FullApp-PRO-version",
   "author": {
     "name": "Ionic"
   },
@@ -55,6 +55,19 @@
   },
   "deprecated": false,
   "description": "Ionic Cordova SDK",
+  "devDependencies": {
+    "@types/cordova": "0.0.34",
+    "cordova-plugin-file": "^6.0.1",
+    "jest": "^22.4.3",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^22.4.2",
+    "tslint": "^5.9.1",
+    "tslint-ionic-rules": "0.0.14",
+    "typedoc": "^0.11.1",
+    "typedoc-plugin-markdown": "^1.1.6",
+    "typescript": "^2.6.2",
+    "watch": "^1.0.2"
+  },
   "engines": {
     "cordovaDependencies": {
       "2.0.4": {
@@ -65,11 +78,30 @@
       },
       "4.1.7": {
         "cordova-plugin-splashscreen": ">=5.0.1"
+      },
+      "5.0.0": {
+        "cordova-plugin-file": ">=6.0.1",
+        "cordova-plugin-splashscreen": ">=5.0.1"
       }
     }
   },
   "homepage": "https://github.com/ionic-team/cordova-plugin-ionic#readme",
   "issue": "https://github.com/ionic-team/cordova-plugin-ionic/issues",
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      ".(ts)": "./node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "tests/.*\\.(ts|js)$"
+  },
   "keywords": [
     "ionic",
     "cordova",
@@ -87,5 +119,19 @@
     "type": "git",
     "url": "git+https://github.com/ionic-team/cordova-plugin-ionic.git"
   },
-  "version": "4.1.7"
+  "scripts": {
+    "apply-dev": "npm run build && ./apply-changes.sh",
+    "build": "npm run clean && tsc",
+    "clean": "rimraf dist",
+    "create-dev": "./create-local-app.sh",
+    "docs": "./scripts/docs.sh",
+    "lint": "tslint --config tslint.json --project tsconfig.json",
+    "precommit": "npm run lint",
+    "prepublishOnly": "npm run build",
+    "test": "jest",
+    "watch": "tsc -w",
+    "watch-dev": "watch 'npm run apply-dev' ./www"
+  },
+  "types": "types/IonicCordova.d.ts",
+  "version": "4.2.0"
 }

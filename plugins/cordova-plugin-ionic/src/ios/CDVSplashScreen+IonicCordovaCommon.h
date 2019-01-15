@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
 #import <Cordova/CDVPlugin.h>
 #import "CDVSplashScreen.h"
-#import "IonicDeploy.h"
+#import "IonicCordovaCommon.h"
 
-@interface CDVSplashScreen (Deploy)
+@interface CDVSplashScreen (IonicCommon)
 
 - (void)hideViews;
 
