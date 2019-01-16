@@ -22,6 +22,7 @@ export class ListOrder {
   city: string;
   phone: phoneNumber
   image: string;
+  imageURL: string;
 }
 export class ListOrderModel {
   items: Array<ListOrder>;

@@ -38,15 +38,22 @@ export class FormVisitPage {
   userTimezone: any;
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  needNew: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
     public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
+    console.log('formVisit - initial recId: ', this.recId);
+    console.log('formVisit - initial curRec: ', this.curRec);
     if (this.curRec == undefined) {
       this.curRec = {
         recordid: null
       }
+      console.log('formVisit: curRec blanked - no data coming from parent form.  The recid is: ' + this.recId);
+      //needNew - If this variable is set, that means the visit is being generated from the medical contacts form and the Visit record needs to be created up front
+      //for the page to fully function properly
+      this.needNew = true;
     }
     this.contact = navParams.get('contact');
     this.selectedItems.items = [];
@@ -59,10 +66,11 @@ export class FormVisitPage {
         self.curProfile = results;
       }
     });
+
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        visitdate: new FormControl(this.curRec.visitdate),
+        visitdate: new FormControl(this.curRec.visitdate, Validators.required),
         firstname: new FormControl(this.curRec.firstname),
         physiciantitle: new FormControl(this.curRec.physician.title),
         reason: new FormControl(this.curRec.reason),
@@ -90,7 +98,7 @@ export class FormVisitPage {
       }
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        visitdate: new FormControl(),
+        visitdate: new FormControl(null, Validators.required),
         firstname: new FormControl(firstNameVal),
         physiciantitle: new FormControl(title),
         reason: new FormControl(),
@@ -101,6 +109,9 @@ export class FormVisitPage {
         profileid: new FormControl(),
         userid: new FormControl()
       });
+      if (this.needNew) {
+        //this.saveNew();
+      }
     }
   }
 
@@ -373,10 +384,94 @@ export class FormVisitPage {
       });
   }
 
+  saveNew(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.saveNewDo();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveNew');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveNew - Credentials refreshed!');
+          self.saveNewDo();
+        }
+      });
+    }
+  }
+
+  saveNewDo(){
+    this.saving = true;
+    console.log('Saving new visit record on entry!');
+    this.formSave.active = 'Y';
+    console.log('Cur Profile: ', this.curProfile);
+    this.formSave.profileid = this.curProfile.profileid;
+    this.formSave.userid = this.RestService.userId;
+    this.formSave.visitdate = Date();
+    console.log('Contact from promote to visit', this.contact);
+    this.formSave.contactid = this.contact.recordid;
+    this.formSave.accountid = this.RestService.Profiles[0].accountid;
+
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+      queryParams: {
+        profileid: this.RestService.currentProfile
+      }
+    };
+    var body = JSON.stringify(this.formSave);
+    var self = this;
+    console.log('Calling Post', this.formSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      console.log('Happy Path for saveNewDo: ' + result.data);
+      if (!isNaN(result.data)) {
+        self.formSave.recordid = result.data;
+        self.card_form.get('recordid').setValue(result.data);
+        self.curRec = self.formSave;
+        self.loading.dismiss();
+      } else {
+        console.log('***ALERT**** formVisit - SaveNewDo: not valid recordid.  Initial Save not successful');
+        self.loading.dismiss();
+      }
+    }).catch( function(result){
+      console.log('Error in formVisit.save: ',result);
+      self.loading.dismiss();
+    });
+  }
+
   addInfo() {
     var dt =  this.card_form.get('importantinfo').value;
     var self = this;
-    let profileModal = this.modalCtrl.create(FormChooseInfo, { dataType: dt, recId: this.recId, forProfileId: this.curRec.profileid });
+    var profileid;
+    if (this.curRec.profileid !== undefined) {
+      profileid = this.curRec.profileid;
+      console.log('form visit Profile id from curRec: ' + profileid);
+    } else {
+      profileid =  this.curProfile.profileid;
+      console.log('form visit Profile id from curProfile: ' + profileid);
+    }
+
+    let profileModal = this.modalCtrl.create(FormChooseInfo, { dataType: dt, recId: this.recId, forProfileId: profileid });
     profileModal.onDidDismiss(data => {
       if (data !==undefined && data !== null) {
         self.selectedItems = data.importantItems;

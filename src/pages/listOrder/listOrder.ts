@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { Component, NgModule, ErrorHandler } from '@angular/core';
+import { NavController, NavParams, LoadingController, IonicErrorHandler } from 'ionic-angular';
 import { FormControl } from '@angular/forms';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/add/operator/debounceTime';
@@ -11,10 +11,21 @@ import { FormOrderPage } from '../../pages/formOrder/formOrder';
 
 var moment = require('moment-timezone');
 
+
+class MyErrorHandler implements ErrorHandler {
+  handleError(err: any): void {
+    console.log('From MyErrorHandler: ', err);
+    // do something with the error
+  }
+}
+@NgModule({
+  providers: [{ provide: ErrorHandler, useClass: MyErrorHandler }]
+})
 @Component({
   selector: 'listOrderPage',
   templateUrl: 'listOrder.html'
 })
+
 export class ListOrderPage {
   list2: ListOrderModel = new ListOrderModel();
   listFilter: ListFilterModel = new ListFilterModel();
@@ -66,8 +77,8 @@ export class ListOrderPage {
     }
   }
 
-  ionViewWillEnter() {
-  }
+  //ionViewWillEnter() {
+  //}
 
   loadData() {
     var restURL: string;
@@ -100,13 +111,28 @@ export class ListOrderPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        self.loading.dismiss();
+        if (self.list2.items.length > 0) {
+          self.getPhotoURLs(function(err, response) {
+            if (err) {
+              console.log('Error from loadData ==> getPhotoURLs: ' + err, self.list2.items);
+              self.loadFilterList();
+            } else {
+              self.loadFilterList();
+            }
+          });
+        } else {
+          self.loadFilterList();
+        }
       });
     }).catch( function(result){
         console.log(body);
-        self.loading.dismiss();
+        self.loadFilterList();
     });
 
+  }
+
+  loadFilterList() {
+    var self = this;
     var restURLFilter: string;
     restURLFilter="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetMealFilterList";
     var config2 = {
@@ -138,8 +164,79 @@ export class ListOrderPage {
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(body2);
         self.loading.dismiss();
+    });
+  }
+
+  getPhotoURLs(callback) {
+    var itemCount;
+    var itemActual = 0;
+    var self = this;
+    var strKey;
+    var keyArray = [];
+    var blnDone = false;
+
+    itemCount = this.list2.items.length;
+    for (var i = 0; i < this.list2.items.length; i++) {
+      if (this.list2.items[i].image == 'AWS') {
+        strKey = "MenuItemPhotos/" + this.list2.items[i].recordid + ".jpg";
+        keyArray[strKey] = i;
+        this.getPicURL(strKey, function(err, results) {
+          if (err) {
+            itemActual = itemActual + 1;
+            self.list2.items[keyArray[results.key]].imageURL = './assets/images/listing/300x300AddFoodImage.jpg';
+            if (itemActual == itemCount) {
+              blnDone = true;
+              callback(null, itemActual);
+            }
+          } else {
+            self.list2.items[keyArray[results.key]].imageURL = results.url;
+            //alert('Get URL: ' + results.url);
+            itemActual = itemActual + 1;
+            if (itemActual == itemCount) {
+              blnDone = true;
+              callback(null, itemActual);
+            }
+          }
+        });
+      } else {
+        this.list2.items[i].imageURL = this.list2.items[i].image;
+        itemActual = itemActual + 1;
+        if (itemActual == itemCount) {
+          blnDone = true;
+          callback(null, itemActual);
+        }
+      }
+    }
+
+    setTimeout(() => {
+      if (!blnDone) {
+        console.log('*****Alert - listOrder.getPhotoURLs timeout!!!');
+        callback('timeout', null);
+      } else {
+        console.log('listOrder.getPhotoURLs timer expired');
+      }
+    }, 15000);
+  }
+
+  getPicURL(strKey, callback) {
+    var returnObj;
+    const s3 = new this.RestService.AWS.S3();
+    //console.log('Str Key from getPicURL ' + strKey);
+    var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
+
+    s3.getSignedUrl('getObject', params, function (err, url) {
+      if (err) {
+        console.log('Err in getSignedUrl from listOrder.getUserPics for strKey ' + strKey + ', ' + err);
+        callback(err, null);
+      } else {
+        returnObj = {
+          key: strKey,
+          url: url,
+        }
+        callback(null, returnObj);
+      }
     });
   }
 
@@ -266,8 +363,21 @@ export class ListOrderPage {
         .getData()
         .then(data => {
           self.list2.items = self.RestService.results;
-          self.getFilterPane();
-          self.loading.dismiss();
+          if (self.list2.items.length > 0) {
+            self.getPhotoURLs(function(err, response) {
+              if (err) {
+                console.log('Error from loadData ==> getPhotoURLs: ' + err, self.list2.items);
+                self.getFilterPane();
+                self.loading.dismiss();
+              } else {
+                self.getFilterPane();
+                self.loading.dismiss();
+              }
+            });
+          } else {
+            self.getFilterPane();
+            self.loading.dismiss();
+          }
         });
       }
     }).catch( function(result){

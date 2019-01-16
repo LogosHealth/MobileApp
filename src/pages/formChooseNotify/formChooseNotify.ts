@@ -70,7 +70,7 @@ export class FormChooseNotify {
     this.todoIndex = navParams.get('todoIndex');
     this.objectType = navParams.get('object');
     this.curRec = RestService.results[this.recId];
-    console.log('Cur rec from chooseInfo: ', this.curRec);
+    console.log('Cur rec from chooseNotify: ', this.curRec);
 
   //MM 10-30-18 We will use the objectType to drive population into a generic todo object
     if (this.objectType == "visit") {
@@ -146,7 +146,7 @@ export class FormChooseNotify {
     } else {
       console.log('Obj type not found: ' + this.objectType);
     }
-    console.log('Visit Obj from formChooseNotify curRec: ', this.curRec);
+    //console.log('Visit Obj from formChooseNotify curRec: ', this.curRec);
     console.log('Model Save Loaded', this.modelSave);
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -194,7 +194,7 @@ export class FormChooseNotify {
       eligible = new Eligible();
       eligible.profileid = this.RestService.Profiles[j].profileid;
       eligible.firstname = this.RestService.Profiles[j].title;
-      eligible.photopath = this.RestService.Profiles[j].image;
+      eligible.photopath = this.RestService.Profiles[j].imageURL;
       eligibles.push(eligible);
     }
     this.profiles = eligibles;
@@ -476,7 +476,7 @@ export class FormChooseNotify {
     return this.formBuilder.group({
       profileid: new FormControl(this.RestService.Profiles[index].profileid),
       firstname: new FormControl(this.RestService.Profiles[index].title),
-      photopath: new FormControl(this.RestService.Profiles[index].image),
+      photopath: new FormControl(this.RestService.Profiles[index].imageURL),
       selected: new FormControl(false),
     });
   }

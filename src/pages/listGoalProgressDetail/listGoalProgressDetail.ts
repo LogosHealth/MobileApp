@@ -92,7 +92,9 @@ export class ListGoalProgressDetailPage {
 
   loadData() {
     this.list2 = this.curRec.weeks;
-    this.loading.dismiss();
+    //if (this.loading !== undefined) {
+    //  this.loading.dismiss();
+    //}
   }
 
   openRecord(recordId) {

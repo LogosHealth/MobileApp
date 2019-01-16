@@ -8,7 +8,7 @@
       </ion-title>
     </ion-navbar>
 </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -18,19 +18,19 @@
             <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
             <ion-col no-padding width-100 class="item-content" >
               <h3 class="item-title" *ngIf="item.days_met >=curRec.daysperweekvalue">Week {{shortDate(item.week_start)}}-{{shortEndDate(item.week_start, item.week_end)}}
-                <ion-img src="assets/images/trophy.jpg" alt="" style="width:25px;height:10px;"></ion-img>
+                <img src="assets/images/trophy.jpg" alt="" style="width:40px;height:25px;">
               </h3>
               <h3 class="item-title" *ngIf="item.days_met<curRec.daysperweekvalue">Week {{shortDate(item.week_start)}}-{{shortEndDate(item.week_start, item.week_end)}}</h3>
               <p class = "item-description">Days Met: {{item.days_met}}</p><br/>
               <div  *ngFor="let day of list2[i].days;let j=index;" >
                 <div class = "item-description" *ngIf="day.daily_goal_met=='Y'">
-                  <ion-img [src]="thumbsUp" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
+                  <img [src]="thumbsUp" alt="" style="width:15px;height:15px;">{{day.day}}: Total - {{day.total}}
                 </div>
                 <div class = "item-description" *ngIf="day.daily_goal_met!=='Y'">
-                  <ion-img [src]="whiteBox" alt="" style="width:10px;height:10px;"></ion-img>{{day.day}}: Total - {{day.total}}
+                  <img [src]="whiteBox" alt="" style="width:15px;height:15px;">{{day.day}}: Total - {{day.total}}
                 </div>
               </div>
-            </ion-col>  
+            </ion-col>
           </ion-row>
         </ion-item>
         <ion-item-options side="left" *ngIf="!notCurrent(i)">
@@ -38,7 +38,7 @@
                 <ion-icon name="medal"></ion-icon>
                 Add Today
             </button>
-        </ion-item-options>      
+        </ion-item-options>
       </ion-item-sliding>
     </ion-list>
   </div>

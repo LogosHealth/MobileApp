@@ -907,6 +907,11 @@ export class FormSchedulePage {
   }
 
   getMaxDate() {
+    if (this.yearDefaultNext == undefined || this.yearDefaultNext == null) {
+      this.yearDefaultNext = moment(new Date()).format('YYYY');
+      console.log('Had to set yearDefaultNext in getMaxDate: ' + this.yearDefaultNext);
+    }
+
     var maxYear = Number(this.yearDefaultNext) + 5;
     return String(maxYear) + '-12-31';
   }

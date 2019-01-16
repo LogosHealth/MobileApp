@@ -39,6 +39,9 @@ export class FormChooseInfo {
     this.forProfileId = navParams.get('forProfileId');
     console.log('FormChooseInfo - forProfileId: ' + this.forProfileId);
     this.curRec = RestService.results[this.recId];
+    console.log('formChooseInfo curRec: ', this.curRec);
+    console.log('formChooseInfo RestService results: ', RestService.results);
+
     if (this.dataType == undefined || this.dataType == null || this.dataType == '') {
       console.log('Error in retrieving dataType for formChooseInfo');
       //Put exit form with error alert here
@@ -115,10 +118,14 @@ export class FormChooseInfo {
       };
       var pathTemplate = '';
       var method = 'GET';
+      var visitid = 1;
+      if (this.curRec !== undefined) {
+        visitid = this.curRec.recordid;
+      }
       var additionalParams = {
           queryParams: {
               profileid: this.forProfileId,
-              visitid: this.curRec.recordid
+              visitid: visitid
           }
       };
       var body = '';
@@ -126,7 +133,8 @@ export class FormChooseInfo {
       var iiTransfer: ImportantInfos = new ImportantInfos();
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
-        if (result.data !== 'No data found') {
+        console.log('FormChooseInfo - LoadData results: ', result);
+        if (result.data !== 'No data found' && result.data.errno == undefined) {
           iiTransfer.items = result.data;
         } else {
           iiTransfer.items = [];

@@ -228,6 +228,10 @@ export class FormNutritionAdd {
   }
 
   saveRecordDo(){
+    var offset = 0;
+    var offsetDate;
+    var chkTime;
+
     this.saving = true;
     this.action = 'save';
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
@@ -242,8 +246,33 @@ export class FormNutritionAdd {
         this.mealSave.meal = this.card_form.get('meal').value;
       }
       if (this.card_form.get('mealtime').dirty){
-        this.mealSave.mealtime = this.card_form.get('mealtime').value;
+        //For mealtime, if it is a record that is already saved, it will expose the time from the dateofmeasure which is an ISO datestring
+        //If it is new, it will provide simply a naked timestamp e.g. 09:00 - accounting for both
+        chkTime  = this.card_form.get('mealtime').value;
+        offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+        offset = offsetDate.getTimezoneOffset() / 60;
+      if (chkTime.length < 10) {
+          //Not ISO Date String
+          this.mealSave.mealtime = chkTime;
+        } else {
+          console.log('Mealtime value: ' + this.card_form.get('mealtime').value);
+          if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+            chkTime = moment(chkTime).tz(this.userTimezone).add(offset, 'hours').format('HH:mm');
+          } else {
+            chkTime = moment(chkTime).format('HH:mm');
+          }
+          console.log('chkTime Transform from ISO String to: ' + chkTime);
+          this.mealSave.mealtime = chkTime;
+        }
         this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
+        console.log('formNutritionAdd - save-update Day of Measure: ' + this.dayofmeasure + ', offset: ' + offset);
+        if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+          this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+          console.log('formNutrionAdd update - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
+        } else {
+          this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+          console.log('formNutrionAdd update - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
+        }
       }
       if (this.card_form.get('amount').dirty){
         this.mealSave.amount = this.card_form.get('amount').value;
@@ -251,17 +280,6 @@ export class FormNutritionAdd {
       if (this.card_form.get('calories').dirty){
         this.mealSave.calories = this.card_form.get('calories').value;
       }
-      var offsetDate = new Date(moment(this.dayofmeasure).toISOString());
-      var offset = offsetDate.getTimezoneOffset() / 60;
-      console.log('formNutritionAdd - save-update Day of Measure: ' + this.dayofmeasure + ', offset: ' + offset);
-      if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
-        //console.log('IsoString: ' + moment(this.dayofmeasure).toISOString());
-        this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
-        console.log('formNutrionAdd update - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
-      } else {
-        this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
-      }
-      //console.log('Day of Measure Update formNutritionAdd - ' + this.mealSave.dateofmeasure);
     } else {
       this.mealSave.profileid = this.RestService.currentProfile;
       this.mealSave.userid = this.RestService.userId;
@@ -273,9 +291,27 @@ export class FormNutritionAdd {
         this.mealSave.meal = this.card_form.get('meal').value;
       }
       if (this.card_form.get('mealtime').dirty){
-        this.mealSave.mealtime = this.card_form.get('mealtime').value;
-        console.log('Mealtime value: ' + this.card_form.get('mealtime').value);
+        //For mealtime, if it is a record that is already saved, it will expose the time from the dateofmeasure which is an ISO datestring
+        //If it is new, it will provide simply a naked timestamp e.g. 09:00 - accounting for both
+        chkTime  = this.card_form.get('mealtime').value;
+        offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+        offset = offsetDate.getTimezoneOffset() / 60;
+      if (chkTime.length < 10) {
+          //Not ISO Date String
+          console.log('Mealtime value clean insert: ' + this.card_form.get('mealtime').value);
+          this.mealSave.mealtime = chkTime;
+        } else {
+          console.log('Mealtime value: ' + this.card_form.get('mealtime').value);
+          if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+            chkTime = moment(chkTime).tz(this.userTimezone).add(offset, 'hours').format('HH:mm');
+          } else {
+            chkTime = moment(chkTime).format('HH:mm');
+          }
+          console.log('chkTime Transform from ISO String to: ' + chkTime);
+          this.mealSave.mealtime = chkTime;
+        }
         this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
+        console.log('formattedDate insert: ' + this.formattedDate);
       }
       if (this.card_form.get('amount').dirty){
         this.mealSave.amount = this.card_form.get('amount').value;
@@ -283,8 +319,7 @@ export class FormNutritionAdd {
       if (this.card_form.get('calories').dirty){
         this.mealSave.calories = this.card_form.get('calories').value;
       }
-      var offsetDate = new Date(moment(this.dayofmeasure).toISOString());
-      var offset = offsetDate.getTimezoneOffset() / 60;
+
       if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
         //console.log('IsoString: ' + moment(this.dayofmeasure).toISOString());
         this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
@@ -293,6 +328,7 @@ export class FormNutritionAdd {
         this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
       }
     }
+
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/NutritionByProfile";
       var config = {
         invokeUrl: restURL,
@@ -317,6 +353,7 @@ export class FormNutritionAdd {
       var body = JSON.stringify(this.formDaySave);
       var self = this;
       console.log('Calling Post', this.formDaySave);
+
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
@@ -329,6 +366,7 @@ export class FormNutritionAdd {
         self.loading.dismiss();
         self.dismiss();
       });
+
   }
 
   cancelEntry() {

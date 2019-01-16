@@ -25,7 +25,7 @@
      </form>
     </ion-toolbar>
 </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -33,12 +33,12 @@
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-25 class="item-avatar">
-            <preload-image class="avatar-image" [ratio]="{w:16, h:9}" [src]="item.image"></preload-image>
-          </ion-col>    
+            <preload-image class="avatar-image" [ratio]="{w:16, h:9}" [src]="item.imageURL" alt="No Image"></preload-image>
+          </ion-col>
           <ion-col no-padding width-65 class="item-content" >
             <h3 class="item-title">{{item.name}}</h3>
             <h3 class="item-title">from {{item.restaurantname}}</h3>
-            <p class="item-description">Cost: ${{item.cost}}      Calories: {{item.calories}} </p> 
+            <p class="item-description">Cost: ${{item.cost}}      Calories: {{item.calories}} </p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

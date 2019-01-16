@@ -13,6 +13,7 @@ import { CallNumber } from '@ionic-native/call-number';
 export class FormOrderPage {
   section: string;
   formName: string = "formOrder";
+  noImage: string = "No Image";
   loading: any;
   recId: number;
   card_form: FormGroup;
@@ -53,7 +54,7 @@ export class FormOrderPage {
         address: new FormControl(this.curRec.address),
         city: new FormControl(this.curRec.city),
         phone: new FormControl(this.curRec.phone),
-        image: new FormControl(this.curRec.image)
+        image: new FormControl(this.curRec.imageURL)
       });
   }
 
