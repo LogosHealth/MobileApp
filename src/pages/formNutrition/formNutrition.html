@@ -9,15 +9,9 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
-          <h2 class = "section-title" >Nutrition Record</h2>
-
+          <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dayofmeasure) }}</h2>
+          <h2 class = "section-title" *ngIf="newRec">Nutrition Record</h2>
           <ion-row>
-            <ion-col no-padding *ngIf="!newRec">
-                <ion-item>
-                  <ion-label floating>Date of Measure</ion-label>
-                  <ion-input type="text" formControlName="dayofmeasure" [disabled]="true"></ion-input>
-                </ion-item>
-            </ion-col>
             <ion-col no-padding width-50 *ngIf="newRec">
                 <ion-item>
                   <ion-label floating>Date of Measure</ion-label>

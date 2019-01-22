@@ -318,7 +318,7 @@ export class FormAllergyPage {
               this.formSave.profileid = this.RestService.currentProfile;
               this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
-              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AllergiesByProfile";
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -393,7 +393,23 @@ export class FormAllergyPage {
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
     }
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MoodByProfile";
+    if (this.card_form.get('allergyname').dirty) {
+      this.formSave.name = this.card_form.get('allergyname').value;
+    }
+    if (this.card_form.get('severity').dirty) {
+      this.formSave.severity = this.card_form.get('severity').value;
+    }
+    if (this.card_form.get('description').dirty) {
+      this.formSave.description = this.card_form.get('description').value;
+    }
+    if (this.card_form.get('startdate').dirty) {
+      this.formSave.startdate = this.card_form.get('startdate').value;
+    }
+    //currentmeds: this.formBuilder.array([ this.createMed() ]),
+    //events: this.formBuilder.array([ this.createEvent() ]),
+    //medicallyconfirmed: new FormControl(this.curRec.medicallyconfirmed),
+
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AllergiesByProfile";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,

@@ -33,6 +33,10 @@ export class FormSymptomPage {
   list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public navParams: NavParams) {
@@ -42,6 +46,16 @@ export class FormSymptomPage {
     var self = this;
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
     var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
@@ -51,9 +65,11 @@ export class FormSymptomPage {
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        symptom: new FormControl(this.curRec.symptomname),
+        symptom: new FormControl(this.curRec.symptomname, Validators.required),
         symptomdescription: new FormControl(this.curRec.symptomdescription),
-        dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
+        dateofmeasure: new FormControl(this.formatDateTimeSaved(this.curRec.dateofmeasure)),
+        enddate: new FormControl(this.formatDateTime(this.curRec.enddate)),
+        endtime: new FormControl(this.formatTime(this.curRec.enddate)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.RestService.userId)
       });
@@ -61,9 +77,12 @@ export class FormSymptomPage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        symptom: new FormControl(),
+        symptom: new FormControl(null, Validators.required),
         symptomdescription: new FormControl(),
-        dateofmeasure: new FormControl(localISOTime),
+        dateofmeasure: new FormControl(),
+        starttime: new FormControl(),
+        enddate: new FormControl(),
+        endtime: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -119,7 +138,7 @@ export class FormSymptomPage {
               this.formSave.profileid = this.RestService.currentProfile;
               this.formSave.userid = this.RestService.userId;
               this.formSave.active = 'N';
-              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TemperatureByProfile";
+              var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SymptomByProfile";
               var config = {
                 invokeUrl: restURL,
                 accessKey: this.RestService.AuthData.accessKeyId,
@@ -182,6 +201,76 @@ export class FormSymptomPage {
     }
   }
 
+  calculateDateTime() {
+    var dtString;
+    var offsetDate;
+    var offset;
+    var finalDate;
+    var strDate;
+    var strTime;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('dateofmeasure').dirty) {
+      strDate = this.card_form.get('dateofmeasure').value;
+    }
+    if (this.card_form.get('starttime').dirty) {
+      strTime = this.card_form.get('starttime').value;
+    } else if (this.card_form.get('dateofmeasure').dirty) {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    offsetDate = new Date(moment(dtString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+    return finalDate;
+}
+
+calculateEndDate() {
+  var dtString;
+  var offsetDate;
+  var offset;
+  var finalDate;
+  var strDate;
+  var strTime = '00:00';
+  //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+  //console.log('Start Time: ' + this.card_form.get('starttime').value);
+  if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+    strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+  } else {
+    strDate = this.momentNow.format('YYYY-MM-DD');
+  }
+  if (this.card_form.get('enddate').dirty) {
+    strDate = this.card_form.get('enddate').value;
+  }
+  if (this.card_form.get('endtime').dirty) {
+    strTime = this.card_form.get('endtime').value;
+  }
+  dtString = strDate + ' ' + strTime;
+  offsetDate = new Date(moment(dtString).toISOString());
+  offset = offsetDate.getTimezoneOffset() / 60;
+  if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+    finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+    console.log('Final end date with timezone: ' + finalDate);
+  } else {
+    finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+    console.log('Final end date with no timezone: ' + finalDate);
+  }
+  return finalDate;
+}
+
   saveRecordDo(){
     this.saving = true;
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
@@ -195,16 +284,19 @@ export class FormSymptomPage {
       if (this.card_form.get('symptomdescription').dirty){
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
       }
-      if (this.card_form.get('dateofmeasure').dirty){
-        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
+        this.formSave.enddate = this.calculateEndDate();
       }
     } else {
       this.formSave.symptomname = this.card_form.get('symptom').value;
       if (this.card_form.get('symptomdescription').dirty){
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
       }
-      if (this.card_form.get('dateofmeasure').dirty){
-        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('starttime').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
+      }
+      if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
+        this.formSave.enddate = this.calculateEndDate();
       }
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
@@ -235,7 +327,7 @@ export class FormSymptomPage {
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         self.RestService.results = result.data;
-        console.log('Happy Path: ' + self.RestService.results);
+        console.log('Happy Path: ', self.RestService.results);
         self.category.title = "Measure";
         self.loading.dismiss();
         self.nav.pop();
@@ -246,14 +338,67 @@ export class FormSymptomPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
+  }
+
+  hasEndDate() {
+    if (this.card_form.get('enddate').value !== undefined && this.card_form.get('enddate').value !== null){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
+  }
+
+  formatDateTimeSaved(dateString) {
+    if (dateString !== undefined && dateString !== null && dateString !== "") {
+      if (this.userTimezone !== undefined && this.userTimezone !=="") {
+        return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+      } else {
+        return moment(dateString).format('MM-DD-YYYY hh:mm A');
+      }
+    } else {
+      return null;
+    }
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+    if (dateString !== undefined && dateString !== null && dateString !== "") {
+      if (this.userTimezone !== undefined && this.userTimezone !=="") {
+        return moment(dateString).tz(this.userTimezone).format('YYYY-MM-DD');
+      } else {
+        return moment(dateString).format('YYYY-MM-DD');
+      }
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return null;
+    }
+  }
+
+  formatTime(dateString) {
+    if (dateString !== undefined && dateString !== null && dateString !== "") {
+      if (this.userTimezone !== undefined && this.userTimezone !=="") {
+        return moment(dateString).tz(this.userTimezone).format('hh:mm A');
+      } else {
+        return moment(dateString).format('hh:mm A');
+      }
+    } else {
+      return null;
     }
   }
 

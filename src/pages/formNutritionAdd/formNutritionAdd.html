@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Add Meal/Item</ion-title>
+    <ion-title>Meal/Item</ion-title>
   </ion-navbar>
 </ion-header>
 
@@ -53,7 +53,16 @@
               </ion-item>
           </ion-col>
         </ion-row>
-        </section>
+        <ion-row>
+          <ion-col no-padding width-50 *ngIf="!newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+              </ion-item>
+          </ion-col>
+      </ion-row>
+
+      </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-33>

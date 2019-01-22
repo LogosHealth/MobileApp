@@ -77,9 +77,6 @@ export class ListOrderPage {
     }
   }
 
-  //ionViewWillEnter() {
-  //}
-
   loadData() {
     var restURL: string;
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/OrderAMeal";
@@ -176,10 +173,21 @@ export class ListOrderPage {
     var strKey;
     var keyArray = [];
     var blnDone = false;
+    var blnTryUpdate = false;
+    var bucketRegion = 'us-east-1';
 
     itemCount = this.list2.items.length;
     for (var i = 0; i < this.list2.items.length; i++) {
       if (this.list2.items[i].image == 'AWS') {
+        if (!blnTryUpdate) {
+          this.RestService.AWS.config.update({
+            region: bucketRegion,
+            accessKeyId: this.RestService.AuthData.accessKeyId,
+            secretAccessKey: this.RestService.AuthData.secretKey,
+            sessionToken: this.RestService.AuthData.sessionToken,
+          });
+          blnTryUpdate = true;
+        }
         strKey = "MenuItemPhotos/" + this.list2.items[i].recordid + ".jpg";
         keyArray[strKey] = i;
         this.getPicURL(strKey, function(err, results) {

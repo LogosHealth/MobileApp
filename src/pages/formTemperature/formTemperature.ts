@@ -25,15 +25,17 @@ export class FormTemperaturePage {
   newRec: boolean = false;
   saving: boolean = false;
   showTips: boolean = true;
-
   formModelSave: ListMeasureModel  = new ListMeasureModel();
   formSave: ListMeasure = new ListMeasure();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
-
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public navParams: NavParams) {
@@ -45,10 +47,20 @@ export class FormTemperaturePage {
         self.userTimezone = results.timezone;
       }
     });
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        temperature: new FormControl(this.curRec.temperature),
+        temperature: new FormControl(this.curRec.temperature, Validators.required),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.RestService.userId)
@@ -57,8 +69,9 @@ export class FormTemperaturePage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        temperature: new FormControl("", Validators.required),
+        temperature: new FormControl(null, Validators.required),
         dateofmeasure: new FormControl(),
+        timeofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -154,6 +167,43 @@ export class FormTemperaturePage {
     alert.present();
   }
 
+  calculateDateTime() {
+    var dtString;
+    var offsetDate;
+    var offset;
+    var finalDate;
+    var strDate;
+    var strTime;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('dateofmeasure').dirty) {
+      strDate = this.card_form.get('dateofmeasure').value;
+    }
+    if (this.card_form.get('timeofmeasure').dirty) {
+      strTime = this.card_form.get('timeofmeasure').value;
+    } else if (this.card_form.get('dateofmeasure').dirty) {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    offsetDate = new Date(moment(dtString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+    return finalDate;
+  }
+
   saveRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -189,6 +239,9 @@ export class FormTemperaturePage {
       }
     } else {
       this.formSave.temperature = this.card_form.get('temperature').value;
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
+      }
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
@@ -229,7 +282,24 @@ export class FormTemperaturePage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
   }
 
   formatDateTime(dateString) {

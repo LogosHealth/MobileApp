@@ -74,6 +74,8 @@ import { FormSymptomPage } from '../pages/formSymptom/formSymptom';
 import { FormChooseNotify } from '../pages/formChooseNotify/formChooseNotify';
 import { FormNutritionAdd } from '../pages/formNutritionAdd/formNutritionAdd';
 
+import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
+
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
 import { PrivacyPolicyPage } from '../pages/privacy-policy/privacy-policy';
@@ -212,6 +214,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormChooseNotify,
     FormNutritionAdd,
 
+    MenuMeasure,
+
     FiltersPage,
     TermsOfServicePage,
     PrivacyPolicyPage,
@@ -304,6 +308,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormSymptomPage,
     FormChooseNotify,
     FormNutritionAdd,
+
+    MenuMeasure,
 
     FiltersPage,
     TermsOfServicePage,

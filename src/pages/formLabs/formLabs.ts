@@ -40,6 +40,10 @@ export class FormLabsPage {
   unitList = [];
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService) {
@@ -58,7 +62,16 @@ export class FormLabsPage {
         self.userTimezone = results.timezone;
       }
     });
-
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
@@ -86,6 +99,7 @@ export class FormLabsPage {
         lowerrange: new FormControl(),
         upperrange: new FormControl(),
         dateofmeasure: new FormControl(),
+        timeofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl(),
         confirmed: new FormControl()
@@ -179,11 +193,13 @@ export class FormLabsPage {
           self.labNameChange(self.labsList[0], 0);
         }
         self.loadingComplete = true;
+        self.card_form.markAsPristine();
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(body);
         self.loadingComplete = true;
+        self.card_form.markAsPristine();
         self.loading.dismiss();
     });
   }
@@ -218,6 +234,14 @@ export class FormLabsPage {
     this.formSave.userid = this.RestService.userId;
     this.formSave.active = 'Y';
     this.formSave.confirmed = 'Y';
+    if (this.card_form.get('recordid').value ==undefined || this.card_form.get('recordid').value ==null) {
+      this.formSave.labname = this.card_form.get('labname').value;
+      this.formSave.labnametext = this.card_form.get('labnametext').value;
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
+      }
+    }
+
     if (this.card_form.get('labname').dirty){
       this.formSave.labname = this.card_form.get('labname').value;
     }
@@ -239,7 +263,7 @@ export class FormLabsPage {
     if (this.card_form.get('upperrange').dirty){
       this.formSave.upperrange = this.card_form.get('upperrange').value;
     }
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -362,6 +386,43 @@ export class FormLabsPage {
     alert.present();
   }
 
+  calculateDateTime() {
+    var dtString;
+    var offsetDate;
+    var offset;
+    var finalDate;
+    var strDate;
+    var strTime;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('dateofmeasure').dirty) {
+      strDate = this.card_form.get('dateofmeasure').value;
+    }
+    if (this.card_form.get('timeofmeasure').dirty) {
+      strTime = this.card_form.get('timeofmeasure').value;
+    } else if (this.card_form.get('dateofmeasure').dirty) {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    offsetDate = new Date(moment(dtString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+    return finalDate;
+  }
+
   saveRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -418,10 +479,8 @@ export class FormLabsPage {
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
       this.formSave.labname = this.card_form.get('labname').value;
+      this.formSave.labnametext = this.card_form.get('labnametext').value;
       this.formSave.labresult = this.card_form.get('labresult').value;
-      if (this.card_form.get('labnametext').dirty){
-        this.formSave.labnametext = this.card_form.get('labnametext').value;
-      }
       if (this.card_form.get('labunit').dirty){
         this.formSave.labunit = this.card_form.get('labunit').value;
       }
@@ -433,6 +492,9 @@ export class FormLabsPage {
       }
       if (this.card_form.get('upperrange').dirty){
         this.formSave.upperrange = this.card_form.get('upperrange').value;
+      }
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
       }
     }
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";
@@ -471,7 +533,24 @@ export class FormLabsPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
   }
 
   formatDateTime(dateString) {

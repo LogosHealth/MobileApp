@@ -1,26 +1,11 @@
 <ion-header>
     <ion-navbar>
-      <button ion-button menuToggle>
-        <ion-icon name="menu"></ion-icon>
-      </button>
       <ion-title>
-        <span>{{ feed.category.title }}</span>
+        <span>{{ getTitle() }}</span>
       </ion-title>
       <ion-buttons right>
-        <button ion-button icon-only (click)="loadList('weight')">
-          <ion-icon name='body' *ngIf="multiTab"></ion-icon>
-        </button>
-        <button ion-button icon-only (click)="loadList('mood')">
-          <ion-icon name='happy' *ngIf="multiTab"></ion-icon>
-        </button>
-        <button ion-button icon-only (click)="loadList('symptom')">
-          <ion-icon name='warning' *ngIf="multiTab"></ion-icon>
-        </button>
-        <button ion-button icon-only (click)="loadList('temp')">
-          <ion-icon name='thermometer' *ngIf="multiTab"></ion-icon>
-        </button>
-        <button ion-button icon-only (click)="loadList('bloodGlucose')">
-          <ion-icon name='water' *ngIf="multiTab"></ion-icon>
+        <button ion-button icon-only (click)="presentPopover($event)">
+          <ion-icon name='list-box'></ion-icon>
         </button>
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>

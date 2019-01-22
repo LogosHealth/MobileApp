@@ -1,0 +1,35 @@
+menuMeasure-page {
+	ion-header {
+		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
+	}
+
+  ion-list {
+    background-color: $theme-color-1;
+    font-size: 1.8rem;
+    line-height: 1.2;
+    letter-spacing: 1.1px;
+    text-align: center;
+    color: $theme-color-1;
+    font-weight: 400;
+    margin: 0px;
+  }
+
+  .list-title {
+    background-color: $white;
+    font-size: 1.8rem;
+    text-align: center;
+    color: $theme-color-1;
+    font-weight: 400;
+  }
+
+  .list-item {
+    background-color: $white;
+    font-size: 1.6rem;
+    text-align: left;
+    color: $theme-color-1;
+    font-weight: 400;
+  }
+
+}
+
+

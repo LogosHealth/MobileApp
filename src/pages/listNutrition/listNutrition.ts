@@ -116,6 +116,14 @@ export class ListNutritionPage {
     }
   }
 
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
+  }
+
   formatTime(timeString) {
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];

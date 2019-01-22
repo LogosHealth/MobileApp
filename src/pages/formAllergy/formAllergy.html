@@ -9,8 +9,6 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
-          <h2 class = "section-title" >Allergy Record</h2>
-
           <ion-row>
             <ion-col no-padding width-50>
                 <ion-item>
@@ -29,7 +27,7 @@
           <ion-col>
               <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-input type="text" formControlName="description"></ion-input>
+                <ion-input text-wrap type="text" formControlName="description"></ion-input>
               </ion-item>
           </ion-col>
       </ion-row>

@@ -14,35 +14,18 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="confirmRecord()">
         <section class="form-section">
-          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Lab Record</h2>
- 
-          <ion-row *ngIf="newRec">
+          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}" *ngIf="newRec">New Lab Record</h2>
+          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
+          <ion-row>
             <ion-col>
               <ion-item>
                 <ion-label floating>Lab Name</ion-label>
                 <ion-select formControlName="labname">
-                  <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>                
+                  <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>
               </ion-select>
             </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row *ngIf="!newRec">
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Lab Name</ion-label>
-                <ion-select formControlName="labname">
-                  <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>                
-              </ion-select>
-            </ion-item>
-            </ion-col>
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Date of Measure</ion-label>
-                <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
-              </ion-item>
-            </ion-col>
-          </ion-row>
-
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
@@ -54,7 +37,7 @@
                 <ion-item>
                     <ion-label floating>Unit</ion-label>
                     <ion-select formControlName="labunit">
-                      <ion-option *ngFor="let unit of unitList"(ionSelect)="labUnitChange(unit)" [value]="unit.recordid">{{unit.dictionarycode}}</ion-option>                
+                      <ion-option *ngFor="let unit of unitList"(ionSelect)="labUnitChange(unit)" [value]="unit.recordid">{{unit.dictionarycode}}</ion-option>
                   </ion-select>
                 </ion-item>
             </ion-col>
@@ -64,13 +47,13 @@
                   <ion-input type="text" formControlName="labunittext"></ion-input>
                 </ion-item>
             </ion-col>
-          </ion-row>            
+          </ion-row>
           <ion-row>
               <ion-col no-padding width-50>
                   <ion-item>
                       <ion-label floating>Lower Range</ion-label>
                       <ion-input type="text" formControlName="lowerrange"></ion-input>
-                    </ion-item>    
+                    </ion-item>
               </ion-col>
               <ion-col no-padding width-50>
                 <ion-item>
@@ -78,7 +61,28 @@
                   <ion-input type="text" formControlName="upperrange"></ion-input>
                 </ion-item>
               </ion-col>
-          </ion-row>  
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding *ngIf="!newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure*</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Time of Measure</ion-label>
+                <ion-datetime displayFormat="hh:mm A" [min]="1900-01-01" [max]="today()" formControlName="timeofmeasure" ></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
         </section>
         <section class="form-section">
           <ion-row no-padding class="multi-input-row">
@@ -88,9 +92,9 @@
             <ion-col no-padding width-30>
               <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
           </ion-col>
-          <ion-col no-padding width-30> 
+          <ion-col no-padding width-30>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
-          </ion-col>    
+          </ion-col>
          </ion-row>
          <p class="section-tips" *ngIf="showTips && isSpecificLabForm"><b>LogosHealth Alexa Skill Tips:</b><br><br>Say <i>"My blood glucose is 110."</i> for easy data entry.</p>
          <p class="section-tips" *ngIf="showTips && !isSpecificLabForm"><b>LogosHealth Alexa Skill Tips:</b><br><br>Choose "Lab" or "Lab Panel" from the main menu for easy data entry.</p>

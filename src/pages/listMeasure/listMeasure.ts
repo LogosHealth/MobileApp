@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, PopoverController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListMeasureModel } from './listMeasure.model';
@@ -10,6 +10,8 @@ import { FormMoodPage } from '../../pages/formMood/formMood';
 import { FormLabsPage } from '../../pages/formLabs/formLabs';
 import { FormTemperaturePage } from '../../pages/formTemperature/formTemperature';
 import { FormSymptomPage } from '../../pages/formSymptom/formSymptom';
+import { MenuMeasure } from '../../pages/menuMeasure/menuMeasure';
+
 
 var moment = require('moment-timezone');
 
@@ -31,6 +33,7 @@ export class ListMeasurePage {
     public list2Service: ListMeasureService,
     public navParams: NavParams,
     public RestService:RestService,
+    public popoverCtrl:PopoverController,
     public loadingCtrl: LoadingController
   ) {
     this.feed.category = navParams.get('category');
@@ -54,6 +57,10 @@ export class ListMeasurePage {
       this.presentLoadingDefault();
       if (this.curObj == 'mood') {
         this.loadDataMood();
+      } else if (this.curObj == 'symptom') {
+        this.loadDataSymptom();
+      } else if (this.curObj == 'temperature') {
+        this.loadDataTemp();
       } else if (this.curObj == 'bloodGlucose') {
         this.loadDataBG();
       } else {
@@ -70,6 +77,10 @@ export class ListMeasurePage {
           console.log('From listMeasure - Credentials refreshed!');
           if (self.curObj == 'mood') {
             self.loadDataMood();
+          } else if (this.curObj == 'symptom') {
+            this.loadDataSymptom();
+          } else if (this.curObj == 'temperature') {
+            this.loadDataTemp();
           } else if (self.curObj == 'bloodGlucose') {
             self.loadDataBG();
           } else {
@@ -301,6 +312,23 @@ export class ListMeasurePage {
     }
   }
 
+  getTitle() {
+    if (this.curObj == "weight") {
+      return 'Weight';
+    } else if (this.curObj == "mood") {
+      return 'Mood';
+    } else if (this.curObj == "symptom") {
+      return 'Symptom';
+    } else if (this.curObj == "temperature") {
+      return 'Temperature';
+    } else if (this.curObj == "bloodGlucose") {
+      return 'Blood Glucose';
+    } else {
+      return 'Not Known';
+    }
+  }
+
+
   addNew() {
     if (this.curObj == "weight") {
       this.nav.push(FormWeightPage);
@@ -347,7 +375,7 @@ export class ListMeasurePage {
           this.loadDataBG();
         } else if (dataObj == 'mood') {
           this.loadDataMood();
-        } else if (dataObj == 'temp') {
+        } else if (dataObj == 'temperature') {
           this.loadDataTemp();
         } else if (dataObj == 'symptom') {
           this.loadDataSymptom();
@@ -372,7 +400,7 @@ export class ListMeasurePage {
               this.loadDataBG();
             } else if (dataObj == 'mood') {
               this.loadDataMood();
-            } else if (dataObj == 'temp') {
+            } else if (dataObj == 'temperature') {
               this.loadDataTemp();
             } else if (dataObj == 'symptom') {
               this.loadDataSymptom();
@@ -384,6 +412,22 @@ export class ListMeasurePage {
         }
       });
     }
+  }
+
+  presentPopover(myEvent) {
+    var self = this;
+    var dataObj;
+    let popover = this.popoverCtrl.create(MenuMeasure);
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        self.loadList(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
   }
 
   presentLoadingDefault() {

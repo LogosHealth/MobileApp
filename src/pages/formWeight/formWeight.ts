@@ -32,6 +32,10 @@ export class FormWeightPage {
   list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController) {
@@ -43,10 +47,20 @@ export class FormWeightPage {
         self.userTimezone = results.timezone;
       }
     });
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        weight: new FormControl(this.curRec.weight),
+        weight: new FormControl(this.curRec.weight, Validators.required),
         unitofmeasure: new FormControl(this.curRec.unitofmeasure),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
@@ -56,9 +70,10 @@ export class FormWeightPage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        weight: new FormControl("", Validators.required),
+        weight: new FormControl(null, Validators.required),
         unitofmeasure: new FormControl(),
         dateofmeasure: new FormControl(),
+        timeofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -154,6 +169,43 @@ export class FormWeightPage {
     alert.present();
   }
 
+  calculateDateTime() {
+    var dtString;
+    var offsetDate;
+    var offset;
+    var finalDate;
+    var strDate;
+    var strTime;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('dateofmeasure').dirty) {
+      strDate = this.card_form.get('dateofmeasure').value;
+    }
+    if (this.card_form.get('timeofmeasure').dirty) {
+      strTime = this.card_form.get('timeofmeasure').value;
+    } else if (this.card_form.get('dateofmeasure').dirty) {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    offsetDate = new Date(moment(dtString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+    return finalDate;
+  }
+
   saveRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -189,6 +241,9 @@ export class FormWeightPage {
       }
     } else {
       this.formSave.weight = this.card_form.get('weight').value;
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
+      }
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
@@ -229,7 +284,16 @@ export class FormWeightPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
   }
 
   formatDateTime(dateString) {
@@ -237,6 +301,14 @@ export class FormWeightPage {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
       return moment(dateString).format('MM-DD-YYYY hh:mm a');
+    }
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
     }
   }
 

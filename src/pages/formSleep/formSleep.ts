@@ -76,7 +76,7 @@ export class FormSleepPage {
         hoursslept: new FormControl(),
         starttime: new FormControl(null, Validators.max(this.timeNow)),
         waketime: new FormControl(null, Validators.max(this.timeNow)),
-        dateofmeasure: new FormControl(),
+        dateofmeasure: new FormControl(this.today()),
         confirmed: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
@@ -231,7 +231,7 @@ export class FormSleepPage {
         } else {
           var dtDET = moment(this.card_form.get('dateofmeasure').value);
         }
-        console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
+        console.log('Date of measure Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.sleepSave.dateofmeasure = dtDET.utc().toISOString();
       }
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
@@ -274,7 +274,16 @@ export class FormSleepPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
   }
 
   formatDateTime(dateString) {
@@ -289,7 +298,7 @@ export class FormSleepPage {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
 

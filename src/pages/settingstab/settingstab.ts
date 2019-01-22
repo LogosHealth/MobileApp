@@ -75,7 +75,7 @@ export class SettingsTabPage {
       this.nav.push(FormFoodPref, { category: category });
     } else if (category.title == 'Set Goals') {
       this.nav.push(ListGoalsPage, { category: category });
-    } else if (category.title == 'About Me') {
+    } else if (category.title == 'Profile') {
       this.nav.push(FormAboutMe, { category: category, homePage: this });
     } else if (category.title == 'Schedules & Alerts') {
       this.nav.push(ListSchedulePage, { category: category });

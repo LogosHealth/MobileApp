@@ -32,6 +32,10 @@ export class FormMoodPage {
   list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public navParams: NavParams) {
@@ -43,10 +47,20 @@ export class FormMoodPage {
         self.userTimezone = results.timezone;
       }
     });
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        mood: new FormControl(this.curRec.mood),
+        mood: new FormControl(this.curRec.mood, Validators.required),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
@@ -55,9 +69,9 @@ export class FormMoodPage {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
-        mood: new FormControl("", Validators.required),
-        unitofmeasure: new FormControl(),
+        mood: new FormControl(null, Validators.required),
         dateofmeasure: new FormControl(),
+        timeofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -153,6 +167,43 @@ export class FormMoodPage {
     alert.present();
   }
 
+  calculateDateTime() {
+    var dtString;
+    var offsetDate;
+    var offset;
+    var finalDate;
+    var strDate;
+    var strTime;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('dateofmeasure').dirty) {
+      strDate = this.card_form.get('dateofmeasure').value;
+    }
+    if (this.card_form.get('timeofmeasure').dirty) {
+      strTime = this.card_form.get('timeofmeasure').value;
+    } else if (this.card_form.get('dateofmeasure').dirty) {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    offsetDate = new Date(moment(dtString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+    return finalDate;
+  }
+
   saveRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -188,6 +239,9 @@ export class FormMoodPage {
       }
     } else {
       this.formSave.mood = this.card_form.get('mood').value;
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
+        this.formSave.dateofmeasure = this.calculateDateTime();
+      }
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
@@ -228,7 +282,24 @@ export class FormMoodPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
   }
 
   formatDateTime(dateString) {
@@ -236,7 +307,7 @@ export class FormMoodPage {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
 

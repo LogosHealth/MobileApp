@@ -36,6 +36,10 @@ export class FormNutritionPage {
   list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  timeNow: any;
+  hourNow: any;
+  minuteNow: any;
+  momentNow: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public modalCtrl: ModalController, public navParams: NavParams, public formBuilder: FormBuilder, public list2Service: ListNutritionService) {
@@ -47,6 +51,16 @@ export class FormNutritionPage {
         self.userTimezone = results.timezone;
       }
     });
+    this.momentNow = moment(new Date());
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
+      this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
+      this.timeNow = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      this.hourNow = this.momentNow.format('HH');
+      this.minuteNow = this.momentNow.format('mm');
+      this.timeNow = this.momentNow.format('HH:mm');
+    }
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
           dayofmeasure: new FormControl(this.curRec.dayofmeasure, Validators.required),
@@ -58,7 +72,7 @@ export class FormNutritionPage {
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
-        dayofmeasure: new FormControl(null, Validators.required),
+        dayofmeasure: new FormControl(this.today(), Validators.required),
         meals: this.formBuilder.array([]),
         profileid: new FormControl(),
         userid: new FormControl()
@@ -297,7 +311,16 @@ export class FormNutritionPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DD');
+    }
+    //console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
   }
 
   formatDateTime(dateString) {
@@ -305,6 +328,14 @@ export class FormNutritionPage {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
       return moment(dateString).format('MM-DD-YYYY hh:mm a');
+    }
+  }
+
+  formatDateTimeTitle(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
     }
   }
 
@@ -362,7 +393,9 @@ export class FormNutritionPage {
         if (data.action == 'save') {
           this.reload();
         } else {
-          this.loading.dismiss();
+          if (this.loading !== undefined) {
+            this.loading.dismiss();
+          }
         }
       }
     });
