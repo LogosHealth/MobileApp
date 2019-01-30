@@ -1,0 +1,176 @@
+formLifestyle-page {
+	ion-header {
+		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
+	}
+
+	ion-checkbox {
+		color: $theme-color-2;
+	}
+
+	.forms-examples-content
+    {
+		background-color: color($colors, background, base);
+
+		.form-section
+		{
+			padding: 0px 0px;
+			@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+
+			.columnAlign
+			{
+                margin-top: 30px;
+				vertical-align: bottom;
+			}
+            .section-title
+            {
+                font-size: 1.8rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: center;
+                color: $theme-color-1;
+                font-weight: 400;
+                margin-top: 25px;
+            }
+            .section-titleleft
+            {
+                font-size: 1.8rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: left;
+                color: $theme-color-1;
+                font-weight: 400;
+				margin-top: 25px;
+				margin-left: 10px;
+				margin-bottom: 0px;
+            }
+
+
+            .title-notconfirmed{
+                font-size: 1.8rem;
+                line-height: 1.2;
+                letter-spacing: 1.1px;
+                text-align: center;
+                color: $theme-color-3;
+                font-weight: 400;
+                margin: 5px;
+                margin-top: 25px;
+			}
+
+			.section-checkbox-label2
+            {
+                font-size: 1.8rem;
+                //line-height: 1.2;
+                //letter-spacing: 1.1px;
+                text-align: left;
+                color: $theme-color-1;
+                font-weight: 100;
+                margin: 0px;
+            }
+
+			.section-footnote
+            {
+                font-size: 1.0rem;
+                //line-height: 1.2;
+                //letter-spacing: 1.1px;
+                text-align: left;
+                color: $black-d;;
+                font-weight: 100;
+                margin: 0px;
+            }
+
+			.time-item
+			{
+				padding: 0px 30px;
+				margin: 0px;
+				background-color: $white;
+				border: none !important;
+				@include element-shadow();
+
+				.item-inner
+				{
+					padding: 0px;
+					border: none;
+
+					ion-label {
+						margin: 15px 8px 15px 0px;
+						font-size: 1.4rem;
+						font-weight: 500;
+						letter-spacing: 0.2px;
+						color: $white-d;
+					}
+
+					ion-datetime {
+						padding-right: 0px;
+
+						.datetime-text
+						{
+							font-size: 1.8rem;
+							color: $theme-color-1;
+
+							&::after
+							{
+								content: 'hrs';
+								margin-left: 4px;
+							}
+
+							&:empty::after
+							{
+								display: none;
+							}
+						}
+					}
+				}
+			}
+
+            ion-item {
+                @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				vertical-align: bottom;
+
+				&.item
+				{
+					margin-top: 14px;
+
+					&.item-label-floating
+					{
+						margin-top: 0px;
+
+						ion-label {
+							color: $white-d;
+						}
+					}
+
+					.item-inner
+					{
+						ion-icon {
+							color: $theme-color-2;
+						}
+					}
+				}
+
+				&:first-of-type {
+					margin-top: 0px;
+				}
+
+				ion-datetime {
+					@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+
+					padding-left: 0px;
+					padding-top: 8px;
+					padding-bottom: 7px;
+
+					.datetime-text
+					{
+						color: $black-d;
+					}
+
+				}
+
+			}
+		}
+
+
+	}
+
+}
+
+

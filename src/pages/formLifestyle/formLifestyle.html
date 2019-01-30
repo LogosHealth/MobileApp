@@ -1,0 +1,375 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Lifestyle</ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only>
+        <ion-icon name='attach' (click)="attachRecord()"></ion-icon>
+      </button>
+    </ion-buttons>
+ </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content"  [formGroup]="card_form">
+    <div>
+        <ion-card class="sample-form">
+          <ion-row>
+            <ion-col no-padding no-padding width-78>
+              <h2 class = "section-title" >Latest Occupation(s)</h2>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="addNewOccupation()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllOccupations()">
+                <ion-icon name="paper"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+          <div formArrayName="occupations" *ngFor="let info of card_form.get('occupations').controls; let i = index;">
+              <div [formGroupName]="i">
+                <ion-row>
+                  <ion-col no-padding width-50>
+                    <ion-item>
+                      <ion-label floating>Occupation {{ i + 1 }}</ion-label>
+                      <ion-input type="text" formControlName="name"></ion-input>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col no-padding width-38>
+                      <ion-item>
+                        <ion-label floating>Start Date</ion-label>
+                        <ion-datetime displayFormat="MMM YYYY"  formControlName="startdate"></ion-datetime>
+                      </ion-item>
+                  </ion-col>
+                  <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button"  type="button" (click)="viewDetailOccupation(i)">
+                        <ion-icon name="share-alt"></ion-icon>
+                      </button>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col no-padding>
+                    <ion-item>
+                      <ion-label floating>Known Hazards</ion-label>
+                      <ion-textarea type="text" formControlName="knownhazards" autosize></ion-textarea>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </div>
+          </div>
+        </ion-card>
+
+        <ion-card class="sample-form">
+            <ion-row>
+              <ion-col no-padding no-padding width-78>
+                <h2 class = "section-title" >Stress Management</h2>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="addNewStresslevel()">
+                    <ion-icon name="add"></ion-icon>
+                  </button>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllStresslevels()">
+                  <ion-icon name="paper"></ion-icon>
+                </button>
+              </ion-col>
+            </ion-row>
+            <div formArrayName="stresslevel" *ngFor="let info of card_form.get('stresslevel').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-col no-padding width-50>
+                      <ion-item>
+                        <ion-label floating>Current Level (1-10)</ion-label>
+                        <ion-select formControlName="level">
+                          <ion-option class="section-title" value="1">1</ion-option>
+                          <ion-option class="section-title" value="2">2</ion-option>
+                          <ion-option class="section-title" value="3">3</ion-option>
+                          <ion-option class="section-title" value="4">4</ion-option>
+                          <ion-option class="section-title" value="5">5</ion-option>
+                          <ion-option class="section-title" value="6">6</ion-option>
+                          <ion-option class="section-title" value="7">7</ion-option>
+                          <ion-option class="section-title" value="8">8</ion-option>
+                          <ion-option class="section-title" value="9">9</ion-option>
+                          <ion-option class="section-title" value="10">10</ion-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-38>
+                        <ion-item>
+                          <ion-label floating>Date</ion-label>
+                          <ion-datetime displayFormat="MMM DD-YY"  formControlName="dateofmeasure"></ion-datetime>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                        <button ion-button block class="form-action-button"  type="button" (click)="viewDetailStresslevel(i)">
+                          <ion-icon name="share-alt"></ion-icon>
+                        </button>
+                    </ion-col>
+                  </ion-row>
+                </div>
+            </div>
+        </ion-card>
+
+        <ion-card class="sample-form">
+            <ion-row>
+              <ion-col no-padding no-padding width-78>
+                <h2 class = "section-title" >Lifestyle Choices</h2>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="presentPopover('new')">
+                    <ion-icon name="add"></ion-icon>
+                  </button>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="presentPopover('view')">
+                  <ion-icon name="paper"></ion-icon>
+                </button>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col no-padding no-padding>
+                <h2 class = "section-titlemini" >Alcohol</h2>
+              </ion-col>
+            </ion-row>
+            <div formArrayName="alcohol" *ngFor="let info of card_form.get('alcohol').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-col no-padding width-22>
+                      <ion-item>
+                        <ion-label floating>Partake</ion-label>
+                        <ion-select formControlName="does">
+                          <ion-option class="section-title" value="Y">Yes</ion-option>
+                          <ion-option class="section-title" value="N">No</ion-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-35>
+                        <ion-item>
+                          <ion-label floating>Days/Wk</ion-label>
+                          <ion-select formControlName="daysperweek">
+                              <ion-option class="section-title" value="Under 1">Under 1</ion-option>
+                              <ion-option class="section-title" value="1">1</ion-option>
+                              <ion-option class="section-title" value="2">2</ion-option>
+                              <ion-option class="section-title" value="3">3</ion-option>
+                              <ion-option class="section-title" value="4">4</ion-option>
+                              <ion-option class="section-title" value="5">5</ion-option>
+                              <ion-option class="section-title" value="6">6</ion-option>
+                              <ion-option class="section-title" value="7">7</ion-option>
+                          </ion-select>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-31>
+                        <ion-item>
+                          <ion-label floating>per Day</ion-label>
+                          <ion-input type="text" formControlName="itemsperday"></ion-input>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                        <button ion-button block class="form-action-button"  type="button" (click)="viewDetailAlcohol(i)">
+                          <ion-icon name="share-alt"></ion-icon>
+                        </button>
+                    </ion-col>
+                  </ion-row>
+                </div>
+            </div>
+
+            <ion-row>
+              <ion-col no-padding no-padding>
+                <h2 class = "section-titlemini" >Nicotine</h2>
+              </ion-col>
+            </ion-row>
+            <div formArrayName="nicotine" *ngFor="let info of card_form.get('nicotine').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-col no-padding width-22>
+                      <ion-item>
+                        <ion-label floating>Partake</ion-label>
+                        <ion-select formControlName="does">
+                          <ion-option class="section-title" value="Y">Yes</ion-option>
+                          <ion-option class="section-title" value="N">No</ion-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-35>
+                        <ion-item>
+                          <ion-label floating>Days/Wk</ion-label>
+                          <ion-select formControlName="daysperweek">
+                              <ion-option class="section-title" value="Under 1">Under 1</ion-option>
+                              <ion-option class="section-title" value="1">1</ion-option>
+                              <ion-option class="section-title" value="2">2</ion-option>
+                              <ion-option class="section-title" value="3">3</ion-option>
+                              <ion-option class="section-title" value="4">4</ion-option>
+                              <ion-option class="section-title" value="5">5</ion-option>
+                              <ion-option class="section-title" value="6">6</ion-option>
+                              <ion-option class="section-title" value="7">7</ion-option>
+                          </ion-select>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-31>
+                        <ion-item>
+                          <ion-label floating>per Day</ion-label>
+                          <ion-input type="text" formControlName="itemsperday"></ion-input>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                        <button ion-button block class="form-action-button"  type="button" (click)="viewDetailNicotine(i)">
+                          <ion-icon name="share-alt"></ion-icon>
+                        </button>
+                    </ion-col>
+                  </ion-row>
+                </div>
+            </div>
+            <ion-row>
+                <ion-col no-padding no-padding>
+                  <h2 class = "section-titlemini">Marijuana</h2>
+                </ion-col>
+              </ion-row>
+              <div formArrayName="marijuana" *ngFor="let info of card_form.get('marijuana').controls; let i = index;">
+                  <div [formGroupName]="i">
+                    <ion-row>
+                      <ion-col no-padding width-22>
+                        <ion-item>
+                          <ion-label floating>Partake</ion-label>
+                          <ion-select formControlName="does">
+                            <ion-option class="section-title" value="Y">Yes</ion-option>
+                            <ion-option class="section-title" value="N">No</ion-option>
+                          </ion-select>
+                        </ion-item>
+                      </ion-col>
+                      <ion-col no-padding width-35>
+                          <ion-item>
+                            <ion-label floating>Days/Wk</ion-label>
+                            <ion-select formControlName="daysperweek">
+                                <ion-option class="section-title" value="Under 1">Under 1</ion-option>
+                                <ion-option class="section-title" value="1">1</ion-option>
+                                <ion-option class="section-title" value="2">2</ion-option>
+                                <ion-option class="section-title" value="3">3</ion-option>
+                                <ion-option class="section-title" value="4">4</ion-option>
+                                <ion-option class="section-title" value="5">5</ion-option>
+                                <ion-option class="section-title" value="6">6</ion-option>
+                                <ion-option class="section-title" value="7">7</ion-option>
+                            </ion-select>
+                          </ion-item>
+                      </ion-col>
+                      <ion-col no-padding width-31>
+                          <ion-item>
+                            <ion-label floating>per Day</ion-label>
+                            <ion-input type="text" formControlName="itemsperday"></ion-input>
+                          </ion-item>
+                      </ion-col>
+                      <ion-col class="columnAlign" no-padding width-10>
+                          <button ion-button block class="form-action-button"  type="button" (click)="viewDetailMarijuana(i)">
+                            <ion-icon name="share-alt"></ion-icon>
+                          </button>
+                      </ion-col>
+                    </ion-row>
+                  </div>
+              </div>
+              <ion-row>
+                  <ion-col no-padding no-padding>
+                    <h2 class = "section-titlemini">Other Rec Drugs</h2>
+                  </ion-col>
+                </ion-row>
+                <div formArrayName="otherdrug" *ngFor="let info of card_form.get('otherdrug').controls; let i = index;">
+                    <div [formGroupName]="i">
+                      <ion-row>
+                        <ion-col no-padding width-22>
+                          <ion-item>
+                            <ion-label floating>Partake</ion-label>
+                            <ion-select formControlName="does">
+                              <ion-option class="section-title" value="Y">Yes</ion-option>
+                              <ion-option class="section-title" value="N">No</ion-option>
+                            </ion-select>
+                          </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-35>
+                            <ion-item>
+                              <ion-label floating>Days/Wk</ion-label>
+                              <ion-select formControlName="daysperweek">
+                                  <ion-option class="section-title" value="Under 1">Under 1</ion-option>
+                                  <ion-option class="section-title" value="1">1</ion-option>
+                                  <ion-option class="section-title" value="2">2</ion-option>
+                                  <ion-option class="section-title" value="3">3</ion-option>
+                                  <ion-option class="section-title" value="4">4</ion-option>
+                                  <ion-option class="section-title" value="5">5</ion-option>
+                                  <ion-option class="section-title" value="6">6</ion-option>
+                                  <ion-option class="section-title" value="7">7</ion-option>
+                              </ion-select>
+                            </ion-item>
+                        </ion-col>
+                        <ion-col no-padding width-31>
+                            <ion-item>
+                              <ion-label floating>per Day</ion-label>
+                              <ion-input type="text" formControlName="itemsperday"></ion-input>
+                            </ion-item>
+                        </ion-col>
+                        <ion-col class="columnAlign" no-padding width-10>
+                            <button ion-button block class="form-action-button"  type="button" (click)="viewDetailOtherDrug(i)">
+                              <ion-icon name="share-alt"></ion-icon>
+                            </button>
+                        </ion-col>
+                      </ion-row>
+                    </div>
+                </div>
+          </ion-card>
+        <ion-card class="sample-form">
+            <ion-row>
+              <ion-col no-padding no-padding width-78>
+                <h2 class = "section-title" >International Travel</h2>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="addNewTravel()">
+                    <ion-icon name="add"></ion-icon>
+                  </button>
+              </ion-col>
+              <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTravels()">
+                  <ion-icon name="paper"></ion-icon>
+                </button>
+              </ion-col>
+            </ion-row>
+            <div formArrayName="travels" *ngFor="let info of card_form.get('travels').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-col no-padding width-50>
+                      <ion-item>
+                        <ion-label floating>Country {{ i + 1 }}</ion-label>
+                        <ion-input type="text" formControlName="country"></ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col no-padding width-38>
+                        <ion-item>
+                          <ion-label floating>Arrival Date</ion-label>
+                          <ion-datetime displayFormat="MMM DD-YY"  formControlName="arrivaldate"></ion-datetime>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                        <button ion-button block class="form-action-button"  type="button" (click)="viewDetailTravel(i)">
+                          <ion-icon name="share-alt"></ion-icon>
+                        </button>
+                    </ion-col>
+                  </ion-row>
+                </div>
+            </div>
+          </ion-card>
+
+          <ion-card class="sample-form">
+            <ion-row>
+              <ion-item>
+                <ion-label floating>Notable Hobbies</ion-label>
+                <ion-textarea type="text" formControlName="hobbies" autosize></ion-textarea>
+              </ion-item>
+            </ion-row>
+            <section class="form-section">
+              <ion-row no-padding class="multi-input-row">
+                <ion-col class="columnInline" no-padding width-50>
+                  <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+                </ion-col>
+              </ion-row>
+            </section>
+          </ion-card>
+        </div>
+  </ion-content>

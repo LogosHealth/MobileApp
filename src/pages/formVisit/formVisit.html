@@ -1,6 +1,14 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Visit Form</ion-title>
+    <ion-buttons right>
+        <button ion-button icon-only (click)="presentPopover($event)">
+            <ion-icon name='add'></ion-icon>
+          </button>
+          <button ion-button icon-only (click)="attachRecord()">
+          <ion-icon name='attach'></ion-icon>
+        </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -173,10 +181,75 @@
         <div [ngSwitch]="categoryList">
           <div  *ngSwitchCase="'post'">
             <ion-card class="sample-form">
-              <h2>To be built</h2>
+              <ion-row>
+                <ion-col no-padding width-68>
+                  <h2 class = "section-title" >Diagnosis</h2>
+                </ion-col>
+                <ion-col class="columnAligntoLabel"  no-padding width-30>
+                  <button ion-button block class="form-action-button"  type="button" (click)="addDiagnosis()">Add</button>
+                </ion-col>
+              </ion-row>
+              <div formArrayName="diagnoses" *ngFor="let info of card_form.get('diagnoses').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-col class="columnAlignLeft" no-padding width-5>
+                      <ion-checkbox formControlName="resolved" (click)="setResolved(i)"></ion-checkbox>
+                    </ion-col>
+                    <ion-col no-padding width-72>
+                      <ion-item>
+                        <ion-label floating>Diagnosis {{ i + 1 }}</ion-label>
+                        <ion-input type="text" formControlName="medicalevent"></ion-input>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button"  type="button" (click)="presentPopover($event)">
+                        <ion-icon name="ice-cream"></ion-icon>
+                      </button>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                        <button ion-button block class="form-action-button"  type="button" (click)="updateDiagnosis(i)">
+                          <ion-icon name="share-alt"></ion-icon>
+                        </button>
+                    </ion-col>
+                  </ion-row>
+                </div>
+              </div>
             </ion-card>
+            <ion-card class="sample-form">
+                <ion-row>
+                  <ion-col no-padding width-68>
+                    <h2 class = "section-title" >Outcomes</h2>
+                  </ion-col>
+                  <ion-col class="columnAligntoLabel"  no-padding width-30>
+                    <button ion-button block class="form-action-button"  type="button" (click)="addOutcomes()">Add</button>
+                  </ion-col>
+                </ion-row>
+                <div formArrayName="outcomes" *ngFor="let info of card_form.get('outcomes').controls; let i = index;">
+                  <div [formGroupName]="i">
+                    <ion-row>
+                      <ion-col no-padding width-87>
+                        <ion-item>
+                          <ion-label floating>Outcome {{ i + 1 }}</ion-label>
+                          <ion-input type="text" formControlName="medicalevent"></ion-input>
+                        </ion-item>
+                      </ion-col>
+                      <ion-col class="columnAlign" no-padding width-10>
+                          <button ion-button block class="form-action-button"  type="button" (click)="updateOutcome(i)">
+                            <ion-icon name="share-alt"></ion-icon>
+                          </button>
+                      </ion-col>
+                    </ion-row>
+                  </div>
+                </div>
+                <section class="form-section">
+                    <ion-row no-padding class="multi-input-row">
+                      <ion-col class="columnInline" no-padding width-50>
+                        <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || curRec.recordid==null">Save</button>
+                      </ion-col>
+                    </ion-row>
+                  </section>
+              </ion-card>
           </div>
         </div>
-
     </div>
 </ion-content>

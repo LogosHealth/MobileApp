@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ModalController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController, LoadingController, PopoverController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray,  FormBuilder, FormsModule } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
@@ -7,6 +7,7 @@ import { FormChooseInfo } from '../../pages/formChooseInfo/formChooseInfo';
 import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } from '../../pages/listVisit/listVisit.model';
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
+import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
 
 var moment = require('moment-timezone');
 
@@ -30,6 +31,10 @@ export class FormVisitPage {
   infos: FormArray;
   questions: FormArray;
   todos: FormArray;
+
+  diagnoses: FormArray;
+  outcomes: FormArray;
+
   iiBlankAdded: boolean = false;
   selectedItems: ImportantInfos = new ImportantInfos();
   importantInfos: ImportantInfos = new ImportantInfos();
@@ -41,7 +46,8 @@ export class FormVisitPage {
   needNew: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
-    public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
+    public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public popoverCtrl:PopoverController,
+    public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
     console.log('formVisit - initial recId: ', this.recId);
@@ -79,7 +85,10 @@ export class FormVisitPage {
         todos: this.formBuilder.array([]),
         importantinfo: new FormControl(),
         profileid: new FormControl(this.curRec.profileid),
-        userid: new FormControl(this.RestService.userId)
+        userid: new FormControl(this.RestService.userId),
+
+        diagnoses: this.formBuilder.array([]),
+        outcomes: this.formBuilder.array([])
       });
       this.addExistingInfos();
       this.addExistingQuestions();
@@ -107,7 +116,10 @@ export class FormVisitPage {
         todos: this.formBuilder.array([]),
         importantinfo: new FormControl(),
         profileid: new FormControl(),
-        userid: new FormControl()
+        userid: new FormControl(),
+
+        diagnoses: this.formBuilder.array([]),
+        outcomes: this.formBuilder.array([])
       });
       if (this.needNew) {
         //this.saveNew();
@@ -685,6 +697,43 @@ export class FormVisitPage {
     });
   }
 
+  addDiagnosis(): void {
+    this.diagnoses = this.card_form.get('diagnoses') as FormArray;
+    this.diagnoses.push(this.createDiagnosis());
+  }
+
+  createDiagnosis(): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl(),
+      medicalevent: new FormControl(),
+      resolved: new FormControl(),
+      active: new  FormControl('Y'),
+    });
+  }
+
+  addExistingDiagnoses() {
+    this.diagnoses = this.card_form.get('diagnoses') as FormArray;
+    if (this.curRec.diagnoses !== undefined && this.curRec.diagnoses.items !== undefined && this.curRec.diagnoses.items.length > 0) {
+      this.diagnoses.removeAt(0);
+      for (var j = 0; j < this.curRec.diagnoses.items.length; j++) {
+        this.diagnoses.push(this.addExistingDiagnosis(j));
+      }
+    }
+  }
+
+  addExistingDiagnosis(index): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl(this.curRec.diagnoses.items[index].recordid),
+      medicalevent: new FormControl(this.curRec.diagnoses.items[index].medicalevent),
+      resolved: new FormControl(this.curRec.diagnoses.items[index].resolved),
+      active: new  FormControl(this.curRec.diagnoses.items[index].active),
+    });
+  }
+
+  updateDiagnosis(index) {
+    console.log('Index: ' + index);
+  }
+
   setChecked(index) {
     var todoArray: FormArray;
     var todo: FormGroup;
@@ -837,6 +886,26 @@ export class FormVisitPage {
     });
     alert.present();
     return canLeave
+  }
+
+  presentPopover(myEvent) {
+    var self = this;
+    var dataObj;
+    let popover = this.popoverCtrl.create(MenuVisitOutcome);
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        self.loadMenu(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+  loadMenu(dataObj) {
+    console.log('LoadMenu dataobj: ' + dataObj);
   }
 
   presentLoadingDefault() {

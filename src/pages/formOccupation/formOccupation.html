@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Occupation Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="newRec">New Occupation Record</h2>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Name</ion-label>
+                <ion-input type="text" formControlName="name"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Start Date</ion-label>
+                <ion-datetime displayFormat="MMM YYYY" formControlName="startdate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>End Date</ion-label>
+                <ion-datetime displayFormat="MMM YYYY" formControlName="enddate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Description</ion-label>
+              <ion-textarea type="text" formControlName="description" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Known Hazards</ion-label>
+              <ion-textarea type="text" formControlName="knownhazards" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

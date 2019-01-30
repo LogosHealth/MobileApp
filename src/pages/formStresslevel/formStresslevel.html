@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Stress Level Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="newRec">New Stress Level Record</h2>
+          <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Level (1-10)</ion-label>
+                <ion-select formControlName="level">
+                    <ion-option value=1>1</ion-option>
+                    <ion-option value=2>2</ion-option>
+                    <ion-option value=3>3</ion-option>
+                    <ion-option value=4>4</ion-option>
+                    <ion-option value=5>5</ion-option>
+                    <ion-option value=6>6</ion-option>
+                    <ion-option value=7>7</ion-option>
+                    <ion-option value=8>8</ion-option>
+                    <ion-option value=9>9</ion-option>
+                    <ion-option value=10>10</ion-option>
+                  </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Factors</ion-label>
+              <ion-textarea type="text" formControlName="factors" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>How Managing</ion-label>
+              <ion-textarea type="text" formControlName="howmanage" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+
+          <ion-row>
+            <ion-col no-padding width-50 *ngIf="!newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Date of Measure*</ion-label>
+                <ion-datetime displayFormat="MMM DD-YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Travel Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="newRec">New Travel Record</h2>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Country</ion-label>
+                <ion-input type="text" formControlName="country"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Arrival Date</ion-label>
+                <ion-datetime displayFormat="MMM DD-YY" formControlName="arrivaldate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Departure Date</ion-label>
+                <ion-datetime displayFormat="MMM DD-YY" formControlName="departuredate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Reason</ion-label>
+              <ion-textarea type="text" formControlName="reason" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

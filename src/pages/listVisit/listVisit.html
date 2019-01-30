@@ -1,13 +1,13 @@
 <ion-header>
-    <ion-navbar>
-      <button ion-button menuToggle>
-        <ion-icon name="menu"></ion-icon>
+  <ion-navbar>
+    <ion-title><span  class="intro-text" text-wrap>{{ visitType }}</span></ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="flipSearch()">
+        <ion-icon name='repeat'></ion-icon>
       </button>
-      <ion-title>
-        <span  class="intro-text" text-wrap>{{ feed.category.title }}</span>
-      </ion-title>
-    </ion-navbar>
-  </ion-header>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
 
 <ion-content class="list-mini-content">
   <div class="list-mini">

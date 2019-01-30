@@ -23,6 +23,7 @@ export class ListVisitPage {
   resultData: any;
   userTimezone: any;
   showAll: boolean = true;
+  visitType: string = 'Upcoming Visit';
 
   constructor(
     public nav: NavController,
@@ -90,19 +91,39 @@ export class ListVisitPage {
     var additionalParams;
 
     if (this.showAll) {
-      additionalParams = {
-        queryParams: {
-            accountid: this.RestService.Profiles[0].accountid,
-            offset: tzoffset
-        }
-      };
+      if (this.visitType == 'Past Visit') {
+        additionalParams = {
+          queryParams: {
+              accountid: this.RestService.Profiles[0].accountid,
+              offset: tzoffset,
+              historical: 'Y'
+          }
+        };
+      } else {
+        additionalParams = {
+          queryParams: {
+              accountid: this.RestService.Profiles[0].accountid,
+              offset: tzoffset
+          }
+        };
+      }
     } else {
-      additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile,
-            offset: tzoffset
-        }
-      };
+      if (this.visitType == 'Past Visit') {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile,
+              offset: tzoffset,
+              historical: 'Y'
+          }
+        };
+      } else {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile,
+              offset: tzoffset
+          }
+        };
+      }
     }
 
     var body = '';
@@ -129,6 +150,36 @@ export class ListVisitPage {
         console.log(body);
         self.loading.dismiss();
     });
+  }
+
+  flipSearch() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (this.visitType == 'Upcoming Visit') {
+      this.visitType = 'Past Visit';
+    } else {
+      this.visitType = 'Upcoming Visit';
+    }
+    console.log('Visit Type from Switch Search: ' + this.visitType);
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.loadData();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listVisit');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listVisit - Credentials refreshed!');
+          self.loadData();
+        }
+      });
+    }
   }
 
   itemAlert(index) {

@@ -15,12 +15,12 @@
             Facility
           </ion-segment-button>
         </ion-segment>
-  
+
         <div [ngSwitch]="categoryList" class="forms-examples-segment">
             <div  *ngSwitchCase="'physician'">
                 <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
                     <section class="form-section">
-                      <h2 class = "section-title">Medical Contact Search</h2>  
+                      <h2 class = "section-title">Medical Contact Search</h2>
                       <ion-row>
                         <ion-col no-padding width-50>
                           <ion-item>
@@ -36,17 +36,17 @@
                         </ion-col>
                       </ion-row>
                       <ion-row>
-                        <ion-col no-padding width-60>
+                        <ion-col no-padding width-55>
                           <ion-item>
                             <ion-label floating>City**</ion-label>
                             <ion-input type="text" formControlName="city"></ion-input>
                           </ion-item>
                         </ion-col>
-                        <ion-col no-padding width-15>
+                        <ion-col no-padding width-20>
                           <ion-item>
                             <ion-label floating>State**</ion-label>
                             <ion-select formControlName="state">
-                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
+                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>
                             </ion-select>
                           </ion-item>
                         </ion-col>
@@ -86,7 +86,7 @@
                             <ion-item>
                               <ion-label floating>Physician Type*</ion-label>
                               <ion-select formControlName="doctortype">
-                                <ion-option *ngFor="let dt of doctorTypeList" [value]="dt.recordid" (ionSelect)="checkSaveReady()">{{dt.dictionarycode}}</ion-option>                
+                                <ion-option *ngFor="let dt of doctorTypeList" [value]="dt.recordid" (ionSelect)="checkSaveReady()">{{dt.dictionarycode}}</ion-option>
                               </ion-select>
                             </ion-item>
                           </ion-col>
@@ -111,14 +111,14 @@
                               <button ion-button block class="form-action-button" type="button" (click)="createContact()" >Manual Contact</button>
                           </ion-col>
                        </ion-row>
-                    </section>   
-                  </form>                
+                    </section>
+                  </form>
             </div>
 
             <div *ngSwitchCase="'facility'">
                 <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
                     <section class="form-section">
-                      <h2 class = "section-title">Medical Facility Search</h2>  
+                      <h2 class = "section-title">Medical Facility Search</h2>
                       <ion-row>
                         <ion-col no-padding>
                           <ion-item>
@@ -131,17 +131,17 @@
                         </ion-col>
                       </ion-row>
                       <ion-row>
-                        <ion-col no-padding width-60>
+                        <ion-col no-padding width-55>
                           <ion-item>
                             <ion-label floating>City**</ion-label>
                             <ion-input type="text" formControlName="city"></ion-input>
                           </ion-item>
                         </ion-col>
-                        <ion-col no-padding width-15>
+                        <ion-col no-padding width-20>
                           <ion-item>
                             <ion-label floating>State**</ion-label>
                             <ion-select formControlName="state">
-                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
+                                <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>
                             </ion-select>
                           </ion-item>
                         </ion-col>
@@ -187,8 +187,8 @@
                               <button ion-button block class="form-action-button" type="button" (click)="createContact()" >Manual Contact</button>
                           </ion-col>
                        </ion-row>
-                    </section>   
-                  </form>                
+                    </section>
+                  </form>
             </div>
         </div>
      </div>

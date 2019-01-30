@@ -42,6 +42,10 @@
         {
             "title": "Profile",
             "image": "./assets/images/listing/200x200about.jpg"
+        },
+        {
+          "title": "Lifestyle",
+          "image": "./assets/images/listing/200x200lifestyle2.jpg"
         }
-    ]
+  ]
 }

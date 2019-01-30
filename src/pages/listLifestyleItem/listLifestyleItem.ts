@@ -2,35 +2,36 @@ import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListSleepModel } from './listSleep.model';
-import { ListSleepService } from './listSleep.service';
+import { LifestyleItemModel } from './listLifestyleItem.model';
+import { LifestyleItemService } from './listLifestyleItem.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormSleepPage } from '../../pages/formSleep/formSleep';
+import { FormLifestyleItem } from '../../pages/formLifestyleItem/formLifestyleItem';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'listExercisePage',
-  templateUrl: 'listSleep.html'
+  templateUrl: 'listLifestyleItem.html'
 })
-export class ListSleepPage {
-  list2: ListSleepModel = new ListSleepModel();
+export class ListLifestyleItem {
+  list2: LifestyleItemModel = new LifestyleItemModel();
   feed: FeedModel = new FeedModel();
-  formName: string = "listSleep";
+  formName: string = "listLifestyleItem";
   loading: any;
   resultData: any;
   userTimezone: any;
+  strType: any;
 
   constructor(
     public nav: NavController,
     public alertCtrl: AlertController,
-    public list2Service: ListSleepService,
+    public list2Service: LifestyleItemService,
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
-
+    this.strType = this.feed.category.type;
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -52,7 +53,7 @@ export class ListSleepPage {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listSleep');
+          console.log('Need to login again!!! - Credentials expired from listLifestyleItem');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
@@ -66,7 +67,7 @@ export class ListSleepPage {
   loadData() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LifestyleItemByProfile";
 
     var config = {
       invokeUrl: restURL,
@@ -83,7 +84,8 @@ export class ListSleepPage {
     var method = 'GET';
     var additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile
+            profileid: this.RestService.currentProfile,
+            type: this.strType
         }
     };
     var body = '';
@@ -96,7 +98,7 @@ export class ListSleepPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Travel: ", self.list2.items);
         self.loading.dismiss();
       });
     }).catch( function(result){
@@ -108,21 +110,29 @@ export class ListSleepPage {
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormSleepPage, { recId: recordId });
+    this.nav.push(FormLifestyleItem, { recId: recordId, type: this.strType });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormSleepPage);
+    this.nav.push(FormLifestyleItem, { type: this.strType });
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    var offsetDate;
+    var offset;
+    var finalDate;
+
+    offsetDate = new Date(moment(dateString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dateString).tz(this.userTimezone).add(offset, 'hours').format('MMM DD-YY');
+      //console.log('Final date with timezone: ' + finalDate);
     } else {
-      return moment(dateString).format('dddd, MMMM DD');
+      finalDate = moment(dateString).add(offset, 'hours').format('MMM DD-YY');
+      //console.log('Final date with no timezone: ' + finalDate);
     }
+    return finalDate;
   }
 
   formatTime(timeString) {

@@ -1,0 +1,92 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{strType}} Form</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title" *ngIf="newRec">New {{strType}} Record</h2>
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Partake</ion-label>
+                  <ion-select formControlName="does" >
+                    <ion-option value='Y' (ionSelect)="changeDoes(true)">Yes</ion-option>
+                    <ion-option value='N' (ionSelect)="changeDoes(false)">No</ion-option>
+                  </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding *ngIf="strType == 'Nicotine'">
+              <ion-item [disabled]="!blnDoes">
+                <ion-label floating>Vehicle</ion-label>
+                <ion-select formControlName="subtype" >
+                  <ion-option value='cigarettes'>Cigarettes</ion-option>
+                  <ion-option value='vape'>Vape</ion-option>
+                  <ion-option value='cigar'>Cigar</ion-option>
+                  <ion-option value='chewing tobacco'>Chewing Tobacco</ion-option>
+                  <ion-option value='nicotine replacement'>Nicotine Replacement</ion-option>
+                  <ion-option value='other'>Other</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Start Date</ion-label>
+                <ion-datetime displayFormat="MMM DD-YY" formControlName="startdate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item [disabled]="!blnDoes">
+                <ion-label floating>End Date</ion-label>
+                <ion-datetime displayFormat="MMM DD-YY" formControlName="enddate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item [disabled]="!blnDoes">
+                <ion-label floating>Days/Week</ion-label>
+                <ion-select formControlName="daysperweek" >
+                    <ion-option value=1>1</ion-option>
+                    <ion-option value=2>2</ion-option>
+                    <ion-option value=3>3</ion-option>
+                    <ion-option value=4>4</ion-option>
+                    <ion-option value=5>5</ion-option>
+                    <ion-option value=6>6</ion-option>
+                    <ion-option value=7>7</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item [disabled]="!blnDoes">
+                <ion-label floating>per Day</ion-label>
+                <ion-input type="text" formControlName="itemsperday"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Comments</ion-label>
+              <ion-textarea type="text" formControlName="comments" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+        </section>
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -19,6 +19,8 @@ export class ListVisit {
   userid: number;
   imageURL: string;
   timezone: string;
+
+  diagnoses: Diagnoses;
 }
 
 export class VisitPhysician {
@@ -98,6 +100,17 @@ export class Question {
 
 export class Questions {
   items: Array<Question>;
+}
+
+export class Diagnosis {
+  recordid: number;
+  medicalevent: string;
+  resolved: string;
+  active: string;
+}
+
+export class Diagnoses {
+  items: Array<Diagnosis>;
 }
 
 export class ListVisitModel {

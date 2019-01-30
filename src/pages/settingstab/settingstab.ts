@@ -8,6 +8,7 @@ import { FormAboutMe } from '../formAboutMe/formAboutMe';
 import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
 import { ListSchedulePage } from '../listSchedule/listSchedule';
+import { FormLifestyle } from '../formLifestyle/formLifestyle';
 import { RestService } from '../../app/services/restService.service';
 
 var moment = require('moment-timezone');
@@ -79,6 +80,8 @@ export class SettingsTabPage {
       this.nav.push(FormAboutMe, { category: category, homePage: this });
     } else if (category.title == 'Schedules & Alerts') {
       this.nav.push(ListSchedulePage, { category: category });
+    } else if (category.title == 'Lifestyle') {
+        this.nav.push(FormLifestyle, { category: category });
     } else {
       this.nav.push(List2Page, { category: category });
     }

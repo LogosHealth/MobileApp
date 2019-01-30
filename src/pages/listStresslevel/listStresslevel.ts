@@ -2,21 +2,21 @@ import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListSleepModel } from './listSleep.model';
-import { ListSleepService } from './listSleep.service';
+import { ListStresslevelModel } from './listStresslevel.model';
+import { ListStresslevelService } from './listStresslevel.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormSleepPage } from '../../pages/formSleep/formSleep';
+import { FormStresslevelPage } from '../../pages/formStresslevel/formStresslevel';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'listExercisePage',
-  templateUrl: 'listSleep.html'
+  templateUrl: 'listStresslevel.html'
 })
-export class ListSleepPage {
-  list2: ListSleepModel = new ListSleepModel();
+export class ListStresslevelPage {
+  list2: ListStresslevelModel = new ListStresslevelModel();
   feed: FeedModel = new FeedModel();
-  formName: string = "listSleep";
+  formName: string = "listStresslevel";
   loading: any;
   resultData: any;
   userTimezone: any;
@@ -24,7 +24,7 @@ export class ListSleepPage {
   constructor(
     public nav: NavController,
     public alertCtrl: AlertController,
-    public list2Service: ListSleepService,
+    public list2Service: ListStresslevelService,
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
@@ -52,11 +52,11 @@ export class ListSleepPage {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listSleep');
+          console.log('Need to login again!!! - Credentials expired from listStresslevel');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listSleep - Credentials refreshed!');
+          console.log('From listStresslevel - Credentials refreshed!');
           self.loadData();
         }
       });
@@ -66,7 +66,7 @@ export class ListSleepPage {
   loadData() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/StresslevelByProfile";
 
     var config = {
       invokeUrl: restURL,
@@ -96,7 +96,7 @@ export class ListSleepPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
+        console.log("Results Data for Get Travel: ", self.list2.items);
         self.loading.dismiss();
       });
     }).catch( function(result){
@@ -108,21 +108,18 @@ export class ListSleepPage {
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormSleepPage, { recId: recordId });
+    this.nav.push(FormStresslevelPage, { recId: recordId });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormSleepPage);
+    this.nav.push(FormStresslevelPage);
   }
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
+    //console.log('dateString from DB: ' + dateString);
+    return moment(dateString).format('MMM YYYY');
   }
 
   formatTime(timeString) {

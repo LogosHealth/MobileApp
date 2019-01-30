@@ -54,6 +54,7 @@ export class RestService {
     public alertCtrl: AlertController;
     public deviceUUID: string;
     public userId: number;
+    public refreshParent: boolean = false;
 
     constructor(public iab: InAppBrowser, private platform: Platform) {
         this.AWS = AWSme;

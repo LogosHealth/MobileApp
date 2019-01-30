@@ -46,6 +46,10 @@ import { ListContactPage } from '../pages/listContacts/listContacts';
 import { ListVisitPage } from '../pages/listVisit/listVisit';
 import { ListSchedulePage } from '../pages/listSchedule/listSchedule';
 import { ListAlertPage } from '../pages/listAlert/listAlert';
+import { ListOccupationPage } from '../pages/listOccupation/listOccupation';
+import { ListTravelPage } from '../pages/listTravel/listTravel';
+import { ListStresslevelPage } from '../pages/listStresslevel/listStresslevel';
+import { ListLifestyleItem } from '../pages/listLifestyleItem/listLifestyleItem';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -73,8 +77,15 @@ import { FormTemperaturePage } from '../pages/formTemperature/formTemperature';
 import { FormSymptomPage } from '../pages/formSymptom/formSymptom';
 import { FormChooseNotify } from '../pages/formChooseNotify/formChooseNotify';
 import { FormNutritionAdd } from '../pages/formNutritionAdd/formNutritionAdd';
+import { FormLifestyle } from '../pages/formLifestyle/formLifestyle';
+import { FormOccupationPage } from '../pages/formOccupation/formOccupation';
+import { FormTravelPage } from '../pages/formTravel/formTravel';
+import { FormStresslevelPage } from '../pages/formStresslevel/formStresslevel';
+import { FormLifestyleItem } from '../pages/formLifestyleItem/formLifestyleItem';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
+import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
+import { MenuLifestyle } from '../pages/menuLifestyle/menuLifestyle';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -116,6 +127,11 @@ import { ListVisitService } from '../pages/listVisit/listVisit.service';
 import { ListScheduleService } from '../pages/listSchedule/listSchedule.service';
 import { ListAlertService } from '../pages/listAlert/listAlert.service';
 import { CallNoteService } from '../pages/formCallNotes/formCallNotes.service';
+import { LifestyleService } from '../pages/formLifestyle/formLifestyle.service';
+import { ListOccupationService } from '../pages/listOccupation/listOccupation.service';
+import { ListTravelService } from '../pages/listTravel/listTravel.service';
+import { ListStresslevelService } from '../pages/listStresslevel/listStresslevel.service';
+import { LifestyleItemService } from '../pages/listLifestyleItem/listLifestyleItem.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -186,6 +202,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListVisitPage,
     ListSchedulePage,
     ListAlertPage,
+    ListOccupationPage,
+    ListTravelPage,
+    ListStresslevelPage,
+    ListLifestyleItem,
 
     GridPage,
     FormLayoutPage,
@@ -213,8 +233,15 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormSymptomPage,
     FormChooseNotify,
     FormNutritionAdd,
+    FormLifestyle,
+    FormOccupationPage,
+    FormTravelPage,
+    FormStresslevelPage,
+    FormLifestyleItem,
 
     MenuMeasure,
+    MenuVisitOutcome,
+    MenuLifestyle,
 
     FiltersPage,
     TermsOfServicePage,
@@ -281,6 +308,10 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListVisitPage,
     ListSchedulePage,
     ListAlertPage,
+    ListOccupationPage,
+    ListTravelPage,
+    ListStresslevelPage,
+    ListLifestyleItem,
 
     GridPage,
     FormLayoutPage,
@@ -308,8 +339,15 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormSymptomPage,
     FormChooseNotify,
     FormNutritionAdd,
+    FormLifestyle,
+    FormOccupationPage,
+    FormTravelPage,
+    FormStresslevelPage,
+    FormLifestyleItem,
 
     MenuMeasure,
+    MenuVisitOutcome,
+    MenuLifestyle,
 
     FiltersPage,
     TermsOfServicePage,
@@ -350,6 +388,11 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListScheduleService,
     ListAlertService,
     CallNoteService,
+    LifestyleService,
+    ListOccupationService,
+    ListTravelService,
+    ListStresslevelService,
+    LifestyleItemService,
 
     HTTP,
     FileTransfer,
