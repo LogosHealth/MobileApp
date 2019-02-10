@@ -7,17 +7,31 @@ formExercise-page {
 	{
 		background-color: color($colors, background, base);
 
+		.checkbox-md .checkbox-checked {
+			border-color: $theme-color-1;
+			background-color: $theme-color-1;
+		}
+
+		.checkbox-md .checkbox-icon {
+			border-color: $theme-color-1;
+		}
+
 		.forms-examples-segment
 		{
-			padding: 14px 0px;
-			background-color: $white;
+			padding: 0px 0px;
+			//background-color: $white;
 			@include element-shadow();
-
 			@include segment-button-styles($theme-color-2);
 
 			.segment-button
 			{
 				@include segment-text-styles($white-d);
+				background-color: $white;
+				&.segment-activated
+				{
+					color: $theme-color-1;
+					background-color: $white;
+				}
 			}
 		}
 
@@ -69,9 +83,15 @@ formExercise-page {
 
 		.sample-form
 		{
-			.form-section
+      @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+      background-color: color($colors, background, base);
+
+      .form-section
 			{
-				padding: 0px 14px;
+        @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+        background-color: color($colors, background, base);
+
+        padding: 0px 0px;
 
         .columnAlign
         {
@@ -93,7 +113,6 @@ formExercise-page {
 
 			ion-item {
 				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
-
 				&.item
 				{
 					margin-top: 14px;
@@ -101,7 +120,6 @@ formExercise-page {
 					&.item-label-floating
 					{
 						margin-top: 0px;
-
 						ion-label {
 							color: $white-d;
 						}
@@ -128,8 +146,32 @@ formExercise-page {
 				text-align: center;
 				color: $theme-color-1;
 				font-weight: 400;
+        //margin-top: 14px;
 				margin: 0px;
 			}
+
+			.section-title-left
+			{
+				font-size: 1.8rem;
+				line-height: 1.2;
+				letter-spacing: 1.1px;
+				text-align: left;
+				color: $theme-color-1;
+				font-weight: 400;
+        margin-top: 14px;
+        margin-left: 10px;
+			}
+
+      .section-checkbox-label
+      {
+          font-size: 1.6rem;
+          line-height: 1.2;
+          letter-spacing: 1.1px;
+          text-align: left;
+          color: $theme-color-1;
+          font-weight: 400;
+          margin: 0px;
+      }
 
 			.section-tips
 			{
@@ -183,7 +225,6 @@ formExercise-page {
 
 			.form-action-button
 			{
-				margin-right: 10px;
 				margin-top: 20px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));

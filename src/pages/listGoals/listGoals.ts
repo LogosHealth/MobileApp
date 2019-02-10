@@ -10,7 +10,7 @@ import { FormGoalsPage } from '../../pages/formGoals/formGoals';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listGoalsPage',
+  selector: 'listExercisePage',
   templateUrl: 'listGoals.html'
 })
 export class ListGoalsPage {

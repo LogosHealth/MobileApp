@@ -1,0 +1,128 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Medication Form</ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="attachRecord()">
+        <ion-icon name='attach'></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="forms-examples-segment">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <ion-card class="form-section">
+          <h2 class = "section-title" *ngIf="!newRec">{{ curRec.medicationname }}</h2>
+
+          <ion-row *ngIf="newRec">
+            <ion-item>
+              <ion-label floating>Medication</ion-label>
+              <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medication"></ion-input>
+            </ion-item>
+            <ion-list *ngIf="showList()">
+                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value)">
+                    {{item.value}}
+                </ion-item>
+            </ion-list>
+            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Package Name</ion-label>
+                <ion-input type="text" formControlName="packagename"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-37>
+              <ion-item>
+                <ion-label floating>Manufacturer</ion-label>
+                <ion-input type="text" formControlName="manufacturer"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="callContact()">
+                <ion-icon name="call"></ion-icon>
+              </button>
+          </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Start Date</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" formControlName="startdate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>End Date</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" formControlName="enddate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-label floating>Medical Notes</ion-label>
+                <ion-textarea type="text" formControlName="eventdescription" autosize></ion-textarea>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+
+        <ion-card  class="sample-form">
+          <ion-row>
+            <ion-col no-padding width-85>
+              <h2 class = "section-title-left" >Dose Information</h2>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="openSchedule()" [disabled]="doseNotComplete()">
+                <ion-icon name="clock"></ion-icon>
+              </button>
+          </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating># of (ex. tablets)</ion-label>
+                <ion-select formControlName="dosage">
+                  <ion-option class="section-title" value="1">One</ion-option>
+                  <ion-option class="section-title" value="2">Two</ion-option>
+                  <ion-option class="section-title" value="3">Three</ion-option>
+                  <ion-option class="section-title" value="4">Four</ion-option>
+                  <ion-option class="section-title" value=".5">One Half</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Frequency</ion-label>
+                <ion-select formControlName="dosefrequency">
+                  <ion-option class="section-title" value="once daily">Once Daily</ion-option>
+                  <ion-option class="section-title" value="twice daily">Twice Daily</ion-option>
+                  <ion-option class="section-title" value="every 8 hours">Every 8 Hours</ion-option>
+                  <ion-option class="section-title" value="every 6 hours">Every 6 Hours</ion-option>
+                  <ion-option class="section-title" value="every 4 hours">Every 4 Hours</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+
+        </ion-card>
+
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty || card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -9,7 +9,7 @@ import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formExercise-page',
+  selector: 'formWeight-page',
   templateUrl: 'formWeight.html'
 })
 export class FormWeightPage {

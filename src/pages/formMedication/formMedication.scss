@@ -1,16 +1,16 @@
-formWeight-page {
+formSleep-page {
 	ion-header {
 		@include header-styles(color($colors, walkthrough, base), color($colors, walkthrough, contrast));
 	}
 
 	.forms-examples-content
 	{
-		background-color: color($colors, background2, base);
+		background-color: color($colors, background, base);
 
 		.forms-examples-segment
 		{
 			padding: 14px 0px;
-			//background-color: $white;
+			background-color: $white;
 			@include element-shadow();
 
 			@include segment-button-styles($theme-color-2);
@@ -34,7 +34,7 @@ formWeight-page {
 			}
 
 			ion-item {
-				@include basic-input-style(color($colors,background2, base), $black-d, $white-d);
+				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 
 				&.item
 				{
@@ -67,11 +67,11 @@ formWeight-page {
 				font-size: 1.8rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: center;
+				text-align: left;
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
-			}
+			}			
 
 			.title-notconfirmed{
 				font-size: 1.8rem;
@@ -180,7 +180,7 @@ formWeight-page {
 					margin-top: 40px;
 					margin-bottom: 30px;
 				}
-
+	
 				@include range-item-styles($white-d, $black-d, $theme-color-1);
 
 				.range-item
@@ -339,7 +339,7 @@ formWeight-page {
 						margin-top: 10px;
 					}
 				}
-
+				
 				.multi-input-row
 				{
 					ion-col {

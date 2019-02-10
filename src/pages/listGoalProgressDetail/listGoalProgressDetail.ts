@@ -12,7 +12,7 @@ import { FormTaskPage } from '../../pages/formTask/formTask';
 var moment = require('moment');
 
 @Component({
-  selector: 'listGoalsPage',
+  selector: 'listExercisePage',
   templateUrl: 'listGoalProgressDetail.html'
 })
 export class ListGoalProgressDetailPage {

@@ -8,6 +8,8 @@ import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } 
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
+import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
+
 
 var moment = require('moment-timezone');
 
@@ -866,6 +868,22 @@ export class FormVisitPage {
     }
   }
 
+  yetToHappen() {
+    var dtNow = moment(new Date());
+    var dtVisit;
+
+    if (this.curRec !== undefined && this.curRec.visitdate !== undefined) {
+      dtVisit = moment(this.curRec.visitdate);
+      if (dtNow > dtVisit) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+
   confirmLeave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -906,6 +924,13 @@ export class FormVisitPage {
 
   loadMenu(dataObj) {
     console.log('LoadMenu dataobj: ' + dataObj);
+  }
+
+  addNewDiagnosis(): void {
+    //this.RestService.results = this.curRec.occupations.items;
+    console.log('Opening form Medical Event from addNewDiagnosis');
+    var cat = {title: 'Diagnosis'};
+    this.nav.push(FormMedicalEvent, { visit: this.curRec, category: cat});
   }
 
   presentLoadingDefault() {

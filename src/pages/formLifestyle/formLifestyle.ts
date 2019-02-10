@@ -332,8 +332,11 @@ export class FormLifestyle {
       console.log('getOccupation curRec: ', self.curRec);
       self.curRec.occupations = new OccupationModel();
       self.curRec.occupations.items = [];
+      //Fix for No Data Found
       for (var j = 0; j < result.data.length; j++) {
-        self.curRec.occupations.items.push(result.data[j]);
+        if (result.data[j].recordid !== undefined) {
+          self.curRec.occupations.items.push(result.data[j]);
+        }
       }
       console.log('Cur Rec after loadOccupation: ', self.curRec);
       callback (null, 'Successs');

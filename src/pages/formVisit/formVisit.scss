@@ -39,8 +39,8 @@ formVisit1-page {
 
 		.sample-form
 		{
-      @include basic-input-style(color($colors, background, base), $black-d, $white-d);
-      background-color: color($colors, background, base);
+      @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
+      background-color: color($colors, background2, base);
 
       .form-section
 			{
@@ -94,7 +94,7 @@ formVisit1-page {
       }
 
 			ion-item {
-				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 				&.item
 				{
 					margin-top: 14px;
@@ -119,7 +119,20 @@ formVisit1-page {
 				}
 			}
 
-			.section-title
+			.section-title-center
+			{
+        color: $white-d;
+				font-size: 1.8rem;
+				line-height: 1.2;
+				letter-spacing: 1.1px;
+				text-align: center;
+				color: $theme-color-1;
+				font-weight: 400;
+        margin-top: 14px;
+        margin-left: 10px;
+			}
+
+      .section-title
 			{
         color: $white-d;
 				font-size: 1.8rem;
@@ -131,6 +144,17 @@ formVisit1-page {
         margin-top: 14px;
         margin-left: 10px;
 			}
+
+      .section-checkbox-label
+      {
+          font-size: 1.6rem;
+          line-height: 1.2;
+          letter-spacing: 1.1px;
+          text-align: left;
+          color: $theme-color-1;
+          font-weight: 400;
+          margin: 0px;
+      }
 
       .section-titlemini
 			{

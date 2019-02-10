@@ -11,7 +11,7 @@ import { HistoryItemModel } from '../../pages/history/history.model';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listGoalsPage',
+  selector: 'listExercisePage',
   templateUrl: 'listGoalProgress.html'
 })
 export class ListGoalProgressPage {

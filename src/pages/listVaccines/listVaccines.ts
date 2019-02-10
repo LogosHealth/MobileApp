@@ -12,7 +12,7 @@ import { ListContactService } from '../../pages/listContacts/listContacts.servic
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listVaccinesPage',
+  selector: 'listExercisePage',
   templateUrl: 'listVaccines.html'
 })
 export class ListVaccinesPage {

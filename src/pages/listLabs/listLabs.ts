@@ -10,7 +10,7 @@ import { FormLabsPage } from '../../pages/formLabs/formLabs';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listVaccinesPage',
+  selector: 'listExercisePage',
   templateUrl: 'listLabs.html'
 })
 export class ListLabsPage {

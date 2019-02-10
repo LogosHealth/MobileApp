@@ -2,6 +2,7 @@ export class ListMedication {
   recordid: number;
   medicaleventid: number;
   medicationname:string;
+  packagename: string;
   verbatimindication:string;
   dosage: string;
   doseunits: string;

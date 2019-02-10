@@ -1,37 +1,48 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListAllergiesModel } from './listAllergies.model';
-import { ListAllergiesService } from './listAllergies.service';
+import { MedicalEventModel } from './listMedicalEvent.model';
+import { MedicalEventService } from './listMedicalEvent.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormAllergyPage } from '../../pages/formAllergy/formAllergy';
+import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'listExercisePage',
-  templateUrl: 'listAllergies.html'
+  templateUrl: 'listMedicalEvent.html'
 })
-export class ListAllergiesPage {
-  list2: ListAllergiesModel = new ListAllergiesModel();
+export class ListMedicalEvent {
+  list2: MedicalEventModel = new MedicalEventModel();
   feed: FeedModel = new FeedModel();
+  formName: string = "listMedicalEvent";
   loading: any;
   resultData: any;
+  userTimezone: any;
 
   constructor(
     public nav: NavController,
-    public list2Service: ListAllergiesService,
+    public alertCtrl: AlertController,
+    public list2Service: MedicalEventService,
     public navParams: NavParams,
     public RestService:RestService,
-    public loadingCtrl: LoadingController
+    public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
+
+    var self = this;
+    this.RestService.curProfileObj(function (error, results) {
+      if (!error) {
+        self.userTimezone = results.timezone;
+      }
+    });
   }
 
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    //var dtExpiration = dtNow;  //for testing
     var self = this;
 
     if (dtNow < dtExpiration) {
@@ -41,11 +52,11 @@ export class ListAllergiesPage {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listAllergies');
+          console.log('Need to login again!!! - Credentials expired from listSleep');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listAllergies - Credentials refreshed!');
+          console.log('From listSleep - Credentials refreshed!');
           self.loadData();
         }
       });
@@ -55,9 +66,8 @@ export class ListAllergiesPage {
   loadData() {
     var restURL: string;
 
-    if (this.feed.category.title == 'Allergies') {
-      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AllergiesByProfile";
-    }
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicalEventByProfile";
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -86,26 +96,57 @@ export class ListAllergiesPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        if (self.loading !== undefined) {
-          //console.log ('This.loading not undefined in loaddata: ', self.loading);
-          self.loading.dismiss();
-        }
+        console.log("Results Data for Get Goals: ", self.list2.items);
+        self.loading.dismiss();
       });
     }).catch( function(result){
-      self.loading.dismiss();
-      console.log(body);
+        console.log(body);
+        self.loading.dismiss();
     });
   }
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormAllergyPage, { recId: recordId });
+    this.nav.push(FormMedicalEvent, { recId: recordId });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormAllergyPage);
+    this.nav.push(FormMedicalEvent);
+  }
+
+  formatDateTime(dateString) {
+    //alert('FormatDateTime called');
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD');
+    }
+  }
+
+  formatTime(timeString) {
+    //alert('FormatDateTime called');
+    if (timeString == null) {
+      return null;
+    }
+    var timeSplit = timeString.split(":");
+    var hour = timeSplit[0];
+    var minute = timeSplit[1];
+
+    if (Number(hour) > 11) {
+      if (Number(hour) == 12 ) {
+        return hour + ":" + minute + " PM";
+      } else {
+        return (Number(hour) - 12) + ":" + minute + " PM";
+      }
+    } else {
+      if (Number(hour) == 0) {
+        return "12:" + minute + " AM";
+      } else {
+        return hour + ":" + minute + " AM";
+      }
+    }
   }
 
   presentLoadingDefault() {

@@ -18,7 +18,7 @@
           <ion-segment-button class="segment-button" value="pre">
             Pre
           </ion-segment-button>
-          <ion-segment-button class="segment-button" value="post">
+          <ion-segment-button class="segment-button" value="post" [disabled]="yetToHappen()">
             Post
           </ion-segment-button>
         </ion-segment>
@@ -79,7 +79,7 @@
               </div>
 
               <ion-row>
-                <ion-col no-padding width-68>
+                <ion-col no-padding width-80>
                   <ion-item>
                     <ion-label floating>Important Info Category</ion-label>
                     <ion-select formControlName="importantinfo">
@@ -90,8 +90,11 @@
                     </ion-select>
                   </ion-item>
                 </ion-col>
-                <ion-col class="columnAlign" no-padding width-30>
-                  <button ion-button block class="form-action-button"  type="button" [disabled]="categoryEmpty()" (click)="addInfo()">Add</button>
+
+                <ion-col class="columnInline" no-padding width-10>
+                  <button ion-button icon-only class="form-action-button"  type="button" [disabled]="categoryEmpty()" (click)="addInfo()">
+                      <ion-icon name='add'></ion-icon>
+                  </button>
                 </ion-col>
               </ion-row>
             </ion-card>
@@ -182,11 +185,18 @@
           <div  *ngSwitchCase="'post'">
             <ion-card class="sample-form">
               <ion-row>
-                <ion-col no-padding width-68>
+                <ion-col no-padding width-78>
                   <h2 class = "section-title" >Diagnosis</h2>
                 </ion-col>
-                <ion-col class="columnAligntoLabel"  no-padding width-30>
-                  <button ion-button block class="form-action-button"  type="button" (click)="addDiagnosis()">Add</button>
+                <ion-col class="columnAlign" no-padding width-10>
+                    <button ion-button block class="form-action-button-top"  type="button" (click)="addNewDiagnosis()">
+                      <ion-icon name="add"></ion-icon>
+                    </button>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllDiagnoses()">
+                    <ion-icon name="paper"></ion-icon>
+                  </button>
                 </ion-col>
               </ion-row>
               <div formArrayName="diagnoses" *ngFor="let info of card_form.get('diagnoses').controls; let i = index;">
@@ -217,11 +227,18 @@
             </ion-card>
             <ion-card class="sample-form">
                 <ion-row>
-                  <ion-col no-padding width-68>
+                  <ion-col no-padding width-78>
                     <h2 class = "section-title" >Outcomes</h2>
                   </ion-col>
-                  <ion-col class="columnAligntoLabel"  no-padding width-30>
-                    <button ion-button block class="form-action-button"  type="button" (click)="addOutcomes()">Add</button>
+                  <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button-top"  type="button" (click)="addNewOutcome()">
+                        <ion-icon name="add"></ion-icon>
+                      </button>
+                  </ion-col>
+                  <ion-col class="columnAlign" no-padding width-10>
+                    <button ion-button block class="form-action-button-top"  type="button" (click)="viewAlladdNewOutcomes()">
+                      <ion-icon name="paper"></ion-icon>
+                    </button>
                   </ion-col>
                 </ion-row>
                 <div formArrayName="outcomes" *ngFor="let info of card_form.get('outcomes').controls; let i = index;">

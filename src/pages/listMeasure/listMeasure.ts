@@ -16,7 +16,7 @@ import { MenuMeasure } from '../../pages/menuMeasure/menuMeasure';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'listVaccinesPage',
+  selector: 'listExercisePage',
   templateUrl: 'listMeasure.html'
 })
 export class ListMeasurePage {

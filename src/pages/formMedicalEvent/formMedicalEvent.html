@@ -1,0 +1,114 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Medical Event</ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="presentPopover($event)" [disabled]="noEventRecord()">
+          <ion-icon name='medkit'></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="attachRecord()" [disabled]="noEventRecord()">
+        <ion-icon name='attach'></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <ion-card class="form-section">
+          <h2 class = "section-title-center" *ngIf="!newRec">{{ formatDateTime(curRec.dateofmeasure) }}</h2>
+          <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Medical Event</ion-label>
+              <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medicalevent"></ion-input>
+            </ion-item>
+            <ion-list *ngIf="showList()">
+                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value)">
+                    {{item.value}}
+                </ion-item>
+            </ion-list>
+            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+          </ion-row>
+          <ion-row>
+            <ion-col width-50>
+              <ion-label class="section-checkbox-label">Allergy
+                <ion-checkbox formControlName="isallergy"></ion-checkbox>
+              </ion-label>
+            </ion-col>
+            <ion-col width-50>
+                <ion-label class="section-checkbox-label">Chronic
+                  <ion-checkbox formControlName="chronicoracute" ></ion-checkbox>
+                </ion-label>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Onset Date</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" formControlName="onsetdate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>End Date</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" formControlName="enddate"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-label floating>Medical Notes</ion-label>
+                <ion-textarea type="text" formControlName="eventdescription" autosize></ion-textarea>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Date of Diagnosis</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY" [max]="today()" formControlName="dateofmeasure"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+
+        <ion-card class="form-section">
+          <ion-row>
+            <ion-col no-padding width-68>
+              <h2 class = "section-title">Symptoms</h2>
+            </ion-col>
+            <ion-col class="columnAligntoLabel"  no-padding width-30>
+              <button ion-button block class="form-action-button"  type="button" (click)="addSymptom()">Add</button>
+            </ion-col>
+          </ion-row>
+          <div formArrayName="symptoms" *ngFor="let info of card_form.get('symptoms').controls; let i = index;">
+            <div [formGroupName]="i">
+              <ion-row>
+                <ion-col>
+                  <ion-item  text-wrap>
+                    <ion-label floating>Symptom {{ i + 1 }}</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+
+                </ion-col>
+              </ion-row>
+            </div>
+          </div>
+        </ion-card>
+
+
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty || card_form.valid)">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+         </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>
