@@ -8,9 +8,10 @@
 
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
-        <section class="form-section">
-          <h2 class = "section-title" *ngIf="newRec">New Symptom Record</h2>
-          <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
+
+        <ion-card class="sample-form">
+          <h2 class = "section-title-center" *ngIf="newRec">New Symptom Record</h2>
+          <h2 class = "section-title-center" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
           <ion-row>
             <ion-col no-padding>
               <ion-item>
@@ -62,6 +63,55 @@
               </ion-item>
             </ion-col>
           </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Caused By</ion-label>
+              <ion-input type="text" formControlName="medicalevent"></ion-input>
+            </ion-item>
+          </ion-row>
+        </ion-card>
+
+        <ion-card>
+          <ion-row>
+            <ion-col no-padding width-67>
+              <h2 class = "section-title">Treatments</h2>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="addFromCabinet()" [disabled]="noSymptom()">
+                <ion-icon name="medkit"></ion-icon>
+              </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="presentPopover($event)" [disabled]="noSymptom()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatments()">
+                <ion-icon name="paper"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+          <div formArrayName="treatments" *ngFor="let info of card_form.get('treatments').controls; let i = index;">
+            <div [formGroupName]="i">
+              <ion-row>
+                <ion-col no-padding width-87>
+                  <ion-item>
+                    <ion-label floating>Treatment {{ i + 1 }}</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="updateSymptomTreatment(i)" [disabled]="noSymptom()">
+                    <ion-icon name="medical"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+            </div>
+          </div>
+        </ion-card>
+
+        <section class="form-section">
         </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">

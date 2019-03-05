@@ -52,11 +52,11 @@ export class ListMedicalEvent {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listSleep');
+          console.log('Need to login again!!! - Credentials expired from listMedicalEvent');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listSleep - Credentials refreshed!');
+          console.log('From listMedicalEvent - Credentials refreshed!');
           self.loadData();
         }
       });
@@ -119,9 +119,9 @@ export class ListMedicalEvent {
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+      return moment(dateString).tz(this.userTimezone).format('MMM DD, YYYY');
     } else {
-      return moment(dateString).format('dddd, MMMM DD');
+      return moment(dateString).format('MMM DD, YYYY');
     }
   }
 

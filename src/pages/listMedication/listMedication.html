@@ -7,13 +7,16 @@
         <span>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
-        <button ion-button icon-only (click)="addNew()">
+          <button ion-button icon-only (click)="flipSearch()">
+            <ion-icon name='repeat'></ion-icon>
+          </button>
+            <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -21,9 +24,9 @@
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{formatDateTime(item.dateofmeasure)}}</h3>
-            <p class = "item-description">Hours Slept {{item.hoursslept}} hours</p>
-            <p class = "item-description" *ngIf="item.starttime !== null">From: {{formatTime(item.starttime)}} to {{formatTime(item.waketime)}}</p>
+            <h3 class="item-title">{{item.medicationname}}</h3>
+            <p class = "item-description">Purchased {{formatDateTime(item.purchasedate)}}</p>
+            <p class = "item-description">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

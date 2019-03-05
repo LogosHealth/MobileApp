@@ -85,11 +85,16 @@ import { FormStresslevelPage } from '../pages/formStresslevel/formStresslevel';
 import { FormLifestyleItem } from '../pages/formLifestyleItem/formLifestyleItem';
 import { FormMedicalEvent } from '../pages/formMedicalEvent/formMedicalEvent';
 import { FormMedication } from '../pages/formMedication/formMedication';
+import { FormMedSchedule } from '../pages/formMedSchedule/formMedSchedule';
+import { FormMedicationResults } from '../pages/formMedicationResults/formMedicationResults';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
 import { MenuLifestyle } from '../pages/menuLifestyle/menuLifestyle';
 import { MenuTreatment } from '../pages/menuTreatment/menuTreatment';
+import { MenuVisitObjMenu } from '../pages/menuVisitObjMenu/menuVisitObjMenu';
+import { MenuDynamic } from '../pages/menuDynamic/menuDynamic';
+import { MenuHelp } from '../pages/menuHelp/menuHelp';
 
 import { FiltersPage } from '../pages/filters/filters';
 import { TermsOfServicePage } from '../pages/terms-of-service/terms-of-service';
@@ -137,6 +142,8 @@ import { ListTravelService } from '../pages/listTravel/listTravel.service';
 import { ListStresslevelService } from '../pages/listStresslevel/listStresslevel.service';
 import { LifestyleItemService } from '../pages/listLifestyleItem/listLifestyleItem.service';
 import { MedicalEventService } from '../pages/listMedicalEvent/listMedicalEvent.service';
+import { PostVisitService } from '../pages/formVisit/postVisit.service';
+import { SymptomService } from '../pages/formSymptom/formSymptom.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -246,11 +253,16 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormLifestyleItem,
     FormMedicalEvent,
     FormMedication,
+    FormMedSchedule,
+    FormMedicationResults,
 
     MenuMeasure,
     MenuVisitOutcome,
     MenuLifestyle,
     MenuTreatment,
+    MenuVisitObjMenu,
+    MenuDynamic,
+    MenuHelp,
 
     FiltersPage,
     TermsOfServicePage,
@@ -356,11 +368,16 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormLifestyleItem,
     FormMedicalEvent,
     FormMedication,
+    FormMedSchedule,
+    FormMedicationResults,
 
     MenuMeasure,
     MenuVisitOutcome,
     MenuLifestyle,
     MenuTreatment,
+    MenuVisitObjMenu,
+    MenuDynamic,
+    MenuHelp,
 
     FiltersPage,
     TermsOfServicePage,
@@ -407,6 +424,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListStresslevelService,
     LifestyleItemService,
     MedicalEventService,
+    PostVisitService,
+    SymptomService,
 
     HTTP,
     FileTransfer,

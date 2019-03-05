@@ -12,6 +12,8 @@ import { ListSleepPage } from '../listSleep/listSleep';
 import { ListMeasurePage } from '../listMeasure/listMeasure';
 import { ListNutritionPage } from '../listNutrition/listNutrition';
 import { ListVisitPage } from '../listVisit/listVisit';
+import { ListMedicationPage } from '../listMedication/listMedication';
+
 import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 import { ListAlertPage } from '../listAlert/listAlert';
 import { LocalNotifications } from '@ionic-native/local-notifications';
@@ -405,6 +407,8 @@ export class ListingPage {
       this.nav.push(ListNutritionPage, { category: category });
     } else if (category.title == 'Visit') {
       this.nav.push(ListVisitPage, { category: category });
+    } else if (category.title == 'Medicine') {
+      this.nav.push(ListMedicationPage, { category: category });
     } else {
       this.nav.push(FeedPage, { category: category });
     }

@@ -205,7 +205,7 @@ export class WalkthroughPage implements OnInit {
     var uuid = this.device.uuid;
     console.log('Device: ', this.device);
     if (uuid == null) {
-      uuid = 'Testing';
+      uuid = '777';
     }
     this.RestService.deviceUUID = uuid;
     console.log('GetUser deviceid: ' + this.RestService.deviceUUID);
@@ -233,14 +233,21 @@ export class WalkthroughPage implements OnInit {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      //console.log(result.data);
-      var resultData = JSON.stringify(result.data);
+      console.log('Results from UserByDevice:', result.data);
+      //var resultData = JSON.stringify(result.data);
       //console.log('Default User ID for device: ', result);
       if (result.data.result !== 'No user selected') {
-        self.RestService.userId = result.data.result;
-        self.nav.setRoot(self.main_page.component);
-        self.loading.dismiss();
+        if (result.data.result !== undefined && result.data.result !== null && result.data.result !== "") {
+          self.RestService.userId = result.data.result;
+          console.log('userid set from login and device: ' + self.RestService.userId);
+          self.nav.setRoot(self.main_page.component);
+          self.loading.dismiss();
+        } else {
+          console.log('Calling get default user!  Response is blank - seems to be CORBS issue!');
+          self.getDefaultUser();
+        }
       } else {
+        console.log('Calling get default user!  Response is no user selected');
         self.getDefaultUser();
       }
     }).catch( function(result){

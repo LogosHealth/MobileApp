@@ -1,16 +1,18 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
 
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
+import { FormMedication } from '../../pages/formMedication/formMedication';
+import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
+import { SymptomModel, Symptom } from './formSymptom.model';
 
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formExercise-page',
+  selector: 'formVisit1-page',
   templateUrl: 'formSymptom.html'
 })
 export class FormSymptomPage {
@@ -20,29 +22,36 @@ export class FormSymptomPage {
   recId: number;
   goalname: string;
   card_form: FormGroup;
-  goal_array: FormArray;
-  goal_schedule: FormGroup;
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
   showTips: boolean = true;
-  formModelSave: ListMeasureModel  = new ListMeasureModel();
-  formSave: ListMeasure = new ListMeasure();
+  formModelSave: SymptomModel  = new SymptomModel();
+  formSave: Symptom = new Symptom();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
-  list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
   timeNow: any;
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  medicaleventid: any;
+  loadsymptomid: any;
+  checkSave: boolean = false;
+  treatments: FormArray;
+  loadFromId: any;
+  fromEvent: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
-    public navParams: NavParams) {
+    public navParams: NavParams, public popoverCtrl:PopoverController, public formBuilder: FormBuilder) {
 
     this.recId = navParams.get('recId');
+    this.loadFromId = navParams.get('loadFromId');
+    console.log('formSymptom loadFromId: ' + this.loadFromId);
+    this.fromEvent = navParams.get('fromEvent');
     this.curRec = RestService.results[this.recId];
+
     var self = this;
     var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
     var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
@@ -63,15 +72,30 @@ export class FormSymptomPage {
     });
 
     if (this.recId !== undefined) {
+      console.log('formSymptom curRec: ', this.curRec);
+      var dom = null;
+      var symName = null;
+      if (this.curRec.symptomname !== undefined) {
+        symName = this.curRec.symptomname;
+      } else if (this.curRec.full_symptom !== undefined) {
+        symName = this.curRec.full_symptom;
+      }
+      if (this.curRec.dateofmeasure !== undefined) {
+        dom = this.curRec.dateofmeasure;
+      } else if (this.curRec.startdate !== undefined) {
+        dom = this.curRec.startdate;
+      }
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
-        symptom: new FormControl(this.curRec.symptomname, Validators.required),
+        symptom: new FormControl(symName, Validators.required),
         symptomdescription: new FormControl(this.curRec.symptomdescription),
-        dateofmeasure: new FormControl(this.formatDateTimeSaved(this.curRec.dateofmeasure)),
+        dateofmeasure: new FormControl(this.formatDateTimeSaved(dom)),
         enddate: new FormControl(this.formatDateTime(this.curRec.enddate)),
         endtime: new FormControl(this.formatTime(this.curRec.enddate)),
         profileid: new FormControl(this.curRec.profileid),
-        userid: new FormControl(this.RestService.userId)
+        userid: new FormControl(this.RestService.userId),
+        medicalevent: new FormControl(),
+        treatments: this.formBuilder.array([]),
       });
     } else {
       this.newRec = true;
@@ -84,13 +108,87 @@ export class FormSymptomPage {
         enddate: new FormControl(),
         endtime: new FormControl(),
         profileid: new FormControl(),
-        userid: new FormControl()
+        userid: new FormControl(),
+        medicalevent: new FormControl(),
+        treatments: this.formBuilder.array([]),
       });
     }
   }
 
   ionViewWillEnter() {
+    this.checkSave = false;
     this.nav.getPrevious().data.refresh = false;
+    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0 ) {
+      this.loadDataSymptom();
+    }
+  }
+
+  loadDataSymptom() {
+    this.presentLoadingDefault();
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SymptomByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            loadFromId: this.loadFromId,
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.loading.dismiss();
+      self.recId = 0;
+      self.curRec = result.data[0];
+      console.log('formSymptom.loadDetails: ', self.curRec);
+      self.fillFormDetails();
+    }).catch( function(result){
+        console.log(result);
+        self.loading.dismiss();
+    });
+  }
+
+  fillFormDetails() {
+    var dom = null;
+    var symName = null;
+    if (this.curRec.symptomname !== undefined) {
+      symName = this.curRec.symptomname;
+    } else if (this.curRec.full_symptom !== undefined) {
+      symName = this.curRec.full_symptom;
+    }
+    if (this.curRec.dateofmeasure !== undefined) {
+      dom = this.curRec.dateofmeasure;
+    } else if (this.curRec.startdate !== undefined) {
+      dom = this.curRec.startdate;
+    }
+
+    console.log('Add data from fillFormDetails: ', this.curRec);
+    this.card_form.get('recordid').setValue(this.curRec.recordid);
+    this.card_form.get('symptom').setValue(symName);
+    this.card_form.get('symptomdescription').setValue(this.curRec.symptomdescription);
+    this.card_form.get('dateofmeasure').setValue(this.formatDateTimeSaved(dom));
+    this.card_form.get('enddate').setValue(this.formatDateTime(this.curRec.enddate));
+    this.card_form.get('endtime').setValue(this.formatTime(this.curRec.enddate));
+    this.card_form.get('medicalevent').setValue(this.curRec.medicalevent);
+
+    if (this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined && this.curRec.treatments.items.length > 0) {
+      this.addExistingTreatments();
+    }
+    console.log('Event term from fillformdetails'+ this.curRec.medicationname);
   }
 
   deleteRecord(){
@@ -293,7 +391,7 @@ calculateEndDate() {
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
       }
       if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('starttime').dirty){
-        this.formSave.dateofmeasure = this.calculateDateTime();
+        this.formSave.startdate = this.calculateDateTime();
       }
       if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
         this.formSave.enddate = this.calculateEndDate();
@@ -334,6 +432,114 @@ calculateEndDate() {
       }).catch( function(result){
         console.log('Error from formSymptom.save: ',result);
         self.loading.dismiss();
+      });
+  }
+
+  navSaveRecord(callback){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.navSaveRecordDo(function (err, results) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, results);
+        }
+      });
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.navSaveRecordDo(function (err, results) {
+            if (err) {
+              callback(err, null);
+            } else {
+              callback(null, results);
+            }
+          });
+        }
+      });
+    }
+  }
+
+  navSaveRecordDo(callback){
+    this.saving = true;
+    if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+      this.formSave.recordid = this.card_form.get('recordid').value;
+      this.formSave.profileid = this.RestService.currentProfile;
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
+      if (this.card_form.get('symptom').dirty){
+        this.formSave.symptomname = this.card_form.get('symptom').value;
+      }
+      if (this.card_form.get('symptomdescription').dirty){
+        this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
+      }
+      if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
+        this.formSave.enddate = this.calculateEndDate();
+      }
+      if (this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+    } else {
+      this.formSave.symptomname = this.card_form.get('symptom').value;
+      if (this.card_form.get('symptomdescription').dirty){
+        this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
+      }
+      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('starttime').dirty){
+        this.formSave.startdate = this.calculateDateTime();
+      }
+      if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
+        this.formSave.enddate = this.calculateEndDate();
+      }
+      if (this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      this.formSave.profileid = this.RestService.currentProfile;
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
+    }
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SymptomByProfile";
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.formSave);
+      var self = this;
+      console.log('Calling Post', this.formSave);
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        console.log('Happy Path: ', result);
+        this.curRec.recordid = result.data[0];
+        this.curRec.symptomname = this.card_form.get('symptomname').value;
+        self.loading.dismiss();
+        callback(null, result.data);
+      }).catch( function(result){
+        console.log('Error from formSymptom.save: ',result);
+        self.loading.dismiss();
+        callback(result, null);
       });
   }
 
@@ -402,9 +608,102 @@ calculateEndDate() {
     }
   }
 
+  noSymptom() {
+    if (this.card_form.get('symptom').value == null || this.card_form.get('symptom').value == "") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  presentPopover(myEvent) {
+    var self = this;
+    var dataObj;
+    let popover = this.popoverCtrl.create(MenuTreatment);
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        self.loadMenu(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+  loadMenu(dataObj) {
+    if (dataObj !== undefined && dataObj !== null) {
+
+      if (dataObj == 'Medication') {
+        this.checkSave = true;
+        var cat = {title: dataObj};
+        console.log('Form load menu - curRec.recordid: ' +  this.curRec.recordid);
+        var formSymptom = {symptomid: this.curRec.symptomid, symptomname: this.curRec.symptomname}
+        this.nav.push(FormMedication, {category: cat, fromEvent: formSymptom});
+      } else if (dataObj == 'Procedure') {
+        console.log('Add Procedure');
+      } else if (dataObj == 'Rehab Therapy') {
+        console.log('Add Rehab Therapy');
+      } else {
+        console.log ('No data in loadMenu');
+      }
+    }
+  }
+
+  updateSymptomTreatment(index) {
+    var cat;
+    var treatments = this.card_form.get('treatments') as FormArray;
+    var objType = treatments.at(index).get('type').value;
+    var objRecordid = treatments.at(index).get('reftablefieldid').value;
+
+    //console.log('treatment Obj: ', this.postVisit[0].diagnoses[parentIndex].treatments.items[index]);
+    //console.log('objType from updateTreatment: ' + objType + ', Comparison: ' + objType2);
+    //console.log('objType from updateTreatment: ' + objRecordid + ', Comparison: ' + objRecordid2);
+    if (objType == 'medication') {
+      cat = {title: 'Medication'};
+      var formSymptom = {symptomid: this.curRec.symptomid, symptomname: this.curRec.symptomname}
+      this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, formSymptom: formSymptom });
+    }
+  }
+
+  addExistingTreatments() {
+    this.treatments = this.card_form.get('treatments') as FormArray;
+    if (this.curRec !== undefined && this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined
+      && this.curRec.treatments.items.length > 0) {
+
+        var exitLoop = 0;
+        while (this.treatments.length !== 0 || exitLoop > 9) {
+          this.treatments.removeAt(0);
+          exitLoop = exitLoop + 1;
+        }
+        for (var j = 0; j < this.curRec.treatments.items.length; j++) {
+          this.treatments.push(this.addExistingTreatment(j));
+        }
+      console.log('Once symptoms are saved with medical event');
+    }
+  }
+
+  addExistingTreatment(index): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl({value: this.curRec.treatments.items[index].recordid, disabled: true}),
+      reftable: new FormControl({value: this.curRec.treatments.items[index].reftable, disabled: true}),
+      reftablefield: new FormControl({value: this.curRec.treatments.items[index].reftablefield, disabled: true}),
+      reftablefieldid: new FormControl({value: this.curRec.treatments.items[index].reftablefieldid, disabled: true}),
+      reftablefields: new FormControl({value: this.curRec.treatments.items[index].reftablefields, disabled: true}),
+      type: new FormControl({value: this.curRec.treatments.items[index].type, disabled: true}),
+      namevalue: new FormControl({value: this.curRec.treatments.items[index].namevalue, disabled: true}),
+      indication: new FormControl({value: this.curRec.treatments.items[index].indication, disabled: true}),
+      dateofmeasure: new FormControl({value: this.curRec.treatments.items[index].dateofmeasure, disabled: true}),
+    });
+  }
+
   async ionViewCanLeave() {
-    if (!this.saving && this.card_form.dirty) {
+    if (!this.saving && (this.card_form.dirty) && !this.checkSave) {
       const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
+    } else if (!this.saving && (this.card_form.dirty) && this.checkSave) {
+      const shouldLeave = await this.confirmSave();
       return shouldLeave;
     }
   }
@@ -424,6 +723,47 @@ calculateEndDate() {
         {
           text: 'Yes',
           handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }
+
+  confirmSave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            resolveLeaving(false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                resolveLeaving(true);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  self.curRec = {recordid: results};
+                }
+                resolveLeaving(true);
+              }
+            });
+          }
         }
       ]
     });

@@ -10,7 +10,7 @@ import { DictionaryService } from '../../pages/models/dictionary.service';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formGoals-page',
+  selector: 'formExercise-page',
   templateUrl: 'formGoals.html'
 })
 export class FormGoalsPage {

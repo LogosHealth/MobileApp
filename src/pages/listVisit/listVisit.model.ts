@@ -46,6 +46,7 @@ export class ImportantInfo {
   dateofmeasure: string;
   active: string;
   selected: boolean;
+  medicaleventid: number;
 }
 
 export class ImportantInfos {

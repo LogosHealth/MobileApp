@@ -30,6 +30,14 @@ menuMeasure-page {
     font-weight: 400;
   }
 
+  .form-section
+  {
+    @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
+    background-color: color($colors, background2, base);
+    color: $theme-color-1;
+
+  }
+
 }
 
 

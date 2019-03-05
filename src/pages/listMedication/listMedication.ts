@@ -5,7 +5,7 @@ import 'rxjs/Rx';
 import { ListMedicationModel } from './listMedication.model';
 import { ListMedicationService } from './listMedication.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormSleepPage } from '../../pages/formSleep/formSleep';
+import { FormMedication } from '../../pages/formMedication/formMedication';
 
 var moment = require('moment-timezone');
 
@@ -19,6 +19,9 @@ export class ListMedicationPage {
   loading: any;
   resultData: any;
   userTimezone: any;
+  accountid: any;
+  type: any;
+  fromEvent: any;
 
   constructor(
     public nav: NavController,
@@ -29,6 +32,13 @@ export class ListMedicationPage {
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
+    this.fromEvent = navParams.get('fromEvent');
+    this.type = this.feed.category.title;
+    if (this.feed.category.title == 'Medicine Cabinet') {
+      this.accountid = this.RestService.Profiles[0].accountid;
+    } else if (this.feed.category.title == 'Medicine') {
+      this.feed.category.title = 'Current Medicine'
+    }
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -62,7 +72,7 @@ export class ListMedicationPage {
 
   loadData() {
     var restURL: string;
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SleepByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -76,11 +86,24 @@ export class ListMedicationPage {
     };
     var pathTemplate = '';
     var method = 'GET';
-    var additionalParams = {
+    var additionalParams;
+
+    if (this.type == 'Medicine Cabinet') {
+      additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile
+            profileid: this.RestService.currentProfile,
+            accountid: this.accountid,
+            type: this.type,
         }
-    };
+      };
+    } else {
+      additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            type: this.type,
+        }
+      };
+    }
     var body = '';
     var self = this;
 
@@ -103,12 +126,17 @@ export class ListMedicationPage {
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormSleepPage, { recId: recordId });
+    console.log('listMedication.openRecord fromEvent: ', this.fromEvent);
+    if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
+      this.nav.push(FormMedication, { recId: recordId, fromEvent: this.fromEvent });
+    } else {
+      this.nav.push(FormMedication, { recId: recordId });
+    }
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormSleepPage);
+    this.nav.push(FormMedication);
   }
 
   formatDateTime(dateString) {

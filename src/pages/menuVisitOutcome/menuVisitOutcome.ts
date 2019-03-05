@@ -6,9 +6,8 @@ import {  ViewController, NavParams } from 'ionic-angular';
   template: `
     <ion-list>
       <ion-list-header  class="list-title">Add</ion-list-header>
-      <button ion-item class="list-item" (click)="close('lab')">Lab/Test</button>
       <button ion-item class="list-item" (click)="close('procedure')">Procedure</button>
-      <button ion-item class="list-item" (click)="close('visit')">Follow-up Visit</button>
+      <button ion-item class="list-item" (click)="close('vaccine')">Vaccine</button>
     </ion-list>
     `
 })

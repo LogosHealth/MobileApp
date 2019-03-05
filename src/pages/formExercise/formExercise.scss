@@ -5,7 +5,7 @@ formExercise-page {
 
 	.forms-examples-content
 	{
-		background-color: color($colors, background, base);
+		background-color: color($colors, background2, base);
 
 		.checkbox-md .checkbox-checked {
 			border-color: $theme-color-1;
@@ -37,7 +37,7 @@ formExercise-page {
 
 		.list-mini-content
 		{
-			background-color: color($colors, background, base);
+			background-color: color($colors, background2, base);
 
 			.list-mini
 			{
@@ -83,13 +83,13 @@ formExercise-page {
 
 		.sample-form
 		{
-      @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+      @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
       background-color: color($colors, background, base);
 
       .form-section
 			{
-        @include basic-input-style(color($colors, background, base), $black-d, $white-d);
-        background-color: color($colors, background, base);
+        @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
+        background-color: color($colors, background2, base);
 
         padding: 0px 0px;
 
@@ -112,7 +112,7 @@ formExercise-page {
 			}
 
 			ion-item {
-				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 				&.item
 				{
 					margin-top: 14px;

@@ -304,7 +304,8 @@ export class ListMeasurePage {
     } else if (this.curObj == "mood") {
       this.nav.push(FormMoodPage, { recId: recordId });
     } else if (this.curObj == "symptom") {
-      this.nav.push(FormSymptomPage, { recId: recordId });
+      console.log('Symptom RecordId: ' + this.RestService.results[recordId].recordid );
+      this.nav.push(FormSymptomPage, { recId: recordId, loadFromId: this.RestService.results[recordId].recordid });
     } else if (this.curObj == "temperature") {
       this.nav.push(FormTemperaturePage, { recId: recordId });
     } else if (this.curObj == "bloodGlucose") {

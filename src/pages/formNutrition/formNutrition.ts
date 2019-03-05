@@ -11,7 +11,7 @@ import { ListNutritionService } from '../../pages/listNutrition/listNutrition.se
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVaccines-page',
+  selector: 'formExercise-page',
   templateUrl: 'formNutrition.html'
 })
 export class FormNutritionPage {

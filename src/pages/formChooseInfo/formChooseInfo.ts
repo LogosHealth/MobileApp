@@ -391,7 +391,8 @@ export class FormChooseInfo {
           'namevalue': newValue,
           'dateofmeasure': dtNow,
           'active': 'Y',
-          'selected': true
+          'selected': true,
+          'medicaleventid': null,
         }
         this.list2.items.unshift(newII);
       } else {
@@ -438,7 +439,8 @@ export class FormChooseInfo {
           'namevalue': newValue,
           'dateofmeasure': dtNow,
           'active': 'Y',
-          'selected': true
+          'selected': true,
+          'medicaleventid': null,
         }
         this.list2.items.push(newII);
       }

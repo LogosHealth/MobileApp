@@ -5,6 +5,7 @@ import { ListAllergiesPage } from '../listAllergies/listAllergies';
 import { ListVaccinesPage } from '../listVaccines/listVaccines';
 import { ListLabsPage } from '../listLabs/listLabs';
 import { ListContactPage } from '../listContacts/listContacts';
+import { ListMedicalEvent } from '../listMedicalEvent/listMedicalEvent';
 import 'rxjs/Rx';
 import { HistoryModel } from './history.model';
 import { HistoryService } from './history.service';
@@ -79,6 +80,8 @@ export class HistoryPage {
       this.nav.push(ListLabsPage, { category: category });
     } else if (category.title == 'Medical Contacts') {
       this.nav.push(ListContactPage, { category: category });
+    } else if (category.title == 'Medical Events') {
+      this.nav.push(ListMedicalEvent, { category: category });
   } else    {
       this.nav.push(List2Page, { category: category });
     }

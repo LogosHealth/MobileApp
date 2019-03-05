@@ -12,6 +12,7 @@ export class ListMeasure {
   unitofmeasure:string;
   temperature: number;
   symptomname: string;
+  full_symptom: string;
   symptomdescription: string;
   enddate: string;
   dateofmeasure: string;

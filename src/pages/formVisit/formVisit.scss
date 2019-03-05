@@ -156,6 +156,22 @@ formVisit1-page {
           margin: 0px;
       }
 
+			.section-tips
+			{
+				font-size: 1.4rem;
+				line-height: 1.2;
+				letter-spacing: 1.1px;
+				text-align: left;
+				color: $theme-color-1;
+				font-weight: 400;
+				margin-top: 20px;
+				//margin: 2px;
+				border-style: ridge;
+				border-width: 2px;
+				border-color: $theme-color-1;
+				padding: 5px;
+			}
+
       .section-titlemini
 			{
         color: $white-d;

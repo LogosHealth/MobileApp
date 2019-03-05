@@ -363,13 +363,13 @@
                 <ion-textarea type="text" formControlName="hobbies" autosize></ion-textarea>
               </ion-item>
             </ion-row>
-            <section class="form-section">
-              <ion-row no-padding class="multi-input-row">
-                <ion-col class="columnInline" no-padding width-50>
-                  <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
-                </ion-col>
-              </ion-row>
-            </section>
           </ion-card>
+          <section class="form-section">
+            <ion-row no-padding class="multi-input-row">
+              <ion-col class="columnInline" no-padding width-50>
+                <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!(card_form.dirty && card_form.valid)">Save</button>
+              </ion-col>
+            </ion-row>
+          </section>
         </div>
   </ion-content>

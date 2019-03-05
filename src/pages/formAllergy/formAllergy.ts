@@ -13,7 +13,7 @@ import { ListAllergiesService } from '../../pages/listAllergies/listAllergies.se
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVaccines-page',
+  selector: 'formExercise-page',
   templateUrl: 'formAllergy.html'
 })
 export class FormAllergyPage {
