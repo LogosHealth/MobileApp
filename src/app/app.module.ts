@@ -51,6 +51,8 @@ import { ListTravelPage } from '../pages/listTravel/listTravel';
 import { ListStresslevelPage } from '../pages/listStresslevel/listStresslevel';
 import { ListLifestyleItem } from '../pages/listLifestyleItem/listLifestyleItem';
 import { ListMedicalEvent } from '../pages/listMedicalEvent/listMedicalEvent';
+import { ListMedicationResults } from '../pages/listMedicationResults/listMedicationResults';
+import { ListTreatmentPage } from '../pages/listTreatment/listTreatment';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -219,6 +221,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListStresslevelPage,
     ListLifestyleItem,
     ListMedicalEvent,
+    ListMedicationResults,
+    ListTreatmentPage,
 
     GridPage,
     FormLayoutPage,
@@ -334,6 +338,8 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListStresslevelPage,
     ListLifestyleItem,
     ListMedicalEvent,
+    ListMedicationResults,
+    ListTreatmentPage,
 
     GridPage,
     FormLayoutPage,

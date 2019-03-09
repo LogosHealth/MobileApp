@@ -13,6 +13,7 @@ export class MedicalEvent {
   allergyseverity:string;
   medicallyconfirmed: string;
   processsymptom: boolean;
+  treatmentid: number;
   symptoms:Symptoms;
   treatments: Treatments;
   active: string;

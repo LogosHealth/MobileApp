@@ -12,6 +12,7 @@ import { FeedModel } from '../feed/feed.model';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 import { FormSymptomPage } from '../../pages/formSymptom/formSymptom';
 import { ListMedicationPage } from '../../pages/listMedication/listMedication';
+import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
@@ -55,6 +56,7 @@ export class FormMedicalEvent {
   aboutProfile: any = null;
   alreadyAddedAdd: boolean = false;
   fromEvent: any;
+  fromTreatment: any;
 
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -72,6 +74,8 @@ export class FormMedicalEvent {
 
     this.recId = navParams.get('recId');
     this.symptomsNotChosen = navParams.get('symptomsNotChosen');
+    this.fromTreatment = navParams.get('fromTreatment');
+
     console.log('symptomsNotChosen from formMedicalEvent: ', this.symptomsNotChosen);
     console.log('recId from formMedicalEvent: ' + this.recId);
     this.visitInfo = navParams.get('visit');
@@ -369,6 +373,11 @@ export class FormMedicalEvent {
       if (this.card_form.get('dateofmeasure').dirty){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
       }
+      /*  Should not be needed for update
+      if (this.fromTreatment !== undefined && this.fromTreatment.recordid !== undefined && this.fromTreatment.recordid > 0) {
+        this.eventSave.treatmentid = this.fromTreatment.recordid;
+      }
+      */
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
           this.eventSave.chronicflag == 'Y';
@@ -426,6 +435,9 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('dateofmeasure').value !== null){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.fromTreatment !== undefined && this.fromTreatment.recordid !== undefined && this.fromTreatment.recordid > 0) {
+        this.eventSave.treatmentid = this.fromTreatment.recordid;
       }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
@@ -1157,7 +1169,17 @@ addFromCabinet() {
 
 }
 
-  presentLoadingDefault() {
+attachRecord() {
+  alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+}
+
+viewAllTreatments() {
+  var cat;
+  cat = {title: 'Treatments'};
+  this.nav.push(ListTreatmentPage, { category: cat, fromEvent: this.fromEvent });
+}
+
+presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({
     spinner: 'hide',
     content: `

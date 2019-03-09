@@ -2,25 +2,26 @@ import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListMedicationModel } from './listMedication.model';
-import { ListMedicationService } from './listMedication.service';
+import { TreatmentResults } from '../../pages/listMedication/listMedication.model';
+import { ListMedicationService } from '../../pages/listMedication/listMedication.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormMedication } from '../../pages/formMedication/formMedication';
+import { FormMedicationResults } from '../../pages/formMedicationResults/formMedicationResults';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'listExercisePage',
-  templateUrl: 'listMedication.html'
+  templateUrl: 'listTreatment.html'
 })
-export class ListMedicationPage {
-  list2: ListMedicationModel = new ListMedicationModel();
+export class ListTreatmentPage {
+  list2: TreatmentResults = new TreatmentResults();
   feed: FeedModel = new FeedModel();
+  formName: string = "listTreatment";
   loading: any;
   resultData: any;
   userTimezone: any;
-  accountid: any;
-  type: any;
+  loadFromId: any;
+  medication: any;
   fromEvent: any;
 
   constructor(
@@ -32,13 +33,14 @@ export class ListMedicationPage {
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
+    this.loadFromId = navParams.get('loadFromId');
     this.fromEvent = navParams.get('fromEvent');
-    this.type = this.feed.category.title;
-    if (this.feed.category.title == 'Medicine Cabinet') {
-      this.accountid = this.RestService.Profiles[0].accountid;
-    } else if (this.feed.category.title == 'Medicine') {
-      this.feed.category.title = 'Current Medicine'
+
+    if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.loadFromId == undefined) {
+      this.loadFromId = this.fromEvent.medicaleventid;
+      console.log('LoadFromId added from fromEvent');
     }
+
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -50,6 +52,7 @@ export class ListMedicationPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    //var dtExpiration = dtNow;  //for testing
     var self = this;
 
     if (dtNow < dtExpiration) {
@@ -59,11 +62,11 @@ export class ListMedicationPage {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listMedication');
+          console.log('Need to login again!!! - Credentials expired from listTreatment');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listMedication - Credentials refreshed!');
+          console.log('From listTreatment - Credentials refreshed!');
           self.loadData();
         }
       });
@@ -72,7 +75,9 @@ export class ListMedicationPage {
 
   loadData() {
     var restURL: string;
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
+
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TreatmentByEvent";
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -88,22 +93,21 @@ export class ListMedicationPage {
     var method = 'GET';
     var additionalParams;
 
-    if (this.type == 'Medicine Cabinet') {
+    if (this.loadFromId !== undefined && this.loadFromId > 0) {
       additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
-            accountid: this.accountid,
-            type: this.type,
+            loadFromId: this.loadFromId
         }
       };
     } else {
       additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile,
-            type: this.type,
+            profileid: this.RestService.currentProfile
         }
       };
     }
+
     var body = '';
     var self = this;
 
@@ -114,7 +118,7 @@ export class ListMedicationPage {
       .getData()
       .then(data => {
         self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Medications: ", self.list2.items);
+        console.log("Results Data for Get Travel: ", self.list2.items);
         self.loading.dismiss();
       });
     }).catch( function(result){
@@ -126,34 +130,36 @@ export class ListMedicationPage {
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    console.log('listMedication.openRecord fromEvent: ', this.fromEvent);
-    if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
-      this.nav.push(FormMedication, { recId: recordId, fromEvent: this.fromEvent });
-    } else {
-      this.nav.push(FormMedication, { recId: recordId });
-    }
+    this.nav.push(FormMedicationResults, { recId: recordId, medication: this.medication });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormMedication);
-  }
-
-  attachRecord() {
-    alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+    this.nav.push(FormMedicationResults);
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+    var offsetDate;
+    var offset;
+    var finalDate;
+
+    offsetDate = new Date(moment(dateString).toISOString());
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dateString).tz(this.userTimezone).add(offset, 'hours').format('MMM DD-YY');
+      //console.log('Final date with timezone: ' + finalDate);
     } else {
-      return moment(dateString).format('dddd, MMMM DD');
+      finalDate = moment(dateString).add(offset, 'hours').format('MMM DD-YY');
+      //console.log('Final date with no timezone: ' + finalDate);
     }
+    return finalDate;
   }
 
   formatTime(timeString) {
     //alert('FormatDateTime called');
+    if (timeString == null) {
+      return null;
+    }
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
     var minute = timeSplit[1];

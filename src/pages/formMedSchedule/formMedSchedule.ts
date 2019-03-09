@@ -3,12 +3,9 @@ import { NavController, NavParams, AlertController, LoadingController, ViewContr
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListSchedule, ActivatedSchedule, ActivatedSchedules, Eligible } from '../../pages/listSchedule/listSchedule.model';
-import { ToDoNotify } from '../../pages/listVisit/listVisit.model';
-import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
-import { DictionaryService } from '../../pages/models/dictionary.service';
-import { ListContactModel } from '../../pages/listContacts/listContacts.model';
-import { ListContactService } from '../../pages/listContacts/listContacts.service';
+import { Eligible } from '../../pages/listSchedule/listSchedule.model';
+//import { ToDoNotify } from '../../pages/listVisit/listVisit.model';
+import { TreatmentResult, ScheduleTime, ScheduleTimes } from '../../pages/listMedication/listMedication.model';
 
 var moment = require('moment-timezone');
 
@@ -23,8 +20,6 @@ export class FormMedSchedule {
   targetDate: string;
   formName: string = "formMedSchedule";
   recId: number;
-  todoIndex: number;
-  objectType: any;
   card_form: FormGroup;
   profilesNotify: FormArray;
   curRec: any;
@@ -38,10 +33,7 @@ export class FormMedSchedule {
   hasActiveSched: boolean = true;
   activeProfileID: number;
   profiles = [];
-  scheduleModelSave: ListSchedule  = new ListSchedule();
-  scheduleSave: ActivatedSchedule = new ActivatedSchedule();
-  scheduleSaveArray: ActivatedSchedules = new ActivatedSchedules();
-  modelSave: ToDoNotify  = new ToDoNotify();
+  modelSave: TreatmentResult  = new TreatmentResult();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   timeNow: any;
@@ -52,102 +44,40 @@ export class FormMedSchedule {
   yearNow: any;
   monthDefaultNext: any;
   yearDefaultNext: any;
-  dictionaries: DictionaryModel = new DictionaryModel();
-  intervalList: DictionaryItem[];
-  listContacts: ListContactModel = new ListContactModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  times: FormArray;
+  timesData: ScheduleTimes = new ScheduleTimes();
+  fromTreatment: any;
+  medication: any;
+  mode: any;
+  medCompleted: boolean = false;
+  isNotify: boolean = false;
+  isActiveMode: boolean = false;
+  doseOffset: number = 0;
+  endDateCalc: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
-    public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService,
-    public listContactService: ListContactService, public formBuilder: FormBuilder, public viewCtrl: ViewController) {
+    public navParams: NavParams, public loadingCtrl: LoadingController,
+    public formBuilder: FormBuilder, public viewCtrl: ViewController) {
 
-  //MM 10-30-18 There are currently three scenarios which will triggers this form corresponding to objecttype - "visit", "task", "todo for visit"
-  //"visit" - curRec will be the visit obj - todonotify will be the child obj visitreminder
-  //"task" - curRec will be the task obj - todonotify will the the child obj taskreminder
-  //"todo for visit" - curRec will be visit obj, todoIndex will be populated, and the todonotify will be the notifyschedule obj attached to the appropriate todo by index
-    this.recId = navParams.get('recId');
-    this.todoIndex = navParams.get('todoIndex');
-    this.objectType = navParams.get('object');
-    this.curRec = RestService.results[this.recId];
-    console.log('Cur rec from chooseNotify: ', this.curRec);
+    //this.recId = navParams.get('recId');
+    this.fromTreatment = navParams.get('fromTreatment');
+    this.medication = navParams.get('medication');
 
-  //MM 10-30-18 We will use the objectType to drive population into a generic todo object
-    if (this.objectType == "visit") {
-      this.titleName = "Visit " + this.curRec.physician.title;
-      this.targetDate = this.curRec.visitdate;
-      if (this.curRec.visitreminder !== undefined && this.curRec.visitreminder !== null) {
-        this.modelSave.recordid = this.curRec.visitreminder.recordid;
-        this.modelSave.taskid = this.curRec.visitreminder.taskid;
-        this.modelSave.visitid = this.curRec.visitreminder.visitid;
-        this.modelSave.notifyprofiles = this.curRec.visitreminder.notifyprofiles;
-        this.modelSave.alerttitle = this.curRec.visitreminder.alerttitle;
-        this.modelSave.alerttext = this.curRec.visitreminder.alerttext;
-        this.modelSave.targetdate = this.curRec.visitreminder.targetdate;
-        this.modelSave.daybefore = this.curRec.visitreminder.daybefore;
-        this.modelSave.nightbefore = this.curRec.visitreminder.nightbefore;
-        this.modelSave.morningof = this.curRec.visitreminder.morningof;
-        this.modelSave.hourbefore = this.curRec.visitreminder.hourbefore;
-        this.modelSave.thirtyminute = this.curRec.visitreminder.thirtyminute;
-        this.modelSave.fifteenminute = this.curRec.visitreminder.fifteenminute;
-        this.modelSave.active = this.curRec.visitreminder.active;
-      } else {
-        this.newRec = true;
-        this.modelSave.visitid = this.curRec.recordid;
-        this.modelSave.alerttitle = "visit " + this.curRec.physician.title;
-        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
-        this.modelSave.targetdate = this.curRec.visitdate;
-        this.modelSave.daybefore = 'N';
-        this.modelSave.nightbefore = 'N';
-        this.modelSave.morningof = 'Y';
-        this.modelSave.hourbefore = 'N';
-        this.modelSave.thirtyminute = 'Y';
-        this.modelSave.fifteenminute = 'N';
-        this.modelSave.active = 'Y';
-      }
-    } else if (this.objectType == "task") {
-      console.log('Put task code here: ');
-    } else if (this.objectType == "todo for visit") {
-      this.titleName = this.curRec.todos.items[this.todoIndex].taskname;
-      this.targetDate = this.curRec.todos.items[this.todoIndex].duedate;
-      if (this.curRec.todos.items[this.todoIndex].notifyschedule !== undefined && this.curRec.todos.items[this.todoIndex].notifyschedule !== null) {
-        this.modelSave.recordid = this.curRec.todos.items[this.todoIndex].notifyschedule.recordid;
-        this.modelSave.taskid = this.curRec.todos.items[this.todoIndex].notifyschedule.taskid;
-        this.modelSave.visitid = this.curRec.todos.items[this.todoIndex].notifyschedule.visitid;
-        this.modelSave.notifyprofiles = this.curRec.todos.items[this.todoIndex].notifyschedule.notifyprofiles;
-        this.modelSave.alerttitle = this.curRec.todos.items[this.todoIndex].notifyschedule.alerttitle;
-        this.modelSave.alerttext = this.curRec.todos.items[this.todoIndex].notifyschedule.alerttext;
-        this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].notifyschedule.targetdate;
-        this.modelSave.daybefore = this.curRec.todos.items[this.todoIndex].notifyschedule.daybefore;
-        this.modelSave.nightbefore = this.curRec.todos.items[this.todoIndex].notifyschedule.nightbefore;
-        this.modelSave.morningof = this.curRec.todos.items[this.todoIndex].notifyschedule.morningof;
-        this.modelSave.hourbefore = this.curRec.todos.items[this.todoIndex].notifyschedule.hourbefore;
-        this.modelSave.thirtyminute = this.curRec.todos.items[this.todoIndex].notifyschedule.thirtyminute;
-        this.modelSave.fifteenminute = this.curRec.todos.items[this.todoIndex].notifyschedule.fifteenminute;
-        this.modelSave.active = this.curRec.todos.items[this.todoIndex].notifyschedule.active;
-      } else {
-        this.newRec = true;
-        this.modelSave.taskid = this.curRec.todos.items[this.todoIndex].recordid;
-        if (this.modelSave.taskid == undefined || this.modelSave.taskid == null) {
-          this.modelSave.visitid = this.curRec.recordid;
-          this.newTask = true;
-        }
-        this.modelSave.alerttitle = this.curRec.todos.items[this.todoIndex].taskname;
-        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
-        this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].duedate;
-        this.modelSave.daybefore = 'N';
-        this.modelSave.nightbefore = 'N';
-        this.modelSave.morningof = 'Y';
-        this.modelSave.hourbefore = 'N';
-        this.modelSave.thirtyminute = 'Y';
-        this.modelSave.fifteenminute = 'N';
-        this.modelSave.active = 'Y';
-      }
-    } else {
-      console.log('Obj type not found: ' + this.objectType);
+    console.log('MedSchedule fromTreatment: ', this.fromTreatment);
+    console.log('MedSchedule medication: ', this.medication);
+
+    if (this.medication !== undefined && this.medication.mode !== undefined) {
+      this.mode = this.medication.mode;
     }
-    //console.log('Visit Obj from formChooseNotify curRec: ', this.curRec);
-    console.log('Model Save Loaded', this.modelSave);
+    if (this.medication !== undefined && this.medication !== null && this.medication.completeflag !== undefined) {
+      if (this.medication.completeflag == 'Y') {
+        this.medCompleted = true;
+      }
+    }
+
+    //this.curRec = RestService.results[this.recId];
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -198,45 +128,120 @@ export class FormMedSchedule {
       eligibles.push(eligible);
     }
     this.profiles = eligibles;
-    if (!this.newRec) {
-      this.card_form = new FormGroup({
-        recordid: new FormControl(this.modelSave.recordid),
-        visitid: new FormControl(this.modelSave.visitid),
-        taskid: new FormControl(this.modelSave.taskid),
-        profilesnotify: this.formBuilder.array([ this.createItem() ], Validators.required),
-        notifyprofiles: new FormControl(this.modelSave.notifyprofiles),
-        alerttitle: new FormControl(this.modelSave.alerttitle),
-        alerttext: new FormControl(this.modelSave.alerttext),
-        targetdate: new FormControl(this.modelSave.targetdate),
-        daybefore: new FormControl(this.modelSave.daybefore),
-        nightbefore: new FormControl(this.modelSave.nightbefore),
-        morningof: new FormControl(this.modelSave.morningof),
-        hourbefore: new FormControl(this.modelSave.hourbefore),
-        thirtyminutes: new FormControl(this.modelSave.thirtyminute),
-        fifteenminutes: new FormControl(this.modelSave.fifteenminute),
-        active: new FormControl(this.modelSave.active),
-     });
+
+    if (this.fromTreatment.isnotify !== undefined && this.fromTreatment.isnotify == 'Y') {
+      this.isNotify = true;
+    }
+
+    var doseState;
+    if (this.fromTreatment.dosetrackingstate !== undefined && this.fromTreatment.dosetrackingstate !== null) {
+      doseState = this.fromTreatment.dosetrackingstate;
     } else {
-      //this.newRec = true;
-      this.card_form = new FormGroup({
-        recordid: new FormControl(),
-        visitid: new FormControl(this.modelSave.visitid),
-        taskid: new FormControl(this.modelSave.taskid),
-        profilesnotify: this.formBuilder.array([ this.createItem() ], Validators.required),
-        notifyprofiles: new FormControl(),
-        alerttitle: new FormControl(this.modelSave.alerttitle),
-        alerttext: new FormControl(this.modelSave.alerttext),
-        targetdate: new FormControl(this.modelSave.targetdate),
-        daybefore: new FormControl(this.modelSave.daybefore),
-        nightbefore: new FormControl(this.modelSave.nightbefore),
-        morningof: new FormControl(this.modelSave.morningof),
-        hourbefore: new FormControl(this.modelSave.hourbefore),
-        thirtyminutes: new FormControl(this.modelSave.thirtyminute),
-        fifteenminutes: new FormControl(this.modelSave.fifteenminute),
-        active: new FormControl('Y'),
+      doseState = 'activated';
+    }
+    console.log('Dose State: ' + doseState);
+
+    var notifyOffset;
+    if (this.fromTreatment.notifyoffset !== undefined && this.fromTreatment.notifyoffset !== null) {
+      notifyOffset = this.fromTreatment.notifyoffset;
+    } else {
+      notifyOffset = 0;
+    }
+
+    this.card_form = new FormGroup({
+      recordid: new FormControl(),
+      treatmentid: new FormControl(this.fromTreatment.treatmentid),
+      medicationname: new FormControl({value: this.medication.medicationname, disabled: true}),
+      startdate: new FormControl({value: this.fromTreatment.startdate, disabled: true}),
+      startinginventory: new FormControl({value: this.medication.startinginventory, disabled: true}),
+      inventory: new FormControl({value: this.medication.inventory, disabled: true}),
+      inventoryunit: new FormControl({value: this.medication.inventoryunit, disabled: true}),
+      dosage: new FormControl({value: this.fromTreatment.dosage, disabled: true}),
+      doseunits: new FormControl({value: this.fromTreatment.doseunits, disabled: true}),
+      dosefrequency: new FormControl({value: this.fromTreatment.dosefrequency, disabled: true}),
+      enddate: new FormControl({value: this.fromTreatment.enddate, disabled: true}),
+      projectedenddate: new FormControl({value: null, disabled: true}),
+      dosetrackingtype: new FormControl({value: this.fromTreatment.dosetrackingtype, disabled: true}),
+      dosetrackingstate: new FormControl(doseState),
+      isnotify: new FormControl(this.isNotify),
+      notifyoffset: new FormControl(notifyOffset),
+      notifyprofiles: new FormControl(this.fromTreatment.notifyprofiles),
+      active: new FormControl('Y'),
+      profilesnotify: this.formBuilder.array([ this.createItem() ], Validators.required),
+      times: this.formBuilder.array([]),
+    });
+    this.addExistingProfiles();
+  }
+
+  ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.loadDetails();
+      this.loading.dismiss();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formMedicalEvent');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From formMedicalEvent - Credentials refreshed!');
+          self.loadDetails();
+          self.loading.dismiss();
+        }
       });
     }
-    this.addExistingProfiles();
+  }
+
+  loadDetails() {
+    //this.presentLoadingDefault();
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/DoseScheduleTreatment";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            treatmentid: this.fromTreatment.recordid,
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      console.log('Result from medSched.loaddetails: ', result);
+      if (result.length > 0 && result[0].recordid !== undefined) {
+        self.timesData.items = [];
+        self.timesData.items = result.data;
+        self.newRec = false;
+        self.addExistingTimes();
+        self.loading.dismiss();
+      } else {
+        self.newRec = true;
+        self.addNewTimes();
+        self.loading.dismiss();
+      }
+    }).catch( function(result){
+      console.log('Err from formMedication.loadDetails: ', result);
+      self.loading.dismiss();
+    });
   }
 
   leaveRecord() {
@@ -249,8 +254,21 @@ export class FormMedSchedule {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
-      this.saveRecordDo();
+      if (this.newRec && this.endDateCalc.hasPastDose) {
+        this.confirmBackDate(function(err, result) {
+          if (err) {
+            console.log('Err from confirmBackDate: ' + err);
+          } else {
+            if (result == true) {
+              this.presentLoadingDefault();
+              this.saveRecordDo();
+            }
+          }
+        });
+      } else {
+        this.presentLoadingDefault();
+        this.saveRecordDo();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -260,7 +278,22 @@ export class FormMedSchedule {
           self.RestService.appRestart();
         } else {
           console.log('From formChooseNotify.saveRecord - Credentials refreshed!');
-          self.saveRecordDo();
+          if (this.newRec && this.endDateCalc.hasPastDose) {
+            self.loading.dismiss();
+            this.confirmBackDate(function(err, result) {
+              if (err) {
+                console.log('Err from confirmBackDate: ' + err);
+                self.loading.dismiss();
+              } else {
+                if (result == true) {
+                  this.presentLoadingDefault();
+                  this.saveRecordDo();
+                }
+              }
+            });
+          } else {
+            this.saveRecordDo();
+          }
         }
       });
     }
@@ -280,24 +313,11 @@ export class FormMedSchedule {
       console.log('String Profiles final: ' + strProfiles);
       this.modelSave.notifyprofiles = strProfiles;
     }
-    if (this.card_form.get('daybefore').dirty){
-      this.modelSave.daybefore = this.card_form.get('daybefore').value;
+
+    if (this.card_form.get('dosetrackingstate').dirty){
+      this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
     }
-    if (this.card_form.get('nightbefore').dirty){
-      this.modelSave.nightbefore = this.card_form.get('nightbefore').value;
-    }
-    if (this.card_form.get('morningof').dirty){
-      this.modelSave.morningof = this.card_form.get('morningof').value;
-    }
-    if (this.card_form.get('hourbefore').dirty){
-      this.modelSave.hourbefore = this.card_form.get('hourbefore').value;
-    }
-    if (this.card_form.get('thirtyminutes').dirty){
-      this.modelSave.thirtyminute = this.card_form.get('thirtyminutes').value;
-    }
-    if (this.card_form.get('fifteenminutes').dirty){
-      this.modelSave.fifteenminute = this.card_form.get('fifteenminutes').value;
-    }
+
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ReminderByEvent";
       var config = {
         invokeUrl: restURL,
@@ -408,6 +428,26 @@ export class FormMedSchedule {
     return canLeave
   }
 
+  confirmBackDate(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Start Date is in the past',
+      message: "When activating a passive dose schedule which starts in the past, Logos Health will back-populate the dose history and adjust the inventory.  Continue?",
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => callback(null, false)
+        },
+        {
+          text: 'Yes',
+          handler: () => callback(null, true)
+        }
+      ]
+    });
+    alert.present();
+    //console.log('Confirm Leave Answer: ', canLeave);
+  }
+
   readTargetDate() {
     console.log('Target Value: ' + this.card_form.controls["nextdate"].value);
     console.log('Target: ', this.card_form.controls["nextdate"]);
@@ -428,7 +468,8 @@ export class FormMedSchedule {
       }
     }
     this.notifySelected = isSelected;
-    console.log('Notify Selected: ' + this.notifySelected);
+    //console.log('Notify Selected: ' + this.notifySelected);
+    console.log('readProfilesNotify isNotify: ' + this.isNotify);
   }
 
  populateProfilesNotify() {
@@ -479,6 +520,163 @@ export class FormMedSchedule {
       photopath: new FormControl(this.RestService.Profiles[index].imageURL),
       selected: new FormControl(false),
     });
+  }
+
+  addExistingTimes() {
+    this.times = this.card_form.get('times') as FormArray;
+    if (this.timesData !== undefined && this.timesData.items.length > 0 && this.timesData.items[0].recordid !== undefined) {
+        var exitLoop = 0;
+        while (this.times.length !== 0 || exitLoop > 9) {
+          this.times.removeAt(0);
+          exitLoop = exitLoop + 1;
+        }
+
+        for (var j = 0; j < this.timesData.items.length; j++) {
+          this.times.push(this.addExistingTime(j));
+        }
+      console.log('Once symptoms are saved with medical event');
+    }
+    this.projectEndDate();
+  }
+
+  addExistingTime(index): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl({value: this.timesData.items[index].recordid, disabled: true}),
+      treatmentid: new FormControl({value: this.timesData.items[index].treatmentid, disabled: true}),
+      profileid: new FormControl({value: this.timesData.items[index].profileid, disabled: true}),
+      startdate: new FormControl({value: this.timesData.items[index].startdate, disabled: true}),
+      dosenumber: new FormControl({value: this.timesData.items[index].dosenumber, disabled: true}),
+      dosetime: new FormControl(this.timesData.items[index].dosetime),
+    });
+  }
+
+  addNewTimes() {
+    this.times = this.card_form.get('times') as FormArray;
+    var exitLoop = 0;
+    var timesCount = 0;
+    var doseFrequency;
+
+    while (this.times.length !== 0 || exitLoop > 9) {
+      this.times.removeAt(0);
+      exitLoop = exitLoop + 1;
+    }
+
+    doseFrequency = this.fromTreatment.dosefrequency;
+    this.card_form.get('dosefrequency').setValue(this.fromTreatment.dosefrequency);
+    this.card_form.get('dosetrackingtype').setValue(this.fromTreatment.dosetrackingtype);
+
+    if (doseFrequency == 'Once Daily') {
+      timesCount = 1;
+    } else if (doseFrequency == 'Twice Daily'){
+      timesCount = 2;
+      this.doseOffset = 12;
+    } else if (doseFrequency == 'Every 8 Hours'){
+      timesCount = 3;
+      this.doseOffset = 8;
+    } else if (doseFrequency == 'Every 6 Hours'){
+      timesCount = 4;
+      this.doseOffset = 6;
+    } else if (doseFrequency == 'Every 4 Hours'){
+      timesCount = 6;
+      this.doseOffset = 4;
+    }
+
+    console.log('AddNewTimes - count: ' + timesCount);
+    for (var j = 0; j < timesCount; j++) {
+        this.times.push(this.addNewTime(j));
+    }
+    this.projectEndDate();
+  }
+
+  addNewTime(index): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl({value: null, disabled: true}),
+      treatmentid: new FormControl({value: null, disabled: true}),
+      profileid: new FormControl({value: null, disabled: true}),
+      startdate: new FormControl({value: null, disabled: true}),
+      dosenumber: new FormControl({value: index + 1, disabled: true}, Validators.required),
+      dosetime: new FormControl(null, Validators.required),
+    });
+  }
+
+  projectEndDate() {
+    this.endDateCalc = {
+      inventory: this.medication.inventory,
+      startDate: moment(this.fromTreatment.startdate),
+      nowDate: this.momentNow,
+      dosefrequency: this.fromTreatment.dosefrequency,
+      newRec: this.newRec,
+    }
+    console.log('Initial Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
+    console.log('Initial Start Date String = ' + this.fromTreatment.startdate);
+
+    if (this.endDateCalc.dosefrequency == 'Once Daily') {
+      this.endDateCalc.perDay = 1;
+    } else if (this.endDateCalc.dosefrequency == 'Twice Daily'){
+      this.endDateCalc.perDay = 2;
+    } else if (this.endDateCalc.dosefrequency == 'Every 8 Hours'){
+      this.endDateCalc.perDay = 3;
+    } else if (this.endDateCalc.dosefrequency == 'Every 6 Hours'){
+      this.endDateCalc.perDay = 4;
+    } else if (this.endDateCalc.dosefrequency == 'Every 4 Hours'){
+      this.endDateCalc.perDay = 6;
+    } else {
+      console.log('Error with dosefrequency value: ' + this.endDateCalc.dosefrequency);
+      this.endDateCalc.perDay = 1;
+    }
+    this.endDateCalc.daysCovered = Math.trunc(this.endDateCalc.inventory/this.endDateCalc.perDay);
+
+    if (this.endDateCalc.newRec) {
+      var dtStart = moment(this.fromTreatment.startdate);
+      this.endDateCalc.projEndDT = dtStart.add(this.endDateCalc.daysCovered, 'days');
+      this.endDateCalc.projEndDate = this.endDateCalc.projEndDT.format('MMM-DD-YY');
+      console.log('Start date after calc end date: ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'))
+      if (this.fromTreatment.dosetrackingtype == 'passive') {
+        if (this.endDateCalc.startDate < this.endDateCalc.nowDate) {
+          this.endDateCalc.hasPastDose = true;
+        } else {
+          console.log('Not past date: Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
+          console.log('Not past date: Now Date = ' + this.endDateCalc.nowDate.format('MMM-DD-YY hh:mm a'));
+          this.endDateCalc.hasPastDose = false;
+        }
+      } else {
+        this.endDateCalc.hasPastDose = false;
+      }
+    } else {
+      this.endDateCalc.projEndDate = this.endDateCalc.nowDate.add(this.endDateCalc.daysCovered, 'days').format('MMM-DD-YY');
+      this.endDateCalc.hasPastDose = false;
+    }
+
+    this.card_form.get('projectedenddate').setValue(this.endDateCalc.projEndDate);
+    console.log('End Date Calc: ', this.endDateCalc);
+
+    //Sets the notify flag and disables if tracking mode is active
+    if (this.fromTreatment.dosetrackingtype == 'active') {
+      this.card_form.get('isnotify').setValue(true);
+      this.isNotify = true;
+      this.isActiveMode = true;
+    }
+
+  }
+
+  checkNotify() {
+    //console.log('check Notify ', this.card_form.get('isnotify').value);
+    this.isNotify = this.card_form.get('isnotify').value;
+    }
+
+  saveNotReady() {
+    var returnVal = false;
+    if (this.isNotify) {
+      if (!this.card_form.dirty || !this.card_form.valid || !this.notifySelected) {
+        returnVal = true;
+      }
+    } else {
+      if (!this.card_form.dirty || !this.card_form.valid) {
+        returnVal = true;
+      }
+    }
+
+    return returnVal;
   }
 
   dismiss() {

@@ -14,6 +14,7 @@ import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
 import { CallNumber } from '@ionic-native/call-number';
 import { FormMedSchedule } from '../../pages/formMedSchedule/formMedSchedule';
+import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
 
 var moment = require('moment-timezone');
 
@@ -32,6 +33,7 @@ export class FormMedicationResults {
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
+  checkSave: boolean = false;
   showTips: boolean = true;
   eventSave: TreatmentResult = new TreatmentResult();
   category: HistoryItemModel = new HistoryItemModel();
@@ -51,6 +53,10 @@ export class FormMedicationResults {
   fromEvent: any;
   sideeffectdata: any;
   sideeffects: FormArray;
+  mode: any;
+  medCompleted: boolean = false;
+  noHistory: boolean = false;
+  isAsNeeded: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
@@ -63,12 +69,21 @@ export class FormMedicationResults {
     this.feed.category = navParams.get('category');
 
     if (this.feed.category == undefined || this.feed.category.title == undefined) {
-      this.feed.category.title = 'Medication Info & Results';
+      this.feed.category = {title: 'Medication Info & Results'};
     }
     //console.log('visitInfo: ', this.visitInfo);
     console.log('formMedication: recId: ' + this.recId );
     console.log('formMedication: medication: ', this.medication );
     console.log('formMedication: fromEvent: ', this.fromEvent );
+
+    if (this.medication !== undefined && this.medication !== null && this.medication.mode !== undefined) {
+      this.mode = this.medication.mode;
+    }
+    if (this.medication !== undefined && this.medication !== null && this.medication.completeflag !== undefined) {
+      if (this.medication.completeflag == 'Y') {
+        this.medCompleted = true;
+      }
+    }
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -88,8 +103,9 @@ export class FormMedicationResults {
     }
 
     this.curRec = RestService.results[this.recId];
-    console.log('Init Medication - recId = ' + this.recId);
+    //console.log('Init Medication - recId = ' + this.recId);
     if (this.recId !== undefined) {
+      console.log('Set using rec id: ' + this.recId + ': ', this.curRec );
       var allergy = false;
       if (this.curRec.allergyflag !== undefined && this.curRec.allergyflag == 'Y') {
         allergy = true;
@@ -97,6 +113,11 @@ export class FormMedicationResults {
       var effective = true;
       if (this.curRec.effectiveflag !== undefined && this.curRec.effectiveflag == 'N') {
         effective = false;
+      }
+
+      if (this.curRec.treatmentid !== undefined && this.curRec.recordid == undefined) {
+        console.log('Cur Rec - rec id set');
+        this.curRec.recordid = this.curRec.treatmentid;
       }
 
       this.card_form = new FormGroup({
@@ -109,7 +130,7 @@ export class FormMedicationResults {
         reftablefields: new FormControl(this.curRec.reftablefields),
         type: new FormControl(this.curRec.type),
         namevalue: new FormControl(this.curRec.namevalue),
-        startdate: new FormControl(this.curRec.startdate),
+        startdate: new FormControl(this.curRec.startdate, Validators.required),
         enddate: new FormControl(this.curRec.enddate),
         verbatimindication: new FormControl({value: this.curRec.verbatimindication, disabled: true}),
         dosage: new FormControl(this.curRec.dosage),
@@ -123,7 +144,7 @@ export class FormMedicationResults {
         startinginventory: new FormControl(),
         inventory: new FormControl(),
         inventoryunit: new FormControl(),
-        dosetrackingtype: new FormControl(),
+        dosetrackingtype: new FormControl(this.curRec.dosetrackingtype),
 
         sideeffects: this.formBuilder.array([]),
       });
@@ -139,7 +160,7 @@ export class FormMedicationResults {
         reftablefields: new FormControl(),
         type: new FormControl(),
         namevalue: new FormControl(),
-        startdate: new FormControl(),
+        startdate: new FormControl(null, Validators.required),
         enddate: new FormControl(),
         verbatimindication: new FormControl({value: null, disabled: true}),
         dosage: new FormControl(),
@@ -165,6 +186,7 @@ export class FormMedicationResults {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
+    this.checkSave = false;
     if (dtNow < dtExpiration) {
       this.loadDetails();
     } else {
@@ -202,7 +224,7 @@ export class FormMedicationResults {
     if (!this.newRec) {
       this.presentLoadingDefault();
       var restURL: string;
-      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SideEffectByMedication";
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SideEffectByTreatment";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -229,7 +251,7 @@ export class FormMedicationResults {
         self.loading.dismiss();
         self.sideeffectdata = result.data;
         self.addExistingSideEffects();
-        console.log('formMedicationResults.loadDetails: ', self.curRec);
+        console.log('formMedicationResults.loadDetails: ', self.sideeffectdata);
         self.loading.dismiss();
         }).catch( function(result){
           console.log('Err from formMedicationResults.loadDetails: ', result);
@@ -240,7 +262,7 @@ export class FormMedicationResults {
 
   addExistingSideEffects() {
     console.log('Starting addExistingTreatmentResults');
-    this.sideeffects = this.card_form.get('treatmentresults') as FormArray;
+    this.sideeffects = this.card_form.get('sideeffects') as FormArray;
     if (this.sideeffectdata !== undefined && this.sideeffectdata.items !== undefined && this.sideeffectdata.items.length > 0) {
       var exitLoop = 0;
 
@@ -248,7 +270,7 @@ export class FormMedicationResults {
         this.sideeffects.removeAt(0);
         exitLoop = exitLoop + 1;
       }
-      for (var j = 0; j < this.curRec.treatmentresults.items.length; j++) {
+      for (var j = 0; j < this.sideeffectdata.items.length; j++) {
         this.sideeffects.push(this.addExistingSideEffect(j));
       }
     }
@@ -258,23 +280,12 @@ export class FormMedicationResults {
     console.log('Starting addExistingTreatmentResult index: ' + index);
     return this.formBuilder.group({
       recordid: new FormControl({value: this.sideeffectdata.items[index].recordid, disabled: true}),
-      symptomid: new FormControl({value: this.sideeffectdata.items[index].symptomid, disabled: true}),
-      medicaleventid: new FormControl({value: this.sideeffectdata.items[index].medicaleventid, disabled: true}),
-      reftable: new FormControl({value: this.sideeffectdata.items[index].reftable, disabled: true}),
-      reftablefield: new FormControl({value: this.sideeffectdata.items[index].reftablefield, disabled: true}),
-      reftablefieldid: new FormControl({value: this.sideeffectdata.items[index].reftablefieldid, disabled: true}),
-      reftablefields: new FormControl({value: this.sideeffectdata.items[index].reftablefields, disabled: true}),
-      type: new FormControl({value: this.sideeffectdata.items[index].type, disabled: true}),
-      namevalue: new FormControl({value: this.sideeffectdata.items[index].namevalue, disabled: true}),
-      startdate: new FormControl({value: this.sideeffectdata.items[index].startdate, disabled: true}),
+      medicalevent: new FormControl({value: this.sideeffectdata.items[index].medicalevent, disabled: true}),
+      onsetdate: new FormControl({value: this.sideeffectdata.items[index].onsetdate, disabled: true}),
       enddate: new FormControl({value: this.sideeffectdata.items[index].enddate, disabled: true}),
-      verbatimindication: new FormControl({value: this.sideeffectdata.items[index].verbatimindication, disabled: true}),
-      dosage: new FormControl({value: this.sideeffectdata.items[index].dosage, disabled: true}),
-      doseunits: new FormControl({value: this.sideeffectdata.items[index].doseunits, disabled: true}),
-      dosefrequency: new FormControl({value: this.sideeffectdata.items[index].dosefrequency, disabled: true}),
-      effectiveflag: new FormControl({value: this.sideeffectdata.items[index].effectiveflag, disabled: true}),
-      allergyflag: new FormControl({value: this.sideeffectdata.items[index].allergyflag, disabled: true}),
-      comments: new FormControl({value: this.sideeffectdata.items[index].comments, disabled: true}),
+      eventdescription: new FormControl({value: this.sideeffectdata.items[index].eventdescription, disabled: true}),
+      dateofmeasure: new FormControl({value: this.sideeffectdata.items[index].dateofdiagnosis, disabled: true}),
+      visitid: new FormControl({value: this.sideeffectdata.items[index].visitid, disabled: true}),
     });
   }
 
@@ -390,6 +401,8 @@ export class FormMedicationResults {
     var dtDET;
 
     this.saving = true;
+    console.log('saving record rec id: ' + this.card_form.get('recordid').value);
+
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.eventSave.recordid = this.card_form.get('recordid').value;
       this.eventSave.profileid = this.RestService.currentProfile;
@@ -410,6 +423,9 @@ export class FormMedicationResults {
       }
       if (this.card_form.get('dosefrequency').dirty){
         this.eventSave.dosefrequency = this.card_form.get('dosefrequency').value;
+      }
+      if (this.card_form.get('dosetrackingtype').dirty){
+        this.eventSave.dosetrackingtype = this.card_form.get('dosetrackingtype').value;
       }
       if (this.card_form.get('ineffectiveflag').dirty){
         if (this.card_form.get('ineffectiveflag').value == true) {
@@ -472,6 +488,9 @@ export class FormMedicationResults {
       if (this.card_form.get('dosefrequency').dirty){
         this.eventSave.dosefrequency = this.card_form.get('dosefrequency').value;
       }
+      if (this.card_form.get('dosetrackingtype').dirty){
+        this.eventSave.dosetrackingtype = this.card_form.get('dosetrackingtype').value;
+      }
       if (this.card_form.get('ineffectiveflag').dirty){
         if (this.card_form.get('ineffectiveflag').value == true) {
           this.eventSave.effectiveflag = 'N';
@@ -524,7 +543,203 @@ export class FormMedicationResults {
         console.log('Error from formMedication.save: ',result);
         self.loading.dismiss();
       });
+
+ }
+
+ navSaveRecord(callback){
+  var dtNow = moment(new Date());
+  var dtExpiration = moment(this.RestService.AuthData.expiration);
+  var self = this;
+
+  if (dtNow < dtExpiration) {
+    this.presentLoadingDefault();
+    this.navSaveRecordDo(function (err, results) {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, results);
+      }
+    });
+} else {
+    this.presentLoadingDefault();
+    this.RestService.refreshCredentials(function(err, results) {
+      if (err) {
+        console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.navSaveRecord');
+        self.loading.dismiss();
+        self.RestService.appRestart();
+      } else {
+        console.log('From ' + self.formName + '.navSaveRecord - Credentials refreshed!');
+        this.navSaveRecordDo(function (err, results) {
+          if (err) {
+            callback(err, null);
+          } else {
+            callback(null, results);
+          }
+        });
+      }
+    });
   }
+}
+
+navSaveRecordDo(callback){
+  var dtDET;
+  var updateOnly = false;
+
+  this.saving = true;
+  console.log('saving record rec id: ' + this.card_form.get('recordid').value);
+
+  if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+    this.eventSave.recordid = this.card_form.get('recordid').value;
+    this.eventSave.profileid = this.RestService.currentProfile;
+    this.eventSave.userid = this.RestService.userId;
+    this.eventSave.active = 'Y';
+    updateOnly = true;
+
+    if (this.card_form.get('startdate').dirty){
+      this.eventSave.startdate = this.card_form.get('startdate').value;
+      this.curRec.startdate = this.card_form.get('startdate').value;
+    }
+    if (this.card_form.get('enddate').dirty){
+      this.eventSave.enddate = this.card_form.get('enddate').value;
+      this.curRec.enddate = this.card_form.get('enddate').value;
+    }
+    if (this.card_form.get('dosage').dirty){
+      this.eventSave.dosage = this.card_form.get('dosage').value;
+      this.curRec.dosage = this.card_form.get('dosage').value;
+    }
+    if (this.card_form.get('doseunits').dirty){
+      this.eventSave.doseunits = this.card_form.get('doseunits').value;
+      this.curRec.doseunits = this.card_form.get('doseunits').value;
+    }
+    if (this.card_form.get('dosefrequency').dirty){
+      this.eventSave.dosefrequency = this.card_form.get('dosefrequency').value;
+      this.curRec.dosefrequency = this.card_form.get('dosefrequency').value;
+    }
+    if (this.card_form.get('dosetrackingtype').dirty){
+      this.eventSave.dosetrackingtype = this.card_form.get('dosetrackingtype').value;
+      this.curRec.dosetrackingtype = this.card_form.get('dosetrackingtype').value;
+    }
+    if (this.card_form.get('ineffectiveflag').dirty){
+      if (this.card_form.get('ineffectiveflag').value == true) {
+        this.eventSave.effectiveflag = 'N';
+      } else {
+        this.eventSave.effectiveflag = 'Y';
+      }
+    }
+    if (this.card_form.get('allergyflag').dirty){
+      if (this.card_form.get('allergyflag').value == true) {
+        this.eventSave.allergyflag = 'Y';
+      } else {
+        this.eventSave.allergyflag = 'N';
+      }
+    }
+    if (this.card_form.get('comments').dirty){
+      this.eventSave.comments = this.card_form.get('comments').value;
+    }
+  } else {
+    this.eventSave.profileid = this.RestService.currentProfile;
+    this.eventSave.userid = this.RestService.userId;
+    this.eventSave.active = 'Y';
+    if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value > 0) {
+      this.eventSave.medicaleventid = this.card_form.get('medicaleventid').value;
+    } else if (this.card_form.get('symptomid').value !==undefined && this.card_form.get('symptomid').value > 0) {
+      this.eventSave.symptomid = this.card_form.get('symptomid').value;
+    } else {
+      console.log('Error: No medicaleventid or symptomid');
+      alert('Error: No medicaleventid or symptomid');
+    }
+    this.eventSave.reftable = 'medication';
+    this.eventSave.reftablefield = 'medicationid';
+    if (this.medication !== undefined && this.medication.recordid > 0) {
+      this.eventSave.reftablefieldid = this.medication.recordid;
+    } else {
+      console.log('Error: No medication recordid', this.medication);
+      alert('Error: No medication recordid');
+    }
+    this.eventSave.reftablefields = 'medicationname, startdate';
+    this.eventSave.type = 'medication';
+    if (this.card_form.get('medicationname').value !==undefined && this.card_form.get('medicationname').value !== "") {
+      this.eventSave.namevalue = this.card_form.get('medicationname').value;
+    }
+    if (this.card_form.get('verbatimindication').value !==undefined && this.card_form.get('verbatimindication').value !== "") {
+      this.eventSave.verbatimindication = this.card_form.get('verbatimindication').value;
+    }
+
+    if (this.card_form.get('startdate').dirty){
+      this.eventSave.startdate = this.card_form.get('startdate').value;
+    }
+    if (this.card_form.get('enddate').dirty){
+      this.eventSave.enddate = this.card_form.get('enddate').value;
+    }
+    if (this.card_form.get('dosage').dirty){
+      this.eventSave.dosage = this.card_form.get('dosage').value;
+    }
+    if (this.card_form.get('doseunits').value !==undefined && this.card_form.get('doseunits').value !== "") {
+      this.eventSave.doseunits = this.card_form.get('doseunits').value;
+    }
+    if (this.card_form.get('dosefrequency').dirty){
+      this.eventSave.dosefrequency = this.card_form.get('dosefrequency').value;
+    }
+    if (this.card_form.get('dosetrackingtype').dirty){
+      this.eventSave.dosetrackingtype = this.card_form.get('dosetrackingtype').value;
+    }
+    if (this.card_form.get('ineffectiveflag').dirty){
+      if (this.card_form.get('ineffectiveflag').value == true) {
+        this.eventSave.effectiveflag = 'N';
+      } else {
+        this.eventSave.effectiveflag = 'Y';
+      }
+    }
+    if (this.card_form.get('allergyflag').dirty){
+      if (this.card_form.get('allergyflag').value == true) {
+        this.eventSave.allergyflag = 'Y';
+      } else {
+        this.eventSave.allergyflag = 'N';
+      }
+    }
+    if (this.card_form.get('comments').dirty){
+      this.eventSave.comments = this.card_form.get('comments').value;
+    }
+
+  }
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TreatmentByEvent";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile
+        }
+    };
+    var body = JSON.stringify(this.eventSave);
+    var self = this;
+    console.log('Calling Post', this.eventSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.loading.dismiss();
+      if (!updateOnly) {
+        this.curRec = this.eventSave;
+        this.curRec.recordid = result.data;
+      }
+      callback(null, result.data);
+    }).catch( function(result){
+      console.log('Error from formMedication.save: ',result);
+      self.loading.dismiss();
+      callback(result, null);
+    });
+
+}
+
 
   public today() {
     //Used as max day in date of measure control
@@ -555,8 +770,12 @@ export class FormMedicationResults {
     }
   }
 
+
   async ionViewCanLeave() {
-    if (!this.saving && this.card_form.dirty) {
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      const shouldLeave = await this.confirmSave();
+      return shouldLeave;
+    } else if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();
       return shouldLeave;
     }
@@ -584,6 +803,45 @@ export class FormMedicationResults {
     return canLeave
   }
 
+  confirmSave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            resolveLeaving(false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                resolveLeaving(true);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                console.log('After confirmSave success - CurRec: ', self.curRec);
+                resolveLeaving(true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }
+
 hasFocus() {
   this.eventHasFocus = true;
 }
@@ -601,8 +859,8 @@ presentHelp(myEvent) {
   var self = this;
   var dataObj;
   var title = 'Dose Tracking Mode';
-  var helptext = "<b>Implicit:</b> Each dose will be automatically captured and removed from the current inventory based on dose schedule.<br><br>" +
-  "<b>Explicit:</b> Each dose must be explicitly acknowledged through mobile notifications using voice interface.";
+  var helptext = "<b>Passive:</b> Each dose will be automatically captured and removed from the current inventory based on dose schedule.<br><br>" +
+  "<b>Active:</b> Each dose must be explicitly acknowledged through mobile notifications using voice interface.";
 
   let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
   popover.onDidDismiss(data => {
@@ -625,6 +883,7 @@ presentPopover(myEvent) {
     console.log('From popover onDismiss: ', data);
     if (data !==undefined && data !== null) {
       dataObj = data.choosePage;
+      this.checkSave = true;
       self.loadMenu(dataObj);
     }
   });
@@ -637,9 +896,29 @@ loadMenu(dataObj) {
   console.log('LoadMenu dataobj: ' + dataObj);
 }
 
-openSchedule () {
-  this.nav.push(FormMedSchedule, {visit: this.curRec});
+openSchedule() {
+  this.checkSave = true;
+  this.nav.push(FormMedSchedule, {fromTreatment: this.curRec, medication: this.medication});
 }
+
+attachRecord() {
+  alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+}
+
+addSideeffect() {
+  this.checkSave = true;
+  this.nav.push(FormMedicalEvent, {fromTreatment: this.curRec});
+}
+
+setAsNeeded() {
+  this.card_form.get('dosetrackingtype').setValue('active');
+  this.isAsNeeded = true;
+}
+
+notAsNeeded() {
+  this.isAsNeeded = false;
+}
+
 
   presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({

@@ -42,9 +42,15 @@ export class TreatmentResult {
   dosage: string;
   doseunits: string;
   dosefrequency: string;
+  dosetrackingtype: string;
+  dosetrackingstate: string;
+  isnotify: string;
+  notifyoffset: number;
+  notifyprofiles: string;
   effectiveflag: string;
   allergyflag: string;
   sideeffects: SideEffects;
+  scheduletimes: ScheduleTimes;
   comments: string;
   active: string;
   userid: number;
@@ -72,6 +78,20 @@ export class SideEffect {
   userid: number;
   timezone: string;
 }
+
+export class ScheduleTime {
+  recordid: number;
+  treatmentid: number;
+  profileid: number;
+  startdate: string;
+  dosenumber: number;
+  dosetime: string;
+}
+
+export class ScheduleTimes {
+  items: Array<ScheduleTime>;
+}
+
 
 export class Symptom {
   recordid: number;

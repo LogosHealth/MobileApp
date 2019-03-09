@@ -12,6 +12,15 @@ formSchedule-page {
 	{
 		background-color: color($colors, background, base);
 
+		.checkbox-md .checkbox-checked {
+			border-color: $theme-color-1;
+			background-color: $theme-color-1;
+		}
+
+		.checkbox-md .checkbox-icon {
+			border-color: $theme-color-1;
+		}
+
 		.categories-title
 		{
 			font-size: 1.2rem;
@@ -127,7 +136,10 @@ formSchedule-page {
 
 		.sample-form
 		{
-			.form-section
+      @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
+      background-color: color($colors, background2, base);
+
+      .form-section
 			{
 				padding: 0px 14px;
 				.item:first-child
@@ -136,7 +148,8 @@ formSchedule-page {
 				}
 			}
 			ion-item {
-				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
+				//@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 				&.item
 				{
 					margin-top: 0px;
@@ -172,6 +185,17 @@ formSchedule-page {
 				margin: 0px;
 				//margin-top: 25px;
 			}
+
+      .section-checkbox-label
+      {
+          font-size: 1.6rem;
+          line-height: 1.2;
+          letter-spacing: 1.1px;
+          text-align: left;
+          color: $theme-color-1;
+          font-weight: 400;
+          margin-top: 40px;
+      }
 
 			.title-notconfirmed{
 				font-size: 1.8rem;
@@ -430,7 +454,8 @@ formSchedule-page {
 					{
 						margin-top: 0px;
 					}
-				}
+        }
+
 				.multi-input-row
 				{
 					ion-col {

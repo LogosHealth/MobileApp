@@ -1,11 +1,6 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Dosage & Results</ion-title>
-    <ion-buttons right>
-      <button ion-button icon-only (click)="attachRecord()">
-        <ion-icon name='attach'></ion-icon>
-      </button>
-    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
@@ -27,23 +22,23 @@
             </ion-item>
           </ion-row>
 
-          <ion-row>
+          <ion-row *ngIf="mode == 'cabinet'">
             <ion-col no-padding width-30>
               <ion-item>
                 <ion-label floating>Current</ion-label>
-                <ion-input type="text" formControlName="inventory"></ion-input>
+                <ion-input type="text" formControlName="inventory" [disabled]="medCompleted"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-30>
               <ion-item>
                 <ion-label floating>Starting</ion-label>
-                <ion-input type="text" formControlName="startinginventory"></ion-input>
+                <ion-input type="text" formControlName="startinginventory" [disabled]="medCompleted"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-37>
               <ion-item>
                 <ion-label floating>Units</ion-label>
-                <ion-select formControlName="inventoryunit">
+                <ion-select formControlName="inventoryunit" [disabled]="medCompleted">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
@@ -65,14 +60,14 @@
           <ion-row>
             <ion-col no-padding width-60>
               <ion-item>
-                <ion-label floating>Start Date</ion-label>
-                <ion-datetime displayFormat="MMM-DD-YY hh:mm A"  formControlName="startdate" minuteValues="0,15,30,45"></ion-datetime>
+                <ion-label floating>Start Date*</ion-label>
+                <ion-datetime displayFormat="MMM-DD-YY hh:mm A"  formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
               </ion-item>
               </ion-col>
               <ion-col no-padding width-40>
                 <ion-item>
                   <ion-label floating>End Date</ion-label>
-                  <ion-datetime displayFormat="MMM-DD-YY" formControlName="enddate"></ion-datetime>
+                  <ion-datetime displayFormat="MMM-DD-YY" formControlName="enddate" [disabled]="medCompleted"></ion-datetime>
                 </ion-item>
               </ion-col>
           </ion-row>
@@ -80,14 +75,14 @@
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
-                <ion-label floating>Dosage</ion-label>
-                <ion-input type="number" formControlName="dosage"></ion-input>
+                <ion-label floating>Dosage**</ion-label>
+                <ion-input type="number" formControlName="dosage" [disabled]="medCompleted"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50>
               <ion-item>
-                <ion-label floating>Dose Units</ion-label>
-                <ion-select formControlName="doseunits">
+                <ion-label floating>Dose Units**</ion-label>
+                <ion-select formControlName="doseunits" [disabled]="medCompleted">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
@@ -100,36 +95,41 @@
           <ion-row>
             <ion-col>
               <ion-item>
-                <ion-label floating>Dose Frequency</ion-label>
-                <ion-select formControlName="dosefrequency">
-                  <ion-option class="section-title" value="As Needed">As Needed</ion-option>
-                  <ion-option class="section-title" value="Once Daily">Once Daily</ion-option>
-                  <ion-option class="section-title" value="Twice Daily">Twice Daily</ion-option>
-                  <ion-option class="section-title" value="Every 8 Hours">Every 8 Hours</ion-option>
-                  <ion-option class="section-title" value="Every 6 Hours">Every 6 Hours</ion-option>
-                  <ion-option class="section-title" value="Every 4 Hours">Every 4 Hours</ion-option>
+                <ion-label floating>Dose Frequency**</ion-label>
+                <ion-select formControlName="dosefrequency" [disabled]="medCompleted">
+                  <ion-option class="section-title" value="As Needed" (ionSelect)="setAsNeeded()">As Needed</ion-option>
+                  <ion-option class="section-title" value="Once Daily" (ionSelect)="notAsNeeded()">Once Daily</ion-option>
+                  <ion-option class="section-title" value="Twice Daily" (ionSelect)="notAsNeeded()">Twice Daily</ion-option>
+                  <ion-option class="section-title" value="Every 8 Hours" (ionSelect)="notAsNeeded()">Every 8 Hours</ion-option>
+                  <ion-option class="section-title" value="Every 6 Hours" (ionSelect)="notAsNeeded()">Every 6 Hours</ion-option>
+                  <ion-option class="section-title" value="Every 4 Hours" (ionSelect)="notAsNeeded()">Every 4 Hours</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
           </ion-row>
 
           <ion-row>
-            <ion-col no-padding width-87>
+            <ion-col no-padding width-77>
               <h2 class = "section-title" (click)="presentHelp(myEvent)">Dose Tracking Typeⓘ</h2>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button-top"  type="button" (click)="openSchedule()">
+              <button ion-button block class="form-action-button-top"  type="button" (click)="openSchedule()" [disabled]="isAsNeeded">
                 <ion-icon name="clock"></ion-icon>
+              </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="doseHistory()" [disabled]="noHistory">
+                <ion-icon name="paper"></ion-icon>
               </button>
             </ion-col>
           </ion-row>
 
           <ion-row>
             <ion-item>
-              <ion-label floating>Tracking type</ion-label>
-              <ion-select formControlName="dosetrackingtype">
-                <ion-option class="section-title" value="Implicit">Implicit</ion-option>
-                <ion-option class="section-title" value="Explicit">Explicit</ion-option>
+              <ion-label floating>Tracking type**</ion-label>
+              <ion-select formControlName="dosetrackingtype" [disabled]="medCompleted || isAsNeeded">
+                <ion-option class="section-title" value="passive">Passive</ion-option>
+                <ion-option class="section-title" value="active">Active</ion-option>
               </ion-select>
             </ion-item>
           </ion-row>
@@ -154,6 +154,16 @@
             </ion-col>
           </ion-row>
 
+          <ion-row>
+            <ion-col no-padding width-87>
+              <h2 class = "section-title">Adverse Reactions</h2>
+            </ion-col>
+           <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="addSideeffect()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+          </ion-row>
           <div formArrayName="sideeffects" *ngFor="let info of card_form.get('sideeffects').controls; let i = index;">
             <div [formGroupName]="i">
               <ion-row>

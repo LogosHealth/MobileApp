@@ -16,6 +16,7 @@ import 'rxjs/Rx';
 import { CallNumber } from '@ionic-native/call-number';
 import { FormMedSchedule } from '../../pages/formMedSchedule/formMedSchedule';
 import { FormMedicationResults } from '../../pages/formMedicationResults/formMedicationResults';
+import { ListMedicationResults } from '../../pages/listMedicationResults/listMedicationResults';
 
 var moment = require('moment-timezone');
 
@@ -57,6 +58,8 @@ export class FormMedication {
   mode: any = null;
   treatmentresults: FormArray;
   isDone: boolean = false;
+  hasTreatments: boolean = false;
+  treatingEvent: boolean = false;
 
   medication: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -286,13 +289,23 @@ export class FormMedication {
     this.treatmentresults = this.card_form.get('treatmentresults') as FormArray;
     if (this.curRec !== undefined && this.curRec.treatmentresults !== undefined && this.curRec.treatmentresults.items !== undefined
       && this.curRec.treatmentresults.items.length > 0) {
-      var exitLoop = 0;
+        this.hasTreatments = true;
+        var exitLoop = 0;
 
       while (this.treatmentresults.length !== 0 || exitLoop > 9) {
         this.treatmentresults.removeAt(0);
         exitLoop = exitLoop + 1;
       }
       for (var j = 0; j < this.curRec.treatmentresults.items.length; j++) {
+        if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined) {
+          if (this.fromEvent.medicaleventid == this.curRec.treatmentresults.items[j].medicaleventid) {
+            this.treatingEvent = true;
+          }
+        } else if (this.fromSymptom !== undefined && this.fromSymptom.symptomid !== undefined) {
+          if (this.fromSymptom.symptomid == this.curRec.treatmentresults.items[j].symptomid) {
+            this.treatingEvent = true;
+          }
+        }
         this.treatmentresults.push(this.addExistingTreatmentResult(j));
       }
       this.addBasicInfo();
@@ -336,6 +349,7 @@ export class FormMedication {
       dosage: new FormControl({value: this.curRec.treatmentresults.items[index].dosage, disabled: true}),
       doseunits: new FormControl({value: this.curRec.treatmentresults.items[index].doseunits, disabled: true}),
       dosefrequency: new FormControl({value: this.curRec.treatmentresults.items[index].dosefrequency, disabled: true}),
+      dosetrackingtype: new FormControl({value: this.curRec.treatmentresults.items[index].dosetrackingtype, disabled: true}),
       effectiveflag: new FormControl({value: this.curRec.treatmentresults.items[index].effectiveflag, disabled: true}),
       allergyflag: new FormControl({value: this.curRec.treatmentresults.items[index].allergyflag, disabled: true}),
       comments: new FormControl({value: this.curRec.treatmentresults.items[index].comments, disabled: true}),
@@ -1064,11 +1078,11 @@ export class FormMedication {
   }
 
   async ionViewCanLeave() {
-    if (!this.saving && this.card_form.dirty) {
-      const shouldLeave = await this.confirmLeave();
-      return shouldLeave;
-    } else if (!this.saving && this.card_form.dirty && this.checkSave) {
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
       const shouldLeave = await this.confirmSave();
+      return shouldLeave;
+    } else if (!this.saving && this.card_form.dirty) {
+      const shouldLeave = await this.confirmLeave();
       return shouldLeave;
     }
   }
@@ -1178,6 +1192,10 @@ showList() {
   }
 }
 
+attachRecord () {
+  alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+}
+
 searchListTerm(strValue) {
   console.log('SearchListTerm called');
   this.medication.setValue(strValue);
@@ -1224,11 +1242,18 @@ loadMenu(dataObj) {
 }
 
 callContact(){
+/*
   var phoneNum = this.curRec.phone;
   this.callNumber.callNumber(phoneNum, true)
     .then(() => alert('Launched dialer!'))
     .catch(() => alert('This capability is only availabe through call-capable devices.  Please manually call: ' + phoneNum + ' to order.'));
+*/
+  alert('Coming soon.  This button will allow you to call the medical information center for this drug');
 }
+
+openWebsite(){
+    alert('Coming soon.  This button will open the website for this drug');
+  }
 
 doseNotComplete() {
   if (this.card_form.get('dosage').value !== null && this.card_form.get('dosefrequency').value !== null) {
@@ -1263,8 +1288,10 @@ addNewTreatmentResults() {
 }
 
 viewAllTreatmentResults() {
-  console.log('calling viewAllTreatmentResults');
+  var cat;
 
+  cat = {title: 'Results for ' + this.curRec.medicationname};
+  this.nav.push(ListMedicationResults, {loadFromId: this.curRec.recordid, medication: this.curRec, category: cat});
 }
 
 updateTreatmentResults(index) {
@@ -1294,7 +1321,7 @@ updateTreatmentResults(index) {
     setTimeout(() => {
       this.loading.dismiss();
       //console.log('Timeout for spinner called ' + this.formName);
-    }, 15000);
+    }, 20000);
   }
 
 }

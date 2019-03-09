@@ -1469,6 +1469,10 @@ export class FormVisitPage {
     }
   }
 
+  attachRecord() {
+    alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+  }
+
   presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({
     spinner: 'hide',
