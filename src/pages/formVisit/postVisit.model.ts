@@ -3,12 +3,13 @@ export class PostVisit {
   visitsummary:string;
   diagnoses: Diagnoses;
   outcomes: Outcomes;
-  payments: Payments;
-  todos: ToDos;
+  billing: Payments;
+  todopost: ToDos;
 
   profileid: number;
   userid: number;
   timezone: string;
+  active: string;
 }
 
 export class Diagnosis {

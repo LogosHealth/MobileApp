@@ -57,6 +57,7 @@ export class FormMedicalEvent {
   alreadyAddedAdd: boolean = false;
   fromEvent: any;
   fromTreatment: any;
+  loadFromId: number;
 
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -235,11 +236,59 @@ export class FormMedicalEvent {
         console.log('Result data from loadFilterList: ', result.data);
         console.log('Filter items from formMedicalEvents.loadFilterList: ', self.listFilter.items);
         self.setFilteredItems();
-        self.loading.dismiss();
+        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+          self.loadDetails();
+        } else {
+          self.loading.dismiss();
+        }
       });
     }).catch( function(result){
-        console.log(body2);
-        self.loading.dismiss();
+        console.log(result);
+        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+          self.loadDetails();
+        } else {
+          self.loading.dismiss();
+        }
+    });
+  }
+
+  loadDetails() {
+    //this.presentLoadingDefault();
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicalEventByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            loadFromId: this.loadFromId,
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.recId = 0;
+      self.curRec = result.data[0];
+      self.newRec = false;
+      console.log('formMedicalEvent.loadDetails: ', self.curRec);
+      //self.fillFormDetails();
+      self.loading.dismiss();
+    }).catch( function(result){
+      console.log('Err from formMedication.loadDetails: ', result);
+      self.loading.dismiss();
     });
   }
 
@@ -464,7 +513,7 @@ export class FormMedicalEvent {
         this.eventSave.processsymptom = true;
         for (var j = 0; j < this.symptoms.length; j++) {
           symptom = new Symptom();
-          symptom.recordid = this.symptoms.at(j).get("reftablefieldid").value;
+          symptom.recordid = this.symptoms.at(j).get("recordid").value;
           this.eventSave.symptoms.items.push(symptom);
         }
       }
@@ -751,6 +800,7 @@ export class FormMedicalEvent {
     return canLeave
   }
 
+
   confirmSave(): Promise<Boolean> {
     let resolveLeaving;
     const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
@@ -792,6 +842,53 @@ export class FormMedicalEvent {
     return canLeave
   }
 
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  var medicalevent = self.eventTerm;
+                  self.curRec = {recordid: results, medicalevent: medicalevent};
+                  self.loadFromId = results;
+                  console.log('new Medical Event record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      callback(null, true);
+    }
+  }
+
   addSymptom() {
     if (this.symptomsNotChosen !== undefined && this.symptomsNotChosen !== null && this.symptomsNotChosen.length > 0) {
       console.log('Calling Symptom not chosen menu', this.symptomsNotChosen);
@@ -820,20 +917,41 @@ export class FormMedicalEvent {
         }
       });
       popover.present({
-
       });
-
     } else {
       this.checkSave = true;
-      this.nav.push(FormSymptomPage, {fromEvent: this.fromEvent});
+      this.confirmSaveDirect(function(err, result) {
+        if (err) {
+          console.log('Error in addSymptom.confirmSaveDirect' + err);
+          alert('There is an error in saving the medication record from addSymptom');
+        } else {
+          if (result) {
+            self.nav.push(FormSymptomPage, {fromEvent: self.fromEvent});
+          } else if (!result) {
+            console.log('addSymptom.ConfirmSaveDirect - User cancelled');
+          }
+        }
+      });
     }
   }
 
   processAddExistingSymptom(dataObj) {
     console.log('dataObj from processAddExistingSymptom: ' + dataObj);
+    var self = this;
     if (dataObj == 'Add New') {
       this.checkSave = true;
-      this.nav.push(FormSymptomPage, {fromEvent: this.fromEvent});
+      this.confirmSaveDirect(function(err, result) {
+        if (err) {
+          console.log('Error in processAddExistingSymptom.confirmSaveDirect' + err);
+          alert('There is an error in saving the medication record from processAddExistingSymptom');
+        } else {
+          if (result) {
+            self.nav.push(FormSymptomPage, {fromEvent: self.fromEvent});
+          } else if (!result) {
+            console.log('processAddExistingSymptom.ConfirmSaveDirect - User cancelled');
+          }
+        }
+      });
     } else if (!isNaN(dataObj)) {
       console.log('Data Obj is a number!');
       var objSymptom;
@@ -852,7 +970,6 @@ export class FormMedicalEvent {
           console.log('recordid: ' + this.symptomsNotChosen[j].recordid + ', dataobj: ' + dataObj);
         }
       }
-
     } else {
       console.log('Invalid response from: processAddExistingSymptom' + dataObj);
     }
@@ -868,10 +985,21 @@ export class FormMedicalEvent {
 
   updateSymptom(index) {
     this.checkSave = true;
-    console.log('From updateSymptom: ', this.curRec.symptoms.items);
-    this.RestService.results;
-    this.RestService.results = this.curRec.symptoms.items;
-    this.nav.push(FormSymptomPage, {fromEvent: true, recId: index});
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateSymptom.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateSymptom');
+      } else {
+        if (result) {
+          console.log('From updateSymptom: ', self.curRec.symptoms.items);
+          self.RestService.results = self.curRec.symptoms.items;
+          self.nav.push(FormSymptomPage, {fromEvent: true, recId: index});
+        } else if (!result) {
+          console.log('updateSymptom.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
   }
 
   removeSymptom(index) {
@@ -956,13 +1084,24 @@ presentPopover(myEvent) {
 
 loadMenu(dataObj) {
   if (dataObj !== undefined && dataObj !== null) {
-
     if (dataObj == 'Medication') {
       this.checkSave = true;
-      var cat = {title: dataObj};
-      var fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent };
-      console.log('Form load menu - curRec.recordid: ' +  this.curRec.recordid);
-      this.nav.push(FormMedication, {category: cat, fromEvent: fromEvent});
+      var self = this;
+      this.confirmSaveDirect(function(err, result) {
+        if (err) {
+          console.log('Error in loadMenu.confirmSaveDirect' + err);
+          alert('There is an error in saving the medication record from loadMenu');
+        } else {
+          if (result) {
+            var cat = {title: dataObj};
+            var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent };
+            console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
+            self.nav.push(FormMedication, {category: cat, fromEvent: fromEvent});
+          } else if (!result) {
+            console.log('loadMenu.ConfirmSaveDirect - User cancelled');
+          }
+        }
+      });
     } else if (dataObj == 'Procedure') {
       console.log('Add Procedure');
     } else if (dataObj == 'Rehab Therapy') {
@@ -1134,39 +1273,71 @@ updateEventTreatment(index) {
   var objType = treatments.at(index).get('type').value;
   var objRecordid = treatments.at(index).get('reftablefieldid').value;
 
-  //console.log('treatment Obj: ', this.postVisit[0].diagnoses[parentIndex].treatments.items[index]);
-  //console.log('objType from updateTreatment: ' + objType + ', Comparison: ' + objType2);
-  //console.log('objType from updateTreatment: ' + objRecordid + ', Comparison: ' + objRecordid2);
   if (objType == 'medication') {
-    cat = {title: 'Medication'};
-    var fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent };
-    this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+    this.checkSave = true;
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateEventTreatment.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateEventTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Medication'};
+          var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent };
+          self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+        } else if (!result) {
+          console.log('updateEventTreatment.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
   }
 }
 
 updateSymptomTreatment(parentIndex, index) {
-  console.log('updateTreatment parentIndex: ' + parentIndex + ', index: ' + index);
+  console.log('updateSymptomTreatment parentIndex: ' + parentIndex + ', index: ' + index);
   var cat;
+  var self = this;
   var symptoms = this.card_form.get('symptoms') as FormArray;
   var symptomid = symptoms.at(parentIndex).get('recordid').value;
   var treatments =  symptoms.at(parentIndex).get('treatments') as FormArray;
-
   var objType = treatments.at(index).get('type').value;
   var objRecordid = treatments.at(index).get('reftablefieldid').value;
-  //console.log('treatment Obj: ', this.postVisit[0].diagnoses[parentIndex].treatments.items[index]);
-  //console.log('objType from updateTreatment: ' + objType + ', Comparison: ' + objType2);
-  //console.log('objType from updateTreatment: ' + objRecordid + ', Comparison: ' + objRecordid2);
+
   if (objType == 'medication') {
-    cat = {title: 'Medication'};
-    this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromSymptom: symptomid });
+    this.checkSave = true;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateSymptomTreatment.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateSymptomTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Medication'};
+          self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromSymptom: symptomid });
+        } else if (!result) {
+          console.log('updateSymptomTreatment.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
   }
 }
 
 addFromCabinet() {
   var cat;
-  cat = {title: 'Medicine Cabinet'};
-  this.nav.push(ListMedicationPage, { category: cat, fromEvent: this.fromEvent });
-
+  this.checkSave = true;
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in addFromCabinet.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from addFromCabinet');
+    } else {
+      if (result) {
+        cat = {title: 'Medicine Cabinet'};
+        self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.fromEvent });
+      } else if (!result) {
+        console.log('addFromCabinet.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 attachRecord() {
@@ -1175,8 +1346,21 @@ attachRecord() {
 
 viewAllTreatments() {
   var cat;
-  cat = {title: 'Treatments'};
-  this.nav.push(ListTreatmentPage, { category: cat, fromEvent: this.fromEvent });
+  this.checkSave = true;
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in viewAllTreatments.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from viewAllTreatments');
+    } else {
+      if (result) {
+        cat = {title: 'Treatments'};
+        self.nav.push(ListTreatmentPage, { category: cat, fromEvent: self.fromEvent });
+      } else if (!result) {
+        console.log('viewAllTreatments.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 presentLoadingDefault() {

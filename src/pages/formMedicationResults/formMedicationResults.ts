@@ -57,6 +57,7 @@ export class FormMedicationResults {
   medCompleted: boolean = false;
   noHistory: boolean = false;
   isAsNeeded: boolean = false;
+  loadFromId: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
@@ -248,7 +249,6 @@ export class FormMedicationResults {
 
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
-        self.loading.dismiss();
         self.sideeffectdata = result.data;
         self.addExistingSideEffects();
         console.log('formMedicationResults.loadDetails: ', self.sideeffectdata);
@@ -770,7 +770,6 @@ navSaveRecordDo(callback){
     }
   }
 
-
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty && this.checkSave) {
       const shouldLeave = await this.confirmSave();
@@ -842,6 +841,52 @@ navSaveRecordDo(callback){
     return canLeave
   }
 
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  self.curRec = {recordid: results};
+                  self.loadFromId = results;
+                  console.log('New Treatment record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      callback(null, true);
+    }
+  }
+
 hasFocus() {
   this.eventHasFocus = true;
 }
@@ -898,7 +943,19 @@ loadMenu(dataObj) {
 
 openSchedule() {
   this.checkSave = true;
-  this.nav.push(FormMedSchedule, {fromTreatment: this.curRec, medication: this.medication});
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in openSchedule.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from openSchedule');
+    } else {
+      if (result) {
+        self.nav.push(FormMedSchedule, {fromTreatment: self.curRec, medication: self.medication});
+      } else if (!result) {
+        console.log('openSchedule.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 attachRecord() {
@@ -907,7 +964,19 @@ attachRecord() {
 
 addSideeffect() {
   this.checkSave = true;
-  this.nav.push(FormMedicalEvent, {fromTreatment: this.curRec});
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in addSideeffect.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from addSideeffect');
+    } else {
+      if (result) {
+        self.nav.push(FormMedicalEvent, {fromTreatment: self.curRec});
+      } else if (!result) {
+        console.log('addSideeffect.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 setAsNeeded() {

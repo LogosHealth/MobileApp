@@ -143,6 +143,42 @@ export class FormChooseNotify {
         this.modelSave.fifteenminute = 'N';
         this.modelSave.active = 'Y';
       }
+    } else if (this.objectType == "todo for visit post") {
+      this.titleName = this.curRec.todopost.items[this.todoIndex].taskname;
+      this.targetDate = this.curRec.todopost.items[this.todoIndex].duedate;
+      if (this.curRec.todopost.items[this.todoIndex].notifyschedule !== undefined && this.curRec.todopost.items[this.todoIndex].notifyschedule !== null) {
+        this.modelSave.recordid = this.curRec.todopost.items[this.todoIndex].notifyschedule.recordid;
+        this.modelSave.taskid = this.curRec.todopost.items[this.todoIndex].notifyschedule.taskid;
+        this.modelSave.visitid = this.curRec.todopost.items[this.todoIndex].notifyschedule.visitid;
+        this.modelSave.notifyprofiles = this.curRec.todopost.items[this.todoIndex].notifyschedule.notifyprofiles;
+        this.modelSave.alerttitle = this.curRec.todopost.items[this.todoIndex].notifyschedule.alerttitle;
+        this.modelSave.alerttext = this.curRec.todopost.items[this.todoIndex].notifyschedule.alerttext;
+        this.modelSave.targetdate = this.curRec.todopost.items[this.todoIndex].notifyschedule.targetdate;
+        this.modelSave.daybefore = this.curRec.todopost.items[this.todoIndex].notifyschedule.daybefore;
+        this.modelSave.nightbefore = this.curRec.todopost.items[this.todoIndex].notifyschedule.nightbefore;
+        this.modelSave.morningof = this.curRec.todopost.items[this.todoIndex].notifyschedule.morningof;
+        this.modelSave.hourbefore = this.curRec.todopost.items[this.todoIndex].notifyschedule.hourbefore;
+        this.modelSave.thirtyminute = this.curRec.todopost.items[this.todoIndex].notifyschedule.thirtyminute;
+        this.modelSave.fifteenminute = this.curRec.todopost.items[this.todoIndex].notifyschedule.fifteenminute;
+        this.modelSave.active = this.curRec.todopost.items[this.todoIndex].notifyschedule.active;
+      } else {
+        this.newRec = true;
+        this.modelSave.taskid = this.curRec.todopost.items[this.todoIndex].recordid;
+        if (this.modelSave.taskid == undefined || this.modelSave.taskid == null) {
+          this.modelSave.visitid = this.curRec.recordid;
+          this.newTask = true;
+        }
+        this.modelSave.alerttitle = this.curRec.todopost.items[this.todoIndex].taskname;
+        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
+        this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].duedate;
+        this.modelSave.daybefore = 'N';
+        this.modelSave.nightbefore = 'N';
+        this.modelSave.morningof = 'Y';
+        this.modelSave.hourbefore = 'N';
+        this.modelSave.thirtyminute = 'Y';
+        this.modelSave.fifteenminute = 'N';
+        this.modelSave.active = 'Y';
+      }
     } else {
       console.log('Obj type not found: ' + this.objectType);
     }

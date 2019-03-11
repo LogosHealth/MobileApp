@@ -17,10 +17,8 @@ import { ListVaccinesPage } from '../../pages/listVaccines/listVaccines';
 import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 
-
-
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
-import { PostVisitModel, Treatment } from './postVisit.model';
+import { PostVisitModel, Treatment, PostVisit } from './postVisit.model';
 import { PostVisitService } from './postVisit.service';
 
 var moment = require('moment-timezone');
@@ -58,11 +56,13 @@ export class FormVisitPage {
   selectedItems: ImportantInfos = new ImportantInfos();
   importantInfos: ImportantInfos = new ImportantInfos();
   formSave: ListVisit = new ListVisit();
+  postSave: PostVisit = new PostVisit();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   categories_checkbox_open: boolean;
   categories_checkbox_result;
   needNew: boolean = false;
+  pastVisit: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
     public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public popoverCtrl:PopoverController,
@@ -109,6 +109,7 @@ export class FormVisitPage {
       });
       if (this.momentNow > moment(this.curRec.visitdate)) {
         this.categoryList = 'post';
+        this.pastVisit = true;
         console.log('It is after the visit! - momentNow = ' + this.momentNow);
       } else {
         console.log('It is before the visit!');
@@ -236,7 +237,7 @@ export class FormVisitPage {
     if (this.postVisit[0].visitsummary !== undefined && this.postVisit[0].visitsummary !== "") {
       this.card_formPost.get("visitsummary").setValue(this.postVisit[0].visitsummary);
     }
-    if (this.postVisit[0].visitsummary !== undefined) {
+    if (this.postVisit[0] !== undefined) {
       this.addExistingDiagnoses();
       this.addExistingOutcomes();
       this.addExistingPayments();
@@ -334,6 +335,117 @@ export class FormVisitPage {
     alert.present();
   }
 
+  savePostRecord(){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.savePostRecordDo();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.savePostRecordDo();
+        }
+      });
+    }
+  }
+
+  savePostRecordDo(){
+    this.saving = true;
+    //console.log('Save record in formVisit called!');
+    if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+      this.postSave.recordid = this.card_form.get('recordid').value;
+      this.postSave.active = 'Y';
+      //console.log('Cur Profile: ', this.curProfile);
+      this.postSave.profileid = this.curProfile.profileid;
+      this.postSave.userid = this.RestService.userId;
+      if (this.card_formPost.get('visitsummary').dirty) {
+        this.postSave.visitsummary = this.card_formPost.get('visitsummary').value;
+      }
+      this.todopost = this.card_formPost.get('todopost') as FormArray;
+
+      if (this.todopost.dirty) {
+        var impTodos: ToDos = new ToDos();
+        var impTodo: ToDo;
+        var todoForm;
+        impTodos.items = [];
+        for (var j = 0; j < this.todopost.length; j++) {
+          todoForm = this.todopost.at(j) as FormGroup;
+          if (todoForm.dirty) {
+            impTodo = new ToDo();
+            impTodo.recordid = todoForm.get("recordid").value;
+            if (todoForm.get("taskname").dirty) {
+              impTodo.taskname = todoForm.get("taskname").value;
+            }
+            if (todoForm.get("duedate").dirty) {
+              impTodo.duedate = todoForm.get("duedate").value;
+            }
+            if (todoForm.get("completedflag").dirty) {
+              if (todoForm.get("completedflag").value == true) {
+                impTodo.completedflag = 'Y';
+              } else {
+                impTodo.completedflag = 'N';
+              }
+            }
+            if (todoForm.get("active").dirty) {
+              impTodo.active = todoForm.get("active").value;
+            }
+            console.log('formVisit todopost impTodo: ', impTodo);
+            impTodos.items.push(impTodo);
+          }
+        }
+        this.postSave.todopost = impTodos;
+        console.log('formVisit todopost dirty: ', this.formSave.todopost);
+      } else {
+        console.log('formVisit.postsave - todopost not dirty');
+      }
+
+    }
+
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitPostByVisit";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+      queryParams: {
+        profileid: this.RestService.currentProfile,
+        visitid: this.curRec.recordid,
+      }
+    };
+    var body = JSON.stringify(this.postSave);
+    var self = this;
+    console.log('Calling Post', this.postSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      console.log('Happy Path: ' + self.RestService.results);
+      self.category.title = "Visit";
+      self.loading.dismiss();
+      self.nav.pop();
+    }).catch( function(result){
+      console.log('Error in formVisit.save: ',result);
+      self.loading.dismiss();
+    });
+  }
+
   saveRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -379,6 +491,8 @@ export class FormVisitPage {
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
+
+      //This is the only field within the post visit section:
       console.log('Contact from promote to visit', this.contact);
       if (this.curRec !== undefined  && this.curRec.physician !== undefined) {
         this.formSave.contactid = this.curRec.physician.recordid;
@@ -640,6 +754,37 @@ export class FormVisitPage {
         }
       }
       console.log('Data from checkReminder data: ', self.curRec.todos.items[index].notifyschedule);
+    });
+    profileModal.present();
+  }
+
+  checkReminderPost(index) {
+    var newTask = false;
+    this.syncDueDatePost(index);
+    this.syncTaskNamePost(index);
+    var self = this;
+
+    console.log('Item from check reminder Post: ', this.postVisit[0].todopost.items[index]);
+    this.curRec.todopost = this.postVisit[0].todopost;
+    if (this.curRec.todopost.items[index].recordid == undefined && this.curRec.todopost.items[index].recordid == null) {
+      newTask = true;
+    }
+    this.RestService.results[0] = this.curRec;
+    index = 0;
+    console.log('Check reminder data Post: recid = ' + this.recId + ", index = " + index);
+    let profileModal = this.modalCtrl.create(FormChooseNotify, { recId: this.recId, todoIndex: index, object: "todo for visit post" });
+    profileModal.onDidDismiss(data => {
+      if (data !==undefined && data !== null) {
+        console.log('Data from checkReminder: ', data);
+        console.log('Data index from checkReminder: ', index);
+        self.postVisit[0].todopost.items[index].notifyschedule = data;
+        if (newTask) {
+          self.postVisit[0].todopost.items[index].recordid = self.postVisit[0].todopost.items[index].notifyschedule.taskid;
+          self.todopost = this.card_formPost.get('todopost') as FormArray;
+          self.todopost.at(index).markAsPristine();
+        }
+      }
+      console.log('Data from checkReminder data: ', self.postVisit[0].todopost.items[index].notifyschedule);
     });
     profileModal.present();
   }
@@ -1031,13 +1176,13 @@ export class FormVisitPage {
 
   addExistingTodoPosts() {
     this.todopost = this.card_formPost.get('todopost') as FormArray;
-    if (this.postVisit[0].todos !== undefined && this.postVisit[0].todos.items !== undefined && this.postVisit[0].todos.items.length > 0) {
+    if (this.postVisit[0].todopost !== undefined && this.postVisit[0].todopost.items !== undefined && this.postVisit[0].todopost.items.length > 0) {
       var exitLoop = 0;
       while (this.todopost.length !== 0 || exitLoop > 9) {
         this.todopost.removeAt(0);
         exitLoop = exitLoop + 1;
       }
-      for (var j = 0; j < this.postVisit[0].todos.items.length; j++) {
+      for (var j = 0; j < this.postVisit[0].todopost.items.length; j++) {
         this.todopost.push(this.addExistingTodoPost(j));
       }
     }
@@ -1045,15 +1190,15 @@ export class FormVisitPage {
 
   addExistingTodoPost(index): FormGroup {
     var selected = false;
-    if (this.postVisit[0].todos.items[index].completedflag == 'Y') {
+    if (this.postVisit[0].todopost.items[index].completedflag == 'Y') {
       selected = true;
     }
     return this.formBuilder.group({
-      recordid: new FormControl(this.postVisit[0].todos.items[index].recordid),
-      taskname: new FormControl(this.postVisit[0].todos.items[index].taskname),
-      duedate: new FormControl(this.postVisit[0].todos.items[index].duedate),
+      recordid: new FormControl(this.postVisit[0].todopost.items[index].recordid),
+      taskname: new FormControl(this.postVisit[0].todopost.items[index].taskname),
+      duedate: new FormControl(this.postVisit[0].todopost.items[index].duedate),
       completedflag: new FormControl(selected),
-      active: new  FormControl(this.postVisit[0].todos.items[index].active),
+      active: new  FormControl(this.postVisit[0].todopost.items[index].active),
     });
   }
 
@@ -1196,16 +1341,16 @@ export class FormVisitPage {
     todoArray = this.card_formPost.get('todopost') as FormArray;
     todo = todoArray.at(index) as FormGroup;
     if (todo.get("completedflag").value) {
-      this.postVisit[0].todos.items[index].completedflag = 'Y';
+      this.postVisit[0].todopost.items[index].completedflag = 'Y';
     } else {
-      this.postVisit[0].todos.items[index].completedflag = 'N';
+      this.postVisit[0].todopost.items[index].completedflag = 'N';
     }
   }
 
   isCompletePost(index) {
     if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todos !== undefined) {
-      if (this.postVisit[0].todos.items[index] !== undefined) {
-        if (this.postVisit[0].todos.items[index].completedflag == 'Y') {
+      if (this.postVisit[0].todopost.items[index] !== undefined) {
+        if (this.postVisit[0].todopost.items[index].completedflag == 'Y') {
           return true;
         } else {
           return false;
@@ -1221,9 +1366,9 @@ export class FormVisitPage {
   pastDuePost(index) {
     var dtNow = new Date();
     var dtTarget;
-    if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todos !== undefined) {
-      if (this.postVisit[0].todos.items[index] !== undefined) {
-        dtTarget = new Date(this.postVisit[0].todos.items[index].duedate);
+    if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todopost !== undefined) {
+      if (this.postVisit[0].todopost.items[index] !== undefined) {
+        dtTarget = new Date(this.postVisit[0].todopost.items[index].duedate);
         var timedifference = new Date().getTimezoneOffset();
         timedifference = timedifference/60;
         dtNow.setHours(dtNow.getHours() - timedifference);
@@ -1241,10 +1386,10 @@ export class FormVisitPage {
   }
 
   notReadyPost(index) {
-    if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todos !== undefined) {
-      if (this.postVisit[0].todos.items[index] !== undefined) {
-        if (this.postVisit[0].todos.items[index].taskname !== undefined && this.postVisit[0].todos.items[index].taskname !== null && this.postVisit[0].todos.items[index].taskname !== "" &&
-        this.postVisit[0].todos.items[index].duedate !== undefined && this.postVisit[0].todos.items[index].duedate !== null && this.postVisit[0].todos.items[index].duedate !== "") {
+    if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todopost !== undefined) {
+      if (this.postVisit[0].todopost.items[index] !== undefined) {
+        if (this.postVisit[0].todopost.items[index].taskname !== undefined && this.postVisit[0].todopost.items[index].taskname !== null && this.postVisit[0].todopost.items[index].taskname !== "" &&
+        this.postVisit[0].todopost.items[index].duedate !== undefined && this.postVisit[0].todopost.items[index].duedate !== null && this.postVisit[0].todopost.items[index].duedate !== "") {
           return false;
         } else {
           return true;
@@ -1262,21 +1407,21 @@ export class FormVisitPage {
     var todo = todoArray.at(index) as FormGroup;
     var todoObj: ToDo  = new ToDo;
     if (todo.get("taskname").value !==null && todo.get("taskname").value !=="") {
-      if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todos !== undefined) {
-        console.log('todos: ', this.postVisit[0].todos);
-        if (this.postVisit[0].todos.items[index] !== undefined) {
-          if (todo.get("taskname").value !== this.postVisit[0].todos.items[index].taskname) {
-            this.postVisit[0].todos.items[index].taskname = todo.get("taskname").value;
+      if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todopost !== undefined) {
+        console.log('todos: ', this.postVisit[0].todopost);
+        if (this.postVisit[0].todopost.items[index] !== undefined) {
+          if (todo.get("taskname").value !== this.postVisit[0].todopost.items[index].taskname) {
+            this.postVisit[0].todopost.items[index].taskname = todo.get("taskname").value;
           }
         } else {
           todoObj.taskname = todo.get("taskname").value;
-          this.postVisit[0].todos.items.push(todoObj);
+          this.postVisit[0].todopost.items.push(todoObj);
         }
       } else {
         todoObj.taskname = todo.get("taskname").value;
-        this.postVisit[0].todos = new ToDos();
-        this.postVisit[0].todos.items = [];
-        this.postVisit[0].todos.items.push(todoObj);
+        this.postVisit[0].todopost = new ToDos();
+        this.postVisit[0].todopost.items = [];
+        this.postVisit[0].todopost.items.push(todoObj);
       }
     }
   }
@@ -1286,21 +1431,21 @@ export class FormVisitPage {
     var todo = todoArray.at(index) as FormGroup;
     var todoObj: ToDo  = new ToDo;
     if (todo.get("duedate").value !==null && todo.get("duedate").value !=="") {
-      if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todos !== undefined) {
-        console.log('todos: ', this.postVisit[0].todos);
-        if (this.postVisit[0].todos.items[index] !== undefined) {
-          if (todo.get("duedate").value !== this.postVisit[0].todos.items[index].duedate) {
-            this.postVisit[0].todos.items[index].duedate = todo.get("duedate").value;
+      if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].todopost !== undefined) {
+        console.log('todopost: ', this.postVisit[0].todopost);
+        if (this.postVisit[0].todopost.items[index] !== undefined) {
+          if (todo.get("duedate").value !== this.postVisit[0].todopost.items[index].duedate) {
+            this.postVisit[0].todopost.items[index].duedate = todo.get("duedate").value;
           }
         } else {
           todoObj.duedate = todo.get("duedate").value;
-          this.postVisit[0].todos.items.push(todoObj);
+          this.postVisit[0].todopost.items.push(todoObj);
         }
       } else {
         todoObj.duedate = todo.get("duedate").value;
-        this.postVisit[0].todos = new ToDos();
-        this.postVisit[0].todos.items = [];
-        this.postVisit[0].todos.items.push(todoObj);
+        this.postVisit[0].todopost = new ToDos();
+        this.postVisit[0].todopost.items = [];
+        this.postVisit[0].todopost.items.push(todoObj);
       }
     }
   }

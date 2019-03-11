@@ -173,7 +173,7 @@
                 <ion-col class="columnInline"no-padding width-49 *ngIf="curRec == undefined || curRec.recordid == null">
                   <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty || !card_form.valid">Schedule</button>
                 </ion-col>
-                <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
+                <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null && !pastVisit">
                   <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Visit</button>
                 </ion-col>
                 <ion-col class="columnInline" no-padding width-49 *ngIf="curRec == undefined || curRec.recordid == null">
@@ -353,7 +353,7 @@
               <section class="form-section">
                 <ion-row no-padding class="multi-input-row">
                   <ion-col class="columnInline" no-padding width-50>
-                    <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_formPost.dirty || curRec.recordid==null">Save</button>
+                    <button ion-button block class="form-action-button" type="button" (click)="savePostRecord()" [disabled]="!card_formPost.dirty || curRec.recordid==null">Save</button>
                   </ion-col>
                 </ion-row>
               </section>

@@ -65,6 +65,7 @@ export class FormMedication {
   listFilter: DictionaryModel = new DictionaryModel();
   eventTerm: string = '';
   items: any;
+  comingBack: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
@@ -206,6 +207,55 @@ export class FormMedication {
         }
       });
     }
+  }
+
+  loadFilterList() {
+    var self = this;
+    var restURLFilter: string;
+    restURLFilter="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
+    var config2 = {
+      invokeUrl: restURLFilter,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient2 = this.RestService.AWSRestFactory.newClient(config2);
+    var params2 = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate2 = '';
+    var method2 = 'GET';
+    var additionalParams2 = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            formName: this.formName
+        }
+    };
+    var body2 = '';
+    apigClient2.invokeApi(params2, pathTemplate2, method2, additionalParams2, body2)
+    .then(function(result){
+      self.list2Service
+      .getFilter()
+      .then(data => {
+        self.listFilter.items = result.data;
+        console.log('Result data from loadFilterList: ', result.data);
+        console.log('Filter items from formMedication.loadFilterList: ', self.listFilter.items);
+        self.setFilteredItems();
+        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+          self.loadDetails();
+        } else {
+          self.loading.dismiss();
+        }
+      });
+    }).catch( function(result){
+        console.log(body2);
+        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+          self.loadDetails();
+        } else {
+          self.loading.dismiss();
+        }
+    });
   }
 
   loadDetails() {
@@ -356,55 +406,6 @@ export class FormMedication {
     });
   }
 
-  loadFilterList() {
-    var self = this;
-    var restURLFilter: string;
-    restURLFilter="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GetDictionariesByForm";
-    var config2 = {
-      invokeUrl: restURLFilter,
-      accessKey: this.RestService.AuthData.accessKeyId,
-      secretKey: this.RestService.AuthData.secretKey,
-      sessionToken: this.RestService.AuthData.sessionToken,
-      region:'us-east-1'
-    };
-    var apigClient2 = this.RestService.AWSRestFactory.newClient(config2);
-    var params2 = {
-      //email: accountInfo.getEmail()
-    };
-    var pathTemplate2 = '';
-    var method2 = 'GET';
-    var additionalParams2 = {
-        queryParams: {
-            profileid: this.RestService.currentProfile,
-            formName: this.formName
-        }
-    };
-    var body2 = '';
-    apigClient2.invokeApi(params2, pathTemplate2, method2, additionalParams2, body2)
-    .then(function(result){
-      self.list2Service
-      .getFilter()
-      .then(data => {
-        self.listFilter.items = result.data;
-        console.log('Result data from loadFilterList: ', result.data);
-        console.log('Filter items from formMedication.loadFilterList: ', self.listFilter.items);
-        self.setFilteredItems();
-        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
-          self.loadDetails();
-        } else {
-          self.loading.dismiss();
-        }
-      });
-    }).catch( function(result){
-        console.log(body2);
-        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
-          self.loadDetails();
-        } else {
-          self.loading.dismiss();
-        }
-    });
-  }
-
   deleteRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -538,45 +539,59 @@ export class FormMedication {
       this.eventSave.active = 'Y';
       if (this.medication.dirty){
         this.eventSave.medicationname = this.medication.value;
+        this.curRec.medicationname = this.medication.value;
       }
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
+        this.curRec.formulation = this.card_form.get('formulation').value;
       }
       if (this.card_form.get('mode').dirty){
         this.eventSave.mode = this.card_form.get('mode').value;
+        this.curRec.mode = this.card_form.get('mode').value;
       }
       if (this.card_form.get('type').dirty){
         this.eventSave.type = this.card_form.get('type').value;
+        this.curRec.type = this.card_form.get('type').value;
       }
       if (this.card_form.get('purchasedate').dirty){
         this.eventSave.purchasedate = this.card_form.get('purchasedate').value;
+        this.curRec.purchasedate = this.card_form.get('purchasedate').value;
       }
       if (this.card_form.get('expiration').dirty){
         this.eventSave.expiration = this.card_form.get('expiration').value;
+        this.curRec.expiration = this.card_form.get('expiration').value;
       }
       if (this.card_form.get('startinginventory').dirty){
         this.eventSave.startinginventory = this.card_form.get('startinginventory').value;
+        this.curRec.startinginventory = this.card_form.get('startinginventory').value;
       }
       if (this.card_form.get('inventory').dirty){
         this.eventSave.inventory = this.card_form.get('inventory').value;
+        this.curRec.inventory = this.card_form.get('inventory').value;
       }
       if (this.card_form.get('inventoryunit').dirty){
         this.eventSave.inventoryunit = this.card_form.get('inventoryunit').value;
+        this.curRec.inventoryunit = this.card_form.get('inventoryunit').value;
       }
       if (this.card_form.get('serialnumber').dirty){
         this.eventSave.serialnumber = this.card_form.get('serialnumber').value;
+        this.curRec.serialnumber = this.card_form.get('serialnumber').value;
       }
       if (this.card_form.get('cost').dirty){
         this.eventSave.cost = this.card_form.get('cost').value;
+        this.curRec.cost = this.card_form.get('cost').value;
       }
       if (this.card_form.get('specialinstruction').dirty){
         this.eventSave.specialinstruction = this.card_form.get('specialinstruction').value;
+        this.curRec.specialinstruction = this.card_form.get('specialinstruction').value;
       }
       if (this.card_form.get('drugid').dirty){
         this.eventSave.drugid = this.card_form.get('drugid').value;
+        this.curRec.drugid = this.card_form.get('drugid').value;
       }
       if (this.card_form.get('confirmed').dirty){
         this.eventSave.confirmed = this.card_form.get('confirmed').value;
+        this.curRec.confirmed = this.card_form.get('confirmed').value;
       }
 
       if (!this.basicModeHasTR && this.card_form.get('mode').value == 'basic') {
@@ -729,6 +744,8 @@ export class FormMedication {
           this.eventSave.treatmentresults.items.push(tr);
         }
       }
+      //MM 3-10-19 - Setting curRec to eventSave which sets the medication object to the object which is being saved to DB
+      //this.curRec = this.eventSave;
     }
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
       var config = {
@@ -756,6 +773,7 @@ export class FormMedication {
       .then(function(result){
         self.RestService.results = result.data;
         console.log('Happy Path: ' + self.RestService.results);
+        //self.card_form.markAsPristine();
         self.loading.dismiss();
         callback(null, result.data);
       }).catch( function(result){
@@ -1138,7 +1156,10 @@ export class FormMedication {
                 console.log('Results from navSaveRecord: ', results);
                 if (self.newRec) {
                   var medicationname = self.eventTerm;
+                  //MM 3-10-19 Set curRec for loading in next form
                   self.curRec = {recordid: results, medicationname: medicationname};
+                  //MM 3-10-19 Sets loadFromId to reload data when coming back
+                  self.loadFromId = results;
                   console.log('new Medication record: ', self.curRec);
                 }
                 resolveLeaving(true);
@@ -1150,6 +1171,53 @@ export class FormMedication {
     });
     alert.present();
     return canLeave
+  }
+
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  var medicationname = self.eventTerm;
+                  self.curRec = {recordid: results, medicationname: medicationname};
+                  self.loadFromId = results;
+                  console.log('new Medication record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      callback(null, true);
+    }
   }
 
 setFilteredItems() {
@@ -1264,7 +1332,21 @@ doseNotComplete() {
 }
 
 openSchedule () {
-  this.nav.push(FormMedSchedule, {visit: this.curRec});
+  var self = this;
+
+  this.checkSave = true;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in openSchedule.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from openSchedule');
+    } else {
+      if (result) {
+        self.nav.push(FormMedSchedule, {visit: self.curRec});
+      } else if (!result) {
+        console.log('openSchedule.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 setMode (mode) {
@@ -1274,34 +1356,72 @@ setMode (mode) {
 
 addNewTreatmentResults() {
   var cat;
+  var self = this;
 
   this.checkSave = true;
-  console.log('calling FormMedicationResults');
-  this.RestService.results = this.curRec.treatmentresults.items;
+//  this.RestService.results = this.curRec.treatmentresults.items;
   cat = {title: 'Medication Info & Results'};
 
-  if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
-    this.nav.push(FormMedicationResults, {medication: this.curRec, category: cat, fromEvent: this.fromEvent});
-  } else {
-    this.nav.push(FormMedicationResults, {medication: this.curRec, category: cat});
-  }
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in addNewTreatmentResults.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from addNewTreatmentResults.');
+    } else {
+      if (result) {
+        console.log("Add New Treatment Results CurRec ", self.curRec);
+        console.log("Add New Treatment Results fromEvent ", self.fromEvent);
+        if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
+          self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, fromEvent: self.fromEvent});
+        } else {
+          self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat});
+        }
+      } else if (!result) {
+        console.log('addNewTreatmentResults.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
+
 }
 
 viewAllTreatmentResults() {
   var cat;
+  var self = this;
 
-  cat = {title: 'Results for ' + this.curRec.medicationname};
-  this.nav.push(ListMedicationResults, {loadFromId: this.curRec.recordid, medication: this.curRec, category: cat});
+  this.checkSave = true;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in updateTreatmentResults.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from updateTreatmentResults.');
+    } else {
+      if (result) {
+        cat = {title: 'Results for ' + self.curRec.medicationname};
+        self.nav.push(ListMedicationResults, {loadFromId: self.curRec.recordid, medication: self.curRec, category: cat});
+      } else if (!result) {
+        console.log('updateTreatmentResults.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
 updateTreatmentResults(index) {
   var cat;
+  var self = this;
 
   this.checkSave = true;
-  console.log('calling FormMedicationResults');
-  this.RestService.results = this.curRec.treatmentresults.items;
-  cat = {title: 'Medication Info & Results'};
-  this.nav.push(FormMedicationResults, {recId: index, medication: this.curRec, category: cat});
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in updateTreatmentResults.confirmSaveDirect' + err);
+      alert('There is an error in saving the medication record from updateTreatmentResults.');
+    } else {
+      if (result) {
+        self.RestService.results = self.curRec.treatmentresults.items;
+        cat = {title: 'Medication Info & Results'};
+        self.nav.push(FormMedicationResults, {recId: index, medication: self.curRec, category: cat});
+      } else if (!result) {
+        console.log('updateTreatmentResults.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
 }
 
   presentLoadingDefault() {

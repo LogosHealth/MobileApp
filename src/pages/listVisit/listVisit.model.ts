@@ -10,6 +10,7 @@ export class ListVisit {
   notes: string;
   callnotes: CallNotes;
   todos: ToDos;
+  todopost: ToDos;
   questions: Questions;
   active: string;
   profileid: number;

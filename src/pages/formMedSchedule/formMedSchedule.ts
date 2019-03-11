@@ -303,6 +303,23 @@ export class FormMedSchedule {
     var strProfiles = "";
     this.saving = true;
 
+    this.modelSave.recordid = this.card_form.get('treatmentid').value;
+    this.modelSave.profileid = this.RestService.currentProfile;
+    this.modelSave.userid = this.RestService.userId;
+    this.modelSave.active = 'Y';
+
+    if (this.card_form.get('dosetrackingstate').dirty){
+      this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
+    }
+    if (this.card_form.get('isnotify').value == true) {
+      this.modelSave.isnotify = 'Y';
+    } else {
+      this.modelSave.isnotify = 'N';
+    }
+    if (this.card_form.get('notifyoffset').dirty){
+      this.modelSave.notifyoffset = this.card_form.get('notifyoffset').value;
+    }
+
     if (this.profilesNotify.dirty) {
       for (var j = 0; j < this.profilesNotify.length; j++) {
         if (this.profilesNotify.at(j).value.selected) {
@@ -314,60 +331,60 @@ export class FormMedSchedule {
       this.modelSave.notifyprofiles = strProfiles;
     }
 
-    if (this.card_form.get('dosetrackingstate').dirty){
-      this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
-    }
+    this.times = this.card_form.get('times') as FormArray;
 
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ReminderByEvent";
-      var config = {
-        invokeUrl: restURL,
-        accessKey: this.RestService.AuthData.accessKeyId,
-        secretKey: this.RestService.AuthData.secretKey,
-        sessionToken: this.RestService.AuthData.sessionToken,
-        region:'us-east-1'
+
+
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/DoseScheduleTreatment";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams;
+    if (!this.newTask) {
+      additionalParams = {
+        queryParams: {
+            userid: this.RestService.userId
+        }
       };
-      var apigClient = this.RestService.AWSRestFactory.newClient(config);
-      var params = {
-        //pathParameters: this.vaccineSave
+      console.log('Not new task');
+    } else {
+      additionalParams = {
+        queryParams: {
+            userid: this.RestService.userId, action: 'createTask', profileid: this.curRec.profileid
+        }
       };
-      var pathTemplate = '';
-      var method = 'POST';
-      var additionalParams;
-      if (!this.newTask) {
-        additionalParams = {
-          queryParams: {
-              userid: this.RestService.userId
-          }
-        };
-        console.log('Not new task');
-      } else {
-        additionalParams = {
-          queryParams: {
-              userid: this.RestService.userId, action: 'createTask', profileid: this.curRec.profileid
-          }
-        };
-        console.log('New task');
-      }
-      var body;
-      //MM 10-5-18 Custom dirty represents that the scheduleModelSave object needs to be sent
-      body = JSON.stringify(this.modelSave);
-      var self = this;
-      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
-      .then(function(result){
-        self.card_form.markAsPristine();
-        self.category.title = "Visit";
-        self.saved = true;
-        self.loading.dismiss();
-        self.dismiss();
-      }).catch( function(result){
-        alert('There is an error in updating the schedule.  It has been logged and will be reviewed by technical support');
-        console.log('Result: ',result);
-        console.log(body);
-        self.category.title = "Visit";
-        self.loading.dismiss();
-        self.dismiss();
-      });
-  }
+      console.log('New task');
+    }
+    var body;
+    //MM 10-5-18 Custom dirty represents that the scheduleModelSave object needs to be sent
+    body = JSON.stringify(this.modelSave);
+    var self = this;
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.card_form.markAsPristine();
+      self.category.title = "Visit";
+      self.saved = true;
+      self.loading.dismiss();
+      self.dismiss();
+    }).catch( function(result){
+      alert('There is an error in updating the schedule.  It has been logged and will be reviewed by technical support');
+      console.log('Result: ',result);
+      console.log(body);
+      self.category.title = "Visit";
+      self.loading.dismiss();
+      self.dismiss();
+    });
+}
 
   public today() {
     return new Date().toISOString().substring(0,10);
