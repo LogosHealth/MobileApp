@@ -126,7 +126,7 @@ export class FormMedicalEvent {
       if (this.curRec.isallergy !== undefined && this.curRec.isallergy == 'Y') {
         isallergy = true;
       }
-      this.fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent};
+      this.fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent, profileid: self.curRec.profileid};
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         //medicalevent: new FormControl(this.curRec.medicalevent, Validators.required),
@@ -1094,7 +1094,7 @@ loadMenu(dataObj) {
         } else {
           if (result) {
             var cat = {title: dataObj};
-            var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent };
+            var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
             console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
             self.nav.push(FormMedication, {category: cat, fromEvent: fromEvent});
           } else if (!result) {
@@ -1283,7 +1283,7 @@ updateEventTreatment(index) {
       } else {
         if (result) {
           cat = {title: 'Medication'};
-          var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent };
+          var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
           self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
         } else if (!result) {
           console.log('updateEventTreatment.ConfirmSaveDirect - User cancelled');

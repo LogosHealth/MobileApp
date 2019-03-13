@@ -51,6 +51,8 @@ export class FormMedicationResults {
   listFilter: DictionaryModel = new DictionaryModel();
   medication: any;
   fromEvent: any;
+  fromSymptom: any;
+  evProfile: any;
   sideeffectdata: any;
   sideeffects: FormArray;
   mode: any;
@@ -67,6 +69,7 @@ export class FormMedicationResults {
     this.recId = navParams.get('recId');
     this.medication = navParams.get('medication');
     this.fromEvent = navParams.get('fromEvent');
+    this.fromSymptom = navParams.get('fromSymptom');
     this.feed.category = navParams.get('category');
 
     if (this.feed.category == undefined || this.feed.category.title == undefined) {
@@ -84,6 +87,11 @@ export class FormMedicationResults {
       if (this.medication.completeflag == 'Y') {
         this.medCompleted = true;
       }
+    }
+    if (this.fromEvent !== undefined && this.fromEvent !== null && this.fromEvent.medicalevent !== undefined) {
+      this.evProfile = this.fromEvent.profileid;
+    } else if (this.fromSymptom !== undefined && this.fromSymptom !== null && this.fromSymptom.symptomname !== undefined){
+      this.evProfile = this.fromSymptom.profileid;
     }
 
     var self = this;
@@ -405,7 +413,11 @@ export class FormMedicationResults {
 
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.eventSave.recordid = this.card_form.get('recordid').value;
-      this.eventSave.profileid = this.RestService.currentProfile;
+      if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+        this.eventSave.profileid = this.curRec.profileid;
+      } else {
+        this.eventSave.profileid = this.RestService.currentProfile;
+      }
       this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
 
@@ -445,8 +457,12 @@ export class FormMedicationResults {
         this.eventSave.comments = this.card_form.get('comments').value;
       }
     } else {
-      this.eventSave.profileid = this.RestService.currentProfile;
-      this.eventSave.userid = this.RestService.userId;
+      if (this.evProfile !== undefined && this.evProfile !== null) {
+        this.eventSave.profileid = this.evProfile;
+      } else {
+        this.eventSave.profileid = this.RestService.currentProfile;
+      }
+        this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
       if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value > 0) {
         this.eventSave.medicaleventid = this.card_form.get('medicaleventid').value;
@@ -560,7 +576,7 @@ export class FormMedicationResults {
         callback(null, results);
       }
     });
-} else {
+  } else {
     this.presentLoadingDefault();
     this.RestService.refreshCredentials(function(err, results) {
       if (err) {
@@ -590,7 +606,11 @@ navSaveRecordDo(callback){
 
   if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
     this.eventSave.recordid = this.card_form.get('recordid').value;
-    this.eventSave.profileid = this.RestService.currentProfile;
+    if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+      this.eventSave.profileid = this.curRec.profileid;
+    } else {
+      this.eventSave.profileid = this.RestService.currentProfile;
+    }
     this.eventSave.userid = this.RestService.userId;
     this.eventSave.active = 'Y';
     updateOnly = true;
@@ -637,7 +657,11 @@ navSaveRecordDo(callback){
       this.eventSave.comments = this.card_form.get('comments').value;
     }
   } else {
-    this.eventSave.profileid = this.RestService.currentProfile;
+    if (this.evProfile !== undefined && this.evProfile !== null) {
+      this.eventSave.profileid = this.evProfile;
+    } else {
+      this.eventSave.profileid = this.RestService.currentProfile;
+    }
     this.eventSave.userid = this.RestService.userId;
     this.eventSave.active = 'Y';
     if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value > 0) {

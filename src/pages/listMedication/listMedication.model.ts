@@ -51,9 +51,12 @@ export class TreatmentResult {
   allergyflag: string;
   sideeffects: SideEffects;
   scheduletimes: ScheduleTimes;
+  backCalculate: string;
+  backCalculateFrom: number;
   comments: string;
   active: string;
   userid: number;
+  timezone: string;
 }
 
 export class SideEffect {
@@ -86,6 +89,7 @@ export class ScheduleTime {
   startdate: string;
   dosenumber: number;
   dosetime: string;
+  active: string;
 }
 
 export class ScheduleTimes {

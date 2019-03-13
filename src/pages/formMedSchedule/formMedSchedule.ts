@@ -42,6 +42,8 @@ export class FormMedSchedule {
   momentNow: any;
   monthNow: any;
   yearNow: any;
+  startDateOffset: any;
+  tzoffset: any;
   monthDefaultNext: any;
   yearDefaultNext: any;
   categories_checkbox_open: boolean;
@@ -85,6 +87,8 @@ export class FormMedSchedule {
       }
     });
     this.momentNow = moment(new Date());
+    this.tzoffset = (new Date()).getTimezoneOffset() /60; //offset in hours
+
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
       this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
       this.minuteNow = this.momentNow.tz(this.userTimezone).format('mm');
@@ -227,13 +231,16 @@ export class FormMedSchedule {
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       console.log('Result from medSched.loaddetails: ', result);
-      if (result.length > 0 && result[0].recordid !== undefined) {
+      console.log('result.data.length: ', result.data.length);
+      console.log('result.data[0].recordid: ', result.data[0].recordid);
+      if (result.data.length > 0 && result.data[0].recordid !== undefined) {
         self.timesData.items = [];
         self.timesData.items = result.data;
         self.newRec = false;
         self.addExistingTimes();
         self.loading.dismiss();
       } else {
+        console.log('No data from getDetails');
         self.newRec = true;
         self.addNewTimes();
         self.loading.dismiss();
@@ -260,8 +267,8 @@ export class FormMedSchedule {
             console.log('Err from confirmBackDate: ' + err);
           } else {
             if (result == true) {
-              this.presentLoadingDefault();
-              this.saveRecordDo();
+              self.presentLoadingDefault();
+              self.saveRecordDo();
             }
           }
         });
@@ -278,21 +285,21 @@ export class FormMedSchedule {
           self.RestService.appRestart();
         } else {
           console.log('From formChooseNotify.saveRecord - Credentials refreshed!');
-          if (this.newRec && this.endDateCalc.hasPastDose) {
+          if (self.newRec && self.endDateCalc.hasPastDose) {
             self.loading.dismiss();
-            this.confirmBackDate(function(err, result) {
+            self.confirmBackDate(function(err, result) {
               if (err) {
                 console.log('Err from confirmBackDate: ' + err);
                 self.loading.dismiss();
               } else {
                 if (result == true) {
-                  this.presentLoadingDefault();
-                  this.saveRecordDo();
+                  self.presentLoadingDefault();
+                  self.saveRecordDo();
                 }
               }
             });
           } else {
-            this.saveRecordDo();
+            self.saveRecordDo();
           }
         }
       });
@@ -308,6 +315,9 @@ export class FormMedSchedule {
     this.modelSave.userid = this.RestService.userId;
     this.modelSave.active = 'Y';
 
+    if (this.userTimezone !== undefined) {
+      this.modelSave.timezone = this.userTimezone;
+    }
     if (this.card_form.get('dosetrackingstate').dirty){
       this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
     }
@@ -318,6 +328,23 @@ export class FormMedSchedule {
     }
     if (this.card_form.get('notifyoffset').dirty){
       this.modelSave.notifyoffset = this.card_form.get('notifyoffset').value;
+    }
+    if (this.endDateCalc.hasPastDose) {
+      this.modelSave.backCalculate = 'Y';
+      this.modelSave.backCalculateFrom = this.medication.inventory;
+      this.modelSave.reftablefieldid = this.medication.recordid;
+      if (this.fromTreatment !== undefined && this.fromTreatment.startDate !== undefined) {
+        this.modelSave.startdate = this.fromTreatment.startDate;
+      }
+      if (this.fromTreatment !== undefined && this.fromTreatment.dosage !== undefined) {
+        this.modelSave.dosage = this.fromTreatment.dosage;
+      }
+      if (this.fromTreatment !== undefined && this.fromTreatment.doseunits !== undefined) {
+        this.modelSave.doseunits = this.fromTreatment.doseunits;
+      }
+      if (this.fromTreatment !== undefined && this.fromTreatment.startdate !== undefined) {
+        this.modelSave.startdate = this.fromTreatment.startdate;
+      }
     }
 
     if (this.profilesNotify.dirty) {
@@ -332,8 +359,32 @@ export class FormMedSchedule {
     }
 
     this.times = this.card_form.get('times') as FormArray;
+    if (this.times.dirty) {
+      var impTimes: ScheduleTimes = new ScheduleTimes();
+      var impTime: ScheduleTime;
+      var timeForm;
 
+      impTimes.items = [];
 
+      for (var j = 0; j < this.times.length; j++) {
+        timeForm = this.times.at(j) as FormGroup;
+        if (timeForm.dirty) {
+          impTime = new ScheduleTime();
+          impTime.recordid = timeForm.get("recordid").value;
+          impTime.treatmentid = this.card_form.get('treatmentid').value;
+          impTime.profileid = this.RestService.currentProfile;
+          impTime.dosenumber = timeForm.get("dosenumber").value;
+          if (timeForm.get("startdate").dirty) {
+            impTime.startdate = timeForm.get("startdate").value;
+          }
+          if (timeForm.get("dosetime").dirty) {
+            impTime.dosetime = timeForm.get("dosetime").value;
+          }
+          impTimes.items.push(impTime);
+        }
+      }
+      this.modelSave.scheduletimes = impTimes;
+    }
 
     var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/DoseScheduleTreatment";
     var config = {
@@ -349,26 +400,17 @@ export class FormMedSchedule {
     };
     var pathTemplate = '';
     var method = 'POST';
-    var additionalParams;
-    if (!this.newTask) {
-      additionalParams = {
-        queryParams: {
-            userid: this.RestService.userId
-        }
-      };
-      console.log('Not new task');
-    } else {
-      additionalParams = {
-        queryParams: {
-            userid: this.RestService.userId, action: 'createTask', profileid: this.curRec.profileid
-        }
-      };
-      console.log('New task');
-    }
+    var additionalParams = {
+      queryParams: {
+          userid: this.RestService.userId
+      }
+    };
+
     var body;
     //MM 10-5-18 Custom dirty represents that the scheduleModelSave object needs to be sent
     body = JSON.stringify(this.modelSave);
     var self = this;
+    console.log('Calling Post', this.modelSave);
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.card_form.markAsPristine();
@@ -624,8 +666,8 @@ export class FormMedSchedule {
       dosefrequency: this.fromTreatment.dosefrequency,
       newRec: this.newRec,
     }
-    console.log('Initial Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
-    console.log('Initial Start Date String = ' + this.fromTreatment.startdate);
+    //console.log('Initial Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
+    //console.log('Initial Start Date String = ' + this.fromTreatment.startdate);
 
     if (this.endDateCalc.dosefrequency == 'Once Daily') {
       this.endDateCalc.perDay = 1;
@@ -645,12 +687,26 @@ export class FormMedSchedule {
 
     if (this.endDateCalc.newRec) {
       var dtStart = moment(this.fromTreatment.startdate);
+      this.startDateOffset = (new Date(this.fromTreatment.startdate)).getTimezoneOffset() /60; //offset in hours
+
+      //moment automatically treats as UTC - so have to acccount by adding offset
+      dtStart = dtStart.add(this.startDateOffset, 'hours');
+      this.endDateCalc.startDate = this.endDateCalc.startDate.add(this.startDateOffset, 'hours');
       this.endDateCalc.projEndDT = dtStart.add(this.endDateCalc.daysCovered, 'days');
-      this.endDateCalc.projEndDate = this.endDateCalc.projEndDT.format('MMM-DD-YY');
-      console.log('Start date after calc end date: ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'))
+
+      if (this.fromTreatment.dosetrackingstate == 'paused') {
+        this.endDateCalc.projEndDate = 'N/A';
+      } else {
+        this.endDateCalc.projEndDate = this.endDateCalc.projEndDT.format('MMM-DD-YY');
+      }
+      //console.log('Start date after calc end date: ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'))
       if (this.fromTreatment.dosetrackingtype == 'passive') {
         if (this.endDateCalc.startDate < this.endDateCalc.nowDate) {
           this.endDateCalc.hasPastDose = true;
+          //this.endDateCalc.backDateDays = this.endDateCalc.nowDate.diff(this.endDateCalc.startDate, 'days');
+          //console.log('Is past date: backDateDays = ' + this.endDateCalc.backDateDays);
+          console.log('Is past date: Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
+          console.log('Is past date: Now Date = ' + this.endDateCalc.nowDate.format('MMM-DD-YY hh:mm a'));
         } else {
           console.log('Not past date: Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
           console.log('Not past date: Now Date = ' + this.endDateCalc.nowDate.format('MMM-DD-YY hh:mm a'));
