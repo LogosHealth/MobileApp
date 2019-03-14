@@ -8,6 +8,7 @@ export class ListAlert {
   triggered: string;
   profiletoid: number;
   profileforid: number;
+  confirmed: string;
   active: string;
   inactivereason: string;
   timezone: string;

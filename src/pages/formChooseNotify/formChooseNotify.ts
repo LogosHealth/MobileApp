@@ -169,7 +169,7 @@ export class FormChooseNotify {
           this.newTask = true;
         }
         this.modelSave.alerttitle = this.curRec.todopost.items[this.todoIndex].taskname;
-        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
+        this.modelSave.alerttext = "Direction for " + this.curRec.firstname + " from visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
         this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].duedate;
         this.modelSave.daybefore = 'N';
         this.modelSave.nightbefore = 'N';

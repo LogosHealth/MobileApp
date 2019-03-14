@@ -313,13 +313,11 @@ export class FormMedSchedule {
     this.modelSave.recordid = this.card_form.get('treatmentid').value;
     this.modelSave.profileid = this.RestService.currentProfile;
     this.modelSave.userid = this.RestService.userId;
+    this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
     this.modelSave.active = 'Y';
 
     if (this.userTimezone !== undefined) {
       this.modelSave.timezone = this.userTimezone;
-    }
-    if (this.card_form.get('dosetrackingstate').dirty){
-      this.modelSave.dosetrackingstate = this.card_form.get('dosetrackingstate').value;
     }
     if (this.card_form.get('isnotify').value == true) {
       this.modelSave.isnotify = 'Y';
@@ -532,6 +530,23 @@ export class FormMedSchedule {
   }
 
  populateProfilesNotify() {
+  if (this.fromTreatment.notifyprofiles !== undefined && this.fromTreatment.notifyprofiles !== null && this.fromTreatment.notifyprofiles !== "") {
+    var notp = this.fromTreatment.notifyprofiles;
+    var notifys = notp.split(",");
+    this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
+    for (var l = 0; l < notifys.length; l++) {
+      for (var k = 0; k < this.profilesNotify.length; k++) {
+        if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
+          this.profilesNotify.at(k).get("selected").setValue(true);
+          //console.log('Set selected for ' + this.profilesNotify.at(k).value.profileid);
+        }
+      }
+    }
+    this.card_form.markAsPristine();
+  }
+}
+
+/*populateProfilesNotify() {
   if (this.modelSave.notifyprofiles !== undefined && this.modelSave.notifyprofiles !== null && this.modelSave.notifyprofiles !== "") {
     var notp = this.modelSave.notifyprofiles;
     var notifys = notp.split(",");
@@ -547,8 +562,9 @@ export class FormMedSchedule {
     this.card_form.markAsPristine();
   }
 }
+*/
 
-  createItem(): FormGroup {
+createItem(): FormGroup {
     return this.formBuilder.group({
       profileid: new FormControl(),
       firstname: new FormControl(),
@@ -664,6 +680,7 @@ export class FormMedSchedule {
       startDate: moment(this.fromTreatment.startdate),
       nowDate: this.momentNow,
       dosefrequency: this.fromTreatment.dosefrequency,
+      dosage: this.fromTreatment.dosage,
       newRec: this.newRec,
     }
     //console.log('Initial Start Date = ' + this.endDateCalc.startDate.format('MMM-DD-YY hh:mm a'));
@@ -683,7 +700,11 @@ export class FormMedSchedule {
       console.log('Error with dosefrequency value: ' + this.endDateCalc.dosefrequency);
       this.endDateCalc.perDay = 1;
     }
+
+    this.endDateCalc.perDay = this.endDateCalc.perDay * Number(this.endDateCalc.dosage);
     this.endDateCalc.daysCovered = Math.trunc(this.endDateCalc.inventory/this.endDateCalc.perDay);
+    console.log('Days Covered: ' + this.endDateCalc.daysCovered + ', inventory: ' + this.endDateCalc.inventory + ', ' +
+    ', perDay: ' + this.endDateCalc.perDay);
 
     if (this.endDateCalc.newRec) {
       var dtStart = moment(this.fromTreatment.startdate);

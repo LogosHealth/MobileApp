@@ -53,6 +53,7 @@ import { ListLifestyleItem } from '../pages/listLifestyleItem/listLifestyleItem'
 import { ListMedicalEvent } from '../pages/listMedicalEvent/listMedicalEvent';
 import { ListMedicationResults } from '../pages/listMedicationResults/listMedicationResults';
 import { ListTreatmentPage } from '../pages/listTreatment/listTreatment';
+import { ListDoseHistory } from '../pages/listDoseHistory/listDoseHistory';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -89,6 +90,8 @@ import { FormMedicalEvent } from '../pages/formMedicalEvent/formMedicalEvent';
 import { FormMedication } from '../pages/formMedication/formMedication';
 import { FormMedSchedule } from '../pages/formMedSchedule/formMedSchedule';
 import { FormMedicationResults } from '../pages/formMedicationResults/formMedicationResults';
+import { FormDoseHistory } from '../pages/formDoseHistory/formDoseHistory';
+
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
@@ -146,6 +149,7 @@ import { LifestyleItemService } from '../pages/listLifestyleItem/listLifestyleIt
 import { MedicalEventService } from '../pages/listMedicalEvent/listMedicalEvent.service';
 import { PostVisitService } from '../pages/formVisit/postVisit.service';
 import { SymptomService } from '../pages/formSymptom/formSymptom.service';
+//import { DoseHistoryService } from '../pages/listDoseHistory/listDoseHistory.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
 import { BrowserModule } from '@angular/platform-browser';
@@ -223,6 +227,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicalEvent,
     ListMedicationResults,
     ListTreatmentPage,
+    ListDoseHistory,
 
     GridPage,
     FormLayoutPage,
@@ -259,6 +264,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormMedication,
     FormMedSchedule,
     FormMedicationResults,
+    FormDoseHistory,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -340,6 +346,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicalEvent,
     ListMedicationResults,
     ListTreatmentPage,
+    ListDoseHistory,
 
     GridPage,
     FormLayoutPage,
@@ -376,6 +383,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormMedication,
     FormMedSchedule,
     FormMedicationResults,
+    FormDoseHistory,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -432,6 +440,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     MedicalEventService,
     PostVisitService,
     SymptomService,
+    //DoseHistoryService,
 
     HTTP,
     FileTransfer,

@@ -15,6 +15,7 @@ import 'rxjs/Rx';
 import { CallNumber } from '@ionic-native/call-number';
 import { FormMedSchedule } from '../../pages/formMedSchedule/formMedSchedule';
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
+import { ListDoseHistory } from '../../pages/listDoseHistory/listDoseHistory';
 
 var moment = require('moment-timezone');
 
@@ -57,7 +58,6 @@ export class FormMedicationResults {
   sideeffects: FormArray;
   mode: any;
   medCompleted: boolean = false;
-  noHistory: boolean = false;
   isAsNeeded: boolean = false;
   loadFromId: any;
 
@@ -980,6 +980,14 @@ openSchedule() {
       }
     }
   });
+}
+
+doseHistory() {
+  var cat;
+
+  cat = {title: 'Dose History'};
+  this.nav.push(ListDoseHistory, {treatmentid: this.curRec.recordid, treatment: this.curRec, category: cat});
+
 }
 
 attachRecord() {

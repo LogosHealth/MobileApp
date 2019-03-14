@@ -43,6 +43,11 @@ export class ListAlertPage {
         this.setAlertDone(notification.id);
       });
 
+      self.localNotifications.on('click').subscribe((notification) => {
+        console.log("notification id from click/confirm event " + notification.id);
+        this.setAlertConfirmed(notification.id);
+      });
+
       self.RestService.curProfileObj(function (error, results) {
         if (!error) {
           self.userTimezone = results.timezone;
@@ -199,6 +204,70 @@ export class ListAlertPage {
     this.alertSave.recordid = recordid;
     this.alertSave.active = 'Y';
     this.alertSave.triggered = 'Y';
+    var body = JSON.stringify(this.alertSave);
+    var self = this;
+    console.log('Calling Post listAlert setAlertDone', this.alertSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      console.log('Happy Path from listAlert setAlertDone: ' + self.RestService.results);
+      self.loading.dismiss();
+    }).catch( function(result){
+      console.log('Result: ',result);
+      console.log(body);
+      self.loading.dismiss();
+    });
+  }
+
+  setAlertConfirmed(recordid) {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.setAlertConfirmedDo(recordid);
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from listAlert');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From listAlert - Credentials refreshed!');
+          self.setAlertConfirmedDo(recordid);
+        }
+      });
+    }
+  }
+
+  setAlertConfirmedDo(recordid) {
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AlertsByUser";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+        queryParams: {
+            userid: this.RestService.userId
+        }
+    };
+    this.alertSave.userid = this.RestService.userId;
+    this.alertSave.recordid = recordid;
+    this.alertSave.active = 'Y';
+    this.alertSave.triggered = 'Y';
+    this.alertSave.confirmed = 'Y';
     var body = JSON.stringify(this.alertSave);
     var self = this;
     console.log('Calling Post listAlert setAlertDone', this.alertSave);
