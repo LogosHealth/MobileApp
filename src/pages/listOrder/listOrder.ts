@@ -1,5 +1,5 @@
 import { Component, NgModule, ErrorHandler } from '@angular/core';
-import { NavController, NavParams, LoadingController, IonicErrorHandler } from 'ionic-angular';
+import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FormControl } from '@angular/forms';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/add/operator/debounceTime';

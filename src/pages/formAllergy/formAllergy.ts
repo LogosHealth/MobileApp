@@ -3,9 +3,9 @@ import { NavController, NavParams, AlertController, LoadingController } from 'io
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListMedicationModel, ListMedication } from '../../pages/listMedication/listMedication.model';
+import { ListMedicationModel } from '../../pages/listMedication/listMedication.model';
 import { ListMedicationService } from '../../pages/listMedication/listMedication.service';
-import { ListEventModel, ListEvent } from '../../pages/listEvent/listEvent.model';
+import { ListEventModel } from '../../pages/listEvent/listEvent.model';
 import { ListEventService } from '../../pages/listEvent/listEvent.service';
 import { ListAllergiesModel, ListAllergies } from '../../pages/listAllergies/listAllergies.model';
 import { ListAllergiesService } from '../../pages/listAllergies/listAllergies.service';

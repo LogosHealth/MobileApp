@@ -1,4 +1,4 @@
-import { String } from "aws-sdk/clients/lexruntime";
+//import { String } from "aws-sdk/clients/lexruntime";
 
 export class Dictionary {
   formname: string;

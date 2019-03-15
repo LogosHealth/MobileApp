@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
+import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { Lifestyle, LifestyleItem, Occupation, StressLevel, TravelModel, OccupationModel } from '../../pages/formLifestyle/formLifestyle.model';
+import { Lifestyle, LifestyleItem, StressLevel, TravelModel, OccupationModel } from '../../pages/formLifestyle/formLifestyle.model';
 import { LifestyleService } from '../../pages/formLifestyle/formLifestyle.service';
 import { ListOccupationPage } from '../../pages/listOccupation/listOccupation';
 import { FormOccupationPage } from '../../pages/formOccupation/formOccupation';

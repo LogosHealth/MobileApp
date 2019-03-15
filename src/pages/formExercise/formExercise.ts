@@ -66,7 +66,7 @@ export class FormExercisePage {
       var cbSplit;
       var numCB = null;
       if(this.curRec.caloriesburned !== undefined && this.curRec.caloriesburned !== null && this.curRec.caloriesburned !== "") {
-        var cbSplit = this.curRec.caloriesburned.split(" ");
+        cbSplit = this.curRec.caloriesburned.split(" ");
         if (Number(cbSplit[0]) !== NaN) {
           numCB = cbSplit[0];
         }
@@ -477,10 +477,13 @@ export class FormExercisePage {
 
   getMinDayDate() {
     var momentNow = moment(new Date());
+    var dayoftheweek;
+    var startofWeek;
+
     if  (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
+      dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
     } else {
-      var dayoftheweek = momentNow.format('dddd');
+      dayoftheweek = momentNow.format('dddd');
     }
     if (dayoftheweek == 'Sunday') {
       var offSet = 0
@@ -499,9 +502,9 @@ export class FormExercisePage {
     }
 
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
-      var startofWeek = moment(momentNow).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).subtract(offSet, 'days');
     }
     return startofWeek.format("YYYY-MM-DD");
   }

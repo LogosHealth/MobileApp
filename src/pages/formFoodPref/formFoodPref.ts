@@ -289,7 +289,7 @@ export class FormFoodPref {
           indexFPM = 1;
           self.foodcategories.items = self.FoodPrefModel[0];
           //console.log('self.foodcategories.length: ' + self.foodcategories.items.length);
-          for (var i = 0; i < self.foodcategories.items.length; i++) {
+          for (i = 0; i < self.foodcategories.items.length; i++) {
             self.categoryKey[self.foodcategories.items[i].categoryname] = i;
           }
         }
@@ -408,7 +408,7 @@ export class FormFoodPref {
         if (self.foodcategories.items[self.categoryKey["Cajun and Creole"]].answervalue == 'Y') {
           blnCajun = true;} else {blnCajun = false;}
           self.card_form.controls["Cajun"].setValue(blnCajun);
-        var blnChicken;
+        //var blnChicken;
         if (self.foodcategories.items[self.categoryKey["Chickenhouse"]].answervalue == 'Y') {
           blnChicken = true;} else {blnChicken = false;}
           self.card_form.controls["Chickenhouse"].setValue(blnChicken);

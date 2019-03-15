@@ -364,7 +364,7 @@ export class FormMedSchedule {
 
       impTimes.items = [];
 
-      for (var j = 0; j < this.times.length; j++) {
+      for (j = 0; j < this.times.length; j++) {
         timeForm = this.times.at(j) as FormGroup;
         if (timeForm.dirty) {
           impTime = new ScheduleTime();

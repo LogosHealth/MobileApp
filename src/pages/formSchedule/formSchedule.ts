@@ -3,7 +3,7 @@ import { NavController, NavParams, AlertController, LoadingController } from 'io
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { ListSchedule, ActivatedSchedule, ActivatedSchedules, Eligibles, Eligible } from '../../pages/listSchedule/listSchedule.model';
+import { ListSchedule, ActivatedSchedule, ActivatedSchedules, Eligible } from '../../pages/listSchedule/listSchedule.model';
 import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
 import { DictionaryService } from '../../pages/models/dictionary.service';
 import { ListContactModel } from '../../pages/listContacts/listContacts.model';
@@ -55,6 +55,7 @@ export class FormSchedulePage {
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService,
     public listContactService: ListContactService, public formBuilder: FormBuilder) {
 
+    var eligibles = [];
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
     console.log('Cur Rec from formSchedule: ', this.curRec);
@@ -95,7 +96,6 @@ export class FormSchedulePage {
       this.yearDefaultNext = String(Number(this.yearNow) +1);
     }
     if (this.curRec !== undefined && this.curRec !== null) {
-      var eligibles = [];
       if (this.curRec.accountid !== undefined && this.curRec.accountid !== null && this.curRec.accountid > 0) {
         this.isCustom = true;
       }
@@ -106,18 +106,18 @@ export class FormSchedulePage {
         }
       }
       if (this.curRec.eligibles !== undefined && this.curRec.eligibles.length > 0) {
-        for (var j = 0; j < this.curRec.eligibles.length; j++) {
+        for (j = 0; j < this.curRec.eligibles.length; j++) {
           //console.log('Added from Eligibles for index: ' + j, this.curRec.eligibles[j]);
           eligibles.push(this.curRec.eligibles[j]);
         }
       }
       this.profiles = eligibles;
     } else {
-      var eligibles = [];
+      eligibles = [];
       var eligible: Eligible = new Eligible();
       this.newRec = true;
       this.isCustom = true;
-      for (var j = 0; j < this.RestService.Profiles.length; j++) {
+      for (j = 0; j < this.RestService.Profiles.length; j++) {
         eligible = new Eligible();
         eligible.profileid = this.RestService.Profiles[j].profileid;
         eligible.firstname = this.RestService.Profiles[j].title;
@@ -464,7 +464,7 @@ export class FormSchedulePage {
       this.scheduleSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.scheduleSave.scheduletemplateid = this.curRec.recordid;
       this.scheduleSave.active = 'Y';
-      for (var j = 0; j < this.profilesNotify.length; j++) {
+      for (j = 0; j < this.profilesNotify.length; j++) {
         if (this.profilesNotify.at(j).value.selected) {
           strProfiles = strProfiles + this.profilesNotify.at(j).value.profileid + ', ';
         }
@@ -610,6 +610,8 @@ export class FormSchedulePage {
   setProfileID(profileid) {
     var isActivated = false;
     var listFilter = "";
+    var strNextDate;
+
     let alert = this.alertCtrl.create({
       title: 'Unsaved changes',
       message: 'Do you want to leave user without saving changes?',
@@ -638,7 +640,7 @@ export class FormSchedulePage {
             this.card_form.markAsPristine();
             this.loadContacts(listFilter);
             if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
-              for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
+              for (j = 0; j < this.curRec.activatedSchedules.length; j++) {
                 if (profileid == this.curRec.activatedSchedules[j].profileid) {
                   //console.log('Found in activated schedule when navigating from dirty!');
                   isActivated = true;
@@ -686,7 +688,7 @@ export class FormSchedulePage {
                 this.card_form.controls["interval"].setValue(this.curRec.interval);
                 this.card_form.controls["contactid"].setValue(null);
                 console.log('ContactId should be null - 4: ' + this.card_form.controls["contactid"].value);
-                var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+                strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
                 this.card_form.controls["day90alert"].setValue('N');
                 this.card_form.controls["day30alert"].setValue('Y');
                 this.card_form.controls["day7alert"].setValue('N');
@@ -703,7 +705,7 @@ export class FormSchedulePage {
               this.card_form.controls["actschedid"].setValue(null);
               this.card_form.controls["contactid"].setValue(null);
               console.log('ContactId should be null - 3: ' + this.card_form.controls["contactid"].value);
-              var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+              strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
               //console.log('Next Date: ' + strNextDate);
               this.card_form.controls["nextdate"].setValue(strNextDate);
               this.card_form.controls["day90alert"].setValue('N');
@@ -731,7 +733,7 @@ export class FormSchedulePage {
       this.card_form.controls["profile"].setValue(profileid);
       this.loadContacts(listFilter);
       if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
-        for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
+        for (j = 0; j < this.curRec.activatedSchedules.length; j++) {
           if (profileid == this.curRec.activatedSchedules[j].profileid) {
             isActivated = true;
             this.hasActiveSched = true;
@@ -776,7 +778,7 @@ export class FormSchedulePage {
           console.log('Schedule is not activated for profile: ' + this.activeProfileID);
           this.card_form.controls["actschedid"].setValue(null);
           this.card_form.controls["interval"].setValue(this.curRec.interval);
-          var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+          strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
           this.card_form.controls["nextdate"].setValue(strNextDate);
           this.card_form.controls["contactid"].setValue(null);
           console.log('ContactId should be null - 2: ' + this.card_form.controls["contactid"].value);
@@ -794,7 +796,7 @@ export class FormSchedulePage {
         }
         console.log('Schedule is not activated for profile: ' + this.activeProfileID);
         this.card_form.controls["actschedid"].setValue(null);
-        var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+        strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
         console.log('Next Date: ' + strNextDate);
         this.card_form.controls["nextdate"].setValue(strNextDate);
         this.card_form.controls["contactid"].setValue(null);
@@ -811,6 +813,7 @@ export class FormSchedulePage {
   setDefault(profileid) {
     var isActivated = false;
     var listFilter = "";
+    var strNextDate;
 
     this.isNotSelected = false;
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray
@@ -823,7 +826,7 @@ export class FormSchedulePage {
     this.activeProfileID = profileid;
     this.card_form.controls["profile"].setValue(profileid);
     if (this.curRec !== undefined && this.curRec.activatedSchedules !== undefined && this.curRec.activatedSchedules.length > 0) {
-      for (var j = 0; j < this.curRec.activatedSchedules.length; j++) {
+      for (j = 0; j < this.curRec.activatedSchedules.length; j++) {
         if (profileid == this.curRec.activatedSchedules[j].profileid) {
           isActivated = true;
           this.hasActiveSched = true;
@@ -868,7 +871,7 @@ export class FormSchedulePage {
         console.log('Schedule is not activated for profile: ' + this.activeProfileID);
         this.card_form.controls["actschedid"].setValue(null);
         this.card_form.controls["interval"].setValue(this.curRec.interval);
-        var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+        strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
         this.card_form.controls["nextdate"].setValue(strNextDate);
         this.card_form.controls["contactid"].setValue(null);
         console.log('ContactId should be null - 2: ' + this.card_form.controls["contactid"].value);
@@ -886,7 +889,7 @@ export class FormSchedulePage {
       }
       console.log('Schedule is not activated for profile: ' + this.activeProfileID);
       this.card_form.controls["actschedid"].setValue(null);
-      var strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
+      strNextDate = this.yearDefaultNext + "-" + String(this.monthDefaultNext) + '-01';
       console.log('Next Date: ' + strNextDate);
       this.card_form.controls["nextdate"].setValue(strNextDate);
       this.card_form.controls["contactid"].setValue(null);

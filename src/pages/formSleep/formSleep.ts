@@ -198,6 +198,8 @@ export class FormSleepPage {
 
   saveRecordDo(){
     this.saving = true;
+    var dtDET;
+
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.sleepSave.recordid = this.card_form.get('recordid').value;
       this.sleepSave.profileid = this.RestService.currentProfile;
@@ -227,9 +229,9 @@ export class FormSleepPage {
       }
       if (this.card_form.get('dateofmeasure').dirty){
         if (this.userTimezone !== undefined) {
-          var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
+          dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
-          var dtDET = moment(this.card_form.get('dateofmeasure').value);
+          dtDET = moment(this.card_form.get('dateofmeasure').value);
         }
         console.log('Date of measure Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.sleepSave.dateofmeasure = dtDET.utc().toISOString();

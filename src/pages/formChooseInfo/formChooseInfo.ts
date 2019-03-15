@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController, ViewController } from 'ionic-angular';
-import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ImportantInfos, ImportantInfo } from '../../pages/listVisit/listVisit.model';
 import { ListVisitService } from '../../pages/listVisit/listVisit.service';
@@ -230,7 +230,7 @@ export class FormChooseInfo {
           saveObj = {
             active: 'Y',
           };
-          for (var i = 0; i < this.list2.items.length; i++) {
+          for (i = 0; i < this.list2.items.length; i++) {
             if (this.list2.items[i].selected == true) {
               if (this.list2.items[i].reftablefieldid == undefined || this.list2.items[i].reftablefieldid == null) {
                 switch (this.dataType) {

@@ -4,7 +4,7 @@ import { Validators, FormGroup, FormControl, FormBuilder, FormArray } from '@ang
 import { RestService } from '../../app/services/restService.service';
 import { MedicalEventModel, MedicalEvent, Symptom, Symptoms } from '../../pages/listMedicalEvent/listMedicalEvent.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
+import { DictionaryModel } from '../../pages/models/dictionary.model';
 import { ListOrderService } from '../../pages/listOrder/listOrder.service';
 import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
 import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
@@ -402,6 +402,8 @@ export class FormMedicalEvent {
 
   saveRecordDo(){
     this.saving = true;
+    var symptom;
+
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.eventSave.recordid = this.card_form.get('recordid').value;
       this.eventSave.profileid = this.card_form.get('profileid').value;
@@ -442,7 +444,6 @@ export class FormMedicalEvent {
         }
       }
       if (this.symptoms.dirty) {
-        var symptom;
         if (this.symptoms.length > 0) {
           console.log('Has Symptoms for event insert: ', this.symptoms);
           this.eventSave.symptoms = new Symptoms();
@@ -509,9 +510,8 @@ export class FormMedicalEvent {
         console.log('Has Symptoms for event insert: ', this.symptoms);
         this.eventSave.symptoms = new Symptoms();
         this.eventSave.symptoms.items = [];
-        var symptom;
         this.eventSave.processsymptom = true;
-        for (var j = 0; j < this.symptoms.length; j++) {
+        for (j = 0; j < this.symptoms.length; j++) {
           symptom = new Symptom();
           symptom.recordid = this.symptoms.at(j).get("recordid").value;
           this.eventSave.symptoms.items.push(symptom);
@@ -1158,7 +1158,7 @@ addExistingSymptoms() {
     this.card_form.get('onsetdate').setValue(strOnSet);
   } else if (this.curRec !== undefined && this.curRec.symptoms !== undefined && this.curRec.symptoms.items !== undefined
       && this.curRec.symptoms.items.length > 0) {
-        for (var j = 0; j < this.curRec.symptoms.items.length; j++) {
+        for (j = 0; j < this.curRec.symptoms.items.length; j++) {
           this.symptoms.push(this.addExistingSymptom(j));
           if (this.curRec.symptoms.items[j].treatments !== undefined && this.curRec.symptoms.items[j].treatments.items.length > 0) {
             diagnoses = this.card_form.get('symptoms') as FormArray;

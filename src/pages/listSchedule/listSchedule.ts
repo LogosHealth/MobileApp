@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListScheduleModel } from './listSchedule.model';
+//import { ListScheduleModel } from './listSchedule.model';
 import { ListScheduleService } from './listSchedule.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormSchedulePage } from '../../pages/formSchedule/formSchedule';
@@ -206,11 +206,11 @@ export class ListSchedulePage {
         }
       }
       if (this.list2.items[j].eligibles !== undefined && this.list2.items[j].eligibles !== null && this.list2.items[j].eligibles.length > 0) {
-        for (var k = 0; k < this.list2.items[j].eligibles.length; k++) {
+        for (k = 0; k < this.list2.items[j].eligibles.length; k++) {
          // console.log('updatePicURLs number of activated schedule items: ' + k);
           //console.log('updatePicURLs Activated schedule item: ', this.list2.items[j].eligibles[k]);
           if (this.list2.items[j].eligibles[k].photopath == 'AWS') {
-            for (var z = 0; z < this.RestService.Profiles.length; z++) {
+            for (z = 0; z < this.RestService.Profiles.length; z++) {
               if (this.RestService.Profiles[z].profileid == this.list2.items[j].eligibles[k].profileid) {
                 this.list2.items[j].eligibles[k].photopath = this.RestService.Profiles[z].imageURL;
                 //console.log('updatePicURL - url updated: ', this.list2.items[j].eligibles[k]);

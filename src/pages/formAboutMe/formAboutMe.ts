@@ -760,7 +760,6 @@ export class FormAboutMe {
     var raceArray: Array<RaceCode> = [];
     var raceControls = this.card_form.get('races') as FormArray;
     var raceChange: boolean = false;
-    var race: RaceCode;
     var match: boolean;
     raceChange = raceControls.dirty;
     //Races not touched - confirm as needed
@@ -778,7 +777,7 @@ export class FormAboutMe {
       }
     } else {
       if (this.list2[0].races !== undefined) {
-        for (var j = 0; j < this.list2[0].races.length; j++) {
+        for (j = 0; j < this.list2[0].races.length; j++) {
           match = false;
           for (var k = 0; k < raceControls.length; k++) {
             if (this.list2[0].races[j].raceid == raceControls.controls[k].get("raceid").value) {
@@ -805,7 +804,7 @@ export class FormAboutMe {
             raceArray.push(race);
           }
         }
-        for (var k = 0; k < raceControls.length; k++) {
+        for (k = 0; k < raceControls.length; k++) {
           if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
@@ -818,7 +817,7 @@ export class FormAboutMe {
           this.saveModel.races = raceArray;
         }
       } else {
-        for (var k = 0; k < raceControls.length; k++) {
+        for (k = 0; k < raceControls.length; k++) {
           if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
@@ -1020,7 +1019,7 @@ export class FormAboutMe {
     var raceArray: Array<RaceCode> = [];
     var raceControls = this.card_form.get('races') as FormArray;
     var raceChange: boolean = false;
-    var race: RaceCode;
+    //var race: RaceCode;
     var match: boolean;
     raceChange = raceControls.dirty;
     //Races not touched - confirm as needed
@@ -1047,7 +1046,7 @@ export class FormAboutMe {
             raceArray.push(race);
           }
         }
-        for (var k = 0; k < raceControls.length; k++) {
+        for (k = 0; k < raceControls.length; k++) {
           if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
@@ -1059,7 +1058,7 @@ export class FormAboutMe {
           this.saveModel.races = raceArray;
         }
       } else {
-        for (var k = 0; k < raceControls.length; k++) {
+        for (k = 0; k < raceControls.length; k++) {
           if (raceControls.controls[k].get("raceid").value == null || raceControls.controls[k].get("raceid").value == undefined ||
             raceControls.controls[k].get("raceid").value == "") {
               race = new RaceCode();
@@ -1115,7 +1114,6 @@ export class FormAboutMe {
   }
 
   async confirmPrimaryChange() {
-    var canContinue: Boolean = false;
     console.log('From confirmPrimaryChange - primaryflag = ' + this.card_form.controls["primaryflag"].value);
       const shouldLeave = await this.confirmPrimary();
       if (!shouldLeave) {

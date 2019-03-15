@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ViewController, NavParams } from 'ionic-angular';
-import { FormGroup, FormControl, FormArray,  FormBuilder } from '@angular/forms';
+import { FormControl, FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'menuMeasure-page',

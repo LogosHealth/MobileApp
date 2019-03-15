@@ -233,6 +233,8 @@ export class FormTaskPage {
 
   saveRecordDo(){
     this.saving = true;
+    var dtDET;
+
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.taskSave.recordid = this.card_form.get('recordid').value;
       this.taskSave.profileid = this.RestService.currentProfile;
@@ -266,9 +268,9 @@ export class FormTaskPage {
       }
       if (this.card_form.get('dateofmeasure').dirty){
         if (this.userTimezone !== undefined) {
-          var dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
+          dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);
         } else {
-          var dtDET = moment(this.card_form.get('dateofmeasure').value);
+          dtDET = moment(this.card_form.get('dateofmeasure').value);
         }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
         this.taskSave.dateofmeasure = dtDET.utc().toISOString();
@@ -368,10 +370,13 @@ export class FormTaskPage {
 
   getMinDayDate() {
     var momentNow = moment(new Date());
+    var dayoftheweek;
+    var startofWeek;
+
     if  (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
+      dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
     } else {
-      var dayoftheweek = momentNow.format('dddd');
+      dayoftheweek = momentNow.format('dddd');
     }
 
     if (dayoftheweek == 'Sunday') {
@@ -391,9 +396,9 @@ export class FormTaskPage {
     }
 
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
-      var startofWeek = moment(momentNow).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).subtract(offSet, 'days');
     }
     console.log('Start of Week: ' + startofWeek);
     return startofWeek.format("YYYY-MM-DD");

@@ -218,6 +218,8 @@ export class FormNutritionPage {
     var mealSave: ListNutrition;
     var isDirty = false;
     var dtDET;
+    var dtTranslate;
+
     this.saving = true;
     this.formDaySave.meals = new Array<ListNutrition>() ;
     mealsArray = this.card_form.get('meals') as FormArray;
@@ -261,15 +263,15 @@ export class FormNutritionPage {
         if (this.card_form.get('dayofmeasure').value !== undefined && this.curRec == undefined ) {
           dtDET = moment.tz(this.card_form.get('dayofmeasure').value, this.userTimezone);
         } else if (this.card_form.get('dayofmeasure').value !== undefined && this.curRec.dayofmeasure !== undefined) {
-          var dtTranslate = new Date(this.card_form.get('dayofmeasure').value);
+          dtTranslate = new Date(this.card_form.get('dayofmeasure').value);
           dtDET = moment.tz(dtTranslate.toUTCString(), this.userTimezone);
         } else {
-          var dtTranslate = new Date();
+          dtTranslate = new Date();
           dtDET = moment.tz(dtTranslate.toUTCString(), this.userTimezone);
         }
         console.log('Date Sent: ' + dtDET.utc().format('MM-DD-YYYY HH:mm'));
       } else {
-        var dtTranslate = new Date();
+        dtTranslate = new Date();
         dtDET = moment(dtTranslate.toUTCString());
         console.log('No usertimezone: ' + dtDET.format('MM-DD-YYYY HH:mm'));
       }
@@ -510,10 +512,13 @@ export class FormNutritionPage {
 
   getMinDayDate() {
     var momentNow = moment(new Date());
+    var dayoftheweek;
+    var startofWeek;
+
     if  (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
+      dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
     } else {
-      var dayoftheweek = momentNow.format('dddd');
+      dayoftheweek = momentNow.format('dddd');
     }
 
     if (dayoftheweek == 'Sunday') {
@@ -532,9 +537,9 @@ export class FormNutritionPage {
       offSet = 6
     }
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      var startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
-      var startofWeek = moment(momentNow).subtract(offSet, 'days');
+      startofWeek = moment(momentNow).subtract(offSet, 'days');
     }
     return startofWeek.format("YYYY-MM-DD");
   }

@@ -5,14 +5,14 @@ import { RestService } from '../../app/services/restService.service';
 import { TreatmentResult } from '../../pages/listMedication/listMedication.model';
 
 import { HistoryItemModel } from '../../pages/history/history.model';
-import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.model';
+import { DictionaryModel } from '../../pages/models/dictionary.model';
 import { ListOrderService } from '../../pages/listOrder/listOrder.service';
 import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
 import { MenuHelp } from '../../pages/menuHelp/menuHelp';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
-import { CallNumber } from '@ionic-native/call-number';
+//import { CallNumber } from '@ionic-native/call-number';
 import { FormMedSchedule } from '../../pages/formMedSchedule/formMedSchedule';
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
 import { ListDoseHistory } from '../../pages/listDoseHistory/listDoseHistory';
@@ -63,7 +63,7 @@ export class FormMedicationResults {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
-    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, private callNumber: CallNumber
+    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, //private callNumber: CallNumber
     ) {
 
     this.recId = navParams.get('recId');
@@ -406,8 +406,6 @@ export class FormMedicationResults {
   }
 
   saveRecordDo(){
-    var dtDET;
-
     this.saving = true;
     console.log('saving record rec id: ' + this.card_form.get('recordid').value);
 
@@ -598,7 +596,6 @@ export class FormMedicationResults {
 }
 
 navSaveRecordDo(callback){
-  var dtDET;
   var updateOnly = false;
 
   this.saving = true;

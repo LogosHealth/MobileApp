@@ -10,11 +10,11 @@ import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
 
 import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu';
-import { ListLabsPage } from '../../pages/listLabs/listLabs';
-import { FormLabsPage } from '../../pages/formLabs/formLabs';
-import { ListVisitPage } from '../../pages/listVisit/listVisit';
-import { ListVaccinesPage } from '../../pages/listVaccines/listVaccines';
-import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
+//import { ListLabsPage } from '../../pages/listLabs/listLabs';
+//mport { FormLabsPage } from '../../pages/formLabs/formLabs';
+//import { ListVisitPage } from '../../pages/listVisit/listVisit';
+//import { ListVaccinesPage } from '../../pages/listVaccines/listVaccines';
+//import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
@@ -541,7 +541,7 @@ export class FormVisitPage {
       var todoForm;
       console.log('formVisit Save - todos dirty');
       impTodos.items = [];
-      for (var j = 0; j < this.todos.length; j++) {
+      for (j = 0; j < this.todos.length; j++) {
         todoForm = this.todos.at(j) as FormGroup;
         if (todoForm.dirty) {
           impTodo = new ToDo();
@@ -576,7 +576,7 @@ export class FormVisitPage {
       var questionForm;
       console.log('formVisit Save - quest dirty');
       impQuestions.items = [];
-      for (var j = 0; j < this.questions.length; j++) {
+      for (j = 0; j < this.questions.length; j++) {
         questionForm = this.questions.at(j) as FormGroup;
         if (questionForm.dirty) {
           impQuestion = new Question();
@@ -1026,7 +1026,7 @@ export class FormVisitPage {
 
         }
         if (this.postVisit[0].diagnoses[j].symptoms !== undefined && this.postVisit[0].diagnoses[j].symptoms.items.length > 0) {
-          for (var k = 0; k < this.postVisit[0].diagnoses[j].symptoms.items.length; k++) {
+          for (k = 0; k < this.postVisit[0].diagnoses[j].symptoms.items.length; k++) {
             if (this.postVisit[0].diagnoses[j].symptoms.items[k].treatments !== undefined && this.postVisit[0].diagnoses[j].symptoms.items[k].treatments.items.length > 0) {
               hasSympTreat = true;
               for (var l = 0; l < this.postVisit[0].diagnoses[j].symptoms.items[k].treatments.items.length; l++) {

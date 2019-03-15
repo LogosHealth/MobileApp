@@ -1,4 +1,4 @@
-import { phoneNumber } from "aws-sdk/clients/importexport";
+//import { phoneNumber } from "aws-sdk/clients/importexport";
 
 export class FoodPref {
   foodpreferenceid: number;

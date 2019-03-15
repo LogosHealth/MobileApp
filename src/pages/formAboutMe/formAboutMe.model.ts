@@ -1,4 +1,4 @@
-import { phoneNumber } from "aws-sdk/clients/importexport";
+//import { phoneNumber } from "aws-sdk/clients/importexport";
 
 export class AboutMe {
   profileid: number;
@@ -40,7 +40,7 @@ export class AboutMe {
   latestheight: LatestHeight;
   userid: number;
   confirmed: string;
-  active: string;  
+  active: string;
 }
 
 export class PrimaryUser {
@@ -63,7 +63,7 @@ export class LatestHeight {
   feet: number;
   inches: number;
   confirmed: string;
-  active: string;  
+  active: string;
   //dictionarycode: string;
 }
 
@@ -72,7 +72,7 @@ export class LatestWeight {
   weight: string;
   unitofmeasure: string;
   confirmed: string;
-  active: string;  
+  active: string;
   //dictionarycode: string;
 }
 
@@ -80,7 +80,7 @@ export class RaceCode {
   raceid: number;
   racecode: number;
   confirmed: string;
-  active: string;  
+  active: string;
   //dictionarycode: string;
 }
 

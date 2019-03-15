@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
-
+//import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
@@ -53,8 +52,8 @@ export class FormSymptomPage {
     this.curRec = RestService.results[this.recId];
 
     var self = this;
-    var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+    //var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+    //var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
     this.momentNow = moment(new Date());
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
       this.hourNow = this.momentNow.tz(this.userTimezone).format('HH');
