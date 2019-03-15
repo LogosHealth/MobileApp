@@ -8,7 +8,7 @@ import { ModalController } from 'ionic-angular';
 import { PhotoLibrary } from '@ionic-native/photo-library';
 import { Camera } from '@ionic-native/camera';
 import { File } from '@ionic-native/file';
-import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
+import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer';
 import { HTTP } from '@ionic-native/http';
 
 import { ListingPage } from '../pages/listing/listing';

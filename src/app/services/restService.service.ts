@@ -20,12 +20,6 @@ var refreshProfiles: Boolean;
 var nav: NavController;
 var alertCtrl: AlertController;
 
-interface AccountProfile {
-    profileid: number,
-    accountid: number,
-    firstname: string,
-    lastname: string};
-
 interface AuthData {
     key: string,
     email: string,
@@ -107,6 +101,8 @@ export class RestService {
       const LWA_PROXY_REFRESH = "https://logoshealth.github.io/getRefresh.html";
       const LWA_PROXY_REFRESH_MOBILE = "https://logoshealth.github.io/getRefreshMobile.html";
       var self = this;
+      var key;
+      var urlSend;
 
       if (this.platform.is("core")) {
         var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -114,7 +110,7 @@ export class RestService {
         var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
         // Listen to message from child window
         eventer(messageEvent,function(e) {
-          var key = e.message ? "message" : "data";
+          key = e.message ? "message" : "data";
           var data = e[key];
           console.log('Event Handled!!! data = ', data);
           //console.log('Event Handled!!! event = ', e);
@@ -132,7 +128,7 @@ export class RestService {
             self.AuthData.refreshToken = refreshToken;
             console.log('Successfully set token from refresh token for Browser!!!' + token);
 
-            var key = self.AuthData.key;
+            key = self.AuthData.key;
 
             self.AWS.config.region = 'us-east-1';
             self.AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -182,13 +178,13 @@ export class RestService {
           }
         },false);
 
-        var urlSend = LWA_PROXY_REFRESH + "?refresh_token=" + self.AuthData.refreshToken;
+        urlSend = LWA_PROXY_REFRESH + "?refresh_token=" + self.AuthData.refreshToken;
         console.log('Refresh URL for Browser: ' + urlSend);
         let newWindow = window.open(urlSend, 'LogosHealth Login Refresh', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none');
         newWindow.focus();
       } else if (this.platform.is("android")) {
         var readCount = 0;
-        var urlSend = LWA_PROXY_REFRESH_MOBILE + "?refresh_token=" + self.AuthData.refreshToken;
+        urlSend = LWA_PROXY_REFRESH_MOBILE + "?refresh_token=" + self.AuthData.refreshToken;
         const browser = this.iab.create(urlSend, '_blank');
         browser.hide();
         browser.on('loadstop').subscribe(e => {
@@ -280,7 +276,7 @@ export class RestService {
   }
 
   async appRestart() {
-    const shouldLeave = await this.messageTimeout();
+    //const shouldLeave = await this.messageTimeout();
     this.restart();
   }
 

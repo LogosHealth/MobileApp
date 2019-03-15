@@ -13,7 +13,7 @@ import { TabsNavigationPage } from '../tabs-navigation/tabs-navigation';
 
 import * as AWS from 'aws-sdk';
 import { RestService } from '../../app/services/restService.service';
-import { HttpClient} from '@angular/common/http';
+//import { HttpClient} from '@angular/common/http';
 
 //import { CodeBuild } from 'aws-sdk';
 
@@ -45,7 +45,7 @@ export class WalkthroughPage implements OnInit {
   @ViewChild('slider') slider: Slides;
 
   constructor(public nav: NavController, private platform: Platform, private alertCtrl: AlertController, public loadingCtrl: LoadingController, public iab: InAppBrowser,
-    public modalCtrl: ModalController, private device: Device, private http: HttpClient, public RestService: RestService)
+    public modalCtrl: ModalController, private device: Device,  public RestService: RestService)
     {this.main_page = { component: TabsNavigationPage };
   }
 
@@ -97,7 +97,7 @@ export class WalkthroughPage implements OnInit {
 
  getUserPics() {
   var blnHasPics = false;
-  var params;
+  //var params;
   var strKey;
   var profCount;
   var profActual = 0;
@@ -125,7 +125,7 @@ export class WalkthroughPage implements OnInit {
 
     profCount = this.RestService.Profiles.length;
     self = this;
-    for (var i = 0; i < this.RestService.Profiles.length; i++) {
+    for (i = 0; i < this.RestService.Profiles.length; i++) {
       if (this.RestService.Profiles[i].image == 'AWS') {
         strKey = this.RestService.Profiles[i].accountid + "/" + this.RestService.Profiles[i].profileid + "/profilepic.jpeg";
         keyArray[strKey] = i;
