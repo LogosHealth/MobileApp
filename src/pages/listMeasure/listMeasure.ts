@@ -121,13 +121,18 @@ export class ListMeasurePage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.curObj = "weight";
-        console.log("Results Data for Get Weight: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            self.curObj = "weight";
+            console.log("Results Data for Get Weight: ", self.list2.items);
+        } else {
+          console.log('Results from listVisit.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }
@@ -163,13 +168,18 @@ export class ListMeasurePage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.curObj = "bloodGlucose";
-        console.log("Results Data for loadDataBG: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            self.curObj = "bloodGlucose";
+            console.log("Results Data for loadDataBG: ", self.list2.items);
+        } else {
+          console.log('Results from listVisit.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }
@@ -204,13 +214,18 @@ export class ListMeasurePage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.curObj = "mood";
-        console.log("Results Data for loadDataMood: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            self.curObj = "mood";
+            console.log("Results Data for loadDataMood: ", self.list2.items);
+        } else {
+          console.log('Results from listVisit.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }
@@ -245,13 +260,18 @@ export class ListMeasurePage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.curObj = "temperature";
-        console.log("Results Data for loadTemperature: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            self.curObj = "temperature";
+            console.log("Results Data for loadTemperature: ", self.list2.items);
+        } else {
+          console.log('Results from listVisit.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }
@@ -286,13 +306,18 @@ export class ListMeasurePage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.curObj = "symptom";
-        console.log("Results Data for loadSymptom: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            self.curObj = "symptom";
+            console.log("Results Data for loadSymptom: ", self.list2.items);
+        } else {
+            console.log('Results from listVisit.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }

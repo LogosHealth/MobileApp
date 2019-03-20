@@ -86,11 +86,18 @@ export class ListVaccinesPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        self.loadContacts();
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Vaccines: ", self.list2.items);
+            self.loadContacts();
+        } else {
+          console.log('Results from listVaccines.loadData', self.RestService.results);
+          self.loadContacts();
+        }
       });
     }).catch( function(result){
-      console.log(body);
+      console.log(result);
       self.loading.dismiss();
     });
   }

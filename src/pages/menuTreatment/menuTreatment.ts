@@ -8,7 +8,7 @@ import {  ViewController, NavParams } from 'ionic-angular';
       <ion-list-header  class="list-title">Treatment</ion-list-header>
       <button ion-item class="list-item" (click)="close('Medication')">Medication</button>
       <button ion-item class="list-item" (click)="close('Procedure')">Procedure</button>
-      <button ion-item class="list-item" (click)="close('Rehab Therapy')">Rehab Therapy</button>
+      <button ion-item class="list-item" (click)="close('Therapy')">Therapy</button>
     </ion-list>
     `
 })

@@ -107,25 +107,29 @@ export class ListOrderPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        if (self.list2.items.length > 0) {
-          self.getPhotoURLs(function(err, response) {
-            if (err) {
-              console.log('Error from loadData ==> getPhotoURLs: ' + err, self.list2.items);
-              self.loadFilterList();
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            if (self.list2.items.length > 0) {
+              self.getPhotoURLs(function(err, response) {
+                if (err) {
+                  console.log('Error from loadData ==> getPhotoURLs: ' + err, self.list2.items);
+                  self.loadFilterList();
+                } else {
+                  self.loadFilterList();
+                }
+              });
             } else {
               self.loadFilterList();
             }
-          });
         } else {
-          self.loadFilterList();
+          console.log('Results from listOrder.loadData', self.RestService.results);
         }
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loadFilterList();
     });
-
   }
 
   loadFilterList() {

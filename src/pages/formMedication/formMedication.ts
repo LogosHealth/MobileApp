@@ -1270,8 +1270,6 @@ searchListTerm(strValue) {
 }
 
 presentHelp(myEvent) {
-  var self = this;
-  var dataObj;
   var title = 'Drug Mode';
   var helptext = "<b>Basic:</b> Pertains to a single indication and includes only start and stop dates.  Great for maintenance and historical medications.<br><br>" +
   "<b>Medicine Cabinet:</b> Your vitual medicine cabinet.  You can set up dose schedules, manage inventory, and use across family members.  Great for multi-use, OTC drugs as well as targeted temporary treatments with set schedules (e.g. antibiotics)";
@@ -1279,10 +1277,6 @@ presentHelp(myEvent) {
   let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
   popover.onDidDismiss(data => {
     console.log('From popover onDismiss: ', data);
-    if (data !==undefined && data !== null) {
-      dataObj = data.choosePage;
-      self.loadMenu(dataObj);
-    }
   });
   popover.present({
     ev: myEvent

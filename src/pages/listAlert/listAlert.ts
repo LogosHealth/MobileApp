@@ -108,40 +108,45 @@ export class ListAlertPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = results;
-        console.log("Results Data for Get Alerts: ", self.list2.items);
-        var offSet;
-        var dtNow = moment(new Date());
-        var dtOffset;
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = results;
+            console.log("Results Data for Get Alerts: ", self.list2.items);
+            var offSet;
+            var dtNow = moment(new Date());
+            var dtOffset;
 
-        //10-10-18 MM Adding the local notification alerts
-        if (self.list2.items.length > 0) {
-          for (var i = 0; i < self.list2.items.length; i++) {
-            if (self.list2.items[i].triggered == 'N') {
-              console.log('Trigger Date/Time ' + self.list2.items[i].triggerdate);
-              dtOffset = moment.tz(self.list2.items[i].triggerdate, moment.tz.guess());
-              console.log('Offset Date/Time ' + dtOffset.format());
-              offSet = dtOffset.diff(dtNow);
-              console.log('Offset milliseconds ' + offSet);
-              if (offSet > 0) {
-                self.localNotifications.schedule({
-                  id: self.list2.items[i].recordid,
-                  title: self.list2.items[i].alerttitle,
-                  text: self.list2.items[i].alerttext,
-                  trigger: {at: new Date(new Date().getTime() + offSet)},
-                  data: { secret: self.list2.items[i].reftable }
-                });
-              } else {
-                self.localNotifications.schedule({
-                  id: self.list2.items[i].recordid,
-                  title: self.list2.items[i].alerttitle,
-                  text: self.list2.items[i].alerttext,
-                  trigger: {at: new Date(new Date().getTime())},
-                  data: { secret: self.list2.items[i].reftable }
-                });
+            //10-10-18 MM Adding the local notification alerts
+            if (self.list2.items.length > 0) {
+              for (var i = 0; i < self.list2.items.length; i++) {
+                if (self.list2.items[i].triggered == 'N') {
+                  console.log('Trigger Date/Time ' + self.list2.items[i].triggerdate);
+                  dtOffset = moment.tz(self.list2.items[i].triggerdate, moment.tz.guess());
+                  console.log('Offset Date/Time ' + dtOffset.format());
+                  offSet = dtOffset.diff(dtNow);
+                  console.log('Offset milliseconds ' + offSet);
+                  if (offSet > 0) {
+                    self.localNotifications.schedule({
+                      id: self.list2.items[i].recordid,
+                      title: self.list2.items[i].alerttitle,
+                      text: self.list2.items[i].alerttext,
+                      trigger: {at: new Date(new Date().getTime() + offSet)},
+                      data: { secret: self.list2.items[i].reftable }
+                    });
+                  } else {
+                    self.localNotifications.schedule({
+                      id: self.list2.items[i].recordid,
+                      title: self.list2.items[i].alerttitle,
+                      text: self.list2.items[i].alerttext,
+                      trigger: {at: new Date(new Date().getTime())},
+                      data: { secret: self.list2.items[i].reftable }
+                    });
+                  }
+                }
               }
             }
-          }
+        } else {
+          console.log('Results from listAlert.loadData', self.RestService.results);
         }
         if (self.autoload) {
           self.nav.pop();
@@ -151,7 +156,7 @@ export class ListAlertPage {
         }
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }

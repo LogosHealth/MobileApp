@@ -1104,8 +1104,8 @@ loadMenu(dataObj) {
       });
     } else if (dataObj == 'Procedure') {
       console.log('Add Procedure');
-    } else if (dataObj == 'Rehab Therapy') {
-      console.log('Add Rehab Therapy');
+    } else if (dataObj == 'Therapy') {
+      console.log('Add Therapy');
     } else {
       console.log ('No data in loadMenu');
     }

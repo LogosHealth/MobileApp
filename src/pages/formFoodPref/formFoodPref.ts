@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
 import { FormGroup, FormControl, FormArray, FormsModule } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { FoodPrefModel, FoodPrefCategoryModel, FoodPref, FoodPrefCategory } from '../../pages/formFoodPref/foodPref.model';
 import { FoodPrefService } from '../../pages/formFoodPref/foodPref.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
+import { MenuHelp } from '../../pages/menuHelp/menuHelp';
 
 var moment = require('moment-timezone');
 
@@ -34,7 +35,7 @@ export class FormFoodPref {
   categories_checkbox_result;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public FoodPrefService: FoodPrefService,
-    public navParams: NavParams, public categoryList: FormsModule, public loadingCtrl: LoadingController) {
+    public navParams: NavParams, public categoryList: FormsModule, public popoverCtrl:PopoverController, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
     this.categoryList = "food";
 
@@ -1014,6 +1015,20 @@ export class FormFoodPref {
           console.log('Result: ',result);
           self.loading.dismiss();
         });
+  }
+
+  presentHelp(myEvent) {
+    var title = 'From Allegry Section';
+    var helptext = "For your convenience, Logos Health automatically flags the major food allergies listed below from records maintained in the allergy section.  " +
+    "While Logos Health excludes dishes with stated allergens, please always verify with the restaurant concerning any major food allergies.";
+
+    let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+    });
+    popover.present({
+      ev: myEvent
+    });
   }
 
   async ionViewCanLeave() {

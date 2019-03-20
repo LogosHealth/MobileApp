@@ -63,7 +63,7 @@
                     <section class="form-section">
                      <ion-row no-padding class="multi-input-row">
                         <ion-col no-padding width-50>
-                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()">Search</button>
+                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()" [disabled]="missingData()">Search</button>
                         </ion-col>
                      </ion-row>
                     </section>
@@ -92,7 +92,7 @@
                           </ion-col>
                           <ion-col no-padding width-40>
                             <ion-item>
-                              <ion-label floating text-wrap>Covered by Insurance</ion-label>
+                              <ion-label floating text-wrap>Insured</ion-label>
                               <ion-select formControlName="covered">
                                   <ion-option class="section-title" value="Y">Yes</ion-option>
                                   <ion-option class="section-title" value="N">No</ion-option>
@@ -158,7 +158,7 @@
                     <section class="form-section">
                      <ion-row no-padding class="multi-input-row">
                         <ion-col no-padding width-50>
-                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()">Search</button>
+                            <button ion-button block class="form-action-button" type="button" (click)="findContacts()" [disabled]="missingDataPlace()">Search</button>
                         </ion-col>
                      </ion-row>
                     </section>

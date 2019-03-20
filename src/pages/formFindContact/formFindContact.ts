@@ -608,27 +608,32 @@ export class FormFindContact {
     }
   }
 
-  updateCalc() {
-    if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
-      var startSplit = this.card_form.get('starttime').value.split(":");
-      var startHour = Number(startSplit[0]);
-      var startMinRatio = (Number(startSplit[1]))/60;
-      var wakeSplit = this.card_form.get('waketime').value.split(":");
-      var wakeHour = Number(wakeSplit[0]);
-      var wakeMinRatio = (Number(wakeSplit[1]))/60;
-      var duration;
+  missingData() {
+    var blnMissing = true;
 
-      if ((wakeHour + wakeMinRatio) >=(startHour + startMinRatio)) {
-        duration = (wakeHour + wakeMinRatio) - (startHour + startMinRatio);
-      } else {
-        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);
-      }
-      this.card_form.get('hoursslept').setValue(duration);
-    } else {
-      if (this.card_form.get('starttime').value !== null || this.card_form.get('waketime').value !== null) {
-        this.card_form.get('hoursslept').setValue(null);
+    if (this.card_form.controls["lastname"].value !== null && this.card_form.controls["lastname"].value !== "") {
+      if (this.card_form.controls["city"].value !== null && this.card_form.controls["city"].value !== "" && this.card_form.controls["state"].value !== null) {
+        blnMissing = false;
+      } else if (this.card_form.controls["zipcode"].value !== null && this.card_form.controls["zipcode"].valid) {
+        blnMissing = false;
       }
     }
+
+    return blnMissing;
+  }
+
+  missingDataPlace() {
+    var blnMissing = true;
+
+    if (this.card_form.controls["facilitytype"].value !== null) {
+      if (this.card_form.controls["city"].value !== null && this.card_form.controls["city"].value !== "" && this.card_form.controls["state"].value !== null) {
+        blnMissing = false;
+      } else if (this.card_form.controls["zipcode"].value !== null && this.card_form.controls["zipcode"].valid) {
+        blnMissing = false;
+      }
+    }
+
+    return blnMissing;
   }
 
   async ionViewCanLeave() {

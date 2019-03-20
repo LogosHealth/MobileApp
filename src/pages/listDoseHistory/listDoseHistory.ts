@@ -96,19 +96,15 @@ export class ListDoseHistory {
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.RestService.results = result.data;
-      self.list2.items = self.RestService.results;
+      if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+        self.RestService.results[0].recordid > 0) {
+          self.list2.items = self.RestService.results;
+      } else {
+          console.log('Results from listDoseHistory.loadData', self.RestService.results);
+      }
       self.loading.dismiss();
-/*
-      self.list2Service
-      .getData()
-      .then(data => {
-        self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Goals: ", self.list2.items);
-        self.loading.dismiss();
-      });
-*/
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }

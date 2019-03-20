@@ -244,9 +244,10 @@ export class FormDoseHistory {
         this.formSave.dosedate = this.card_form.get('dosedate').value;
       }
       if (this.card_form.get('amount').dirty){
-        this.formSave.dosedate = this.card_form.get('amount').value;
+        this.formSave.amount = this.card_form.get('amount').value;
       }
     } else {
+      this.formSave.treatmentid = this.card_form.get('treatmentid').value;
       this.formSave.amount = this.card_form.get('amount').value;
       this.formSave.unit = this.card_form.get('unit').value;
       this.formSave.dosedate = this.card_form.get('dosedate').value;

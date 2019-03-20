@@ -92,7 +92,7 @@ export class ListMedicationPage {
       additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
-            accountid: this.accountid,
+            accountid: this.RestService.Profiles[0].accountid,
             type: this.type,
         }
       };
@@ -113,14 +113,39 @@ export class ListMedicationPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Medications: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Medications: ", self.list2.items);
+        } else {
+          self.list2.items = [];
+          console.log('Results from listMedication.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
+  }
+
+  flipSearch() {
+    if (this.type == 'Medicine' || this.type == 'Current Medicine') {
+      console.log('Going to med cab');
+      this.type = 'Medicine Cabinet';
+      this.feed.category.title = this.type;
+      this.presentLoadingDefault();
+      this.loadData();
+    } else if (this.type == 'Medicine Cabinet') {
+      console.log('Going to cur med');
+      this.type = 'Current Medicine';
+      this.feed.category.title = this.type;
+      this.presentLoadingDefault();
+      this.loadData();
+    } else {
+      console.log('Error in Flip Search - Type: ', this.type);
+    }
+
   }
 
   openRecord(recordId) {
@@ -149,6 +174,15 @@ export class ListMedicationPage {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
+    }
+  }
+
+  formatDateTime2(dateString) {
+    //alert('FormatDateTime called');
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
+    } else {
+      return moment(dateString).format('MMM DD YYYY');
     }
   }
 

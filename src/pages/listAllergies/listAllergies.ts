@@ -85,15 +85,17 @@ export class ListAllergiesPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        if (self.loading !== undefined) {
-          //console.log ('This.loading not undefined in loaddata: ', self.loading);
-          self.loading.dismiss();
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+        } else {
+          console.log('Results from listAllergies.loadData', self.RestService.results);
         }
+        self.loading.dismiss();
       });
     }).catch( function(result){
+      console.log(result);
       self.loading.dismiss();
-      console.log(body);
     });
   }
 

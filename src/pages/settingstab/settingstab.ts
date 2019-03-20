@@ -82,6 +82,8 @@ export class SettingsTabPage {
       this.nav.push(ListSchedulePage, { category: category });
     } else if (category.title == 'Lifestyle') {
         this.nav.push(FormLifestyle, { category: category });
+    } else if (category.title == 'Transform Paper Records') {
+        alert('Coming soon.  This will be a service where users can upload pdf medical records and have electronic records created for a one time fee.');
     } else {
       this.nav.push(List2Page, { category: category });
     }

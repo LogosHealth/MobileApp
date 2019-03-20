@@ -38,6 +38,7 @@ export class ListingPage {
   userCount: number = 0;
   lineChart: any;
   myphoto:any;
+  blnShowFeed: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -92,6 +93,8 @@ export class ListingPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
+    //Resetting Medicine tile title
+    this.listing.categories[6].title = 'Medicine';
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
@@ -407,10 +410,13 @@ export class ListingPage {
       this.nav.push(ListNutritionPage, { category: category });
     } else if (category.title == 'Visit') {
       this.nav.push(ListVisitPage, { category: category });
-    } else if (category.title == 'Medicine') {
+    } else if (category.title == 'Medicine' || category.title == 'Current Medicine' || category.title == 'Medicine Cabinet') {
       this.nav.push(ListMedicationPage, { category: category });
     } else {
-      this.nav.push(FeedPage, { category: category });
+      console.log('Invalid category from listing.gotoFeed: ', category);
+      if (this.blnShowFeed) {
+        this.nav.push(FeedPage, { category: category });
+      }
     }
   }
 

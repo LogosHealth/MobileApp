@@ -111,12 +111,17 @@ export class ListMedicationResults {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        console.log("Results Data for Get Travel: ", self.list2.items);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Med Results: ", self.list2.items);
+        } else {
+          console.log('Results from listMedResults.loadData', self.RestService.results);
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }

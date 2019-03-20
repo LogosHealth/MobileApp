@@ -135,19 +135,24 @@ export class ListVisitPage {
       self.list2Service
       .getData()
       .then(data => {
-        self.list2.items = self.RestService.results;
-        for (var i = 0; i < self.RestService.Profiles.length; i++) {
-          for (var j = 0; j < self.list2.items.length; j++) {
-            if (self.list2.items[j].profileid == self.RestService.Profiles[i].profileid) {
-              self.list2.items[j].imageURL = self.RestService.Profiles[i].imageURL;
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined) {
+            self.list2.items = self.RestService.results;
+            for (var i = 0; i < self.RestService.Profiles.length; i++) {
+              for (var j = 0; j < self.list2.items.length; j++) {
+                if (self.list2.items[j].profileid == self.RestService.Profiles[i].profileid) {
+                  self.list2.items[j].imageURL = self.RestService.Profiles[i].imageURL;
+                }
+              }
             }
-          }
+            console.log("Results Data for Get Visits: ", self.list2.items);
+        } else {
+          console.log('Results from listVisit.loadData', self.RestService.results);
+          self.list2.items = [];
         }
-        console.log("Results Data for Get Visits: ", self.list2.items);
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
     });
   }

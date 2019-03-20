@@ -19,7 +19,7 @@
           <ion-row>
             <ion-col>
               <ion-item>
-                <ion-label floating>Lab Name</ion-label>
+                <ion-label floating>Lab Test Name</ion-label>
                 <ion-select formControlName="labname">
                   <ion-option *ngFor="let lab of labsList;let i=index;" (ionSelect)="labNameChange(lab, i)" [value]="lab.recordid" [disabled]="!newRec || isSpecificLabForm">{{lab.dictionarycode}}</ion-option>
               </ion-select>
