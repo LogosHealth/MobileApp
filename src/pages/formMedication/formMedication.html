@@ -16,7 +16,7 @@
           <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicationname }}</h2>
           <ion-row *ngIf="newRec">
             <ion-item>
-              <ion-label floating>Medication</ion-label>
+              <ion-label floating>Medication*</ion-label>
               <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medication" [disabled]="isDone"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
@@ -210,7 +210,7 @@
                 <button ion-button block class="form-action-button" type="submit" [disabled]="(!card_form.dirty || !card_form.valid)">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
-              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || hasTreatments">Delete</button>
             </ion-col>
          </ion-row>
         </section>

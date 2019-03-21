@@ -76,6 +76,7 @@ export class FormMedicalEvent {
     this.recId = navParams.get('recId');
     this.symptomsNotChosen = navParams.get('symptomsNotChosen');
     this.fromTreatment = navParams.get('fromTreatment');
+    this.visitInfo =  navParams.get('visit');
 
     console.log('symptomsNotChosen from formMedicalEvent: ', this.symptomsNotChosen);
     console.log('recId from formMedicalEvent: ' + this.recId);
@@ -87,9 +88,11 @@ export class FormMedicalEvent {
       this.aboutProfile = this.visitInfo.profileid;
       console.log('visitInfo: ', this.visitInfo);
       //console.log('NewFromVisit is true');
-    } else {
+    } else if (this.recId !== undefined && this.recId !== null) {
       this.curRec = RestService.results[this.recId];
       console.log('CurRec from formMedicalEvent: ', this.curRec);
+    } else {
+      console.log('No visit info or recId for medical event!  Must be new record from list view.');
     }
 
     this.feed.category = navParams.get('category');
@@ -177,13 +180,15 @@ export class FormMedicalEvent {
     var self = this;
 
     this.checkSave = false;
+    this.saving = false;
+    this.card_form.markAsPristine();
     if (dtNow < dtExpiration) {
       this.presentLoadingDefault();
       this.loadFilterList();
       this.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
         this.setFilteredItems();
       });
-      this.loading.dismiss();
+      //this.loading.dismiss();
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -197,7 +202,7 @@ export class FormMedicalEvent {
           self.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
             self.setFilteredItems();
           });
-          self.loading.dismiss();
+          //self.loading.dismiss();
         }
       });
     }
@@ -280,13 +285,20 @@ export class FormMedicalEvent {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.recId = 0;
-      self.curRec = result.data[0];
-      self.newRec = false;
-      console.log('formMedicalEvent.loadDetails: ', self.curRec);
-      //self.fillFormDetails();
+      self.loadFromId = null;
+      if (result !== undefined && result.data !== undefined && result.data[0] !== undefined && result.data[0].recordid !==undefined) {
+        self.recId = 0;
+        self.curRec = result.data[0];
+        self.newRec = false;
+        console.log('formMedicalEvent.loadDetails: ', self.curRec);
+        self.addExistingSymptoms();
+        self.addExistingTreatments();
+      } else {
+        console.log('No data from MedicalEvent.loadDetails');
+      }
       self.loading.dismiss();
     }).catch( function(result){
+      self.loadFromId = null;
       console.log('Err from formMedication.loadDetails: ', result);
       self.loading.dismiss();
     });
@@ -431,16 +443,16 @@ export class FormMedicalEvent {
       */
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
-          this.eventSave.chronicflag == 'Y';
+          this.eventSave.chronicflag = 'Y';
         } else {
-          this.eventSave.chronicflag == 'N';
+          this.eventSave.chronicflag = 'N';
         }
       }
       if (this.card_form.get('isallergy').dirty){
         if (this.card_form.get('isallergy').value == true) {
-          this.eventSave.isallergy == 'Y';
+          this.eventSave.isallergy = 'Y';
         } else {
-          this.eventSave.isallergy == 'N';
+          this.eventSave.isallergy = 'N';
         }
       }
       if (this.symptoms.dirty) {
@@ -491,16 +503,16 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
-          this.eventSave.chronicflag == 'Y';
+          this.eventSave.chronicflag = 'Y';
         } else {
-          this.eventSave.chronicflag == 'N';
+          this.eventSave.chronicflag = 'N';
         }
       }
       if (this.card_form.get('isallergy').dirty){
         if (this.card_form.get('isallergy').value == true) {
-          this.eventSave.isallergy == 'Y';
+          this.eventSave.isallergy = 'Y';
         } else {
-          this.eventSave.isallergy == 'N';
+          this.eventSave.isallergy = 'N';
         }
       }
 
@@ -611,16 +623,16 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
-          this.eventSave.chronicflag == 'Y';
+          this.eventSave.chronicflag = 'Y';
         } else {
-          this.eventSave.chronicflag == 'N';
+          this.eventSave.chronicflag = 'N';
         }
       }
       if (this.card_form.get('isallergy').dirty){
         if (this.card_form.get('isallergy').value == true) {
-          this.eventSave.isallergy == 'Y';
+          this.eventSave.isallergy = 'Y';
         } else {
-          this.eventSave.isallergy == 'N';
+          this.eventSave.isallergy = 'N';
         }
       }
     } else {
@@ -653,16 +665,16 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
-          this.eventSave.chronicflag == 'Y';
+          this.eventSave.chronicflag = 'Y';
         } else {
-          this.eventSave.chronicflag == 'N';
+          this.eventSave.chronicflag = 'N';
         }
       }
       if (this.card_form.get('isallergy').dirty){
         if (this.card_form.get('isallergy').value == true) {
-          this.eventSave.isallergy == 'Y';
+          this.eventSave.isallergy = 'Y';
         } else {
-          this.eventSave.isallergy == 'N';
+          this.eventSave.isallergy = 'N';
         }
       }
 
@@ -885,17 +897,18 @@ export class FormMedicalEvent {
     if (!this.saving && this.card_form.dirty && this.checkSave) {
       alert.present();
     } else {
+      this.loadFromId = this.curRec.recordid;
       callback(null, true);
     }
   }
 
   addSymptom() {
+    var self = this;
+    var dataObj;
+    var inputObj;
+
     if (this.symptomsNotChosen !== undefined && this.symptomsNotChosen !== null && this.symptomsNotChosen.length > 0) {
       console.log('Calling Symptom not chosen menu', this.symptomsNotChosen);
-      var self = this;
-      var dataObj;
-      var inputObj;
-
       if (!this.alreadyAddedAdd) {
         var addItem = {
           recordid: 'Add New',
@@ -926,6 +939,9 @@ export class FormMedicalEvent {
           alert('There is an error in saving the medication record from addSymptom');
         } else {
           if (result) {
+            console.log('Result from confirmSaveDirect: ', result);
+            console.log('Getting top level confirmSaveDirect self: ', self);
+            console.log('Getting top level confirmSaveDirect this: ', this);
             self.nav.push(FormSymptomPage, {fromEvent: self.fromEvent});
           } else if (!result) {
             console.log('addSymptom.ConfirmSaveDirect - User cancelled');
@@ -1104,8 +1120,10 @@ loadMenu(dataObj) {
       });
     } else if (dataObj == 'Procedure') {
       console.log('Add Procedure');
+      alert('Coming soon.  From here, you will be able to add a new procedure which treats this event');
     } else if (dataObj == 'Therapy') {
       console.log('Add Therapy');
+      alert('Coming soon.  From here, you will be able to add a new therapy which treats this event');
     } else {
       console.log ('No data in loadMenu');
     }
@@ -1120,6 +1138,15 @@ noEventRecord() {
   }
 }
 
+noTreatments() {
+  if (this.curRec !== undefined && this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined
+    && this.curRec.treatments.items.length > 0) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
 addExistingSymptoms() {
   var dtOnSet;
   var dtCompare;
@@ -1127,14 +1154,14 @@ addExistingSymptoms() {
   var diagnoses;
   var diagnosis;
   var treatments;
+  var exitLoop = 0;
 
   this.symptoms = this.card_form.get('symptoms') as FormArray;
   if (this.visitInfo !== undefined && this.visitInfo.visitdate !== undefined) {
     this.card_form.get('dateofmeasure').setValue(this.visitInfo.visitdate);
   }
   if (this.visitInfo !== undefined && this.visitInfo.importantinfo !== undefined && this.visitInfo.importantinfo.items !== undefined
-    && this.visitInfo.importantinfo.items.length > 0) {
-      var exitLoop = 0;
+    && this.visitInfo.importantinfo.items.length > 0 && this.newRec) {
       while (this.symptoms.length !== 0 || exitLoop > 9) {
         this.symptoms.removeAt(0);
         exitLoop = exitLoop + 1;
@@ -1158,6 +1185,10 @@ addExistingSymptoms() {
     this.card_form.get('onsetdate').setValue(strOnSet);
   } else if (this.curRec !== undefined && this.curRec.symptoms !== undefined && this.curRec.symptoms.items !== undefined
       && this.curRec.symptoms.items.length > 0) {
+        while (this.symptoms.length !== 0 || exitLoop > 9) {
+          this.symptoms.removeAt(0);
+          exitLoop = exitLoop + 1;
+        }
         for (j = 0; j < this.curRec.symptoms.items.length; j++) {
           this.symptoms.push(this.addExistingSymptom(j));
           if (this.curRec.symptoms.items[j].treatments !== undefined && this.curRec.symptoms.items[j].treatments.items.length > 0) {
@@ -1245,6 +1276,14 @@ addExistingSymptom(index): FormGroup {
 }
 
 addExistingTreatment(index): FormGroup {
+  var dtStart;
+  if (this.curRec.treatments.items[index].startdate !== undefined && this.curRec.treatments.items[index].startdate !== null) {
+    dtStart = this.curRec.treatments.items[index].startdate;
+  } else if (this.curRec.treatments.items[index].dateofmeasure !== undefined && this.curRec.treatments.items[index].dateofmeasure !== null) {
+    dtStart = this.curRec.treatments.items[index].dateofmeasure;
+  } else {
+    dtStart = null;
+  }
   return this.formBuilder.group({
     recordid: new FormControl({value: this.curRec.treatments.items[index].recordid, disabled: true}),
     reftable: new FormControl({value: this.curRec.treatments.items[index].reftable, disabled: true}),
@@ -1254,7 +1293,7 @@ addExistingTreatment(index): FormGroup {
     type: new FormControl({value: this.curRec.treatments.items[index].type, disabled: true}),
     namevalue: new FormControl({value: this.curRec.treatments.items[index].namevalue, disabled: true}),
     indication: new FormControl({value: this.curRec.treatments.items[index].indication, disabled: true}),
-    dateofmeasure: new FormControl({value: this.curRec.treatments.items[index].startdate, disabled: true}),
+    dateofmeasure: new FormControl({value: dtStart, disabled: true}),
   });
 }
 

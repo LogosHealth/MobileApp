@@ -17,7 +17,7 @@
           <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
           <ion-row>
             <ion-item>
-              <ion-label floating>Medical Event</ion-label>
+              <ion-label floating>Medical Event*</ion-label>
               <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medicalevent" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
@@ -87,7 +87,7 @@
                 </button>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatments()">
+              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatments()" [disabled]="noTreatments()">
                 <ion-icon name="paper"></ion-icon>
               </button>
             </ion-col>

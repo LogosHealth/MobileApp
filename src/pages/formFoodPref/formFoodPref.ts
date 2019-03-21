@@ -277,8 +277,8 @@ export class FormFoodPref {
       .getData()
       .then(data => {
         self.FoodPrefModel = self.RestService.results;
-        //console.log('FoodPrefModel 0: ', self.FoodPrefModel[0]);
-        //console.log('FoodPrefModel 1: ', self.FoodPrefModel[1]);
+        console.log('FoodPrefModel 0: ', self.FoodPrefModel[0]);
+        console.log('FoodPrefModel 1: ', self.FoodPrefModel[1]);
         if (self.FoodPrefModel[0].foodpreferenceid !== undefined) {
           indexFPM = 0;
           self.foodcategories.items = self.FoodPrefModel[1];
@@ -935,6 +935,7 @@ export class FormFoodPref {
     this.savePref.categories = new FoodPrefCategoryModel();
     this.savePref.categories.items = new Array<FoodPrefCategory>();
 
+    console.log('foodPref.save foodprefmodel: ', this.FoodPrefModel);
     if (this.FoodPrefModel[0].foodpreferenceid !== undefined) {
       indexFPM = 0;
     } else if (this.FoodPrefModel[1].foodpreferenceid !== undefined) {

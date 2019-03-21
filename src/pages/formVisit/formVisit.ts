@@ -45,6 +45,7 @@ export class FormVisitPage {
   todos: FormArray;
   symptomCheck: boolean = false;
   momentNow: any;
+  checkSave: boolean = false;
 
   diagnoses: FormArray;
   outcomes: FormArray;
@@ -157,6 +158,7 @@ export class FormVisitPage {
   }
 
   ionViewWillEnter() {
+    this.checkSave = false;
     if (this.categoryList == 'post') {
       this.loadPost();
     }
@@ -335,6 +337,130 @@ export class FormVisitPage {
     alert.present();
   }
 
+  navSavePostRecord(callback){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.navSavePostRecordDo(function (err, results) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, results);
+        }
+      });
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.navSavePostRecordDo(function (err, results) {
+            if (err) {
+              callback(err, null);
+            } else {
+              callback(null, results);
+            }
+          });
+        }
+      });
+    }
+  }
+
+  navSavePostRecordDo(callback){
+    this.saving = true;
+    //console.log('Save record in formVisit called!');
+    if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+      this.postSave.recordid = this.card_form.get('recordid').value;
+      this.postSave.active = 'Y';
+      //console.log('Cur Profile: ', this.curProfile);
+      this.postSave.profileid = this.curProfile.profileid;
+      this.postSave.userid = this.RestService.userId;
+      if (this.card_formPost.get('visitsummary').dirty) {
+        this.postSave.visitsummary = this.card_formPost.get('visitsummary').value;
+      }
+      this.todopost = this.card_formPost.get('todopost') as FormArray;
+
+      if (this.todopost.dirty) {
+        var impTodos: ToDos = new ToDos();
+        var impTodo: ToDo;
+        var todoForm;
+        impTodos.items = [];
+        for (var j = 0; j < this.todopost.length; j++) {
+          todoForm = this.todopost.at(j) as FormGroup;
+          if (todoForm.dirty) {
+            impTodo = new ToDo();
+            impTodo.recordid = todoForm.get("recordid").value;
+            if (todoForm.get("taskname").dirty) {
+              impTodo.taskname = todoForm.get("taskname").value;
+            }
+            if (todoForm.get("duedate").dirty) {
+              impTodo.duedate = todoForm.get("duedate").value;
+            }
+            if (todoForm.get("completedflag").dirty) {
+              if (todoForm.get("completedflag").value == true) {
+                impTodo.completedflag = 'Y';
+              } else {
+                impTodo.completedflag = 'N';
+              }
+            }
+            if (todoForm.get("active").dirty) {
+              impTodo.active = todoForm.get("active").value;
+            }
+            console.log('formVisit todopost impTodo: ', impTodo);
+            impTodos.items.push(impTodo);
+          }
+        }
+        this.postSave.todopost = impTodos;
+        console.log('formVisit todopost dirty: ', this.formSave.todopost);
+      } else {
+        console.log('formVisit.postsave - todopost not dirty');
+      }
+
+    }
+
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitPostByVisit";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+      queryParams: {
+        profileid: this.RestService.currentProfile,
+        visitid: this.curRec.recordid,
+      }
+    };
+    var body = JSON.stringify(this.postSave);
+    var self = this;
+    console.log('Calling Post', this.postSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      console.log('Happy Path: ' + self.RestService.results);
+      self.category.title = "Visit";
+      self.loading.dismiss();
+      callback(null, result.data);
+    }).catch( function(result){
+      console.log('Error in formVisit.save: ',result);
+      self.loading.dismiss();
+      callback(result, null);
+    });
+  }
+
   savePostRecord(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -476,7 +602,11 @@ export class FormVisitPage {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.active = 'Y';
       console.log('Cur Profile: ', this.curProfile);
-      this.formSave.profileid = this.curProfile.profileid;
+      if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+        this.formSave.profileid = this.curRec.profileid;
+      } else {
+        this.formSave.profileid = this.curProfile.profileid;
+      }
       this.formSave.userid = this.RestService.userId;
       if (this.card_form.get('reason').dirty) {
         this.formSave.reason = this.card_form.get('reason').value;
@@ -487,7 +617,11 @@ export class FormVisitPage {
     } else {
       this.formSave.active = 'Y';
       console.log('Cur Profile: ', this.curProfile);
-      this.formSave.profileid = this.curProfile.profileid;
+      if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+        this.formSave.profileid = this.curRec.profileid;
+      } else {
+        this.formSave.profileid = this.curProfile.profileid;
+      }
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
@@ -764,6 +898,7 @@ export class FormVisitPage {
     this.syncTaskNamePost(index);
     var self = this;
 
+    this.checkSave = true;
     console.log('Item from check reminder Post: ', this.postVisit[0].todopost.items[index]);
     this.curRec.todopost = this.postVisit[0].todopost;
     if (this.curRec.todopost.items[index].recordid == undefined && this.curRec.todopost.items[index].recordid == null) {
@@ -1092,21 +1227,25 @@ export class FormVisitPage {
     var symptomsNotChosen = [];
     var symptomNotChosen;
 
+    this.checkSave = true;
     if (!this.symptomCheck) {
       this.alignSymptoms();
     }
 
-    console.log('UpdateDiagnosis - importantInfo', this.curRec.importantinfo.items);
-    for (var j = 0; j < this.curRec.importantinfo.items.length; j++) {
-      if (this.curRec.importantinfo.items[j].type == 'symptom' && (this.curRec.importantinfo.items[j].medicaleventid == undefined ||
-        this.curRec.importantinfo.items[j].medicaleventid == null )) {
-          symptomNotChosen = {
-            recordid: this.curRec.importantinfo.items[j].reftablefieldid,  //translating from importantinfo paradigm to actual symptom record
-            namevalue: this.curRec.importantinfo.items[j].namevalue,
-            dateofmeasure: this.formatDateTime(this.curRec.importantinfo.items[j].dateofmeasure),
+    console.log('UpdateDiagnosis - curRec', this.curRec);
+    if (this.curRec !== undefined && this.curRec.importantinfo !== undefined && this.curRec.importantinfo.items !== undefined) {
+      console.log('UpdateDiagnosis - importantInfo', this.curRec.importantinfo.items);
+      for (var j = 0; j < this.curRec.importantinfo.items.length; j++) {
+        if (this.curRec.importantinfo.items[j].type == 'symptom' && (this.curRec.importantinfo.items[j].medicaleventid == undefined ||
+          this.curRec.importantinfo.items[j].medicaleventid == null )) {
+            symptomNotChosen = {
+              recordid: this.curRec.importantinfo.items[j].reftablefieldid,  //translating from importantinfo paradigm to actual symptom record
+              namevalue: this.curRec.importantinfo.items[j].namevalue,
+              dateofmeasure: this.formatDateTime(this.curRec.importantinfo.items[j].dateofmeasure),
+            }
+            symptomsNotChosen.push(symptomNotChosen);
           }
-          symptomsNotChosen.push(symptomNotChosen);
-        }
+      }
     }
 
     this.nav.push(FormMedicalEvent, { recId: index, category: cat, symptomsNotChosen: symptomsNotChosen});
@@ -1459,13 +1598,6 @@ export class FormVisitPage {
     }
   }
 
-  async ionViewCanLeave() {
-    if (!this.saving && this.card_form.dirty) {
-      const shouldLeave = await this.confirmLeave();
-      return shouldLeave;
-    }
-  }
-
   yetToHappen() {
     var dtNow = moment(new Date());
     var dtVisit;
@@ -1479,6 +1611,16 @@ export class FormVisitPage {
       }
     } else {
       return true;
+    }
+  }
+
+  async ionViewCanLeave() {
+    if (!this.saving && this.card_formPost.dirty && this.checkSave ) {
+      const shouldLeave = await this.confirmSave();
+      return shouldLeave;
+    } else if (!this.saving && (this.card_form.dirty || this.card_formPost.dirty)) {
+      const shouldLeave = await this.confirmLeave();
+      return shouldLeave;
     }
   }
 
@@ -1497,6 +1639,44 @@ export class FormVisitPage {
         {
           text: 'Yes',
           handler: () => resolveLeaving(true)
+        }
+      ]
+    });
+    alert.present();
+    return canLeave
+  }
+
+  confirmSave(): Promise<Boolean> {
+    let resolveLeaving;
+    const canLeave = new Promise<Boolean>(resolve => resolveLeaving = resolve);
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            resolveLeaving(false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            //var self = this;
+            this.navSavePostRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSavePostRecord: ', err);
+                resolveLeaving(true);
+              } else {
+                console.log('Results from navSavePostRecord: ', results);
+                resolveLeaving(true);
+              }
+            });
+          }
         }
       ]
     });
@@ -1546,6 +1726,8 @@ export class FormVisitPage {
   }
 
   loadOutcome(dataObj) {
+    this.checkSave = true;
+    alert('Coming soon.  This button will allow you to add procedures and vaccines with occurred from this visit');
     console.log('LoadMenu dataobj: ' + dataObj);
   }
 
@@ -1555,6 +1737,8 @@ export class FormVisitPage {
     if (!this.symptomCheck) {
       this.alignSymptoms();
     }
+    this.checkSave = true;
+
     var cat = {title: 'Diagnosis'};
     this.nav.push(FormMedicalEvent, { visit: this.curRec, category: cat});
   }
@@ -1608,10 +1792,19 @@ export class FormVisitPage {
     //console.log('treatment Obj: ', this.postVisit[0].diagnoses[parentIndex].treatments.items[index]);
     //console.log('objType from updateTreatment: ' + objType + ', Comparison: ' + objType2);
     //console.log('objType from updateTreatment: ' + objRecordid + ', Comparison: ' + objRecordid2);
+    this.checkSave = true;
     if (objType == 'medication') {
       cat = {title: 'Medication'};
       this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: true });
     }
+  }
+
+  updateOutcome(index) {
+    alert('Coming soon.  This button will allow you update the outcome information');
+  }
+
+  addNewPayment() {
+    alert('Coming soon.  This button will allow you to add payment information to help manage out-of-pocket and deductable spend');
   }
 
   attachRecord() {

@@ -286,18 +286,22 @@ export class FormMedication {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.loading.dismiss();
-      console.log('Dismiss called from loadDetails1');
-      self.recId = 0;
-      self.curRec = result.data[0];
-      self.newRec = false;
-      console.log('formMedication.loadDetails: ', self.curRec);
-      self.fillFormDetails();
-      //self.loading.dismiss();
+      console.log('Result from formMed.loadDetails - loadFromID: ' + self.loadFromId, result);
+      if (result !== undefined && result.data !== undefined && result.data[0] !== undefined && result.data[0].recordid > 0) {
+        self.recId = 0;
+        self.curRec = result.data[0];
+        self.newRec = false;
+        self.loading.dismiss();
+        console.log('formMedication.loadDetails: ', self.curRec);
+        self.fillFormDetails();
+      } else {
+        console.log('formMedication.loadDetails - no data: ', result);
+        self.loading.dismiss();
+      }
     }).catch( function(result){
-        console.log('Err from formMedication.loadDetails: ', result);
-        //self.loading.dismiss();
-      });
+      console.log('Err from formMedication.loadDetails: ', result);
+      self.loading.dismiss();
+    });
   }
 
   fillFormDetails() {
@@ -527,7 +531,7 @@ export class FormMedication {
   }
 
   navSaveRecordDo(callback){
-    var tr: TreatmentResult;
+    var tr: TreatmentResult = new TreatmentResult();
     var blnAddTR: boolean = false;
 
     this.saving = true;
@@ -619,6 +623,11 @@ export class FormMedication {
         }
 
         if (blnAddTR) {
+          console.log("")
+          if (this.fromEvent !== undefined && this.fromEvent.profileid !== undefined) {
+
+          }
+          tr.profileid = this.fromEvent
           this.eventSave.treatmentresults = new TreatmentResults();
           this.eventSave.treatmentresults.items = [];
           this.eventSave.treatmentresults.items.push(tr);
