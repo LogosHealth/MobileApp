@@ -88,6 +88,7 @@ export class ListAllergiesPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Allergies: ", self.list2.items);
         } else {
           console.log('Results from listAllergies.loadData', self.RestService.results);
         }
@@ -96,6 +97,7 @@ export class ListAllergiesPage {
     }).catch( function(result){
       console.log(result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -108,6 +110,10 @@ export class ListAllergiesPage {
 
   addNew() {
     this.nav.push(FormAllergyPage);
+  }
+
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY');
   }
 
   presentLoadingDefault() {

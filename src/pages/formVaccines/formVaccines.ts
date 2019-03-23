@@ -142,8 +142,9 @@ export class FormVaccinesPage {
         self.loading.dismiss();
       });
     }).catch( function(result){
-      console.log(body);
+      console.log(result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -245,6 +246,7 @@ export class FormVaccinesPage {
       }).catch( function(result){
         console.log('Error in formVaccine.confirm: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -435,6 +437,7 @@ export class FormVaccinesPage {
       }).catch( function(result){
         console.log('Error in formVaccines.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 

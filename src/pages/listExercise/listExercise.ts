@@ -100,6 +100,7 @@ export class ListExercisePage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
 
   }
@@ -115,11 +116,10 @@ export class ListExercisePage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MMM DD YYYY hh:mm a');
     }
   }
 

@@ -4,7 +4,6 @@ import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@ang
 import { RestService } from '../../app/services/restService.service';
 import { MedicalEventModel } from '../../pages/listMedicalEvent/listMedicalEvent.model';
 import { ListMedication, TreatmentResult, TreatmentResults } from '../../pages/listMedication/listMedication.model';
-
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { DictionaryModel } from '../../pages/models/dictionary.model';
 import { ListOrderService } from '../../pages/listOrder/listOrder.service';
@@ -249,11 +248,12 @@ export class FormMedication {
         }
       });
     }).catch( function(result){
-        console.log(body2);
+        console.log(result);
         if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
           self.loadDetails();
         } else {
           self.loading.dismiss();
+          alert('There was an error retrieving this data.  Please try again later');
         }
     });
   }
@@ -301,6 +301,7 @@ export class FormMedication {
     }).catch( function(result){
       console.log('Err from formMedication.loadDetails: ', result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -1049,6 +1050,7 @@ export class FormMedication {
       }).catch( function(result){
         console.log('Error from formMedication.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -1065,7 +1067,7 @@ export class FormMedication {
     return momentNow;
   }
 
-  formatDateTime(dateString) {
+/*  formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -1080,7 +1082,7 @@ export class FormMedication {
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
-
+*/
   updateCalc() {
     if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
       var startSplit = this.card_form.get('starttime').value.split(":");

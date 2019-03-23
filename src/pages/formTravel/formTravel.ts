@@ -262,6 +262,7 @@ export class FormTravelPage {
       }).catch( function(result){
         console.log('Error from ' + self.formName + '.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -278,7 +279,7 @@ export class FormTravelPage {
     return momentNow;
   }
 
-  formatDateTime(dateString) {
+/*  formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -293,7 +294,7 @@ export class FormTravelPage {
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
-
+*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();

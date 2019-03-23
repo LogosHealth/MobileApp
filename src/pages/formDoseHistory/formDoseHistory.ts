@@ -288,6 +288,7 @@ export class FormDoseHistory {
       }).catch( function(result){
         console.log('Result: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 

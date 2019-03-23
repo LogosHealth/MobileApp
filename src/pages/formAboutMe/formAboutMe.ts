@@ -44,6 +44,7 @@ export class FormAboutMe {
   ethnicityList: DictionaryItem[];
   speciesList: DictionaryItem[];
   saveModel: AboutMe = new AboutMe();
+  saveAge: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
@@ -163,8 +164,9 @@ export class FormAboutMe {
         self.loadDictionaries();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
       });
   }
 
@@ -283,7 +285,18 @@ export class FormAboutMe {
         if (self.list2[0].birthdate !== undefined && self.list2[0].birthdate !== null && self.list2[0].birthdate !== "" && self.list2[0].birthdate !== "0000-00-00") {
           self.card_form.controls["birthdate"].setValue(self.list2[0].birthdate);
         }
-        self.card_form.controls["age"].setValue(self.list2[0].age);
+        if (self.list2[0].age !== undefined && self.list2[0].age !== null) {
+          var nowBD = moment().diff(self.card_form.controls["birthdate"].value, 'years');
+          if (nowBD !== self.list2[0].age) {
+            self.card_form.controls["age"].setValue(nowBD);
+            self.saveAge = true;
+          } else {
+            self.card_form.controls["age"].setValue(self.list2[0].age);
+          }
+        } else if (self.list2[0].birthdate !== undefined && self.list2[0].birthdate !== null && self.list2[0].birthdate !== "" && self.list2[0].birthdate !== "0000-00-00") {
+          self.card_form.controls["age"].setValue(moment().diff(self.card_form.controls["birthdate"].value, 'years'));
+          self.saveAge = true;
+        }
         self.card_form.controls["bloodtype"].setValue(self.list2[0].bloodtype);
         self.card_form.controls["gender"].setValue(self.list2[0].gender);
         self.card_form.controls["ethnicity"].setValue(self.list2[0].ethnicity);
@@ -700,6 +713,9 @@ export class FormAboutMe {
     }
     if (this.card_form.controls["age"].dirty) {
       this.saveModel.age = this.card_form.controls["age"].value;
+    } else if (this.saveAge) {
+      this.saveModel.age = this.card_form.controls["age"].value;
+      this.saveAge = false;
     }
     if (this.card_form.controls["bloodtype"].dirty) {
       this.saveModel.bloodtype = this.card_form.controls["bloodtype"].value;

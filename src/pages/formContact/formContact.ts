@@ -194,7 +194,8 @@ export class FormContactPage {
     }).catch( function(result){
         console.log('Catch Result from formContact.loadDictionaries: ', result);
         self.loading.dismiss();
-    });
+        alert('There was an error retrieving this data.  Please try again later');
+      });
   }
 
   public today() {
@@ -410,6 +411,7 @@ export class FormContactPage {
       }).catch( function(result){
           console.log('Result: ',result);
           self.loading.dismiss();
+          alert('There was an error saving this data.  Please try again later');
         });
   }
 

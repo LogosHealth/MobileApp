@@ -7,13 +7,13 @@
         <span>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
-          <button ion-button icon-only *ngIf="feed.category.title !== 'Medication History'" (click)="flipSearch()">
-            <ion-icon name='repeat'></ion-icon>
-          </button>
-            <button ion-button icon-only (click)="addNew()">
+        <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>
+        <button ion-button icon-only *ngIf="feed.category.title !== 'Medication History'" (click)="flipSearch()">
+          <ion-icon name='switch'></ion-icon>
+        </button>
+    </ion-buttons>
     </ion-navbar>
   </ion-header>
 

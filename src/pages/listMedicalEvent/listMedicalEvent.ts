@@ -107,6 +107,7 @@ export class ListMedicalEvent {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -122,14 +123,10 @@ export class ListMedicalEvent {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MMM DD, YYYY');
-    } else {
-      return moment(dateString).format('MMM DD, YYYY');
-    }
+    return moment.utc(dateString).format('MMM DD YYYY');
   }
 
+/*
   formatTime(timeString) {
     //alert('FormatDateTime called');
     if (timeString == null) {
@@ -153,7 +150,7 @@ export class ListMedicalEvent {
       }
     }
   }
-
+*/
   presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({
     spinner: 'hide',

@@ -272,6 +272,7 @@ export class FormSleepPage {
       }).catch( function(result){
         console.log('Error from formSleep.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 

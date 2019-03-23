@@ -280,6 +280,7 @@ export class FormWeightPage {
       }).catch( function(result){
         console.log('Result: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -297,15 +298,15 @@ export class FormWeightPage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MMM DD YYYY hh:mm a');
     }
   }
 
   formatDateTimeTitle(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');

@@ -89,8 +89,10 @@ export class ListNutritionPage {
       self.list2Service
       .getData()
       .then(data => {
-        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
-          self.RestService.results[0].recordid > 0) {
+        console.log('Meals: ', self.RestService.results);
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].meals !== undefined &&
+          self.RestService.results[0].meals[0] !== undefined && self.RestService.results[0].meals[0].recordid !== undefined &&
+          self.RestService.results[0].meals[0].recordid > 0) {
             self.list2.items = self.RestService.results;
             console.log("Results Data for Get Nutrition: ", self.list2.items);
         } else {
@@ -101,6 +103,7 @@ export class ListNutritionPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -114,21 +117,21 @@ export class ListNutritionPage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
     }
   }
-
+/*
   formatDateTimeTitle(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
     }
   }
-
+*/
   formatTime(timeString) {
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];

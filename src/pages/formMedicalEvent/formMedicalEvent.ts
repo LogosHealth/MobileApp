@@ -89,7 +89,7 @@ export class FormMedicalEvent {
       console.log('visitInfo: ', this.visitInfo);
       //console.log('NewFromVisit is true');
     } else if (this.recId !== undefined && this.recId !== null) {
-      this.curRec = RestService.results[this.recId];
+      this.curRec = this.RestService.results[this.recId];
       console.log('CurRec from formMedicalEvent: ', this.curRec);
     } else {
       console.log('No visit info or recId for medical event!  Must be new record from list view.');
@@ -117,6 +117,7 @@ export class FormMedicalEvent {
       this.timeNow = this.momentNow.format('HH:mm');
     }
     //console.log('Init Medical Event - recId = ' + this.recId);
+    console.log('')
     if (this.recId !== undefined) {
       console.log('RecId should populate form: ' + this.curRec.onsetdate);
       var ischronic = false;
@@ -130,10 +131,11 @@ export class FormMedicalEvent {
         isallergy = true;
       }
       this.fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent, profileid: self.curRec.profileid};
+      console.log('Onset Date: ' + this.curRec.onsetdate);
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         //medicalevent: new FormControl(this.curRec.medicalevent, Validators.required),
-        onsetdate: new FormControl(this.curRec.onsetdate, Validators.max(this.timeNow)),
+        onsetdate: new FormControl(this.curRec.onsetdate, Validators.compose([Validators.max(this.timeNow), Validators.required])),
         enddate: new FormControl(this.curRec.enddate, Validators.max(this.timeNow)),
         eventdescription: new FormControl(this.curRec.eventdescription),
         dateofmeasure: new FormControl(this.curRec.dateofdiagnosis),
@@ -156,7 +158,7 @@ export class FormMedicalEvent {
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         //medicalevent: new FormControl(null, Validators.required),
-        onsetdate: new FormControl(null, Validators.max(this.timeNow)),
+        onsetdate: new FormControl(null, Validators.compose([Validators.max(this.timeNow), Validators.required])),
         enddate: new FormControl(null, Validators.max(this.timeNow)),
         eventdescription: new FormControl(),
         dateofmeasure: new FormControl(),
@@ -253,6 +255,7 @@ export class FormMedicalEvent {
           self.loadDetails();
         } else {
           self.loading.dismiss();
+          alert('There was an error retrieving this data.  Please try again later');
         }
     });
   }
@@ -301,6 +304,7 @@ export class FormMedicalEvent {
       self.loadFromId = null;
       console.log('Err from formMedication.loadDetails: ', result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -561,6 +565,7 @@ export class FormMedicalEvent {
       }).catch( function(result){
         console.log('Error from formMedicalEvent.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -724,6 +729,7 @@ export class FormMedicalEvent {
       }).catch( function(result){
         console.log('Error from formMedicalEvent.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
         callback(result, null);
       });
   }

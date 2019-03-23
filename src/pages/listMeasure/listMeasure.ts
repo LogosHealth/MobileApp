@@ -127,6 +127,7 @@ export class ListMeasurePage {
             self.curObj = "weight";
             console.log("Results Data for Get Weight: ", self.list2.items);
         } else {
+          self.curObj = "weight";
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -134,6 +135,7 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -174,6 +176,7 @@ export class ListMeasurePage {
             self.curObj = "bloodGlucose";
             console.log("Results Data for loadDataBG: ", self.list2.items);
         } else {
+          self.curObj = "bloodGlucose";
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -181,6 +184,7 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -220,6 +224,7 @@ export class ListMeasurePage {
             self.curObj = "mood";
             console.log("Results Data for loadDataMood: ", self.list2.items);
         } else {
+          self.curObj = "mood";
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -227,6 +232,7 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -266,6 +272,7 @@ export class ListMeasurePage {
             self.curObj = "temperature";
             console.log("Results Data for loadTemperature: ", self.list2.items);
         } else {
+          self.curObj = "temperature";
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -273,6 +280,7 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -312,13 +320,15 @@ export class ListMeasurePage {
             self.curObj = "symptom";
             console.log("Results Data for loadSymptom: ", self.list2.items);
         } else {
-            console.log('Results from listVisit.loadData', self.RestService.results);
+          self.curObj = "symptom";
+          console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -371,7 +381,7 @@ export class ListMeasurePage {
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format("dddd, MMMM DD 'YY");
     } else {
       return moment(dateString).format("dddd, MMMM DD 'YY");
@@ -380,10 +390,10 @@ export class ListMeasurePage {
 
   formatMeasureTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format("hh:mm A");
+    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format("hh:mm a");
     } else {
-      return moment(dateString).format("hh:mm A");
+      return moment(dateString).format("hh:mm a");
     }
   }
 

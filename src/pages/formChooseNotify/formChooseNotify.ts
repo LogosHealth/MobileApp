@@ -95,7 +95,7 @@ export class FormChooseNotify {
         this.newRec = true;
         this.modelSave.visitid = this.curRec.recordid;
         this.modelSave.alerttitle = "visit " + this.curRec.physician.title;
-        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
+        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime3(this.curRec.visitdate);
         this.modelSave.targetdate = this.curRec.visitdate;
         this.modelSave.daybefore = 'N';
         this.modelSave.nightbefore = 'N';
@@ -133,7 +133,7 @@ export class FormChooseNotify {
           this.newTask = true;
         }
         this.modelSave.alerttitle = this.curRec.todos.items[this.todoIndex].taskname;
-        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
+        this.modelSave.alerttext = "In preparation for " + this.curRec.firstname + " to visit " + this.curRec.physician.title + " on " + this.formatDateTime3(this.curRec.visitdate);
         this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].duedate;
         this.modelSave.daybefore = 'N';
         this.modelSave.nightbefore = 'N';
@@ -169,7 +169,7 @@ export class FormChooseNotify {
           this.newTask = true;
         }
         this.modelSave.alerttitle = this.curRec.todopost.items[this.todoIndex].taskname;
-        this.modelSave.alerttext = "Direction for " + this.curRec.firstname + " from visit " + this.curRec.physician.title + " on " + this.formatDateTime(this.curRec.visitdate);
+        this.modelSave.alerttext = "Direction for " + this.curRec.firstname + " from visit " + this.curRec.physician.title + " on " + this.formatDateTime3(this.curRec.visitdate);
         this.modelSave.targetdate = this.curRec.todos.items[this.todoIndex].duedate;
         this.modelSave.daybefore = 'N';
         this.modelSave.nightbefore = 'N';
@@ -382,6 +382,7 @@ export class FormChooseNotify {
         self.category.title = "Visit";
         self.loading.dismiss();
         self.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -389,27 +390,11 @@ export class FormChooseNotify {
     return new Date().toISOString().substring(0,10);
   }
 
-  formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
-
-  formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
-  }
-
   formatDateTime3(dateString) {
     var tzoffset = (new Date()).getTimezoneOffset() /60; //offset in hours
     var dtConvert = moment(dateString);
     dtConvert = moment(dtConvert).add(tzoffset, 'hours');
-    return dtConvert.format('dddd, MMM DD hh:mm A');
+    return dtConvert.format('dddd, MMM DD hh:mm a');
   }
 
   async ionViewCanLeave() {

@@ -116,8 +116,9 @@ export class FormFindContact {
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -267,9 +268,10 @@ export class FormFindContact {
           self.loading.dismiss();
         }
       }).catch( function(result){
-          console.log(body);
+          console.log(result);
           self.loading.dismiss();
-      });
+          alert('There was an error retrieving this data.  Please try again later');
+        });
     } else {
       self.loading.dismiss();
       var message;
@@ -433,9 +435,10 @@ export class FormFindContact {
           self.loading.dismiss();
         }
       }).catch( function(result){
-          console.log(body);
+          console.log(result);
           self.loading.dismiss();
-      });
+          alert('There was an error retrieving this data.  Please try again later');
+        });
     } else {
       self.loading.dismiss();
       var message;
@@ -567,6 +570,7 @@ export class FormFindContact {
       }).catch( function(result){
         console.log('Result: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -590,22 +594,6 @@ export class FormFindContact {
 
   public today() {
     return new Date().toISOString().substring(0,10);
-  }
-
-  formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
-
-  formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
   }
 
   missingData() {

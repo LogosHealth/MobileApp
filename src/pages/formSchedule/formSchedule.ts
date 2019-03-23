@@ -229,6 +229,7 @@ export class FormSchedulePage {
     }).catch( function(result){
         console.log('Error result from formSchedule.loadDictionary: ', result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -311,7 +312,8 @@ export class FormSchedulePage {
     }).catch( function(result){
       console.log('Error results from formSchedule.loadContacts: ', result);
       self.loading.dismiss();
-  });
+      alert('There was an error retrieving this data.  Please try again later');
+    });
   }
 
   deleteRecord(){
@@ -552,13 +554,14 @@ export class FormSchedulePage {
         alert('There is an error in updating the schedule.  It has been logged and will be reviewed by technical support');
         console.log('result error form formSchedule.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
   public today() {
     return new Date().toISOString().substring(0,10);
   }
-
+/*
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -574,7 +577,7 @@ export class FormSchedulePage {
       return moment(dateString).format('MM-DD-YYYY hh:mm a');
     }
   }
-
+*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();

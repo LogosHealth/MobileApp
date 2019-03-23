@@ -2,11 +2,11 @@
   <ion-navbar>
     <ion-title>Visit Form</ion-title>
     <ion-buttons right>
-        <button ion-button icon-only (click)="presentPopover($event)">
-            <ion-icon name='clipboard'></ion-icon>
-          </button>
-          <button ion-button icon-only (click)="attachRecord()">
+        <button ion-button icon-only (click)="attachRecord()">
           <ion-icon name='attach'></ion-icon>
+        </button>
+        <button ion-button icon-only (click)="presentPopover($event)">
+          <ion-icon name='more'></ion-icon>
         </button>
     </ion-buttons>
   </ion-navbar>
@@ -38,7 +38,7 @@
                 <ion-col no-padding width-60>
                   <ion-item>
                     <ion-label floating>Visit Date</ion-label>
-                    <ion-datetime displayFormat="MMM-DD-YYYY hh:mm A"  formControlName="visitdate" minuteValues="0,15,30,45"></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD YYYY hh:mm A"  formControlName="visitdate" minuteValues="0,15,30,45"></ion-datetime>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-35>
@@ -154,7 +154,7 @@
                   <ion-col no-padding width-40>
                     <ion-item text-wrap>
                       <ion-label floating>Task Date</ion-label>
-                      <ion-datetime displayFormat="MMM-DD hh:mm A" formControlName="duedate" (focusout)="syncDueDate(i)" [disabled]="isComplete(i)"></ion-datetime>
+                      <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (focusout)="syncDueDate(i)" [disabled]="isComplete(i)"></ion-datetime>
                     </ion-item>
                   </ion-col>
                   <ion-col class="columnInline" no-padding width-10 *ngIf="curRec.recordid !==null">
@@ -304,7 +304,7 @@
                     <ion-col no-padding width-40>
                       <ion-item text-wrap>
                         <ion-label floating>Task Date</ion-label>
-                        <ion-datetime displayFormat="MMM-DD hh:mm A" formControlName="duedate" (focusout)="syncDueDatePost(i)" [disabled]="isCompletePost(i)"></ion-datetime>
+                        <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (focusout)="syncDueDatePost(i)" [disabled]="isCompletePost(i)"></ion-datetime>
                       </ion-item>
                     </ion-col>
                     <ion-col class="columnInline" no-padding width-10 *ngIf="curRec.recordid !==null">

@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
-
 import 'rxjs/Rx';
-
 import { ListEventModel } from './listEvent.model';
 import { ListEventService } from './listEvent.service';
 import { RestService } from '../../app/services/restService.service';
@@ -105,6 +103,7 @@ export class ListEventPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 

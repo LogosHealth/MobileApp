@@ -556,6 +556,7 @@ export class FormFoodPref {
     }).catch( function(result){
         console.log('Error Result from foodPref.loadData: ', result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -1015,6 +1016,7 @@ export class FormFoodPref {
         }).catch( function(result){
           console.log('Result: ',result);
           self.loading.dismiss();
+          alert('There was an error saving this data.  Please try again later');
         });
   }
 

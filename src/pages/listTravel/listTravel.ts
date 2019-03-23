@@ -106,6 +106,7 @@ export class ListTravelPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -120,6 +121,11 @@ export class ListTravelPage {
     this.nav.push(FormTravelPage);
   }
 
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY');
+  }
+
+  /*
   formatDateTime(dateString) {
     var offsetDate;
     var offset;
@@ -136,7 +142,7 @@ export class ListTravelPage {
     }
     return finalDate;
   }
-
+*/
   formatTime(timeString) {
     //alert('FormatDateTime called');
     if (timeString == null) {

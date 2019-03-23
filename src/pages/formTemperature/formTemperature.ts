@@ -278,6 +278,7 @@ export class FormTemperaturePage {
       }).catch( function(result){
         console.log('Error in formTemp.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -295,7 +296,7 @@ export class FormTemperaturePage {
   }
 
   formatDateTimeTitle(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
@@ -303,10 +304,10 @@ export class FormTemperaturePage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
+      return moment(dateString).format('MMM DD YYYY hh:mm a');
     }
   }
 

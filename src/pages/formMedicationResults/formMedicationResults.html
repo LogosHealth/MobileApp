@@ -61,13 +61,13 @@
             <ion-col no-padding width-60>
               <ion-item>
                 <ion-label floating>Start Date*</ion-label>
-                <ion-datetime displayFormat="MMM-DD-YY hh:mm A"  formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY hh:mm A"  formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
               </ion-item>
               </ion-col>
               <ion-col no-padding width-40>
                 <ion-item>
                   <ion-label floating>End Date</ion-label>
-                  <ion-datetime displayFormat="MMM-DD-YY" formControlName="enddate" [disabled]="medCompleted"></ion-datetime>
+                  <ion-datetime displayFormat="MMM DD YYYY" formControlName="enddate" [disabled]="medCompleted"></ion-datetime>
                 </ion-item>
               </ion-col>
           </ion-row>
@@ -176,7 +176,7 @@
                 <ion-col no-padding width-37>
                   <ion-item>
                     <ion-label floating>Start</ion-label>
-                    <ion-datetime displayFormat="MMM-DD-YY" formControlName="startdate"></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD YYYY" formControlName="startdate"></ion-datetime>
                   </ion-item>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>

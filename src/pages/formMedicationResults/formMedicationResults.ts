@@ -264,6 +264,7 @@ export class FormMedicationResults {
         }).catch( function(result){
           console.log('Err from formMedicationResults.loadDetails: ', result);
           self.loading.dismiss();
+          alert('There was an error retrieving this data.  Please try again later');
         });
      }
   }
@@ -556,8 +557,8 @@ export class FormMedicationResults {
       }).catch( function(result){
         console.log('Error from formMedication.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
-
  }
 
  navSaveRecord(callback){
@@ -775,7 +776,7 @@ navSaveRecordDo(callback){
     return momentNow;
   }
 
-  formatDateTime(dateString) {
+/*  formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
@@ -790,7 +791,7 @@ navSaveRecordDo(callback){
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
-
+*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty && this.checkSave) {
       const shouldLeave = await this.confirmSave();

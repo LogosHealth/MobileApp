@@ -268,6 +268,7 @@ export class FormOccupationPage {
       }).catch( function(result){
         console.log('Error from ' + self.formName + '.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -283,7 +284,7 @@ export class FormOccupationPage {
     //console.log('From Today momentNow: ' + momentNow);
     return momentNow;
   }
-
+/*
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -299,7 +300,7 @@ export class FormOccupationPage {
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
-
+*/
   updateCalc() {
     if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
       var startSplit = this.card_form.get('starttime').value.split(":");

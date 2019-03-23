@@ -38,6 +38,10 @@ export class FormAllergyPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
 
+
+  //Date handling
+  //Start Date saved and passed as string.  No moment translation used or required.  Date must be a full date.
+
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public formBuilder: FormBuilder, public list2Service: ListAllergiesService,
     public listMedicationService: ListMedicationService, public listEventService: ListEventService) {
@@ -58,7 +62,7 @@ export class FormAllergyPage {
         severity: new FormControl(this.curRec.severity),
         currentmeds: this.formBuilder.array([ this.createMed() ]),
         description: new FormControl(this.curRec.description),
-        startdate: new FormControl(this.curRec.startdate),
+        startdate: new FormControl(moment.utc(this.curRec.startdate).format('YYYY-MM-DD')),
         medicallyconfirmed: new FormControl(this.curRec.medicallyconfirmed),
         events: this.formBuilder.array([ this.createEvent() ]),
         confirmed: new FormControl(this.curRec.confirmed),
@@ -154,8 +158,9 @@ export class FormAllergyPage {
         self.loadData2();
       }
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loadData2();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -201,8 +206,9 @@ export class FormAllergyPage {
         self.loading.dismiss();
       }
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
 }
 
@@ -441,6 +447,7 @@ export class FormAllergyPage {
       }).catch( function(result){
         console.log('Result: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -449,12 +456,7 @@ export class FormAllergyPage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
+    return moment.utc(dateString).format('MMM DD YYYY');
   }
 
   async ionViewCanLeave() {

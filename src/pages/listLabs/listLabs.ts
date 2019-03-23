@@ -101,6 +101,7 @@ export class ListLabsPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -115,7 +116,7 @@ export class ListLabsPage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
@@ -124,10 +125,10 @@ export class ListLabsPage {
 
   formatMeasureTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format("hh:mm A");
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format("hh:mm a");
     } else {
-      return moment(dateString).format("hh:mm A");
+      return moment(dateString).format("hh:mm a");
     }
   }
 

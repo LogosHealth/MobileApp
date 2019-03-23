@@ -8,7 +8,6 @@ import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } 
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
-
 import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu';
 //import { ListLabsPage } from '../../pages/listLabs/listLabs';
 //mport { FormLabsPage } from '../../pages/formLabs/formLabs';
@@ -16,7 +15,6 @@ import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu'
 //import { ListVaccinesPage } from '../../pages/listVaccines/listVaccines';
 //import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
 import { FormMedication } from '../../pages/formMedication/formMedication';
-
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
 import { PostVisitModel, Treatment, PostVisit } from './postVisit.model';
 import { PostVisitService } from './postVisit.service';
@@ -46,7 +44,6 @@ export class FormVisitPage {
   symptomCheck: boolean = false;
   momentNow: any;
   checkSave: boolean = false;
-
   diagnoses: FormArray;
   outcomes: FormArray;
   payments: FormArray;
@@ -230,8 +227,9 @@ export class FormVisitPage {
         self.loading.dismiss();
       });
     }).catch( function(result){
-        console.log(body);
+        console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -569,6 +567,7 @@ export class FormVisitPage {
     }).catch( function(result){
       console.log('Error in formVisit.save: ',result);
       self.loading.dismiss();
+      alert('There was an error saving this data.  Please try again later');
     });
   }
 
@@ -763,6 +762,7 @@ export class FormVisitPage {
       }).catch( function(result){
         console.log('Error in formVisit.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -838,6 +838,7 @@ export class FormVisitPage {
     }).catch( function(result){
       console.log('Error in formVisit.save: ',result);
       self.loading.dismiss();
+      alert('There was an error saving this data.  Please try again later');
     });
   }
 
@@ -929,11 +930,7 @@ export class FormVisitPage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
+    return moment.utc(dateString).format('MMM DD YYYY hh:mm a');
   }
 
   addExistingInfos() {
@@ -1134,11 +1131,12 @@ export class FormVisitPage {
     var sympTreatCount = 0;
     var varTreat = new Treatment();
     var treatments = [];
+    var exitLoop = 0;
 
     this.diagnoses = this.card_formPost.get('diagnoses') as FormArray;
     if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].diagnoses !== undefined
       && this.postVisit[0].diagnoses.length > 0) {
-      var exitLoop = 0;
+      exitLoop = 0;
       while (this.diagnoses.length !== 0 || exitLoop > 9) {
         this.diagnoses.removeAt(0);
         exitLoop = exitLoop + 1;
@@ -1182,6 +1180,12 @@ export class FormVisitPage {
           console.log('Treatments generated for : ' + this.postVisit[0].diagnoses[j].medicalevent + ': ', treatments);
           this.addTreatments4Diagnosis(j, treatments);
         }
+      }
+    } else if (this.diagnoses.length > 0) {
+      exitLoop = 0;
+      while (this.diagnoses.length !== 0 || exitLoop > 9) {
+        this.diagnoses.removeAt(0);
+        exitLoop = exitLoop + 1;
       }
     }
   }
@@ -1253,16 +1257,24 @@ export class FormVisitPage {
   }
 
   addExistingOutcomes() {
+    var exitLoop = 0;
+
     this.outcomes = this.card_formPost.get('outcomes') as FormArray;
     if (this.postVisit !== undefined && this.postVisit[0] !== undefined && this.postVisit[0].outcomes !== undefined
       && this.postVisit[0].outcomes.items !== undefined && this.postVisit[0].outcomes.items.length > 0) {
-        var exitLoop = 0;
+        exitLoop = 0;
         while (this.outcomes.length !== 0 || exitLoop > 9) {
           this.outcomes.removeAt(0);
           exitLoop = exitLoop + 1;
         }
         for (var j = 0; j < this.postVisit[0].outcomes.items.length; j++) {
-        this.outcomes.push(this.addExistingOutcome(j));
+          this.outcomes.push(this.addExistingOutcome(j));
+        }
+    } else if (this.outcomes.length > 0) {
+      exitLoop = 0;
+      while (this.outcomes.length !== 0 || exitLoop > 9) {
+        this.outcomes.removeAt(0);
+        exitLoop = exitLoop + 1;
       }
     }
   }

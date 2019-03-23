@@ -153,6 +153,7 @@ export class FormGoalsPage {
     }).catch( function(result){
       console.log('Error from formGoals.loadData: ', result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -346,6 +347,7 @@ export class FormGoalsPage {
       }).catch( function(result){
         console.log('Error from fromGoals.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 

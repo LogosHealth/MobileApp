@@ -365,8 +365,8 @@ export class FormNutritionAdd {
         console.log('Error from formSleep.save: ',result);
         self.loading.dismiss();
         self.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
       });
-
   }
 
   cancelEntry() {
@@ -384,7 +384,7 @@ export class FormNutritionAdd {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
@@ -392,15 +392,15 @@ export class FormNutritionAdd {
   }
 
   formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
     } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm A');
+      return moment(dateString).format('MMM DD YYYY hh:mm a');
     }
   }
 
   formatDateTime3(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('YYYY-MM-DDTHH:mm');
     } else {
       return moment(dateString).format('YYYY-MM-DDTHH:mm');

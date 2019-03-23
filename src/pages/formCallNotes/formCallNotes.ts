@@ -82,7 +82,7 @@ export class FormCallNotesPage {
       recordid: new FormControl(),
       title: new FormControl(strTitle),
       callnotes: new FormControl(null, Validators.required),
-      dateofmeasure: new FormControl(this.formatDateTime2(this.momentNow)),
+      dateofmeasure: new FormControl(this.formatDateTime(this.momentNow)),
       confirmed: new FormControl(),
       contactid: new FormControl(numContact),
       visitid: new FormControl(numVisit),
@@ -174,6 +174,7 @@ export class FormCallNotesPage {
       }).catch( function(result){
         console.log('Result: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -186,42 +187,7 @@ export class FormCallNotesPage {
   }
 
   formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
-
-  formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
-  }
-
-  updateCalc() {
-    if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
-      var startSplit = this.card_form.get('starttime').value.split(":");
-      var startHour = Number(startSplit[0]);
-      var startMinRatio = (Number(startSplit[1]))/60;
-      var wakeSplit = this.card_form.get('waketime').value.split(":");
-      var wakeHour = Number(wakeSplit[0]);
-      var wakeMinRatio = (Number(wakeSplit[1]))/60;
-      var duration;
-
-      if ((wakeHour + wakeMinRatio) >=(startHour + startMinRatio)) {
-        duration = (wakeHour + wakeMinRatio) - (startHour + startMinRatio);
-      } else {
-        duration = (24 - (startHour + startMinRatio)) + (wakeHour + wakeMinRatio);
-      }
-      this.card_form.get('hoursslept').setValue(duration);
-    } else {
-      if (this.card_form.get('starttime').value !== null || this.card_form.get('waketime').value !== null) {
-        this.card_form.get('hoursslept').setValue(null);
-      }
-    }
+    return moment.utc(dateString).format('MMM DD YYYY');
   }
 
   async ionViewCanLeave() {

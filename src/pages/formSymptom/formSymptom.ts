@@ -158,6 +158,7 @@ export class FormSymptomPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -431,6 +432,7 @@ calculateEndDate() {
       }).catch( function(result){
         console.log('Error from formSymptom.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -564,7 +566,7 @@ calculateEndDate() {
   }
 
   formatDateTimeTitle(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
@@ -574,9 +576,9 @@ calculateEndDate() {
   formatDateTimeSaved(dateString) {
     if (dateString !== undefined && dateString !== null && dateString !== "") {
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
+        return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
       } else {
-        return moment(dateString).format('MM-DD-YYYY hh:mm A');
+        return moment(dateString).format('MMM DD YYYY hh:mm a');
       }
     } else {
       return null;
@@ -586,9 +588,9 @@ calculateEndDate() {
   formatDateTime(dateString) {
     if (dateString !== undefined && dateString !== null && dateString !== "") {
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        return moment(dateString).tz(this.userTimezone).format('YYYY-MM-DD');
+        return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
       } else {
-        return moment(dateString).format('YYYY-MM-DD');
+        return moment(dateString).format('MMM DD YYYY');
       }
     } else {
       return null;

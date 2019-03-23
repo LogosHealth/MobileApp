@@ -16,11 +16,11 @@
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Task Name</ion-label>
-                <ion-input type="text" formControlName="taskname"></ion-input>  
+                <ion-input type="text" formControlName="taskname"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
-  
+
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
@@ -33,14 +33,14 @@
                   <ion-label floating>Reps</ion-label>
                   <ion-input type="number" formControlName="reps"></ion-input>
                 </ion-item>
-            </ion-col>  
+            </ion-col>
           </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Goal Name</ion-label>
                 <ion-select formControlName="goalname" [disabled]="goalname !=='' &&  newRec">
-                    <ion-option *ngFor="let item of list2.items" [value]="item.goalname">{{item.goalname}}</ion-option>                
+                    <ion-option *ngFor="let item of list2.items" [value]="item.goalname">{{item.goalname}}</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -53,7 +53,7 @@
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>
-                <ion-datetime displayFormat="MMM-DD-YY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
           </ion-col>
         </ion-row>
@@ -63,9 +63,9 @@
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
             </ion-col>
-            <ion-col no-padding width-50> 
+            <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
-            </ion-col>    
+            </ion-col>
          </ion-row>
         </section>
       </form>

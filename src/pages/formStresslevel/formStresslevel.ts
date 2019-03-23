@@ -260,6 +260,7 @@ export class FormStresslevelPage {
       }).catch( function(result){
         console.log('Error from ' + self.formName + '.save: ',result);
         self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 
@@ -310,13 +311,18 @@ export class FormStresslevelPage {
   }
 
   formatDateTimeTitle(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
     }
   }
 
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY');
+  }
+
+/*
   formatDateTime(dateString) {
     var offsetDate;
     var offset;
@@ -341,7 +347,7 @@ export class FormStresslevelPage {
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
     }
   }
-
+*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();

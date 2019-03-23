@@ -248,6 +248,7 @@ export class FormMedSchedule {
     }).catch( function(result){
       console.log('Err from formMedication.loadDetails: ', result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -423,13 +424,14 @@ export class FormMedSchedule {
       self.category.title = "Visit";
       self.loading.dismiss();
       self.dismiss();
+      alert('There was an error saving this data.  Please try again later');
     });
 }
 
   public today() {
     return new Date().toISOString().substring(0,10);
   }
-
+/*
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -452,7 +454,7 @@ export class FormMedSchedule {
     dtConvert = moment(dtConvert).add(tzoffset, 'hours');
     return dtConvert.format('dddd, MMM DD hh:mm A');
   }
-
+*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();

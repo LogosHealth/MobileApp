@@ -126,6 +126,7 @@ export class ListMedicationPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -170,7 +171,7 @@ export class ListMedicationPage {
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
     } else {
       return moment(dateString).format('dddd, MMMM DD');
@@ -179,7 +180,7 @@ export class ListMedicationPage {
 
   formatDateTime2(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
     } else {
       return moment(dateString).format('MMM DD YYYY');

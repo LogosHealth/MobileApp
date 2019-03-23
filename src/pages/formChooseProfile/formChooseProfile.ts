@@ -117,6 +117,7 @@ export class FormChooseProfile {
         console.log('formChooseProfile Save Error: ',result);
         self.loading.dismiss();
         self.dismiss();
+        alert('There was an error saving this data.  Please try again later');
       });
   }
 

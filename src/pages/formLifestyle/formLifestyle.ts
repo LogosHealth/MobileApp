@@ -13,8 +13,6 @@ import { FormTravelPage } from '../../pages/formTravel/formTravel';
 import { MenuLifestyle } from '../../pages/menuLifestyle/menuLifestyle';
 import { ListLifestyleItem } from '../../pages/listLifestyleItem/listLifestyleItem';
 import { FormLifestyleItem } from '../../pages/formLifestyleItem/formLifestyleItem';
-
-
 import { HistoryItemModel } from '../../pages/history/history.model';
 
 var moment = require('moment-timezone');
@@ -260,6 +258,7 @@ export class FormLifestyle {
       callback (null, 'Successs');
     }).catch( function(result){
         console.log('Error in loadLifestyle: ', result);
+        alert('There was an error retrieving this data.  Please try again later');
       });
   }
 
@@ -628,11 +627,6 @@ export class FormLifestyle {
           self.curRec.otherdrug.itemsperday = result.data[0].itemsperday;
           self.curRec.otherdrug.comments = result.data[0].comments;
         }
-
-
-
-
-
         callback (null, 'Success');
       } else {
         console.log('LifestyleItem - Data not found: ', result.data)
@@ -643,7 +637,6 @@ export class FormLifestyle {
       callback (null, 'Success');
     });
   }
-
 
   createItem () {
     return this.formBuilder.group({
@@ -729,7 +722,8 @@ export class FormLifestyle {
       }).catch( function(result){
           console.log('Result: ',result);
           self.loading.dismiss();
-      });
+          alert('There was an error saving this data.  Please try again later');
+        });
   }
 
   async ionViewCanLeave() {

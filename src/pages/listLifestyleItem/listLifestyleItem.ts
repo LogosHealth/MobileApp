@@ -109,6 +109,7 @@ export class ListLifestyleItem {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -123,6 +124,10 @@ export class ListLifestyleItem {
     this.nav.push(FormLifestyleItem, { type: this.strType });
   }
 
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY');
+  }
+/*
   formatDateTime(dateString) {
     var offsetDate;
     var offset;
@@ -139,7 +144,7 @@ export class ListLifestyleItem {
     }
     return finalDate;
   }
-
+*/
   formatTime(timeString) {
     //alert('FormatDateTime called');
     if (timeString == null) {

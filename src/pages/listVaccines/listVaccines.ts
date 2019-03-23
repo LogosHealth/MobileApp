@@ -99,6 +99,7 @@ export class ListVaccinesPage {
     }).catch( function(result){
       console.log(result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -138,8 +139,9 @@ export class ListVaccinesPage {
         self.loading.dismiss();
       });
     }).catch( function(result){
-      console.log(body);
+      console.log(result);
       self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -157,6 +159,10 @@ export class ListVaccinesPage {
 
   openRecord(recordId) {
     this.nav.push(FormVaccinesPage, { recId: recordId });
+  }
+
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY');
   }
 
   presentLoadingDefault() {

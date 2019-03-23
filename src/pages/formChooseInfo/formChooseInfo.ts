@@ -153,7 +153,8 @@ export class FormChooseInfo {
         });
       }).catch( function(result){
         self.loading.dismiss();
-        console.log(body);
+        console.log(result);
+        alert('There was an error retrieving this data.  Please try again later');
       });
     } else {
       console.log('Error in dataType identity for formChooseInfo');
@@ -334,9 +335,9 @@ export class FormChooseInfo {
                 console.log('Catch err from from formChooseInfo save body: ', body);
                 saveActual = saveActual + 1;
                 if (saveActual == saveCount) {
-                  console.log('All new items saved from formChooseInfo save!');
                   self.loading.dismiss();
                   self.dismiss();
+                  alert('There was an error saving this data.  Please try again later');
                 }
               });
             }
@@ -357,11 +358,7 @@ export class FormChooseInfo {
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
+    return moment.utc(dateString).format('MMM DD YYYY hh:mm a');
   }
 
   addNew() {

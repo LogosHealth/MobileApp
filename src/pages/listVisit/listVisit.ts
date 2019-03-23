@@ -154,6 +154,7 @@ export class ListVisitPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -246,6 +247,7 @@ export class ListVisitPage {
 
   }
 
+  /*
   formatTime(timeString) {
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
@@ -265,6 +267,7 @@ export class ListVisitPage {
       }
     }
   }
+*/
 
   presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({

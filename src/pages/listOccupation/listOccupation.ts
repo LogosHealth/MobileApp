@@ -106,6 +106,7 @@ export class ListOccupationPage {
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
     });
   }
 
@@ -121,15 +122,7 @@ export class ListOccupationPage {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    //console.log('dateString from DB: ' + dateString);
     return moment(dateString).format('MMM YYYY');
-
-  //  if (this.userTimezone !== undefined && this.userTimezone !=="") {
-//      return moment(dateString).tz(this.userTimezone).format('MMM YYYY');
-    //} else {
-    //  return moment(dateString).format('MMM YYYY');
-   // }
   }
 
   formatTime(timeString) {

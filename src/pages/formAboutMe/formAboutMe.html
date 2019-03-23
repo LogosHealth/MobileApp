@@ -5,7 +5,7 @@
       <button ion-button icon-only (click)="addNew()">
         <ion-icon name='add'></ion-icon>
       </button>
-    </ion-buttons>  
+    </ion-buttons>
  </ion-navbar>
 </ion-header>
 
@@ -13,7 +13,7 @@
     <div>
         <form [formGroup]="card_form">
           <section class="form-section">
-            <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Profile Information</h2>   
+            <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Profile Information</h2>
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
@@ -44,7 +44,7 @@
                     </ion-select>
                 </ion-item>
                 </ion-col>
-              </ion-row>  
+              </ion-row>
 
               <ion-row no-padding width-50 *ngIf="!primary">
                 <ion-col>
@@ -79,7 +79,7 @@
                   <ion-item>
                     <ion-label floating>State**</ion-label>
                     <ion-select formControlName="state">
-                        <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>                
+                        <ion-option *ngFor="let state of stateList" [value]="state.recordid">{{state.codeddictionary}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -115,7 +115,7 @@
 
               <ion-row no-padding width-50 *ngIf="!primary">
                 <ion-col>
-                  <br><h2 class = "section-titleleft">Insurance Information</h2>   
+                  <br><h2 class = "section-titleleft">Insurance Information</h2>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-50>
                     <button ion-button block class="form-action-button create-card-button"  type="button"
@@ -123,7 +123,7 @@
                 </ion-col>
               </ion-row>
               <div no-padding width-50 *ngIf="primary">
-                <br><h2 class = "section-titleleft">Insurance Information</h2>   
+                <br><h2 class = "section-titleleft">Insurance Information</h2>
               </div>
               <ion-row>
                 <ion-col no-padding width-50>
@@ -140,7 +140,7 @@
                 </ion-col>
               </ion-row>
 
-              <br><h2 class = "section-titleleft">Emergency Contact Information</h2>   
+              <br><h2 class = "section-titleleft">Emergency Contact Information</h2>
               <ion-row>
                   <ion-col>
                     <ion-item>
@@ -164,13 +164,13 @@
                 </ion-col>
               </ion-row>
 
-              <br><h2 class = "section-titleleft">Physical Information</h2>   
+              <br><h2 class = "section-titleleft">Physical Information</h2>
               <ion-row>
                 <ion-col no-padding width-50 *ngIf="!primary">
                   <ion-item>
                     <ion-label floating>Relation to Primary*</ion-label>
                     <ion-select formControlName="relationtoprimary">
-                        <ion-option *ngFor="let relation of relationList" (ionSelect)="relationChange(relation)" [value]="relation.recordid">{{relation.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let relation of relationList" (ionSelect)="relationChange(relation)" [value]="relation.recordid">{{relation.dictionarycode}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -198,7 +198,7 @@
                   <ion-item>
                     <ion-label floating>Species</ion-label>
                     <ion-select formControlName="species">
-                      <ion-option *ngFor="let species of speciesList" [value]="species.recordid">{{species.dictionarycode}}</ion-option>                
+                      <ion-option *ngFor="let species of speciesList" [value]="species.recordid">{{species.dictionarycode}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -213,7 +213,7 @@
                 <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label floating>Birthdate*</ion-label>
-                    <ion-datetime displayFormat="MMM-DD-YYYY" [min]="1900-01-01" [max]="today()" (ionChange)="changeBDay()" formControlName="birthdate" ></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD YYYY" [min]="1900-01-01" [max]="today()" (ionChange)="changeBDay()" formControlName="birthdate" ></ion-datetime>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-50>
@@ -227,29 +227,29 @@
                 <ion-col no-padding width-25>
                   <ion-item>
                     <ion-label floating>Height Feet</ion-label>
-                    <ion-input type="number" formControlName="heightfeet"></ion-input>  
+                    <ion-input type="number" formControlName="heightfeet"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-25>
                   <ion-item>
                     <ion-label floating>Height Inches</ion-label>
-                    <ion-input type="number" formControlName="heightinches"></ion-input>  
+                    <ion-input type="number" formControlName="heightinches"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label floating>Latest Weight</ion-label>
-                    <ion-input type="number" formControlName="weight"></ion-input>  
+                    <ion-input type="number" formControlName="weight"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
-  
+
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label floating>Gender</ion-label>
                     <ion-select formControlName="gender">
-                        <ion-option *ngFor="let gender of genderList" [value]="gender.recordid">{{gender.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let gender of genderList" [value]="gender.recordid">{{gender.dictionarycode}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -257,7 +257,7 @@
                   <ion-item>
                     <ion-label floating>Blood Type</ion-label>
                     <ion-select formControlName="bloodtype">
-                        <ion-option *ngFor="let bt of bloodTypeList" [value]="bt.recordid">{{bt.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let bt of bloodTypeList" [value]="bt.recordid">{{bt.dictionarycode}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -267,7 +267,7 @@
                   <ion-item>
                     <ion-label floating>Ethnicity</ion-label>
                     <ion-select formControlName="ethnicity">
-                        <ion-option *ngFor="let eth of ethnicityList" [value]="eth.recordid">{{eth.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let eth of ethnicityList" [value]="eth.recordid">{{eth.dictionarycode}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -279,7 +279,7 @@
                     <ion-item text-wrap>
                       <ion-label floating>Race</ion-label>
                       <ion-select formControlName="racecode">
-                        <ion-option *ngFor="let r of raceList" [value]="r.recordid">{{r.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let r of raceList" [value]="r.recordid">{{r.dictionarycode}}</ion-option>
                       </ion-select>
                     </ion-item>
                   </ion-col>
@@ -293,7 +293,7 @@
                   </ion-col>
                 </ion-row>
               </div>
-            </div> 
+            </div>
             <p class="section-footnote">*Required to Save Profile</p>
             <p class="section-footnote">**Required to Confirm Profile and for Order a Meal capability</p>
           </section>
@@ -305,9 +305,9 @@
               <ion-col no-padding width-30>
                 <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="checkSaveEnabled()">Save</button>
             </ion-col>
-            <ion-col no-padding width-30> 
+            <ion-col no-padding width-30>
                 <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="primary || newUser">Inactivate</button>
-            </ion-col>    
+            </ion-col>
            </ion-row>
           </section>
         </form>
