@@ -9,7 +9,7 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
-          <h2 class = "section-title" *ngIf="!newRec">Task Name: {{ card_form.get('taskname').value }}</h2>
+          <h2 class = "section-title" *ngIf="!newRec">{{ card_form.get('taskname').value }}</h2>
           <h2 class = "section-title" *ngIf="newRec">Task</h2>
 
           <ion-row *ngIf="newRec">
@@ -21,7 +21,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row>
+          <ion-row *ngIf="!upcoming">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Task Time</ion-label>
@@ -35,13 +35,11 @@
                 </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row *ngIf="!upcoming">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Goal Name</ion-label>
-                <ion-select formControlName="goalname" [disabled]="goalname !=='' &&  newRec">
-                    <ion-option *ngFor="let item of list2.items" [value]="item.goalname">{{item.goalname}}</ion-option>
-                </ion-select>
+                <ion-input type="text" formControlName="goalname" [disabled]="goalname !=='' &&  newRec"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50 *ngIf="!newRec">
@@ -56,6 +54,35 @@
                 <ion-datetime displayFormat="MMM DD YYYY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
           </ion-col>
+        </ion-row>
+        <ion-row *ngIf="upcoming">
+          <ion-item>
+            <ion-label floating>Objective</ion-label>
+            <ion-textarea type="text" formControlName="shortdescription" autosize></ion-textarea>
+          </ion-item>
+        </ion-row>
+        <ion-row>
+          <ion-col no-padding>
+            <ion-item>
+              <ion-label floating>Directions</ion-label>
+              <ion-textarea type="text" formControlName="description" autosize></ion-textarea>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row *ngIf="upcoming">
+          <ion-col width-50>
+            <ion-item>
+              <ion-label floating>Due Date</ion-label>
+              <ion-datetime displayFormat="MMM DD YYYY" [min]="today()" max="2024"  formControlName="duedate" ></ion-datetime>
+            </ion-item>
+          </ion-col>
+          <ion-col class="columnAlignLow" width-50>
+            <ion-label class="section-checkbox-label">Completed
+              <ion-checkbox formControlName="completed" ></ion-checkbox>
+            </ion-label>
+          </ion-col>
+
+
         </ion-row>
         </section>
         <section class="form-section">

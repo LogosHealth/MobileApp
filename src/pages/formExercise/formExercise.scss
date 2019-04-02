@@ -99,6 +99,12 @@ formExercise-page {
           vertical-align: bottom;
         }
 
+        .columnAlignLow
+        {
+          margin-top: 65px;
+          vertical-align: bottom;
+        }
+
         .columnInline
         {
           margin-top: 7px;
@@ -173,7 +179,19 @@ formExercise-page {
           margin: 0px;
       }
 
-			.section-tips
+      .section-checkbox-label-bottom
+      {
+          font-size: 1.6rem;
+          line-height: 1.2;
+          letter-spacing: 1.1px;
+          text-align: left;
+          color: $theme-color-1;
+          font-weight: 400;
+          margin-top: 1000px;
+          margin: 0px;
+      }
+
+      .section-tips
 			{
 				font-size: 1.4rem;
 				line-height: 1.2;

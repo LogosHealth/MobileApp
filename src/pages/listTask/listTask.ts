@@ -2,43 +2,35 @@ import { Component } from '@angular/core';
 import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListMedicationModel } from './listMedication.model';
-import { ListMedicationService } from './listMedication.service';
+import { ListTaskModel } from './listTask.model';
+import { ListTaskService } from './listTask.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormMedication } from '../../pages/formMedication/formMedication';
+import { FormTaskPage } from '../../pages/formTask/formTask';
 
 var moment = require('moment-timezone');
 
 @Component({
   selector: 'listExercisePage',
-  templateUrl: 'listMedication.html'
+  templateUrl: 'listTask.html'
 })
-export class ListMedicationPage {
-  list2: ListMedicationModel = new ListMedicationModel();
+export class ListTaskPage {
+  list2: ListTaskModel = new ListTaskModel();
   feed: FeedModel = new FeedModel();
+  formName: string = "listTask";
   loading: any;
   resultData: any;
   userTimezone: any;
-  accountid: any;
-  type: any;
-  fromEvent: any;
 
   constructor(
     public nav: NavController,
     public alertCtrl: AlertController,
-    public list2Service: ListMedicationService,
+    public list2Service: ListTaskService,
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
-    this.fromEvent = navParams.get('fromEvent');
-    this.type = this.feed.category.title;
-    if (this.feed.category.title == 'Medicine Cabinet') {
-      this.accountid = this.RestService.Profiles[0].accountid;
-    } else if (this.feed.category.title == 'Medicine') {
-      this.feed.category.title = 'Current Medicine'
-    }
+
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -50,6 +42,7 @@ export class ListMedicationPage {
   ionViewWillEnter() {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
+    //var dtExpiration = dtNow;  //for testing
     var self = this;
 
     if (dtNow < dtExpiration) {
@@ -59,11 +52,11 @@ export class ListMedicationPage {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
-          console.log('Need to login again!!! - Credentials expired from listMedication');
+          console.log('Need to login again!!! - Credentials expired from lisTask');
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From listMedication - Credentials refreshed!');
+          console.log('From listSleep - Credentials refreshed!');
           self.loadData();
         }
       });
@@ -72,7 +65,8 @@ export class ListMedicationPage {
 
   loadData() {
     var restURL: string;
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TaskByProfile";
+
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -86,24 +80,11 @@ export class ListMedicationPage {
     };
     var pathTemplate = '';
     var method = 'GET';
-    var additionalParams;
-
-    if (this.type == 'Medicine Cabinet') {
-      additionalParams = {
+    var additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile,
-            accountid: this.RestService.Profiles[0].accountid,
-            type: this.type,
+            profileid: this.RestService.currentProfile
         }
-      };
-    } else {
-      additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile,
-            type: this.type,
-        }
-      };
-    }
+    };
     var body = '';
     var self = this;
 
@@ -116,10 +97,9 @@ export class ListMedicationPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
-            console.log("Results Data for Get Medications: ", self.list2.items);
+            console.log("Results Data for Get Task: ", self.list2.items);
         } else {
-          self.list2.items = [];
-          console.log('Results from listMedication.loadData', self.RestService.results);
+          console.log('Results from listTask.loadData', self.RestService.results);
         }
         self.loading.dismiss();
       });
@@ -130,70 +110,26 @@ export class ListMedicationPage {
     });
   }
 
-  flipSearch() {
-    if (this.type == 'Medicine' || this.type == 'Current Medicine') {
-      console.log('Going to med cab');
-      this.type = 'Medicine Cabinet';
-      this.feed.category.title = this.type;
-      this.presentLoadingDefault();
-      this.loadData();
-    } else if (this.type == 'Medicine Cabinet') {
-      console.log('Going to cur med');
-      this.type = 'Current Medicine';
-      this.feed.category.title = this.type;
-      this.presentLoadingDefault();
-      this.loadData();
-    } else {
-      console.log('Error in Flip Search - Type: ', this.type);
-    }
-
-  }
-
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    console.log('listMedication.openRecord fromEvent: ', this.fromEvent);
-    if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
-      this.nav.push(FormMedication, { recId: recordId, fromEvent: this.fromEvent });
-    } else {
-      this.nav.push(FormMedication, { recId: recordId });
-    }
+    this.nav.push(FormTaskPage, { recId: recordId });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    if (this.type == 'Medicine Cabinet') {
-      console.log('From Cabinet')
-      this.nav.push(FormMedication, {newFromCabinet: true});
-    } else {
-      this.nav.push(FormMedication);
-    }
-  }
-
-  attachRecord() {
-    alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+    this.nav.push(FormTaskPage);
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
-
-  formatDateTime2(dateString) {
-    //alert('FormatDateTime called');
-    if (this.userTimezone !== undefined && this.userTimezone !==null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
-    } else {
-      return moment(dateString).format('MMM DD YYYY');
-    }
+    return moment.utc(dateString).format('MMM DD YYYY hh:mm A');
   }
 
   formatTime(timeString) {
     //alert('FormatDateTime called');
+    if (timeString == null) {
+      return null;
+    }
     var timeSplit = timeString.split(":");
     var hour = timeSplit[0];
     var minute = timeSplit[1];

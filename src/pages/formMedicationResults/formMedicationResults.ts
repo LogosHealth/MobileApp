@@ -53,6 +53,9 @@ export class FormMedicationResults {
   medication: any;
   fromEvent: any;
   fromSymptom: any;
+  eventList: any = [];
+  hasEventList: boolean = false;
+  currentEvent: any;
   evProfile: any;
   sideeffectdata: any;
   sideeffects: FormArray;
@@ -70,6 +73,7 @@ export class FormMedicationResults {
     this.medication = navParams.get('medication');
     this.fromEvent = navParams.get('fromEvent');
     this.fromSymptom = navParams.get('fromSymptom');
+    this.eventList = navParams.get('eventList');
     this.feed.category = navParams.get('category');
 
     if (this.feed.category == undefined || this.feed.category.title == undefined) {
@@ -79,6 +83,7 @@ export class FormMedicationResults {
     console.log('formMedication: recId: ' + this.recId );
     console.log('formMedication: medication: ', this.medication );
     console.log('formMedication: fromEvent: ', this.fromEvent );
+    console.log('formMedication: eventList: ', this.eventList );
 
     if (this.medication !== undefined && this.medication !== null && this.medication.mode !== undefined) {
       this.mode = this.medication.mode;
@@ -92,6 +97,10 @@ export class FormMedicationResults {
       this.evProfile = this.fromEvent.profileid;
     } else if (this.fromSymptom !== undefined && this.fromSymptom !== null && this.fromSymptom.symptomname !== undefined){
       this.evProfile = this.fromSymptom.profileid;
+    }
+    if (this.eventList !== undefined && this.eventList !== null && this.eventList.length > 0) {
+      this.hasEventList = true;
+      console.log('hasEventList: ', this.eventList);
     }
 
     var self = this;
@@ -141,7 +150,7 @@ export class FormMedicationResults {
         namevalue: new FormControl(this.curRec.namevalue),
         startdate: new FormControl(this.curRec.startdate, Validators.required),
         enddate: new FormControl(this.curRec.enddate),
-        verbatimindication: new FormControl({value: this.curRec.verbatimindication, disabled: true}),
+        verbatimindication: new FormControl(this.curRec.verbatimindication),
         dosage: new FormControl(this.curRec.dosage),
         doseunits: new FormControl(this.curRec.doseunits),
         dosefrequency: new FormControl(this.curRec.dosefrequency),
@@ -171,7 +180,7 @@ export class FormMedicationResults {
         namevalue: new FormControl(),
         startdate: new FormControl(null, Validators.required),
         enddate: new FormControl(),
-        verbatimindication: new FormControl({value: null, disabled: true}),
+        verbatimindication: new FormControl(),
         dosage: new FormControl(),
         doseunits: new FormControl(),
         dosefrequency: new FormControl(),
@@ -270,7 +279,7 @@ export class FormMedicationResults {
   }
 
   addExistingSideEffects() {
-    console.log('Starting addExistingTreatmentResults');
+    console.log('Starting addExistingSideEffects');
     this.sideeffects = this.card_form.get('sideeffects') as FormArray;
     if (this.sideeffectdata !== undefined && this.sideeffectdata.items !== undefined && this.sideeffectdata.items.length > 0) {
       var exitLoop = 0;
@@ -463,9 +472,9 @@ export class FormMedicationResults {
       }
         this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
-      if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value > 0) {
+      if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value !==null && this.card_form.get('medicaleventid').value > 0) {
         this.eventSave.medicaleventid = this.card_form.get('medicaleventid').value;
-      } else if (this.card_form.get('symptomid').value !==undefined && this.card_form.get('symptomid').value > 0) {
+      } else if (this.card_form.get('symptomid').value !==undefined && this.card_form.get('symptomid').value !==null && this.card_form.get('symptomid').value > 0) {
         this.eventSave.symptomid = this.card_form.get('symptomid').value;
       } else {
         console.log('Error: No medicaleventid or symptomid');
@@ -662,9 +671,9 @@ navSaveRecordDo(callback){
     }
     this.eventSave.userid = this.RestService.userId;
     this.eventSave.active = 'Y';
-    if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value > 0) {
+    if (this.card_form.get('medicaleventid').value !==undefined && this.card_form.get('medicaleventid').value !==null && this.card_form.get('medicaleventid').value > 0) {
       this.eventSave.medicaleventid = this.card_form.get('medicaleventid').value;
-    } else if (this.card_form.get('symptomid').value !==undefined && this.card_form.get('symptomid').value > 0) {
+    } else if (this.card_form.get('symptomid').value !==undefined && this.card_form.get('symptomid').value !==null && this.card_form.get('symptomid').value > 0) {
       this.eventSave.symptomid = this.card_form.get('symptomid').value;
     } else {
       console.log('Error: No medicaleventid or symptomid');
@@ -776,6 +785,13 @@ navSaveRecordDo(callback){
     return momentNow;
   }
 
+  formatDate(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
+    } else {
+      return moment(dateString).format('MMM DD YYYY');
+    }
+  }
 /*  formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -1018,6 +1034,19 @@ notAsNeeded() {
   this.isAsNeeded = false;
 }
 
+setCurrentEvent (item) {
+  this.currentEvent = item;
+  console.log('From setCurEvt: currentEvent ', this.currentEvent);
+  if (this.currentEvent.type == 'medicalevent') {
+    this.card_form.get('medicaleventid').setValue(this.currentEvent.recordid);
+    this.card_form.get('symptomid').setValue(null);
+  } else if (this.currentEvent.type == 'symptom') {
+    this.card_form.get('medicaleventid').setValue(null);
+    this.card_form.get('symptomid').setValue(this.currentEvent.recordid);
+  } else {
+    console.log('Error in setCurEvt bad type: ' + this.currentEvent.type);
+  }
+}
 
   presentLoadingDefault() {
     this.loading = this.loadingCtrl.create({

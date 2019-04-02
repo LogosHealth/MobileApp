@@ -8,7 +8,7 @@
     <div>
         <form [formGroup]="card_form">
           <section class="form-section">
-            <h2 class = "section-title">Contact Information</h2>   
+            <h2 class = "section-title">Contact Information</h2>
               <ion-row *ngIf="curRec !==undefined && curRec.title !==undefined && curRec.title !== ''">
                 <ion-col>
                   <ion-item>
@@ -51,17 +51,17 @@
                 </ion-col>
               </ion-row>
               <ion-row>
-                <ion-col no-padding width-60>
+                <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label floating>City</ion-label>
                     <ion-input type="text" formControlName="city" [disabled]="fromgoogle"></ion-input>
                   </ion-item>
                 </ion-col>
-                <ion-col no-padding width-15>
+                <ion-col no-padding width-25>
                   <ion-item>
                     <ion-label floating>State</ion-label>
                     <ion-select formControlName="state">
-                        <ion-option *ngFor="let state of stateList" [value]="state.recordid" [disabled]="fromgoogle">{{state.codeddictionary}}</ion-option>                
+                        <ion-option *ngFor="let state of stateList" [value]="state.recordid" [disabled]="fromgoogle">{{state.codeddictionary}}</ion-option>
                     </ion-select>
                   </ion-item>
                 </ion-col>
@@ -109,31 +109,31 @@
                     <ion-item>
                       <ion-label floating>Physician Type*</ion-label>
                       <ion-select formControlName="doctortype">
-                        <ion-option *ngFor="let dt of doctorTypeList" [value]="dt.recordid">{{dt.dictionarycode}}</ion-option>                
+                        <ion-option *ngFor="let dt of doctorTypeList" [value]="dt.recordid">{{dt.dictionarycode}}</ion-option>
                       </ion-select>
                     </ion-item>
                   </ion-col>
                   <ion-col no-padding width-40>
                     <ion-item>
-                      <ion-label floating text-wrap>Covered by Insurance</ion-label>
+                      <ion-label floating text-wrap>Covered</ion-label>
                       <ion-select formControlName="covered">
                           <ion-option class="section-title" value="Y">Yes</ion-option>
                           <ion-option class="section-title" value="N">No</ion-option>
                         </ion-select>
                     </ion-item>
                   </ion-col>
-              </ion-row>  
+              </ion-row>
               <ion-row  *ngIf="isfacility">
                 <ion-col no-padding>
                   <ion-item>
-                    <ion-label floating text-wrap>Covered by Insurance</ion-label>
+                    <ion-label floating text-wrap>Covered</ion-label>
                     <ion-select formControlName="covered">
                         <ion-option class="section-title" value="Y">Yes</ion-option>
                         <ion-option class="section-title" value="N">No</ion-option>
                       </ion-select>
                   </ion-item>
                 </ion-col>
-              </ion-row>  
+              </ion-row>
           <p class="section-footnote">*Required</p>
           </section>
           <section class="form-section">
@@ -141,9 +141,9 @@
               <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit">Save</button>
             </ion-col>
-            <ion-col no-padding width-50> 
+            <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Inactivate</button>
-            </ion-col>    
+            </ion-col>
            </ion-row>
           </section>
         </form>

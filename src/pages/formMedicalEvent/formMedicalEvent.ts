@@ -1050,15 +1050,22 @@ setFilteredItems() {
 
 filterItems(searchTerm){
   if (this.listFilter.items !== undefined) {
-    if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1 &&
-    this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase() ){
+    if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1
+      && this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()){
+        console.log('Filter Items: loop 1');
+        return [];
+    } else if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length > 0 &&
+      this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()) {
+      console.log('Filter Items: loop 2');
       return [];
     } else {
+      console.log('Filter Items: loop 3');
       return this.listFilter.items[0].dictionary.filter((item) => {
         return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
       });
     }
   } else {
+    console.log('Filter Items: loop 4');
     return [];
   }
 }

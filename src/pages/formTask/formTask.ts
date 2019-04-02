@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
-import { FormTaskModel, FormTask } from '../../pages/formTask/formTask.model';
+import { ListTaskModel, ListTask } from '../../pages/listTask/listTask.model';
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
@@ -25,22 +25,30 @@ export class FormTaskPage {
   curRec: any;
   newRec: boolean = false;
   saving: boolean = false;
-  taskModelSave: FormTaskModel  = new FormTaskModel();
-  taskSave: FormTask = new FormTask();
+  taskModelSave: ListTaskModel  = new ListTaskModel();
+  taskSave: ListTask = new ListTask();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
   list2: ListGoalsModel = new ListGoalsModel();
   categories_checkbox_open: boolean;
   categories_checkbox_result;
+  upcoming: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
 
     this.recId = navParams.get('recId');
     this.goalname = navParams.get('goalname');
+    this.upcoming = navParams.get('upcoming');
+
+    if (this.upcoming == undefined || this.upcoming == null) {
+      this.upcoming = false;
+    }
     if (this.goalname == undefined) {
-      alert('No goal name');
+      //alert('No goal name');
       this.goalname = "";
+    } else {
+      console.log('goalname obj: ', this.goalname);
     }
     this.curRec = RestService.results[this.recId];
     var self = this;
@@ -57,8 +65,12 @@ export class FormTaskPage {
         reps: new FormControl(this.curRec.reps),
         goalname: new FormControl(this.curRec.goalname),
         goalid: new FormControl(this.curRec.goalid),
+        shortdescription: new FormControl(this.curRec.shortdescription),
+        description: new FormControl(this.curRec.description),
+        duedate: new FormControl(this.curRec.duedate),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         confirmed: new FormControl(this.curRec.confirmed),
+        completed: new FormControl(this.curRec.completed),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
       });
@@ -71,8 +83,12 @@ export class FormTaskPage {
         reps: new FormControl(),
         goalname: new FormControl(this.goalname),
         goalid: new FormControl(),
+        shortdescription: new FormControl(),
+        description: new FormControl(),
+        duedate: new FormControl(),
         dateofmeasure: new FormControl(),
         confirmed: new FormControl(),
+        completed: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -250,6 +266,24 @@ export class FormTaskPage {
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
         this.taskSave.goalname = this.card_form.get('goalname').value;
       }
+      if (this.card_form.get('shortdescription').dirty){
+        this.taskSave.shortdescription = this.card_form.get('shortdescription').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.taskSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('completed').dirty){
+        if (this.card_form.get('completed').value == true) {
+          this.taskSave.completed = 'Y';
+        } else {
+          this.taskSave.completed = 'N';
+        }
+      }
+      if (this.card_form.get('duedate').dirty){
+        this.taskSave.duedate = this.card_form.get('duedate').value;
+        console.log('Due date to save: ' + this.taskSave.duedate);
+      }
+
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
         this.taskSave.timezone = this.userTimezone;
       }
@@ -267,6 +301,24 @@ export class FormTaskPage {
       if (this.card_form.get('goalname').dirty || this.card_form.get('goalname').value !== null){
         this.taskSave.goalname = this.card_form.get('goalname').value;
       }
+      if (this.card_form.get('shortdescription').dirty){
+        this.taskSave.shortdescription = this.card_form.get('shortdescription').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.taskSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('completed').dirty){
+        if (this.card_form.get('completed').value == true) {
+          this.taskSave.completed = 'Y';
+        } else {
+          this.taskSave.completed = 'N';
+        }
+      }
+      if (this.card_form.get('duedate').dirty){
+        this.taskSave.duedate = this.card_form.get('duedate').value;
+        console.log('Due date to save: ' + this.taskSave.duedate);
+      }
+
       if (this.card_form.get('dateofmeasure').dirty){
         if (this.userTimezone !== undefined) {
           dtDET = moment.tz(this.card_form.get('dateofmeasure').value, this.userTimezone);

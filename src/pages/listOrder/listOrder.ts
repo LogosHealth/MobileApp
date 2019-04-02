@@ -120,6 +120,8 @@ export class ListOrderPage {
                 }
               });
             } else {
+              self.list2.items = self.RestService.results;
+              alert('Your search yielded no results.');
               self.loadFilterList();
             }
         } else {
@@ -260,15 +262,22 @@ export class ListOrderPage {
 
   filterItems(searchTerm){
     if (this.listFilter.items !== undefined) {
-      if (this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1 &&
-      this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].name.toLowerCase() == searchTerm.toLowerCase() ){
+      if (this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1
+        && this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].name.toLowerCase() == searchTerm.toLowerCase()){
+          console.log('Filter Items: loop 1');
+          return [];
+      } else if (this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length > 0 &&
+        this.listFilter.items.filter((item) => {return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].name.toLowerCase() == searchTerm.toLowerCase()) {
+        console.log('Filter Items: loop 2');
         return [];
       } else {
+        console.log('Filter Items: loop 3');
         return this.listFilter.items.filter((item) => {
           return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
         });
       }
     } else {
+      console.log('Filter Items: loop 4');
       return [];
     }
   }
@@ -388,6 +397,8 @@ export class ListOrderPage {
               }
             });
           } else {
+            alert('Your search yielded no results.');
+            self.list2.items = [];
             self.getFilterPane();
             self.loading.dismiss();
           }

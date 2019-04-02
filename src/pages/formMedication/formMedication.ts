@@ -43,6 +43,7 @@ export class FormMedication {
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  futureLimit: any;
   categories_checkbox_open: boolean;
   categories_checkbox_result;
   feed: FeedModel = new FeedModel();
@@ -59,18 +60,23 @@ export class FormMedication {
   isDone: boolean = false;
   hasTreatments: boolean = false;
   treatingEvent: boolean = false;
+  needEventList: boolean = false;
+  eventList: any = [];
+  currentEvent: any;
+  newFromCabinet: boolean = false;
 
   medication: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
   eventTerm: string = '';
   items: any;
-  comingBack: boolean = false;
+  userCount: any = 0;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
     public popoverCtrl:PopoverController, public formBuilder: FormBuilder, //private callNumber: CallNumber
     ) {
 
+    this.userCount = this.RestService.Profiles.length;
     this.recId = navParams.get('recId');
     this.loadFromId = navParams.get('loadFromId');
     //this.visitInfo = navParams.get('visit');
@@ -79,6 +85,11 @@ export class FormMedication {
     console.log('formMedication from Event ', this.fromEvent);
     this.fromSymptom = navParams.get('fromSymptom');
     console.log('formMedication from Symptom ', this.fromSymptom);
+    this.newFromCabinet = navParams.get('newFromCabinet');
+    if (this.newFromCabinet == undefined || this.newFromCabinet == null) {
+      this.newFromCabinet = false;
+    }
+    console.log('formMedication newFromCabinet ', this.newFromCabinet);
 
     if (this.feed.category == undefined || this.feed.category == null) {
       this.feed.category = {title: 'Medication'};
@@ -102,6 +113,7 @@ export class FormMedication {
       this.minuteNow = this.momentNow.format('mm');
       this.timeNow = this.momentNow.format('HH:mm');
     }
+    this.futureLimit = moment(new Date()).add(5, 'years');
 
     this.curRec = RestService.results[this.recId];
     console.log('Init Medication - curRec: ', this.curRec);
@@ -117,10 +129,10 @@ export class FormMedication {
         accountid: new FormControl(this.curRec.accountid),
         drugid: new FormControl(this.curRec.drugid),
         formulation: new FormControl(this.curRec.formulation),
-        manufacturer: new FormControl(),
+        manufacturer: new FormControl(this.curRec.manufacturer),
         mode: new FormControl(this.curRec.mode, Validators.required),
         type: new FormControl(this.curRec.type),
-        purchasedate: new FormControl(this.curRec.purchasedate, Validators.max(this.timeNow)),
+        purchasedate: new FormControl(this.curRec.purchasedate, Validators.max(this.momentNow)),
         expiration: new FormControl(this.curRec.expiration),
         startinginventory: new FormControl(this.curRec.startinginventory),
         inventory: new FormControl(this.curRec.inventory),
@@ -131,17 +143,23 @@ export class FormMedication {
         specialinstruction: new FormControl(this.curRec.specialinstruction),
         confirmed: new FormControl(this.curRec.confirmed),
         verbatimindication: new FormControl(),
-        startdate: new FormControl(),
+        startdate: new FormControl(this.todayNow()),
         enddate: new FormControl(),
         medicaleventid: new FormControl(),
         symptomid: new FormControl(),
 
         treatmentresults: this.formBuilder.array([]),
       });
-    this.medication = new FormControl(this.curRec.medicationname, Validators.required);
+      this.medication = new FormControl(this.curRec.medicationname, Validators.required);
       this.eventTerm = this.curRec.medicationname;
       this.addExistingTreatmentResults();
     } else {
+      var modeValue;
+      if (this.newFromCabinet) {
+        modeValue = 'cabinet';
+      } else {
+        modeValue = null;
+      }
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
@@ -149,10 +167,10 @@ export class FormMedication {
         drugid: new FormControl(),
         formulation: new FormControl(),
         manufacturer: new FormControl(),
-        mode: new FormControl(null, Validators.required),
+        mode: new FormControl(modeValue, Validators.required),
         type: new FormControl(),
-        purchasedate: new FormControl(null, Validators.max(this.timeNow)),
-        expiration: new FormControl(),
+        purchasedate: new FormControl(null, Validators.max(this.momentNow)),
+        expiration: new FormControl(null),
         startinginventory: new FormControl(),
         inventory: new FormControl(),
         inventoryunit: new FormControl(),
@@ -162,14 +180,14 @@ export class FormMedication {
         specialinstruction: new FormControl(),
         confirmed: new FormControl(),
         verbatimindication: new FormControl(),
-        startdate: new FormControl(),
+        startdate: new FormControl(this.todayNow()),
         enddate: new FormControl(),
         medicaleventid: new FormControl(),
         symptomid: new FormControl(),
 
         treatmentresults: this.formBuilder.array([]),
       });
-      this.medication = new FormControl({value: null, disabled: this.isDone}, Validators.required);
+      this.medication = new FormControl(null, Validators.required);
       this.addBasicInfo();
     }
   }
@@ -305,6 +323,50 @@ export class FormMedication {
     });
   }
 
+  loadEventList() {
+    //this.presentLoadingDefault();
+    console.log('Start loadEventList!');
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/EventListByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      console.log('Result from formMed.loadEventList - loadFromID: ' + self.loadFromId, result);
+      if (result !== undefined && result.data !== undefined && result.data[0] !== undefined && result.data[0].recordid > 0) {
+        self.eventList = result.data;
+        self.loading.dismiss();
+        console.log('formMedication.loadEventList: ', self.eventList);
+      } else {
+        console.log('formMedication.loadEventList - no data: ', result);
+        self.loading.dismiss();
+      }
+    }).catch( function(result){
+      console.log('Err from formMedication.loadEventList: ', result);
+      self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
+    });
+  }
+
   fillFormDetails() {
     console.log('Add data from fillFormDetails: ', this.curRec);
     if (this.curRec.completeflag !== undefined && this.curRec.completeflag == 'Y') {
@@ -344,6 +406,7 @@ export class FormMedication {
     this.treatmentresults = this.card_form.get('treatmentresults') as FormArray;
     if (this.curRec !== undefined && this.curRec.treatmentresults !== undefined && this.curRec.treatmentresults.items !== undefined
       && this.curRec.treatmentresults.items.length > 0) {
+        console.log('AddTR has TR');
         this.hasTreatments = true;
         var exitLoop = 0;
 
@@ -364,10 +427,17 @@ export class FormMedication {
         this.treatmentresults.push(this.addExistingTreatmentResult(j));
       }
       this.addBasicInfo();
+    } else {
+      console.log('AddTR no TR');
+      this.addBasicInfo();
     }
   }
 
   addBasicInfo() {
+    console.log('Start addBasicInfo');
+    if (this.newFromCabinet) {
+      this.setMode('cabinet');
+    }
     if (this.mode !== undefined && this.mode == 'basic' && this.curRec.treatmentresults.items.length == 1) {
       this.card_form.get('verbatimindication').setValue(this.curRec.treatmentresults.items[0].verbatimindication);
       //this.card_form.get('startdate').setValue({value: this.curRec.treatmentresults.items[0].startdate, disabled: this.isDone});
@@ -383,11 +453,22 @@ export class FormMedication {
       this.card_form.get('symptomid').setValue(this.fromSymptom.symptomid);
       this.card_form.get('verbatimindication').setValue(this.fromSymptom.symptomname);
       console.log('Add Basic Info symptomid: ' + this.card_form.get('symptomid').value);
+    } else {
+      this.needEventList = true;
+      console.log('Need Event List! boolean = ' + this.needEventList);
+      this.loadEventList();
     }
   }
 
   addExistingTreatmentResult(index): FormGroup {
     console.log('Starting addExistingTreatmentResult index: ' + index);
+    var verbatim;
+    if (this.userCount > 1) {
+      verbatim = this.curRec.treatmentresults.items[index].verbatimindication + " (" + this.curRec.treatmentresults.items[index].firstname + ")"
+    } else {
+      verbatim = this.curRec.treatmentresults.items[index].verbatimindication;
+    }
+
     return this.formBuilder.group({
       recordid: new FormControl({value: this.curRec.treatmentresults.items[index].recordid, disabled: true}),
       symptomid: new FormControl({value: this.curRec.treatmentresults.items[index].symptomid, disabled: true}),
@@ -400,7 +481,7 @@ export class FormMedication {
       namevalue: new FormControl({value: this.curRec.treatmentresults.items[index].namevalue, disabled: true}),
       startdate: new FormControl({value: this.curRec.treatmentresults.items[index].startdate, disabled: true}),
       enddate: new FormControl({value: this.curRec.treatmentresults.items[index].enddate, disabled: true}),
-      verbatimindication: new FormControl({value: this.curRec.treatmentresults.items[index].verbatimindication, disabled: true}),
+      verbatimindication: new FormControl({value: verbatim, disabled: true}),
       dosage: new FormControl({value: this.curRec.treatmentresults.items[index].dosage, disabled: true}),
       doseunits: new FormControl({value: this.curRec.treatmentresults.items[index].doseunits, disabled: true}),
       dosefrequency: new FormControl({value: this.curRec.treatmentresults.items[index].dosefrequency, disabled: true}),
@@ -550,6 +631,10 @@ export class FormMedication {
         this.eventSave.formulation = this.card_form.get('formulation').value;
         this.curRec.formulation = this.card_form.get('formulation').value;
       }
+      if (this.card_form.get('manufacturer').dirty){
+        this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
+        this.curRec.manufacturer = this.card_form.get('manufacturer').value;
+      }
       if (this.card_form.get('mode').dirty){
         this.eventSave.mode = this.card_form.get('mode').value;
         this.curRec.mode = this.card_form.get('mode').value;
@@ -600,11 +685,11 @@ export class FormMedication {
       }
 
       if (!this.basicModeHasTR && this.card_form.get('mode').value == 'basic') {
-        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value > 0) {
+        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
           tr.medicaleventid = this.card_form.get('medicaleventid').value;
           blnAddTR = true;
         }
-        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value > 0) {
+        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null && this.card_form.get('symptomid').value > 0) {
           tr.symptomid = this.card_form.get('symptomid').value;
           blnAddTR = true;
         }
@@ -624,11 +709,11 @@ export class FormMedication {
         }
 
         if (blnAddTR) {
-          console.log("")
           if (this.fromEvent !== undefined && this.fromEvent.profileid !== undefined) {
-
+            tr.profileid = this.fromEvent.profileid;
+          } else {
+            tr.profileid = this.RestService.currentProfile;
           }
-          tr.profileid = this.fromEvent
           this.eventSave.treatmentresults = new TreatmentResults();
           this.eventSave.treatmentresults.items = [];
           this.eventSave.treatmentresults.items.push(tr);
@@ -664,6 +749,9 @@ export class FormMedication {
 
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
+      }
+      if (this.card_form.get('manufacturer').dirty){
+        this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
       }
       if (this.card_form.get('mode').dirty){
         this.eventSave.mode = this.card_form.get('mode').value;
@@ -703,11 +791,11 @@ export class FormMedication {
       }
 
       if (!this.basicModeHasTR && this.card_form.get('mode').value == 'basic') {
-        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value > 0) {
+        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
           tr.medicaleventid = this.card_form.get('medicaleventid').value;
           blnAddTR = true;
         }
-        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value > 0) {
+        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null && this.card_form.get('symptomid').value > 0) {
           tr.symptomid = this.card_form.get('symptomid').value;
           blnAddTR = true;
         }
@@ -727,6 +815,11 @@ export class FormMedication {
         }
 
         if (blnAddTR) {
+          if (this.fromEvent !== undefined && this.fromEvent.profileid !== undefined) {
+            tr.profileid = this.fromEvent.profileid;
+          } else {
+            tr.profileid = this.RestService.currentProfile;
+          }
           this.eventSave.treatmentresults = new TreatmentResults();
           this.eventSave.treatmentresults.items = [];
           this.eventSave.treatmentresults.items.push(tr);
@@ -833,6 +926,9 @@ export class FormMedication {
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
       }
+      if (this.card_form.get('manufacturer').dirty){
+        this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
+      }
       if (this.card_form.get('mode').dirty){
         this.eventSave.mode = this.card_form.get('mode').value;
       }
@@ -868,11 +964,11 @@ export class FormMedication {
       }
 
       if (!this.basicModeHasTR && this.card_form.get('mode').value == 'basic') {
-        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value > 0) {
+        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
           tr.medicaleventid = this.card_form.get('medicaleventid').value;
           blnAddTR = true;
         }
-        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value > 0) {
+        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null && this.card_form.get('symptomid').value > 0) {
           tr.symptomid = this.card_form.get('symptomid').value;
           blnAddTR = true;
         }
@@ -892,6 +988,11 @@ export class FormMedication {
         }
 
         if (blnAddTR) {
+          if (this.fromEvent !== undefined && this.fromEvent.profileid !== undefined) {
+            tr.profileid = this.fromEvent.profileid;
+          } else {
+            tr.profileid = this.RestService.currentProfile;
+          }
           //console.log('Check treatment results save2: ', this.curRec.treatmentresults);
           this.eventSave.treatmentresults = new TreatmentResults();
           this.eventSave.treatmentresults.items = [];
@@ -930,6 +1031,9 @@ export class FormMedication {
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
       }
+      if (this.card_form.get('manufacturer').dirty){
+        this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
+      }
       if (this.card_form.get('mode').dirty){
         this.eventSave.mode = this.card_form.get('mode').value;
       }
@@ -965,11 +1069,11 @@ export class FormMedication {
       }
 
       if (!this.basicModeHasTR && this.card_form.get('mode').value == 'basic') {
-        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value > 0) {
+        if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
           tr.medicaleventid = this.card_form.get('medicaleventid').value;
           blnAddTR = true;
         }
-        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value > 0) {
+        if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value > 0) {
           tr.symptomid = this.card_form.get('symptomid').value;
           blnAddTR = true;
         }
@@ -990,6 +1094,11 @@ export class FormMedication {
 
         if (blnAddTR) {
          // console.log('Check treatment results save3: ', this.curRec.treatmentresults);
+         if (this.fromEvent !== undefined && this.fromEvent.profileid !== undefined) {
+            tr.profileid = this.fromEvent.profileid;
+          } else {
+            tr.profileid = this.RestService.currentProfile;
+          }
           this.eventSave.treatmentresults = new TreatmentResults();
           this.eventSave.treatmentresults.items = [];
           this.eventSave.treatmentresults.items.push(tr);
@@ -1067,6 +1176,26 @@ export class FormMedication {
     return momentNow;
   }
 
+  public todayNow() {
+    //Used as max day in date of measure control
+    var momentNow;
+
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DDTHH:mm');
+    } else {
+      momentNow = this.momentNow.format('YYYY-MM-DDTHH:mm');
+    }
+    console.log('From Today momentNow: ' + momentNow);
+    return momentNow;
+  }
+
+  formatDate(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
+    } else {
+      return moment(dateString).format('MMM DD YYYY');
+    }
+  }
 /*  formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !=="") {
       return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
@@ -1210,8 +1339,8 @@ export class FormMedication {
               } else {
                 console.log('Results from navSaveRecord: ', results);
                 if (self.newRec) {
-                  var medicationname = self.eventTerm;
-                  self.curRec = {recordid: results, medicationname: medicationname};
+                  self.curRec = self.eventSave;
+                  self.curRec.recordid = results;
                   self.loadFromId = results;
                   console.log('new Medication record: ', self.curRec);
                 } else {
@@ -1233,20 +1362,28 @@ export class FormMedication {
 
 setFilteredItems() {
   this.items = this.filterItems(this.eventTerm);
+  console.log('setFilteredItems: ', this.items);
   //alert('Search Term:' + this.searchTerm);
 }
 
 filterItems(searchTerm){
   if (this.listFilter.items !== undefined) {
-    if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1 &&
-    this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase() ){
+    if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1
+      && this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()){
+        console.log('Filter Items: loop 1');
+        return [];
+    } else if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length > 0 &&
+      this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()) {
+      console.log('Filter Items: loop 2');
       return [];
     } else {
+      console.log('Filter Items: loop 3');
       return this.listFilter.items[0].dictionary.filter((item) => {
         return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
       });
     }
   } else {
+    console.log('Filter Items: loop 4');
     return [];
   }
 }
@@ -1263,7 +1400,7 @@ showList() {
   if (this.eventTerm == undefined) {
     this.eventTerm = "";
   }
-  //console.log('Event Focus: ' + this.eventHasFocus + ', term: ' + this.eventTerm);
+  //console.log('Event Term Length: ' + this.eventTerm.length + ', term: ', this.eventTerm);
   if (this.eventTerm.length > 1) {
     return true;
   } else {
@@ -1362,6 +1499,7 @@ setMode (mode) {
 addNewTreatmentResults() {
   var cat;
   var self = this;
+  var isBasic = false;
 
   this.checkSave = true;
 //  this.RestService.results = this.curRec.treatmentresults.items;
@@ -1375,11 +1513,35 @@ addNewTreatmentResults() {
       if (result) {
         console.log("Add New Treatment Results CurRec ", self.curRec);
         console.log("Add New Treatment Results fromEvent ", self.fromEvent);
-        if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
-          self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, fromEvent: self.fromEvent});
-        } else {
-          self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat});
+
+        if (self.loadFromId == undefined || self.loadFromId == null) {
+          if (self.curRec !== undefined && self.curRec !== null && self.curRec.recordid !== undefined) {
+            self.loadFromId = self.curRec.recordid;
+          }
         }
+
+        if (self.mode == 'basic') {
+          if (self.curRec.treatmentresults.items.length == 1) {
+            console.log('add New Treatment - setting basic');
+            self.RestService.results = self.curRec.treatmentresults.items;
+            isBasic = true;
+          }
+        }
+
+        if (isBasic) {
+          if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
+            self.nav.push(FormMedicationResults, {recId: 0, medication: self.curRec, category: cat, fromEvent: self.fromEvent});
+          } else {
+            self.nav.push(FormMedicationResults, {recId: 0, medication: self.curRec, category: cat});
+          }
+        } else {
+          if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
+            self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, fromEvent: self.fromEvent});
+          } else {
+            self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, eventList: self.eventList});
+          }
+        }
+
       } else if (!result) {
         console.log('addNewTreatmentResults.ConfirmSaveDirect - User cancelled');
       }
@@ -1427,6 +1589,20 @@ updateTreatmentResults(index) {
       }
     }
   });
+}
+
+setCurrentEvent (item) {
+  this.currentEvent = item;
+  console.log('From setCurEvt: currentEvent ', this.currentEvent);
+  if (this.currentEvent.type == 'medicalevent') {
+    this.card_form.get('medicaleventid').setValue(this.currentEvent.recordid);
+    this.card_form.get('symptomid').setValue(null);
+  } else if (this.currentEvent.type == 'symptom') {
+    this.card_form.get('medicaleventid').setValue(null);
+    this.card_form.get('symptomid').setValue(this.currentEvent.recordid);
+  } else {
+    console.log('Error in setCurEvt bad type: ' + this.currentEvent.type);
+  }
 }
 
   presentLoadingDefault() {

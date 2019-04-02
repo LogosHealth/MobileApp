@@ -128,6 +128,8 @@ export class ListMeasurePage {
             console.log("Results Data for Get Weight: ", self.list2.items);
         } else {
           self.curObj = "weight";
+          self.RestService.results = [];
+          self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -174,6 +176,8 @@ export class ListMeasurePage {
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
             self.curObj = "bloodGlucose";
+            self.RestService.results = [];
+            self.list2.items = [];
             console.log("Results Data for loadDataBG: ", self.list2.items);
         } else {
           self.curObj = "bloodGlucose";
@@ -225,6 +229,8 @@ export class ListMeasurePage {
             console.log("Results Data for loadDataMood: ", self.list2.items);
         } else {
           self.curObj = "mood";
+          self.RestService.results = [];
+          self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -273,6 +279,8 @@ export class ListMeasurePage {
             console.log("Results Data for loadTemperature: ", self.list2.items);
         } else {
           self.curObj = "temperature";
+          self.RestService.results = [];
+          self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -321,6 +329,8 @@ export class ListMeasurePage {
             console.log("Results Data for loadSymptom: ", self.list2.items);
         } else {
           self.curObj = "symptom";
+          self.RestService.results = [];
+          self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();

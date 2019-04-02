@@ -39,6 +39,8 @@ export class ListingPage {
   lineChart: any;
   myphoto:any;
   blnShowFeed: boolean = false;
+  hasNotifications: boolean = true;
+  notifyCount: number = 5;
 
   constructor(
     public nav: NavController,
@@ -95,6 +97,7 @@ export class ListingPage {
 
     //Resetting Medicine tile title
     this.listing.categories[6].title = 'Medicine';
+    this.listing.categories[1].title = 'Achieve';
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
@@ -398,9 +401,9 @@ export class ListingPage {
     console.log("Clicked goToFeed", category);
     if (category.title == 'Order a Meal') {
       this.nav.push(ListOrderPage, { category: category });
-    } else if (category.title == 'Achieve') {
+    } else if (category.title == 'Achieve' || category.title == 'My Tasks') {
       this.nav.push(ListGoalProgressPage, { category: category });
-    } else if (category.title == 'Invest in You') {
+    } else if (category.title == 'Fitness') {
       this.nav.push(ListExercisePage, { category: category });
     } else if (category.title == 'Sleep') {
       this.nav.push(ListSleepPage, { category: category });
@@ -418,6 +421,10 @@ export class ListingPage {
         this.nav.push(FeedPage, { category: category });
       }
     }
+  }
+
+  showNotifications() {
+    alert('Coming soon');
   }
 
   setProfileID(profileID, index) {

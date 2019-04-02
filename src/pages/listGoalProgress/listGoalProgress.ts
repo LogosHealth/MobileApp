@@ -6,6 +6,7 @@ import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { RestService } from '../../app/services/restService.service';
 import { ListGoalProgressDetailPage } from '../../pages/listGoalProgressDetail/listGoalProgressDetail';
+import { FormTaskPage } from '../../pages/formTask/formTask';
 import { HistoryItemModel } from '../../pages/history/history.model';
 
 var moment = require('moment-timezone');
@@ -38,7 +39,11 @@ export class ListGoalProgressPage {
 
     if (dtNow < dtExpiration) {
       this.presentLoadingDefault();
-      this.loadData();
+      if (this.feed.category.title == 'Achieve') {
+        this.loadData();
+      } else if (this.feed.category.title == 'My Tasks') {
+        this.loadTaskData();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -48,7 +53,11 @@ export class ListGoalProgressPage {
           self.RestService.appRestart();
         } else {
           console.log('From listGoalProgress - Credentials refreshed!');
-          self.loadData();
+          if (self.feed.category.title == 'Achieve') {
+            self.loadData();
+          } else if (self.feed.category.title == 'My Tasks') {
+            self.loadTaskData();
+          }
         }
       });
     }
@@ -90,11 +99,61 @@ export class ListGoalProgressPage {
             console.log("Results Data for Get Goals: ", self.list2.items);
         } else {
             console.log('Results from listGoalProgress.loadData', self.RestService.results);
+            self.list2.items = [];
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.list2.items = [];
+        self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
+    });
+  }
+
+  loadTaskData() {
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TasksByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            upcoming: 'Y'
+        }
+    };
+    var body = '';
+    var self = this;
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      self.list2Service
+      .getData()
+      .then(data => {
+        if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Goals: ", self.list2.items);
+        } else {
+            console.log('Results from listGoalProgress.loadData', self.RestService.results);
+            self.list2.items = [];
+          }
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+        console.log(result);
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -102,10 +161,28 @@ export class ListGoalProgressPage {
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    this.category.title = this.RestService.results[recordId].goalname;
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(ListGoalProgressDetailPage, { recId: recordId, category: this.category });
-    //alert('Open Record:' + recordId);
+    if (this.feed.category.title == 'Achieve') {
+      this.category.title = this.RestService.results[recordId].goalname;
+      this.nav.push(ListGoalProgressDetailPage, { recId: recordId, category: this.category });
+    } else if (this.feed.category.title == 'My Tasks') {
+      this.nav.push(FormTaskPage, { recId: recordId, category: this.category, upcoming: true });
+    }
+  }
+
+  flipSearch() {
+    if (this.feed.category.title == 'Achieve') {
+      this.feed.category.title = 'My Tasks';
+      this.list2.items = [];
+      this.loadTaskData();
+    } else if (this.feed.category.title == 'My Tasks') {
+      this.feed.category.title = 'Achieve';
+      this.list2.items = [];
+      this.loadData();
+    }
+  }
+
+  formatDateTime(dateString) {
+    return moment.utc(dateString).format('MMM DD YYYY hh:mm A');
   }
 
   presentLoadingDefault() {

@@ -4,6 +4,10 @@
       <b>Conquer Today {{getCurrentUserName()}}</b>
     </ion-title>
       <ion-buttons right>
+        <button *ngIf="hasNotifications" id="notification-button" ion-button icon-only (click)="showNotifications()" [title]="getButtonLabel()">
+          <ion-badge id="notifications-badge">{{ notifyCount }}</ion-badge>
+          <ion-icon name="notifications"></ion-icon>
+        </button>
         <button *ngIf="userCount > 1" ion-button icon-only (click)="changeUser()"  [title]="getButtonLabel()">
           <ion-icon name="person"></ion-icon>
         </button>

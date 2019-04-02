@@ -15,12 +15,22 @@
               <ion-input type="text" formControlName="formulation"></ion-input>
             </ion-item>
           </ion-row>
-          <ion-row>
+          <ion-row  *ngIf="hasEventList==false">
             <ion-item>
               <ion-label floating>For</ion-label>
-              <ion-input type="text" formControlName="verbatimindication"></ion-input>
+              <ion-input type="text" formControlName="verbatimindication" [disabled]="true"></ion-input>
             </ion-item>
           </ion-row>
+          <ion-row *ngIf="hasEventList==true">
+            <ion-item>
+              <ion-label floating>For*</ion-label>
+              <ion-select formControlName="verbatimindication">
+                <ion-option *ngFor="let item of eventList" (ionSelect)="setCurrentEvent(item)" [value]="item.name">{{item.name}} {{formatDate(item.startdate)}}</ion-option>
+              </ion-select>
+          </ion-item>
+          </ion-row>
+
+
 
           <ion-row *ngIf="mode == 'cabinet'">
             <ion-col no-padding width-30>
@@ -61,7 +71,7 @@
             <ion-col no-padding width-60>
               <ion-item>
                 <ion-label floating>Start Date*</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY hh:mm A"  formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY hh:mm a" pickerFormat="MMM DD YY hh:mm a" formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
               </ion-item>
               </ion-col>
               <ion-col no-padding width-40>

@@ -4,7 +4,7 @@
         <ion-icon name="menu"></ion-icon>
       </button>
       <ion-title>
-        <span>{{ feed.category.title }}</span>
+        <span  class="intro-text" text-wrap>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
         <button ion-button icon-only (click)="addNew()">
@@ -21,10 +21,9 @@
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{item.goalname}}</h3>
-            <p class = "item-description" *ngIf="item.goalunitvalue !== 'Number'">Target: {{item.goalnumber}} {{item.goalunitvalue}}</p>
-            <p class = "item-description" *ngIf="item.goalunitvalue == 'Number'">Target: {{item.goalnumber}} {{item.goalname}}</p>
-            <p class = "item-description">Days a week: {{item.daysperweekvalue}}</p>
+            <h3 class="item-title">{{item.taskname}}</h3>
+            <p class = "item-description" *ngIf="item.shortdescription !== undefined && item.shortdescription !== null">Description: {{item.shortdescription}}</p>
+            <p class = "item-description" >Due Date: {{formatDateTime(item.duedate)}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

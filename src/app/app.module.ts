@@ -54,6 +54,7 @@ import { ListMedicalEvent } from '../pages/listMedicalEvent/listMedicalEvent';
 import { ListMedicationResults } from '../pages/listMedicationResults/listMedicationResults';
 import { ListTreatmentPage } from '../pages/listTreatment/listTreatment';
 import { ListDoseHistory } from '../pages/listDoseHistory/listDoseHistory';
+import { ListTaskPage } from '../pages/listTask/listTask';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -92,7 +93,6 @@ import { FormMedSchedule } from '../pages/formMedSchedule/formMedSchedule';
 import { FormMedicationResults } from '../pages/formMedicationResults/formMedicationResults';
 import { FormDoseHistory } from '../pages/formDoseHistory/formDoseHistory';
 
-
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
 import { MenuLifestyle } from '../pages/menuLifestyle/menuLifestyle';
@@ -127,7 +127,7 @@ import { FoodPrefService } from '../pages/formFoodPref/foodPref.service';
 import { ListGoalsService } from '../pages/listGoals/listGoals.service';
 import { DictionaryService } from '../pages/models/dictionary.service';
 import { ListExerciseService } from '../pages/listExercise/listExercise.service';
-import { FormTaskService } from '../pages/formTask/formTask.service';
+import { ListTaskService } from '../pages/listTask/listTask.service';
 import { ListSleepService } from '../pages/listSleep/listSleep.service';
 import { ListMeasureService } from '../pages/listMeasure/listMeasure.service';
 import { ListLabsService } from '../pages/listLabs/listLabs.service';
@@ -228,6 +228,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicationResults,
     ListTreatmentPage,
     ListDoseHistory,
+    ListTaskPage,
 
     GridPage,
     FormLayoutPage,
@@ -347,6 +348,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListMedicationResults,
     ListTreatmentPage,
     ListDoseHistory,
+    ListTaskPage,
 
     GridPage,
     FormLayoutPage,
@@ -418,7 +420,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListGoalsService,
     DictionaryService,
     ListExerciseService,
-    FormTaskService,
+    ListTaskService,
     ListSleepService,
     ListMeasureService,
     ListLabsService,

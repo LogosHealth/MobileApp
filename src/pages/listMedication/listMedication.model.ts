@@ -5,6 +5,7 @@ export class ListMedication {
   medicaleventid: number;
   medicationname:string;
   formulation: string;
+  manufacturer: string;
   mode: string;
   type: string;
   purchasedate: string;
@@ -28,6 +29,7 @@ export class ListMedication {
 export class TreatmentResult {
   recordid: number;
   profileid: number;
+  firstname: string;
   symptomid:number;
   medicaleventid:number;
   reftable:string;

@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Medication Form</ion-title>
+    <ion-title>Medicine Form</ion-title>
     <ion-buttons right>
       <button ion-button icon-only (click)="attachRecord()">
         <ion-icon name='attach'></ion-icon>
@@ -14,9 +14,10 @@
       <form [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <ion-card class="sample-form">
           <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicationname }}</h2>
+          <h2 class = "section-title-center" *ngIf="newRec">New Medicine Record</h2>
           <ion-row *ngIf="newRec">
             <ion-item>
-              <ion-label floating>Medication*</ion-label>
+              <ion-label floating>Medicine*</ion-label>
               <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medication" [disabled]="isDone"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
@@ -75,29 +76,37 @@
           <ion-row>
             <ion-item>
               <ion-label floating>Mode*</ion-label>
-              <ion-select formControlName="mode" [disabled]="isDone">
+              <ion-select formControlName="mode" [disabled]="isDone || newFromCabinet || !newRec">
                 <ion-option class="section-title" value="basic" (ionSelect)="setMode('basic')" >Basic</ion-option>
                 <ion-option class="section-title" value="cabinet" (ionSelect)="setMode('cabinet')">Medicine Cabinet</ion-option>
               </ion-select>
             </ion-item>
           </ion-row>
-          <ion-row *ngIf="mode=='basic'">
+          <ion-row *ngIf="mode=='basic' && needEventList==false">
             <ion-item>
-              <ion-label floating>For</ion-label>
-              <ion-input type="text" formControlName="verbatimindication" [disabled]="isDone"></ion-input>
+              <ion-label floating>For*</ion-label>
+              <ion-input type="text" formControlName="verbatimindication" [disabled]="true"></ion-input>
             </ion-item>
+          </ion-row>
+          <ion-row *ngIf="mode=='basic' && needEventList==true">
+            <ion-item>
+              <ion-label floating>For*</ion-label>
+              <ion-select formControlName="verbatimindication">
+                <ion-option *ngFor="let item of eventList" (ionSelect)="setCurrentEvent(item)" [value]="item.name">{{item.name}} {{formatDate(item.startdate)}}</ion-option>
+              </ion-select>
+          </ion-item>
           </ion-row>
           <ion-row *ngIf="mode=='basic'">
             <ion-col no-padding width-60>
               <ion-item>
                 <ion-label floating>Start Date</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY hh:mm a"  formControlName="startdate" minuteValues="0,15,30,45" [disabled]="isDone"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY hh:mm a" pickerFormat="MMM DD YY hh:mm a" formControlName="startdate"  minuteValues="0,15,30,45" [disabled]="isDone"></ion-datetime>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-40>
               <ion-item>
                 <ion-label floating>End Date</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY" formControlName="enddate" [disabled]="isDone"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY" formControlName="enddate" min="2015" max="2024" [disabled]="isDone"></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -120,7 +129,7 @@
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Expiration</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY" formControlName="expiration" [disabled]="isDone"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY" formControlName="expiration" min="2015" max="2024" [disabled]="isDone"></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -143,10 +152,11 @@
                 <ion-label floating>Units</ion-label>
                 <ion-select formControlName="inventoryunit" [disabled]="isDone">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
+                  <ion-option class="section-title" value="grams">Grams</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
+                  <ion-option class="section-title" value="ounces">Ounces</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
                   <ion-option class="section-title" value="sprays">Sprays</ion-option>
-                  <ion-option class="section-title" value="inhales">Inhales</ion-option>
                 </ion-select>
               </ion-item>
             </ion-col>
@@ -166,7 +176,8 @@
               <h2 class = "section-title" >Dosing & Results</h2>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-                <button ion-button block class="form-action-button-top"  type="button" (click)="addNewTreatmentResults()" [disabled]="isDone || treatingEvent">
+                <button ion-button block class="form-action-button-top"  type="button" (click)="addNewTreatmentResults()"
+                [disabled]="isDone || treatingEvent || !card_form.valid || basicModeHasTR">
                   <ion-icon name="add"></ion-icon>
                 </button>
             </ion-col>
@@ -207,7 +218,7 @@
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="(!card_form.dirty || !card_form.valid)">Save</button>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !medication.dirty) || !card_form.valid)">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || hasTreatments">Delete</button>
