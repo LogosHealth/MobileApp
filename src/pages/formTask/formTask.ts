@@ -33,6 +33,7 @@ export class FormTaskPage {
   categories_checkbox_open: boolean;
   categories_checkbox_result;
   upcoming: boolean = false;
+  showTips: boolean = true;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
@@ -46,7 +47,7 @@ export class FormTaskPage {
     }
     if (this.goalname == undefined) {
       //alert('No goal name');
-      this.goalname = "";
+      this.goalname = null;
     } else {
       console.log('goalname obj: ', this.goalname);
     }
@@ -307,14 +308,12 @@ export class FormTaskPage {
       if (this.card_form.get('description').dirty){
         this.taskSave.description = this.card_form.get('description').value;
       }
-      if (this.card_form.get('completed').dirty){
-        if (this.card_form.get('completed').value == true) {
-          this.taskSave.completed = 'Y';
-        } else {
-          this.taskSave.completed = 'N';
-        }
+      if (this.card_form.get('completed').value == true) {
+        this.taskSave.completed = 'Y';
+      } else {
+        this.taskSave.completed = 'N';
       }
-      if (this.card_form.get('duedate').dirty){
+    if (this.card_form.get('duedate').dirty){
         this.taskSave.duedate = this.card_form.get('duedate').value;
         console.log('Due date to save: ' + this.taskSave.duedate);
       }

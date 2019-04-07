@@ -24,6 +24,7 @@ export class ListVisitPage {
   userTimezone: any;
   showAll: boolean = true;
   visitType: string = 'Upcoming Visit';
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -137,6 +138,7 @@ export class ListVisitPage {
       .then(data => {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             for (var i = 0; i < self.RestService.Profiles.length; i++) {
               for (var j = 0; j < self.list2.items.length; j++) {
                 if (self.list2.items[j].profileid == self.RestService.Profiles[i].profileid) {
@@ -147,12 +149,14 @@ export class ListVisitPage {
             console.log("Results Data for Get Visits: ", self.list2.items);
         } else {
           console.log('Results from listVisit.loadData', self.RestService.results);
+          self.noData = true;
           self.list2.items = [];
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });

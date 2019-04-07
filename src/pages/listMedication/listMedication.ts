@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, PopoverController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListMedicationModel } from './listMedication.model';
 import { ListMedicationService } from './listMedication.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormMedication } from '../../pages/formMedication/formMedication';
+import { MenuHelp } from '../../pages/menuHelp/menuHelp';
 
 var moment = require('moment-timezone');
 
@@ -22,6 +23,7 @@ export class ListMedicationPage {
   accountid: any;
   type: any;
   fromEvent: any;
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -30,6 +32,7 @@ export class ListMedicationPage {
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
+    public popoverCtrl:PopoverController,
   ) {
     this.feed.category = navParams.get('category');
     this.fromEvent = navParams.get('fromEvent');
@@ -115,9 +118,11 @@ export class ListMedicationPage {
       .then(data => {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
+            self.noData = false;
             self.list2.items = self.RestService.results;
             console.log("Results Data for Get Medications: ", self.list2.items);
         } else {
+          self.noData = true;
           self.list2.items = [];
           console.log('Results from listMedication.loadData', self.RestService.results);
         }
@@ -125,6 +130,7 @@ export class ListMedicationPage {
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -147,6 +153,20 @@ export class ListMedicationPage {
       console.log('Error in Flip Search - Type: ', this.type);
     }
 
+  }
+
+  presentHelp(myEvent) {
+    var title = 'Drug Mode';
+    var helptext = "<b>Basic:</b> Pertains to a single indication and includes only start and stop dates.  Great for maintenance and historical medications.<br><br>" +
+    "<b>Medicine Cabinet:</b> Your vitual medicine cabinet.  You can set up dose schedules, manage inventory, and use across family members.  Great for multi-use, OTC drugs as well as targeted temporary treatments with set schedules (e.g. antibiotics)";
+
+    let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+    });
+    popover.present({
+      ev: myEvent
+    });
   }
 
   openRecord(recordId) {

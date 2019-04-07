@@ -46,5 +46,14 @@
         </ion-row>
       </button>
     </ion-list>
+    <p class="section-tips"  *ngIf="noData">Your search yielded no results.  If needed, you can adjust your food and diet preferences at
+      <b>About Me --> Food Preferences.</b><br><br><b>LogosHealth Alexa Skill Tip: </b><br>
+      Say "Order a Meal" to find meals for your lifestyle without setting down the baby.
+    </p>
+    <p class="section-tips"  *ngIf="badAddress"><b>Key Benefits:</b><br> Conveniently find meals which fit your lifestyle!<br><br>
+      To get started, you must at minimum enter your <b>full address</b> at
+      <b>About Me --> Profile.</b><br><br>You can then also customize your taste and nutrition options at <b>About Me --> Food Preferences</b><br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say "Order a Meal" to find meals for your lifestyle without setting down the baby.
+    </p>
   </div>
 </ion-content>

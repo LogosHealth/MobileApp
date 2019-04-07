@@ -61,6 +61,10 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br>
+          You can add Nutrition records by saying "Nutrition" or "Nutrition Details" at the main menu.<br><br>
+          Say "I ate bacon and eggs for breakfast, 500 calories" for easy data entry.
+         </p>
         </section>
       </form>
     </div>

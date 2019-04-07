@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">New Exercise Record</h2>
-          <ion-row>
+          <ion-row *ngIf="!noGoals">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Exercise Type</ion-label>
@@ -26,6 +26,12 @@
                 </ion-select>
               </ion-item>
             </ion-col>
+          </ion-row>
+          <ion-row *ngIf="noGoals">
+            <ion-item>
+              <ion-label floating>Exercise Type</ion-label>
+              <ion-input type="text" formControlName="exercisetype"></ion-input>
+            </ion-item>
           </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
@@ -86,7 +92,10 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
-        </section>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br> You can add Fitness records by saying "Exercise" at the main menu.<br><br>
+          For many fitness goals, you can simply speak to track progress.  For instance, if you've set a daily goal called 'push-ups', you can say "I did 100 push-ups" for easy data entry.
+        </p>
+      </section>
       </form>
     </div>
 </ion-content>

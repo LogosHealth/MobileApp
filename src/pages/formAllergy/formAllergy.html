@@ -106,7 +106,10 @@
             <button ion-button block class="form-action-button" type="button" (click)="openMedications()">Medication History</button>
           </ion-col>
        </ion-row>
-      </section>
+       <p class="section-tips"  *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>
+         You can add Allergy records by saying "Allergy" at the main menu.
+      </p>
+        </section>
       </form>
     </div>
 </ion-content>

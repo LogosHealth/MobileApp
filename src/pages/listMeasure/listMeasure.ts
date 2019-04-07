@@ -27,6 +27,7 @@ export class ListMeasurePage {
   userTimezone: any;
   multiTab: any;
   curObj: any;
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -124,10 +125,12 @@ export class ListMeasurePage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             self.curObj = "weight";
             console.log("Results Data for Get Weight: ", self.list2.items);
         } else {
           self.curObj = "weight";
+          self.noData = true;
           self.RestService.results = [];
           self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
@@ -136,6 +139,7 @@ export class ListMeasurePage {
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -175,18 +179,21 @@ export class ListMeasurePage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             self.curObj = "bloodGlucose";
             self.RestService.results = [];
             self.list2.items = [];
             console.log("Results Data for loadDataBG: ", self.list2.items);
         } else {
           self.curObj = "bloodGlucose";
+          self.noData = true;
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -225,10 +232,12 @@ export class ListMeasurePage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             self.curObj = "mood";
             console.log("Results Data for loadDataMood: ", self.list2.items);
         } else {
           self.curObj = "mood";
+          self.noData = true;
           self.RestService.results = [];
           self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
@@ -237,6 +246,7 @@ export class ListMeasurePage {
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -275,10 +285,12 @@ export class ListMeasurePage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             self.curObj = "temperature";
             console.log("Results Data for loadTemperature: ", self.list2.items);
         } else {
           self.curObj = "temperature";
+          self.noData = true;
           self.RestService.results = [];
           self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
@@ -287,6 +299,7 @@ export class ListMeasurePage {
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -325,10 +338,12 @@ export class ListMeasurePage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             self.curObj = "symptom";
             console.log("Results Data for loadSymptom: ", self.list2.items);
         } else {
           self.curObj = "symptom";
+          self.noData = true;
           self.RestService.results = [];
           self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
@@ -337,6 +352,7 @@ export class ListMeasurePage {
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });

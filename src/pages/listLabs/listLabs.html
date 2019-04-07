@@ -10,10 +10,10 @@
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -40,5 +40,8 @@
         </ion-row>
       </button>
     </ion-list>
+    <p class="section-tips" *ngIf="noData">To get started, use the + icon above to add a Lab record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Lab records by saying "Lab" at the main menu.
+    </p>
   </div>
 </ion-content>

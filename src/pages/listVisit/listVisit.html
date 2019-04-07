@@ -44,5 +44,13 @@
         </ion-item-options>
       </ion-item-sliding>
     </ion-list>
+    <p class="section-tips"  *ngIf="noData && visitType=='Upcoming Visit'">Add your first visit by going to <b>Medical --> Medical Contacts</b>.  Swipe right ☛ on the contact to call and schedule visit.
+      Once the visit is created, by can also swipe right ☛ for quick options.<br><br>
+      Use the toggle button on the top right to toggle to your Past Visits.
+    </p>
+    <p class="section-tips"  *ngIf="noData && visitType=='Past Visit'">Add your first visit by going to <b>Medical --> Medical Contacts</b>.  Swipe right ☛ on the contact to call and schedule visit.
+      Once the visit is created, by can also swipe right ☛ for quick options.<br><br>
+      Use the toggle button on the top right to toggle to your Upcoming Visits.
+    </p>
   </div>
 </ion-content>

@@ -36,6 +36,8 @@ export class FormExercisePage {
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  noGoals: boolean = false;
+  showTips: boolean = true;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListGoalsService) {
@@ -161,12 +163,21 @@ export class FormExercisePage {
       self.list2Service
       .getData()
         .then(data => {
-          self.list2.items = self.RestService.results;
-          console.log("Results Data for Get Goals: ", self.list2.items);
+          if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
+          self.RestService.results[0].recordid > 0) {
+            self.noGoals = false;
+            self.list2.items = self.RestService.results;
+            console.log("Results Data for Get Goals: ", self.list2.items);
+          } else {
+            self.noGoals = true;
+            self.list2.items = [];
+          }
           self.loading.dismiss();
         });
     }).catch( function(result){
         console.log(result);
+        self.noGoals = true;
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });

@@ -6,6 +6,11 @@
       <ion-title>
         <span>{{ feed.category.title }}</span>
       </ion-title>
+      <ion-buttons right>
+        <button ion-button icon-only (click)="addNew()">
+          <ion-icon name='add'></ion-icon>
+        </button>
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
 
@@ -26,5 +31,8 @@
         </ion-row>
       </button>
     </ion-list>
+    <p class="section-tips"  *ngIf="noData">To get started, use the + icon above to add an Allergy record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Allergy records by saying "Allergy" at the main menu.
+    </p>
   </div>
 </ion-content>

@@ -10,10 +10,10 @@
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
-      </ion-buttons>  
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
-  
+
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
@@ -35,5 +35,9 @@
         </ion-row>
       </button>
     </ion-list>
+    <p class="section-tips"  *ngIf="noData">To get started, use the + icon above to add a Fitness record.<br><br>
+      <b>LogosHealth Alexa Skill Tips:</b><br> You can add Fitness records by saying "Exercise" at the main menu.<br><br>
+      For many fitness goals, you can simply speak to track progress.  For instance, if you've set a daily goal called 'push-ups', you can say "I did 100 push-ups" for easy data entry.
+    </p>
   </div>
 </ion-content>

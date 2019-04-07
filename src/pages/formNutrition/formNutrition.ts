@@ -40,6 +40,7 @@ export class FormNutritionPage {
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  showTips: boolean = true;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public modalCtrl: ModalController, public navParams: NavParams, public formBuilder: FormBuilder, public list2Service: ListNutritionService) {
@@ -517,7 +518,7 @@ export class FormNutritionPage {
     var dayoftheweek;
     var startofWeek;
 
-    if  (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       dayoftheweek = momentNow.tz(this.userTimezone).format('dddd');
     } else {
       dayoftheweek = momentNow.format('dddd');
@@ -538,7 +539,7 @@ export class FormNutritionPage {
     } else if (dayoftheweek == 'Saturday') {
       offSet = 6
     }
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
       startofWeek = moment(momentNow).tz(this.userTimezone).subtract(offSet, 'days');
     } else {
       startofWeek = moment(momentNow).subtract(offSet, 'days');

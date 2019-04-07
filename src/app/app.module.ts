@@ -92,6 +92,7 @@ import { FormMedication } from '../pages/formMedication/formMedication';
 import { FormMedSchedule } from '../pages/formMedSchedule/formMedSchedule';
 import { FormMedicationResults } from '../pages/formMedicationResults/formMedicationResults';
 import { FormDoseHistory } from '../pages/formDoseHistory/formDoseHistory';
+import { FormNewUser } from '../pages/formNewUser/formNewUser';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
@@ -266,6 +267,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormMedSchedule,
     FormMedicationResults,
     FormDoseHistory,
+    FormNewUser,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -386,6 +388,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormMedSchedule,
     FormMedicationResults,
     FormDoseHistory,
+    FormNewUser,
 
     MenuMeasure,
     MenuVisitOutcome,

@@ -58,5 +58,25 @@
         </ion-row>
       </button>
     </ion-list>
+    <p class="section-tips"  *ngIf="noData && curObj =='weight' "><b>Key Benefits:</b><br> You can only manage what you measure!<br><br>
+      To get started, use the + icon above to add a Weight record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say <i>"I weigh 120 pounds"</i> for easy data entry.
+    </p>
+    <p class="section-tips"  *ngIf="noData && curObj =='mood' "><b>Key Benefits:</b><br> You can only manage what you measure!<br><br>
+      To get started, use the + icon above to add a Mood record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say <i>"I feel fantastic"</i> for easy data entry.
+    </p>
+    <p class="section-tips"  *ngIf="noData && curObj =='temperature' "><b>Key Benefits:</b><br> You can only manage what you measure!<br><br>
+      To get started, use the + icon above to add a Temperature record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say <i>"My temperature is 98.7"</i> for easy data entry.
+    </p>
+    <p class="section-tips"  *ngIf="noData && curObj =='symptom' "><b>Key Benefits:</b><br> You can only manage what you measure!<br><br>
+      To get started, use the + icon above to add a Symptom record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say <i>"I have a sore throat"</i> for easy data entry.
+    </p>
+    <p class="section-tips"  *ngIf="noData && curObj =='bloodGlucose' "><b>Key Benefits:</b><br> You can only manage what you measure!<br><br>
+      To get started, use the + icon above to add a Blood Glucose record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Say <i>"My blood sugar is 100"</i> for easy data entry.
+    </p>
   </div>
 </ion-content>

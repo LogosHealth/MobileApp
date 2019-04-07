@@ -21,6 +21,7 @@ export class ListVaccinesPage {
   loading: any;
   resultData: any;
   listContacts: ListContactModel = new ListContactModel();
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -89,15 +90,18 @@ export class ListVaccinesPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             console.log("Results Data for Get Vaccines: ", self.list2.items);
             self.loadContacts();
         } else {
           console.log('Results from listVaccines.loadData', self.RestService.results);
+          self.noData = true;
           self.loadContacts();
         }
       });
     }).catch( function(result){
       console.log(result);
+      self.noData = true;
       self.loading.dismiss();
       alert('There was an error retrieving this data.  Please try again later');
     });

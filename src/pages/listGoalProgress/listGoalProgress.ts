@@ -21,6 +21,7 @@ export class ListGoalProgressPage {
   loading: any;
   resultData: any;
   category: HistoryItemModel = new HistoryItemModel();
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -95,16 +96,19 @@ export class ListGoalProgressPage {
       .then(data => {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
+            self.noData = false;
             self.list2.items = self.RestService.results;
             console.log("Results Data for Get Goals: ", self.list2.items);
         } else {
-            console.log('Results from listGoalProgress.loadData', self.RestService.results);
+          self.noData = true;
+          console.log('Results from listGoalProgress.loadData', self.RestService.results);
             self.list2.items = [];
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
@@ -143,16 +147,19 @@ export class ListGoalProgressPage {
       .then(data => {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
+            self.noData = false;
             self.list2.items = self.RestService.results;
             console.log("Results Data for Get Goals: ", self.list2.items);
         } else {
             console.log('Results from listGoalProgress.loadData', self.RestService.results);
+            self.noData = true;
             self.list2.items = [];
           }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
@@ -169,14 +176,20 @@ export class ListGoalProgressPage {
     }
   }
 
+  addNew() {
+    this.nav.push(FormTaskPage, { category: this.category, upcoming: true });
+  }
+
   flipSearch() {
     if (this.feed.category.title == 'Achieve') {
       this.feed.category.title = 'My Tasks';
       this.list2.items = [];
+      this.presentLoadingDefault();
       this.loadTaskData();
     } else if (this.feed.category.title == 'My Tasks') {
       this.feed.category.title = 'Achieve';
       this.list2.items = [];
+      this.presentLoadingDefault();
       this.loadData();
     }
   }

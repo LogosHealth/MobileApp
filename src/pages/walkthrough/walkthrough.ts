@@ -4,12 +4,13 @@ import { NavController, Slides, Platform, LoadingController, ModalController } f
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { Device } from '@ionic-native/device';
 
-import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 import { LoginPage } from '../login/login';
 import { SignupPage } from '../signup/signup';
 import { AlertController } from 'ionic-angular';
 import {Observable} from "rxjs/Observable";
 import { TabsNavigationPage } from '../tabs-navigation/tabs-navigation';
+import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
+import { FormNewUser } from '../formNewUser/formNewUser'
 
 import * as AWS from 'aws-sdk';
 import { RestService } from '../../app/services/restService.service';
@@ -21,6 +22,7 @@ declare var window: any;
 declare var amazon: any;
 //declare const AmazonLoginPlugin: any;
 var accountInfo;
+var profileLoopCount: number = 0;
 
 interface AccountProfile {
   profileid: number,
@@ -49,7 +51,7 @@ export class WalkthroughPage implements OnInit {
     {this.main_page = { component: TabsNavigationPage };
   }
 
-  getProfiles () {
+  getProfiles() {
     var self = this;
     var email = accountInfo.getEmail();
     var token = accountInfo.getSessionToken();
@@ -82,12 +84,28 @@ export class WalkthroughPage implements OnInit {
       var resultData = JSON.stringify(result.data);
       self.RestService.Profiles = result.data;
       console.log('Get Profiles results: ', resultData);
-      if (self.RestService.Profiles == undefined || self.RestService.Profiles == null || self.RestService.Profiles.length == 0 ) {
-        console.log('Need to add create new user here.');
-        //*********************ADD CREATE USER ******************************/
-
-      } else {
+      if (self.RestService.Profiles !== undefined && self.RestService.Profiles !== null && self.RestService.Profiles[0] !== undefined &&
+      self.RestService.Profiles[0].profileid !== undefined) {
         self.getUserPics();
+      } else {
+        console.log('Need to add create new user here.');
+        profileLoopCount = profileLoopCount + 1;
+        self.createProfile(function(err, results) {
+          if (err) {
+            console.log('Return Err from create profile - exit app');
+            alert('Look forward to partnering with you at a later time.  Good Bye!')
+            self.platform.exitApp();
+          } else {
+            if (profileLoopCount < 2) {
+              console.log('Profile created - calling getProfiles to load new profile');
+              self.getProfiles();
+            } else {
+              console.log('Too many loops err - exit app');
+              alert('There is an error in creating a profle.  Please try again later.  Good Bye.');
+              self.platform.exitApp();
+            }
+          }
+        });
       }
     }).catch( function(result){
         alert('There is an error retrieving your information.  Technical support has been notified.  Please try again later');
@@ -272,6 +290,22 @@ export class WalkthroughPage implements OnInit {
     profileModal.present();
   }
 
+  createProfile(callback) {
+    let profileModal = this.modalCtrl.create(FormNewUser, {email: accountInfo.getEmail()});
+
+    profileModal.onDidDismiss(data => {
+      console.log('Data from createProfile: ', data);
+      console.log('Data from createProfile: ', data.profileid);
+      if (data !== undefined && data !== null && data.profileid > 0) {
+        callback(null, 'Success');
+      } else {
+        callback('Error', null);
+      }
+    });
+
+    profileModal.present();
+  }
+
   ngOnInit() {
     //alert("ngOnInit begin");
     this.RestService.nav = this.nav;
@@ -377,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.26');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.27');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {

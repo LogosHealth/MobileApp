@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Welcome New User!</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+          <h2 class = "section-title">Please complete to continue</h2>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>First Name*</ion-label>
+                <ion-input type="text" formControlName="firstname"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Last Name*</ion-label>
+                <ion-input type="text" formControlName="lastname"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Birthdate*</ion-label>
+              <ion-datetime displayFormat="MMM DD YYYY" [min]="1900-01-01" [max]="today()" formControlName="birthdate" ></ion-datetime>
+            </ion-item>
+          </ion-row>
+        </section>
+        <p class="section-footnote">*Required to Create Profile</p>
+
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.valid">Save</button>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="cancelAction()" >Exit</button>
+            </ion-col>
+         </ion-row>
+      </section>
+      </form>
+    </div>
+</ion-content>

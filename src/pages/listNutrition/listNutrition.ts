@@ -19,6 +19,7 @@ export class ListNutritionPage {
   loading: any;
   resultData: any;
   userTimezone: any;
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -93,15 +94,18 @@ export class ListNutritionPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].meals !== undefined &&
           self.RestService.results[0].meals[0] !== undefined && self.RestService.results[0].meals[0].recordid !== undefined &&
           self.RestService.results[0].meals[0].recordid > 0) {
+            self.noData = false;
             self.list2.items = self.RestService.results;
             console.log("Results Data for Get Nutrition: ", self.list2.items);
         } else {
+          self.noData = true;
           console.log('Results from listNutrition.loadData', self.RestService.results);
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });

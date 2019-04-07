@@ -18,6 +18,7 @@ export class ListAllergiesPage {
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
+  noData: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -88,14 +89,17 @@ export class ListAllergiesPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
             console.log("Results Data for Get Allergies: ", self.list2.items);
         } else {
+          self.noData = true;
           console.log('Results from listAllergies.loadData', self.RestService.results);
         }
         self.loading.dismiss();
       });
     }).catch( function(result){
       console.log(result);
+      self.noData = true;
       self.loading.dismiss();
       alert('There was an error retrieving this data.  Please try again later');
     });

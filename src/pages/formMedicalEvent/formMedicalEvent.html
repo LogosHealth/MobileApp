@@ -176,11 +176,10 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </ion-card>
-        <section class="form-section">
+        <section class="sample-form">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="notValid()">Save</button>
@@ -189,6 +188,8 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Events by saying "Medical Event" at the main menu.
+         </p>
         </section>
       </form>
     </div>

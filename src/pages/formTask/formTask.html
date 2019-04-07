@@ -81,8 +81,6 @@
               <ion-checkbox formControlName="completed" ></ion-checkbox>
             </ion-label>
           </ion-col>
-
-
         </ion-row>
         </section>
         <section class="form-section">
@@ -94,7 +92,10 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
-        </section>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>For tasks which meet a goal, you can speak to track progress.
+          For instance, if you've set a 60-minute daily goal called 'piano', you can say "I did 'piano' for 60 minutes" for easy data entry.
+         </p>
+         </section>
       </form>
     </div>
 </ion-content>

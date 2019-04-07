@@ -35,5 +35,22 @@
         </ion-row>
       </button>
     </ion-list>
-  </div>
+    <p class="section-tips"  *ngIf="noData && feed.category.title == 'Medication History'">To get started, use the + icon above to add a Medicine record.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Medicine records by saying "Medicine" at the main menu.<br><br>
+      <b>LogosHealth Mobile App Tip:</b><br>The ⓘ provides information.  Click it for important details (try example below to view different drug tracking modes).
+    </p>
+    <p class="section-tips"  *ngIf="noData && feed.category.title == 'Current Medicine'">To get started, use the + icon above to add a Medicine record.<br><br>
+      Use the toggle button on the top right to toggle to your Medicine Cabinet.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Medicine records by saying "Medicine" at the main menu.<br><br>
+      <b>LogosHealth Mobile App Tip:</b><br>The ⓘ provides information.  Click it for important details (try example below to view different drug tracking modes).
+    </p>
+    <p class="section-tips"  *ngIf="noData && feed.category.title == 'Medicine Cabinet'">To get started, use the + icon above to add to your Medicine Cabinet.<br><br>
+      Use the toggle button on the top right to toggle to your Current Medicine.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br>Once a drug is in your cabinet, say <i>"I took ibuprofen for my headache"</i> for easy data entry.<br><br>
+      <b>LogosHealth Mobile App Tip:</b><br>The ⓘ provides information.  Click it for important details (try example below to view different drug tracking modes).
+    </p>
+    <ion-row *ngIf="noData">
+        <h2 class = "section-title" (click)="presentHelp(myEvent)">Tracking Modeⓘ</h2>
+    </ion-row>
+</div>
 </ion-content>

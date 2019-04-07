@@ -11,7 +11,6 @@ import { FormOrderPage } from '../../pages/formOrder/formOrder';
 
 var moment = require('moment-timezone');
 
-
 class MyErrorHandler implements ErrorHandler {
   handleError(err: any): void {
     console.log('From MyErrorHandler: ', err);
@@ -36,6 +35,8 @@ export class ListOrderPage {
   show: boolean = false;
   searchTerm: string = '';
   searchControl: FormControl;
+  noData: boolean = false;
+  badAddress: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -110,6 +111,8 @@ export class ListOrderPage {
         if (self.RestService.results !== undefined && self.RestService.results[0] !== undefined && self.RestService.results[0].recordid !== undefined &&
           self.RestService.results[0].recordid > 0) {
             self.list2.items = self.RestService.results;
+            self.noData = false;
+            self.badAddress = false;
             if (self.list2.items.length > 0) {
               self.getPhotoURLs(function(err, response) {
                 if (err) {
@@ -121,15 +124,22 @@ export class ListOrderPage {
               });
             } else {
               self.list2.items = self.RestService.results;
-              alert('Your search yielded no results.');
+              self.noData = true;
               self.loadFilterList();
             }
         } else {
-          console.log('Results from listOrder.loadData', self.RestService.results);
+          if (self.RestService.results == 'No Valid Address') {
+            self.badAddress = true;
+          } else {
+            self.noData = true;
+          }
+          self.loading.dismiss();
         }
       });
     }).catch( function(result){
         console.log(result);
+        self.noData = true;
+        alert('There was an error retrieving this data.  Please try again later');
         self.loadFilterList();
     });
   }

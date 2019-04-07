@@ -75,7 +75,7 @@
           </ion-row>
           <ion-row>
             <ion-item>
-              <ion-label floating>Mode*</ion-label>
+              <ion-label floating>Tracking Mode*</ion-label>
               <ion-select formControlName="mode" [disabled]="isDone || newFromCabinet || !newRec">
                 <ion-option class="section-title" value="basic" (ionSelect)="setMode('basic')" >Basic</ion-option>
                 <ion-option class="section-title" value="cabinet" (ionSelect)="setMode('cabinet')">Medicine Cabinet</ion-option>
@@ -215,7 +215,7 @@
         <div class="sample-form">
           <p class="section-tips"  *ngIf="mode=='cabinet'"><b>Important: </b>In Medicine Cabinet mode, dosing information must be entered to activate treatment by this medication for this event/symptom.  Use the + icon above to add dose information as needed.</p>
         </div>
-        <section class="form-section">
+        <section class="sample-form">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !medication.dirty) || !card_form.valid)">Save</button>
@@ -224,6 +224,10 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || hasTreatments">Delete</button>
             </ion-col>
          </ion-row>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br>Once a drug is in your cabinet, say <i>"I took ibuprofen for my headache"</i> for easy data entry.<br><br>
+          You can add Medicine records by saying "Medicine" at the main menu.<br><br>
+          <b>LogosHealth Mobile App Tip:</b><br>The ⓘ below means information.  Whenever you see it, click it for important details (e.g. below pertaining to different drug tracking modes).
+         </p>
         </section>
       </form>
     </div>

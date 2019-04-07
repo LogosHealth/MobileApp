@@ -27,6 +27,7 @@ export class FormAllergyPage {
   newRec: boolean = false;
   saving: boolean = false;
   currentMeds: FormArray;
+  showTips: boolean = true;
   events: FormArray;
   list2: ListAllergiesModel = new ListAllergiesModel();
   listMeds: ListMedicationModel = new ListMedicationModel();
@@ -95,10 +96,10 @@ export class FormAllergyPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
-      this.loadData();
+      //this.presentLoadingDefault();
+      //this.loadData();
     } else {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from formAllergy');
@@ -106,7 +107,7 @@ export class FormAllergyPage {
           self.RestService.appRestart();
         } else {
           console.log('From formAllergy - Credentials refreshed!');
-          self.loadData();
+          //self.loadData();
         }
       });
     }
