@@ -1,0 +1,40 @@
+<ion-header>
+    <ion-navbar>
+      <button ion-button menuToggle>
+        <ion-icon name="menu"></ion-icon>
+      </button>
+      <ion-title>
+        <span  class="intro-text" text-wrap>{{ feed.category.title }}</span>
+      </ion-title>
+      <ion-buttons right>
+        <button ion-button icon-only (click)="addNew()">
+          <ion-icon name='add'></ion-icon>
+        </button>
+      </ion-buttons>
+    </ion-navbar>
+  </ion-header>
+
+<ion-content class="list-mini-content">
+  <div class="list-mini">
+    <ion-list>
+      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
+        <ion-row no-padding class="content-row one-line">
+          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+          <ion-col no-padding width-90 class="item-content" >
+            <h3 class="item-title">{{item.procedurename}}</h3>
+            <p class = "item-description">Date: {{formatDateTime(item.dateofmeasure)}}</p>
+            <p class = "item-description" *ngIf="item.result !== undefined && item.result !== null">Result: {{item.result}}</p>
+            <p class = "item-description" *ngIf="item.description !== undefined && item.description !== null">Description: {{item.description}}</p>
+          </ion-col>
+          <ion-col no-padding width-10 class="item-icon">
+            <ion-icon name="arrow-forward"></ion-icon>
+          </ion-col>
+        </ion-row>
+      </button>
+    </ion-list>
+    <p class="section-tips"  *ngIf="noData"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
+      To get started, use the + icon above to add a Procedure.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Procedures by saying "Procedure" at the main menu.
+    </p>
+  </div>
+</ion-content>

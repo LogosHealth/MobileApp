@@ -2,6 +2,8 @@ export class MedicalEvent {
   recordid: number;
   parenteventid: number;
   visitid: number;
+  treatmentid: number;
+  procedureid: number;
   physicianid: number;
   medicalevent:string;
   dateofdiagnosis: string;
@@ -13,7 +15,6 @@ export class MedicalEvent {
   allergyseverity:string;
   medicallyconfirmed: string;
   processsymptom: boolean;
-  treatmentid: number;
   symptoms:Symptoms;
   treatments: Treatments;
   active: string;

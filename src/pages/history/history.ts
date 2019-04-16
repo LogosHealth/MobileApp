@@ -7,6 +7,7 @@ import { ListLabsPage } from '../listLabs/listLabs';
 import { ListContactPage } from '../listContacts/listContacts';
 import { ListMedicalEvent } from '../listMedicalEvent/listMedicalEvent';
 import { ListMedicationPage } from '../listMedication/listMedication';
+import { ListProcedure } from '../listProcedure/listProcedure';
 import 'rxjs/Rx';
 import { HistoryModel } from './history.model';
 import { HistoryService } from './history.service';
@@ -85,6 +86,8 @@ export class HistoryPage {
       this.nav.push(ListMedicalEvent, { category: category });
     } else if (category.title == 'Medication History') {
       this.nav.push(ListMedicationPage, { category: category });
+    } else if (category.title == 'Procedures') {
+      this.nav.push(ListProcedure, { category: category });
     } else if (category.title == 'Full Medical History') {
       alert('Coming soon.');
     } else    {
