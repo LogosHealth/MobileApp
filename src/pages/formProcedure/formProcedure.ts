@@ -251,10 +251,10 @@ export class FormMoodPage {
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
       if (this.card_form.get('mood').dirty){
-        this.formSave.mood = this.card_form.get('mood').value;
+        this.formSave.procedurename = this.card_form.get('mood').value;
       }
     } else {
-      this.formSave.mood = this.card_form.get('mood').value;
+      this.formSave.procedurename = this.card_form.get('mood').value;
       if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
         this.formSave.dateofmeasure = this.calculateDateTime();
       }
