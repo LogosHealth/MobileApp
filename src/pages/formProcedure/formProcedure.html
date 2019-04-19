@@ -17,7 +17,7 @@
           <ion-row *ngIf="newRec">
             <ion-item>
               <ion-label floating>Procedure*</ion-label>
-              <ion-input type="text" [(ngModel)]="procedureTerm" [formControl]="procedurename" [disabled]="isDone"></ion-input>
+              <ion-input type="text" [(ngModel)]="procedureTerm" [formControl]="procedurename"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
                 <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value)">
@@ -30,24 +30,30 @@
           <ion-row>
             <ion-col no-padding *ngIf="!newRec">
               <ion-item>
-                <ion-label floating>Date of Measure</ion-label>
+                <ion-label floating>Date of Procedure</ion-label>
                 <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
               </ion-item>
             </ion-col>
-            <ion-col no-padding width-50 *ngIf="newRec">
+            <ion-col no-padding *ngIf="newRec">
               <ion-item>
-                <ion-label floating>Date of Measure*</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
-              </ion-item>
-            </ion-col>
-            <ion-col no-padding width-50 *ngIf="newRec">
-              <ion-item>
-                <ion-label floating>Time of Measure</ion-label>
-                <ion-datetime displayFormat="hh:mm a" [min]="1900-01-01" [max]="today()" formControlName="timeofmeasure" ></ion-datetime>
+                <ion-label floating>Date of Procedure*</ion-label>
+                <ion-datetime displayFormat="MMM DD YYYY hh:mm a" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
           <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Description</ion-label>
+              <ion-textarea type="text" formControlName="description" autosize></ion-textarea>
+            </ion-item>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Result</ion-label>
+              <ion-input type="text" formControlName="result"></ion-input>
+            </ion-item>
+          </ion-row>
         </section>
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">

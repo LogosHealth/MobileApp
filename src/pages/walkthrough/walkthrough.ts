@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.28');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.29');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -479,8 +479,12 @@ export class WalkthroughPage implements OnInit {
         this.lwaWindow = newWindow;
         newWindow.focus();
 
-      } else if (this.platform.is("android")) {
-        console.log('Calling AmazonLoginPlugin from Android v100');
+      } else if (this.platform.is("android") || this.platform.is("ios")) {
+        if (this.platform.is("android")) {
+          console.log('Calling AmazonLoginPlugin from Android v100');
+        } else {
+          console.log('Calling AmazonLoginPlugin from iOS v100');
+        }
         //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
         //const LWA_PROXY = "https://logoshealth.github.io";
         //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";

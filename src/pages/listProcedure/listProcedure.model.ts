@@ -7,6 +7,7 @@ export class Procedure {
   result:string;
   dateofmeasure: string;
   active: string;
+  confirmed: string;
   profileid: number;
   userid: number;
   timezone: string;

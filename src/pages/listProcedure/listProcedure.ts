@@ -5,7 +5,7 @@ import 'rxjs/Rx';
 import { ProcedureModel } from './listProcedure.model';
 import { ProcedureService } from './listProcedure.service';
 import { RestService } from '../../app/services/restService.service';
-import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
+import { FormProcedure } from '../../pages/formProcedure/formProcedure';
 
 var moment = require('moment-timezone');
 
@@ -118,12 +118,12 @@ export class ListProcedure {
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormMedicalEvent, { recId: recordId });
+    this.nav.push(FormProcedure, { recId: recordId });
     //alert('Open Record:' + recordId);
   }
 
   addNew() {
-    this.nav.push(FormMedicalEvent);
+    this.nav.push(FormProcedure);
   }
 
   formatDateTime(dateString) {
