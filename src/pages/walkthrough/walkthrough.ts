@@ -479,17 +479,14 @@ export class WalkthroughPage implements OnInit {
         this.lwaWindow = newWindow;
         newWindow.focus();
 
-      } else if (this.platform.is("android") || this.platform.is("ios")) {
-        if (this.platform.is("android")) {
-          console.log('Calling AmazonLoginPlugin from Android v100');
-        } else {
-          console.log('Calling AmazonLoginPlugin from iOS v100');
-        }
+      } else if (this.platform.is("android")) {
+        console.log('Calling AmazonLoginPlugin from Android v100');
         //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
         //const LWA_PROXY = "https://logoshealth.github.io";
         //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
         //const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
         const browser = this.iab.create(LWA_PROXY, '_blank');
+        //browser.show();
 
         browser.on('loadstop').subscribe(e => {
           //alert('LoadStop from Browser called');
@@ -500,6 +497,7 @@ export class WalkthroughPage implements OnInit {
               var atURL = LWA_PROXY_AT_MOBILE + "?code=" + code;
               var readCount = 0;
               const browser2 = self.iab.create(atURL, '_blank');
+              //browser2.show();
 
               browser2.on('loaderror').subscribe(e => {
                 console.log('Error Loading Final Auth Window ', e);
@@ -533,14 +531,72 @@ export class WalkthroughPage implements OnInit {
                     //self.loading.dismiss();
                   }
               });
-
             } else {
               alert('Error in first level authentication return for Android');
               self.loading.dismiss();
             }
           }
        });
-      }
+      } else if (this.platform.is("ios")) {
+        alert('Calling AmazonLoginPlugin from iOS');
+        //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
+        //const LWA_PROXY = "https://logoshealth.github.io";
+        //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
+        //const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
+        const browser = this.iab.create(LWA_PROXY, '_blank');
+        alert('Calling browser.show for iOS');
+        browser.show();
+
+        browser.on('loadstop').subscribe(e => {
+          //alert('LoadStop from Browser called');
+          if (e.url.includes(LWA_PROXY_RETURN)) {
+            //browser.close();
+            if (e.url.includes(LWA_PROXY_RETURN)) {
+              var code = self.getCode(e.url);
+              var atURL = LWA_PROXY_AT_MOBILE + "?code=" + code;
+              var readCount = 0;
+              const browser2 = self.iab.create(atURL, '_blank');
+              browser2.show();
+
+              browser2.on('loaderror').subscribe(e => {
+                console.log('Error Loading Final Auth Window ', e);
+                alert('Error Loading Final Auth Window ' + e.message);
+              });
+
+              browser2.on('loadstop').subscribe(e => {
+                  //alert("url from final auth android: " + e.url);
+                  if (e.url.includes("access_token")) {
+                    browser2.close();
+                    var token = self.getAccessToken(e.url);
+                    var refreshToken = self.getRefreshToken(e.url);
+                    if (token !== 'Error') {
+                      self.RestService.AuthData.accessToken = token;
+                      self.RestService.AuthData.refreshToken = refreshToken;
+                      console.log('Successfully set token for iOS!!!' + token);
+                      accountInfo.setKey(token);
+                      amazon.Login.retrieveProfile(token, function(response) {
+                        console.log('Response from android amazon.login: ', response);
+                        self.RestService.AuthData.email = response.profile.PrimaryEmail;
+                        accountInfo.setEmail(response.profile.PrimaryEmail);
+                      });
+                    } else {
+                      alert('There is an error in authenticating your account.  Please try again later. ' + e.url);
+                      alert('Token error');
+                      self.loading.dismiss();
+                    }
+                  } else {
+                    readCount = readCount + 1;
+                    console.log('Read Count for Final url change: ' + readCount);
+                    //self.loading.dismiss();
+                  }
+              });
+            } else {
+              alert('Error in first level authentication return for iOS');
+              self.loading.dismiss();
+            }
+          }
+       });
+      } 
     });
   }
 
