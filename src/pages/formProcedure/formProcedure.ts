@@ -488,6 +488,10 @@ export class FormProcedure {
     }
   }
 
+  searchListTerm(strValue) {
+    console.log('SearchListTerm called');
+    this.procedurename.setValue(strValue);
+  }
   public today() {
     //Used as max day in date of measure control
     var momentNow;

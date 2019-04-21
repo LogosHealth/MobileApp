@@ -234,6 +234,14 @@ formVisit1-page {
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
 			}
 
+			.form-action-button-bottom
+			{
+				margin-right: 10px;
+				margin-top: 40px;
+
+				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
+			}
+
       .form-action-button-top
 			{
 				margin-top: -2px;

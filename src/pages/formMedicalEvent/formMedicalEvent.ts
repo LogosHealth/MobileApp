@@ -53,6 +53,7 @@ export class FormMedicalEvent {
   visitid: any = null;
   newFromVisit: boolean = false;
   hasVisit: boolean = false;
+  fromVisit: boolean = false;
   aboutProfile: any = null;
   alreadyAddedAdd: boolean = false;
   fromEvent: any;
@@ -81,6 +82,9 @@ export class FormMedicalEvent {
     console.log('symptomsNotChosen from formMedicalEvent: ', this.symptomsNotChosen);
     console.log('recId from formMedicalEvent: ' + this.recId);
     this.visitInfo = navParams.get('visit');
+    if (this.visitInfo !== undefined && this.visitInfo.recordid !== undefined) {
+      this.fromVisit = true;
+    }
     if (this.recId == undefined && (this.visitInfo !== undefined && this.visitInfo.recordid !== undefined)) {
       this.newFromVisit = true;
       this.hasVisit = true;
@@ -130,6 +134,17 @@ export class FormMedicalEvent {
       if (this.curRec.isallergy !== undefined && this.curRec.isallergy == 'Y') {
         isallergy = true;
       }
+
+      var visittext = "";
+      if (this.curRec !== undefined && this.curRec !== null) {
+        if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
+          if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
+            visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDate(this.curRec.visitdate);
+          } else {
+            visittext = this.curRec.title + ": " + this.formatDate(this.curRec.visitdate);
+          }
+        }
+      }
       this.fromEvent = {medicaleventid: this.curRec.recordid, medicalevent: this.curRec.medicalevent, profileid: self.curRec.profileid};
       console.log('Onset Date: ' + this.curRec.onsetdate);
       this.card_form = new FormGroup({
@@ -140,6 +155,7 @@ export class FormMedicalEvent {
         eventdescription: new FormControl(this.curRec.eventdescription),
         dateofmeasure: new FormControl(this.curRec.dateofdiagnosis),
         visitid: new FormControl(this.curRec.visitid),
+        visittext: new FormControl(visittext),
         ischronic: new FormControl(ischronic),
         isallergy: new FormControl(isallergy),
         symptoms: this.formBuilder.array([]),
@@ -760,6 +776,14 @@ export class FormMedicalEvent {
       return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
     } else {
       return moment(dateString).format('MM-DD-YYYY hh:mm A');
+    }
+  }
+
+  formatDate(dateString) {
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY');
+    } else {
+      return moment(dateString).format('MM-DD-YYYY');
     }
   }
 

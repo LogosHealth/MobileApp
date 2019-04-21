@@ -2,6 +2,10 @@ export class MedicalEvent {
   recordid: number;
   parenteventid: number;
   visitid: number;
+  visitdate: string;
+  title: string;
+  firstname: string;
+  lastname: string;
   treatmentid: number;
   procedureid: number;
   physicianid: number;

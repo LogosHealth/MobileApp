@@ -69,6 +69,21 @@
               </ion-item>
             </ion-col>
           </ion-row>
+
+          <ion-row *ngIf="!fromVisit && curRec.visitid !== undefined && curRec.visitid !== null">
+            <ion-col no-padding width-87>
+              <ion-item>
+                <ion-label floating>Visit</ion-label>
+                <ion-input type="text" formControlName="visittext" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit(i)">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
+            </ion-col>
+      </ion-row>
+
         </ion-card>
 
         <ion-card class="sample-form">
