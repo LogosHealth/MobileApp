@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.32');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.33');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -574,6 +574,7 @@ export class WalkthroughPage implements OnInit {
                     var token = self.getAccessToken(e.url);
                     var refreshToken = self.getRefreshToken(e.url);
                     if (token !== 'Error') {
+                      alert('Final token for iOS is: ' + token);
                       self.RestService.AuthData.accessToken = token;
                       self.RestService.AuthData.refreshToken = refreshToken;
                       console.log('Successfully set token for iOS!!!' + token);
@@ -657,7 +658,7 @@ export class WalkthroughPage implements OnInit {
     var fragment = url.substring(startVal);
     if (fragment.substring(4, 6) == '%7') {
       fragment = fragment.substring(0, 4) + '|' + fragment.substring(6);
-      alert('Refresh Token updated: ' + fragment);
+      //alert('Refresh Token updated: ' + fragment);
     }
     console.log('URL from getRefreshToken: ' + url);
     console.log('Fragment from getRefreshToken: ' + fragment);
