@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.29');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.30');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -513,6 +513,7 @@ export class WalkthroughPage implements OnInit {
                     if (token !== 'Error') {
                       self.RestService.AuthData.accessToken = token;
                       self.RestService.AuthData.refreshToken = refreshToken;
+                      alert('Successfully set token for Android!!!' + token);
                       console.log('Successfully set token for Android!!!' + token);
                       accountInfo.setKey(token);
                       amazon.Login.retrieveProfile(token, function(response) {
@@ -596,7 +597,7 @@ export class WalkthroughPage implements OnInit {
             }
           }
        });
-      } 
+      }
     });
   }
 
