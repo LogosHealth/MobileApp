@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.34');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.35');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -639,8 +639,8 @@ export class WalkthroughPage implements OnInit {
     var startVal = url.indexOf("access_token=") + 13;
     var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal, endVal);
-    if (fragment.substring(4, 6) == '%7') {
-      fragment = fragment.substring(0, 4) + '|' + fragment.substring(6);
+    if (fragment.substring(4, 7) == '%7C') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(7);
       alert('Access Token updated: ' + fragment);
     }
     console.log('URL from getAceessToken: ' + url);
@@ -656,8 +656,8 @@ export class WalkthroughPage implements OnInit {
     var startVal = url.indexOf("refresh_token=") + 14;
     //var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal);
-    if (fragment.substring(4, 6) == '%7') {
-      fragment = fragment.substring(0, 4) + '|' + fragment.substring(6);
+    if (fragment.substring(4, 6) == '%7C') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(7);
       //alert('Refresh Token updated: ' + fragment);
     }
     console.log('URL from getRefreshToken: ' + url);
