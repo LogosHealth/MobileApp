@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.33');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.34');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -508,7 +508,7 @@ export class WalkthroughPage implements OnInit {
               });
 
               browser2.on('loadstop').subscribe(e => {
-                  alert("url from final auth android: " + e.url);
+                  //alert("url from final auth android: " + e.url);
                   if (e.url.includes("access_token")) {
                     browser2.close();
                     var token = self.getAccessToken(e.url);
@@ -516,7 +516,7 @@ export class WalkthroughPage implements OnInit {
                     if (token !== 'Error') {
                       self.RestService.AuthData.accessToken = token;
                       self.RestService.AuthData.refreshToken = refreshToken;
-                      alert('Successfully set token for Android!!!' + token);
+                      //alert('Successfully set token for Android!!!' + token);
                       console.log('Successfully set token for Android!!!' + token);
                       accountInfo.setKey(token);
                       amazon.Login.retrieveProfile(token, function(response) {
@@ -542,7 +542,7 @@ export class WalkthroughPage implements OnInit {
           }
        });
       } else if (this.platform.is("ios")) {
-        alert('Calling AmazonLoginPlugin from iOS');
+        //alert('Calling AmazonLoginPlugin from iOS');
         //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
         //const LWA_PROXY = "https://logoshealth.github.io";
         //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
@@ -568,7 +568,7 @@ export class WalkthroughPage implements OnInit {
               });
 
               browser2.on('loadstop').subscribe(e => {
-                  //alert("url from final auth android: " + e.url);
+                  alert("url from final auth android: " + e.url);
                   if (e.url.includes("access_token")) {
                     browser2.close();
                     var token = self.getAccessToken(e.url);
