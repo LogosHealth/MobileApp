@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.31');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.32');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -454,7 +454,10 @@ export class WalkthroughPage implements OnInit {
             console.log('jsonObject.access_token', jsonObject.access_token);
             console.log('jsonObject.refresh_token', jsonObject.refresh_token);
             var token = jsonObject.access_token;
+            //alert('jsonObject.substring ' + token.substring(4, 6));
+            //alert('Replace: ' + token.substring(0, 4) + 'ADDNEW' + token.substring(5));
             var refreshToken = jsonObject.refresh_token;
+
             if (token !== undefined && token !== null && token !== "") {
               self.RestService.AuthData.accessToken = token;
               self.RestService.AuthData.refreshToken = refreshToken;
@@ -545,8 +548,8 @@ export class WalkthroughPage implements OnInit {
         //const LWA_PROXY_AT = "https://logoshealth.github.io/getAT.html";
         //const LWA_PROXY_RETURN = "https://logoshealth.github.io/complete.html";
         const browser = this.iab.create(LWA_PROXY, '_blank');
-        alert('Calling browser.show for iOS');
-        browser.show();
+        //alert('Calling browser.show for iOS');
+        //browser.show();
 
         browser.on('loadstop').subscribe(e => {
           //alert('LoadStop from Browser called');
@@ -557,7 +560,7 @@ export class WalkthroughPage implements OnInit {
               var atURL = LWA_PROXY_AT_MOBILE + "?code=" + code;
               var readCount = 0;
               const browser2 = self.iab.create(atURL, '_blank');
-              browser2.show();
+              //browser2.show();
 
               browser2.on('loaderror').subscribe(e => {
                 console.log('Error Loading Final Auth Window ', e);
@@ -576,7 +579,7 @@ export class WalkthroughPage implements OnInit {
                       console.log('Successfully set token for iOS!!!' + token);
                       accountInfo.setKey(token);
                       amazon.Login.retrieveProfile(token, function(response) {
-                        console.log('Response from android amazon.login: ', response);
+                        console.log('Response from iOS amazon.login: ', response);
                         self.RestService.AuthData.email = response.profile.PrimaryEmail;
                         accountInfo.setEmail(response.profile.PrimaryEmail);
                       });
@@ -635,6 +638,10 @@ export class WalkthroughPage implements OnInit {
     var startVal = url.indexOf("access_token=") + 13;
     var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal, endVal);
+    if (fragment.substring(4, 6) == '%7') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(6);
+      alert('Access Token updated: ' + fragment);
+    }
     console.log('URL from getAceessToken: ' + url);
     console.log('Fragment from getAceessToken: ' + fragment);
     if (fragment !== undefined && fragment !== null && fragment !== "") {
@@ -648,6 +655,10 @@ export class WalkthroughPage implements OnInit {
     var startVal = url.indexOf("refresh_token=") + 14;
     //var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal);
+    if (fragment.substring(4, 6) == '%7') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(6);
+      alert('Refresh Token updated: ' + fragment);
+    }
     console.log('URL from getRefreshToken: ' + url);
     console.log('Fragment from getRefreshToken: ' + fragment);
     return fragment;
