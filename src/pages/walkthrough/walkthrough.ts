@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.30');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.31');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -505,7 +505,7 @@ export class WalkthroughPage implements OnInit {
               });
 
               browser2.on('loadstop').subscribe(e => {
-                  //alert("url from final auth android: " + e.url);
+                  alert("url from final auth android: " + e.url);
                   if (e.url.includes("access_token")) {
                     browser2.close();
                     var token = self.getAccessToken(e.url);
