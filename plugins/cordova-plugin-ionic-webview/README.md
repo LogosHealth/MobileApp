@@ -17,97 +17,136 @@
 #         under the License.
 -->
 
-Ionic's Webview
-======
+<!-- TODO: remove beta in README.md and CONTRIBUTING.md -->
 
-This plugin is an extension of the [Apache Cordova WKWebView plugin](https://github.com/apache/cordova-plugin-wkwebview-engine). It includes enhancements to resolve some of the issues surrounding XHR requests, along with some DOM exception issues.
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&identifier=104773211)](https://dependabot.com)
+[![npm](https://img.shields.io/npm/v/cordova-plugin-ionic-webview.svg)](https://www.npmjs.com/package/cordova-plugin-ionic-webview)
 
-This plugin only supports iOS 9 and above and will fall back to UIWebView on iOS 8.
+# Ionic Web View for Cordova
 
-The WKWebView plugin is only used by iOS, so ensure the `cordova-ios` platform is installed. Additionly, the `cordova-ios` platform version must be `4.0` or greater.
+A Web View plugin for Cordova, focused on providing the highest performance experience for Ionic apps (but can be used with any Cordova app).
 
-Installation Instructions
--------------------
+This plugin uses WKWebView on iOS and the latest evergreen webview on Android. Additionally, this plugin makes it easy to use HTML5 style routing that web developers expect for building single-page apps.
 
-Ensure the latest Cordova CLI is installed:  (Sudo may be required)
+Note: This repo and its documentation are for `cordova-plugin-ionic-webview` @ `4.x`, which uses the new features that may not work with all apps. See [Requirements](#plugin-requirements) and [Migrating to 4.x](#migrating-to-4x).
 
-```
-npm install cordova -g
-```
+2.x documentation can be found [here](https://github.com/ionic-team/cordova-plugin-ionic-webview/blob/2.x/README.md).
 
-Ensure the `ios` platform has been added:
+:book: **Documentation**: [https://beta.ionicframework.com/docs/building/webview][ionic-webview-docs]
 
-```
-ionic cordova platform ls
-```
+:mega: **Support/Questions?** Please see our [Support Page][ionic-support] for general support questions. The issues on GitHub should be reserved for bug reports and feature requests.
 
-If the iOS platform is not listed, run the following command:
+:sparkling_heart: **Want to contribute?** Please see [CONTRIBUTING.md](https://github.com/ionic-team/cordova-plugin-ionic-webview/blob/master/CONTRIBUTING.md).
 
-```
-ionic cordova platform add ios
-```
+## Configuration
 
-If the iOS platform is installed but the version is < `4.x`, run the following commands:
+This plugin has several configuration options that can be set in `config.xml`.
 
-```
-ionic cordova platform update ios
-ionic cordova plugin save           # creates backup of existing plugins
-rm -rf ./plugins            # delete plugins directory
-ionic cordova prepare               # re-install plugins compatible with cordova-ios 4.x
-```
+### Android and iOS Preferences
 
-Install the WKWebViewPlugin:
+Preferences available for both iOS and Android
 
-```
-ionic cordova plugin add cordova-plugin-ionic-webview --save
-```
+#### Hostname
 
-**Note:**
+`<preference name="Hostname" value="app" />`
 
-If you already had [apache/cordova-plugin-wkwebview-engine](https://github.com/apache/cordova-plugin-wkwebview-engine) install make sure that is removed before using this version.
+Default value is `localhost`.
 
-```
-ionic cordova plugin rm cordova-plugin-wkwebview-engine
+Example `ionic://app` on iOS, `http://app` on Android.
+
+If you change it, you'll need to add a new `allow-navigation` entry in the `config.xml` for the configured url (i.e `<allow-navigation href="http://app/*"/>` if `Hostname` is set to `app`).
+This is only needed for the Android url when using `http://`, `https://` or a custom scheme. All `ionic://` urls are whitelisted by the plugin.
+
+### Android Preferences
+
+Preferences only available Android platform
+
+#### Scheme
+
+```xml
+<preference name="Scheme" value="https" />
 ```
 
+Default value is `http`
 
-Build the platform:
+Configures the Scheme the app uses to load the content.
 
-```
-ionic cordova prepare
-```
 
-Test the app on an iOS 9 or 10 device:
+#### MixedContentMode
 
-```
-ionic cordova run ios
+```xml
+<preference name="MixedContentMode" value="2" />
 ```
 
+Configures the WebView's behavior when an origin attempts to load a resource from a different origin.
 
-Required Permissions
--------------------
-WKWebView may not fully launch (the deviceready event may not fire) unless if the following is included in config.xml:
-#### config.xml
+Default value is `0` (`MIXED_CONTENT_ALWAYS_ALLOW`), which allows loading resources from other origins.
+
+Other possible values are `1` (`MIXED_CONTENT_NEVER_ALLOW`) and `2` (`MIXED_CONTENT_COMPATIBILITY_MODE`)
+
+
+[Android documentation](https://developer.android.com/reference/android/webkit/WebSettings.html#setMixedContentMode(int))
+
+
+### iOS Preferences
+
+Preferences only available for iOS platform
+
+#### iosScheme
+
+```xml
+<preference name="iosScheme" value="httpsionic" />
 ```
-<allow-navigation href="http://localhost:8080/*"/>
-<feature name="CDVWKWebViewEngine">
-  <param name="ios-package" value="CDVWKWebViewEngine" />
-</feature>
 
-<preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+Default value is `ionic`
+
+Configures the Scheme the app uses to load the content.
+
+Values like `http`, `https` or `file` are not valid and will use default value instead.
+
+If you change it, you'll need to add a new `allow-navigation` entry in the `config.xml` for the configured scheme (i.e `<allow-navigation href="httpsionic://*"/>` if `iosScheme` is set to `httpsionic`).
+
+#### KeyboardAppearanceDark
+
+```xml
+<preference name="KeyboardAppearanceDark" value="false" />
 ```
 
-Application Transport Security (ATS) in iOS 9
------------
+Whether to use a dark styled keyboard on iOS
 
-The next released version of the [cordova-cli 5.4.0](https://www.npmjs.com/package/cordova) will support automatic conversion of the [&lt;access&gt;](http://cordova.apache.org/docs/en/edge/guide/appdev/whitelist/index.html) tags in config.xml to Application Transport Security [ATS](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW33) directives. Upgrade to the version 5.4.0 to use this new functionality.
+## Plugin Requirements
 
-Apple Issues
--------
+* **Cordova CLI**: 7.1.0+
+* **iOS**: iOS 11+ and `cordova-ios` 4+
+* **Android**: Android 4.4+ and `cordova-android` 6.4+
 
-The `AllowInlineMediaPlayback` preference will not work because of this [Apple bug](http://openradar.appspot.com/radar?id=6673091526656000). This bug [has been fixed](https://issues.apache.org/jira/browse/CB-11452) in [iOS 10](https://twitter.com/shazron/status/745546355796389889).
+## Migrating to 4.x
 
-Limitations
---------
+1. Remove and re-add the Web View plugin:
 
-There are several [known issues](https://issues.apache.org/jira/issues/?jql=project%20%3D%20CB%20AND%20labels%20%3D%20wkwebview-known-issues) with the official Cordova WKWebView plugin. The Ionic team thinks we have resolved several of the major issues. Please [let us know](https://github.com/driftyco/cordova-plugin-wkwebview-engine/issues) if something isn't working as expected.
+    ```
+    cordova plugin rm cordova-plugin-ionic-webview
+    cordova plugin add cordova-plugin-ionic-webview@latest
+    ```
+
+1. Apps are now served from HTTP on Android by default.
+
+    * The default origin for requests from the Android WebView is `http://localhost`. If `Hostname` and `Scheme` preferences are set, then origin will be `schemeValue://HostnameValue`.
+
+1. Apps are now served from `ionic://` scheme on iOS by default.
+
+    * The default origin for requests from the iOS WebView is `ionic://localhost`. If `Hostname` and `iosScheme` preferences are set, then origin will be `iosSchemeValue://HostnameValue`.
+
+1. Replace any usages of `window.Ionic.normalizeURL()` with `window.Ionic.WebView.convertFileSrc()`.
+
+    * For Ionic Angular projects, there is an [Ionic Native wrapper](https://beta.ionicframework.com/docs/native/ionic-webview):
+
+        ```
+        npm install @ionic-native/ionic-webview@beta
+        ```
+
+[ionic-homepage]: https://ionicframework.com
+[ionic-docs]: https://ionicframework.com/docs
+[ionic-webview-docs]: https://beta.ionicframework.com/docs/building/webview
+[ionic-support]: https://ionicframework.com/support

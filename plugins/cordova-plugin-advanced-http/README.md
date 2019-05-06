@@ -104,6 +104,13 @@ Set how long to wait for a request to respond, in seconds.
 cordova.plugin.http.setRequestTimeout(5.0);
 ```
 
+### setFollowRedirect<a name="setFollowRedirect"></a>
+Configure if it should follow redirects automatically. This defaults to true.
+
+```js
+cordova.plugin.setFollowRedirect(true);
+```
+
 ### getCookieString
 Returns saved cookies (as string) matching given URL.
 
@@ -128,59 +135,55 @@ cordova.plugin.http.clearCookies();
 ## Asynchronous Functions
 These functions all take success and error callbacks as their last 2 arguments.
 
-### setSSLCertMode<a name="setSSLCertMode"></a>
-Set SSL Cert handling mode, being one of the following values:
+### setServerTrustMode<a name="setServerTrustMode"></a>
+Set server trust mode, being one of the following values:
 
-* `default`: default SSL cert handling using system's CA certs
-* `nocheck`: disable SSL cert checking, trusting all certs (meant to be used only for testing purposes)
-* `pinned`: trust only provided certs
+* `default`: default SSL trustship and hostname verification handling using system's CA certs
+* `legacy`: use legacy default behavior (< 2.0.3), excluding user installed CA certs (only for Android)
+* `nocheck`: disable SSL certificate checking and hostname verification, trusting all certs (meant to be used only for testing purposes)
+* `pinned`: trust only provided certificates
 
 To use SSL pinning you must include at least one `.cer` SSL certificate in your app project.  You can pin to your server certificate or to one of the issuing CA certificates. Include your certificate in the `www/certificates` folder. All `.cer` files found there will be loaded automatically.
 
-:warning: Your certificate must be DER encoded! If you only have a PEM enoceded certificate see this [stackoverflow answer](http://stackoverflow.com/a/16583429/3182729). You want to convert it to a DER encoded certificate with a .cer extension.
+:warning: Your certificate must be DER encoded! If you only have a PEM encoded certificate read this [stackoverflow answer](http://stackoverflow.com/a/16583429/3182729). You want to convert it to a DER encoded certificate with a .cer extension.
 
 ```js
 // enable SSL pinning
-cordova.plugin.http.setSSLCertMode('pinned', function() {
+cordova.plugin.http.setServerTrustMode('pinned', function() {
   console.log('success!');
 }, function() {
   console.log('error :(');
 });
 
 // use system's default CA certs
-cordova.plugin.http.setSSLCertMode('default', function() {
+cordova.plugin.http.setServerTrustMode('default', function() {
   console.log('success!');
 }, function() {
   console.log('error :(');
 });
 
 // disable SSL cert checking, only meant for testing purposes, do NOT use in production!
-cordova.plugin.http.setSSLCertMode('nocheck', function() {
+cordova.plugin.http.setServerTrustMode('nocheck', function() {
   console.log('success!');
 }, function() {
   console.log('error :(');
 });
 ```
+
+### disableRedirect (deprecated)
+This function was deprecated in 2.0.9. Use ["setFollowRedirect"](#setFollowRedirect) instead.
+
+### setSSLCertMode (deprecated)
+This function was deprecated in 2.0.8. Use ["setServerTrustMode"](#setServerTrustMode) instead.
 
 ### enableSSLPinning (obsolete)
-This function was removed in 2.0.0. Use ["setSSLCertMode"](#setSSLCertMode) to enable SSL pinning (mode "pinned").
+This function was removed in 2.0.0. Use ["setServerTrustMode"](#setServerTrustMode) to enable SSL pinning (mode "pinned").
 
 ### acceptAllCerts (obsolete)
-This function was removed in 2.0.0. Use ["setSSLCertMode"](#setSSLCertMode) to disable checking certs (mode "nocheck").
-
-### disableRedirect
-If set to `true`, it won't follow redirects automatically. This defaults to false.
-
-```js
-cordova.plugin.http.disableRedirect(true, function() {
-  console.log('success!');
-}, function() {
-  console.log('error :(');
-});
-```
+This function was removed in 2.0.0. Use ["setServerTrustMode"](#setServerTrustMode) to disable checking certs (mode "nocheck").
 
 ### validateDomainName (obsolete)
-This function was removed in v1.6.2. Domain name validation is disabled automatically when you set SSL cert mode to "nocheck".
+This function was removed in v1.6.2. Domain name validation is disabled automatically when you set server trust mode to "nocheck".
 
 ### removeCookies
 Remove all cookies associated with a given URL.
@@ -200,6 +203,7 @@ The options object contains following keys:
 * `params`: query params to be appended to the URL (only applicable on `get`, `head`, `delete`, `upload` or `download` methods)
 * `serializer`: data serializer to be used (only applicable on `post`, `put` or `patch` methods), defaults to global serializer value, see [setDataSerializer](#setDataSerializer) for supported values
 * `timeout`: timeout value for the request in seconds, defaults to global timeout value
+* `followRedirect`: enable or disable automatically following redirects
 * `headers`: headers object (key value pair), will be merged with global values
 * `filePath`: filePath to be used during upload and download see [uploadFile](#uploadFile) and [downloadFile](#downloadFile) for detailed information
 * `name`: name to be used during upload see [uploadFile](#uploadFile) for detailed information

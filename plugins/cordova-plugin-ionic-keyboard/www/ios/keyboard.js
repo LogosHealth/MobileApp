@@ -30,11 +30,21 @@ Keyboard.fireOnShow = function (height) {
     cordova.fireWindowEvent('keyboardDidShow', {
         'keyboardHeight': height
     });
+
+    // To support the keyboardAttach directive listening events
+    // inside Ionic's main bundle
+    cordova.fireWindowEvent('native.keyboardshow', {
+        'keyboardHeight': height
+    });
 };
 
 Keyboard.fireOnHide = function () {
     Keyboard.isVisible = false;
     cordova.fireWindowEvent('keyboardDidHide');
+
+    // To support the keyboardAttach directive listening events
+    // inside Ionic's main bundle
+    cordova.fireWindowEvent('native.keyboardhide');
 };
 
 Keyboard.fireOnHiding = function () {
@@ -79,6 +89,10 @@ Keyboard.show = function () {
 Keyboard.disableScroll = function (disable) {
     console.warn("Keyboard.disableScroll() was removed");
 };
+
+Keyboard.setResizeMode = function (mode) {
+    exec(null, null, "Keyboard", "setResizeMode", [mode]);
+}
 
 Keyboard.isVisible = false;
 

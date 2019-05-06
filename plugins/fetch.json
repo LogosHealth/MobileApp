@@ -1,8 +1,8 @@
 {
-  "cordova-plugin-inappbrowser": {
+  "call-number": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-inappbrowser@latest"
+      "id": "mx.ferreyra.callnumber@~0.0.2"
     },
     "is_top_level": true,
     "variables": {}
@@ -31,14 +31,6 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-ionic-webview": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-ionic-webview@^1.1.16"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
   "cordova-plugin-ionic-keyboard": {
     "source": {
       "type": "registry",
@@ -47,54 +39,36 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-ionic": {
+  "cordova-plugin-inappbrowser": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-ionic@^4.1.7"
+      "id": "cordova-plugin-inappbrowser@^2.0.2"
     },
     "is_top_level": true,
-    "variables": {
-      "APP_ID": "0f127b9d",
-      "CHANNEL_NAME": "Master",
-      "UPDATE_METHOD": "background"
-    }
-  },
-  "mx.ferreyra.callnumber": {
-    "source": {
-      "type": "registry",
-      "id": "call-number@^1.0.1"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
-  "de.appplant.cordova.plugin.local-notification": {
-    "source": {
-      "type": "registry",
-      "id": "de.appplant.cordova.plugin.local-notification"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
-  "cordova-plugin-app-event": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-app-event"
-    },
-    "is_top_level": false,
     "variables": {}
   },
   "cordova-android-support-gradle-release": {
     "source": {
       "type": "registry",
-      "id": "cordova-android-support-gradle-release"
+      "id": "cordova-android-support-gradle-release@^1.4.4"
     },
     "is_top_level": true,
-    "variables": {}
+    "variables": {
+      "ANDROID_SUPPORT_VERSION": "27.+"
+    }
   },
   "cordova-plugin-statusbar": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-statusbar@2.4.2"
+      "id": "cordova-plugin-statusbar@^2.4.2"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-local-notification": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-local-notification@0.9.0-beta.2"
     },
     "is_top_level": true,
     "variables": {}
@@ -107,36 +81,42 @@
     "is_top_level": false,
     "variables": {}
   },
-  "cordova-plugin-local-notification": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-local-notification@0.9.0-beta.2"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
-  "cordova-plugin-photo-library": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-photo-library"
-    },
-    "is_top_level": true,
-    "variables": {
-      "PHOTO_LIBRARY_USAGE_DESCRIPTION": "To choose photos"
-    }
-  },
   "cordova-plugin-file": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-file@5.0.0"
+      "id": "cordova-plugin-file@>=2.0.0"
     },
-    "is_top_level": true,
+    "is_top_level": false,
     "variables": {}
   },
   "cordova-plugin-camera": {
     "source": {
       "type": "registry",
       "id": "cordova-plugin-camera@4.0.3"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-ionic-webview": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-ionic-webview@4.0.1"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-add-swift-support": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-add-swift-support"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-advanced-http": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-advanced-http"
     },
     "is_top_level": true,
     "variables": {}
@@ -149,10 +129,10 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-advanced-http": {
+  "cordova-plugin-ionic": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-advanced-http"
+      "id": "cordova-plugin-ionic@5.3.0"
     },
     "is_top_level": true,
     "variables": {}

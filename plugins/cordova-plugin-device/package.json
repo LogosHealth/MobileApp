@@ -1,35 +1,38 @@
 {
-  "_from": "cordova-plugin-device@^2.0.1",
-  "_id": "cordova-plugin-device@2.0.1",
+  "_args": [
+    [
+      "cordova-plugin-device@2.0.2",
+      "/Users/logoshealth/git/MobileApp"
+    ]
+  ],
+  "_from": "cordova-plugin-device@2.0.2",
+  "_id": "cordova-plugin-device@2.0.2",
   "_inBundle": false,
-  "_integrity": "sha1-m54jE+aCEZ/4QC9oCWo4vMUBNZM=",
+  "_integrity": "sha1-/Ajzci5n7ve2xnv8mag99q3Quro=",
   "_location": "/cordova-plugin-device",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "cordova-plugin-device@^2.0.1",
+    "raw": "cordova-plugin-device@2.0.2",
     "name": "cordova-plugin-device",
     "escapedName": "cordova-plugin-device",
-    "rawSpec": "^2.0.1",
+    "rawSpec": "2.0.2",
     "saveSpec": null,
-    "fetchSpec": "^2.0.1"
+    "fetchSpec": "2.0.2"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/cordova-plugin-device/-/cordova-plugin-device-2.0.1.tgz",
-  "_shasum": "9b9e2313e682119ff8402f68096a38bcc5013593",
-  "_spec": "cordova-plugin-device@^2.0.1",
-  "_where": "C:\\Users\\Marty\\Desktop\\Ionic\\ion2FullApp-PRO-version",
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-device/-/cordova-plugin-device-2.0.2.tgz",
+  "_spec": "2.0.2",
+  "_where": "/Users/logoshealth/git/MobileApp",
   "author": {
     "name": "Apache Software Foundation"
   },
   "bugs": {
     "url": "https://issues.apache.org/jira/browse/CB"
   },
-  "bundleDependencies": false,
   "cordova": {
     "id": "cordova-plugin-device",
     "platforms": [
@@ -40,7 +43,6 @@
       "osx"
     ]
   },
-  "deprecated": false,
   "description": "Cordova Device Plugin",
   "devDependencies": {
     "eslint": "^3.19.0",
@@ -80,5 +82,5 @@
     "test": "npm run eslint"
   },
   "types": "./types/index.d.ts",
-  "version": "2.0.1"
+  "version": "2.0.2"
 }

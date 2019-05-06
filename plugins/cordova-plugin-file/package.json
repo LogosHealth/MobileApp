@@ -1,28 +1,28 @@
 {
-  "_from": "cordova-plugin-file@^5.0.0",
-  "_id": "cordova-plugin-file@5.0.0",
+  "_from": "cordova-plugin-file@>=2.0.0",
+  "_id": "cordova-plugin-file@6.0.1",
   "_inBundle": false,
-  "_integrity": "sha1-05doIyFmnAAL6McfjvRDiq6Pkl0=",
+  "_integrity": "sha1-SWBrjBWlaI1HKPkuSnMloGHeB/U=",
   "_location": "/cordova-plugin-file",
   "_phantomChildren": {},
   "_requested": {
     "type": "range",
     "registry": true,
-    "raw": "cordova-plugin-file@^5.0.0",
+    "raw": "cordova-plugin-file@>=2.0.0",
     "name": "cordova-plugin-file",
     "escapedName": "cordova-plugin-file",
-    "rawSpec": "^5.0.0",
+    "rawSpec": ">=2.0.0",
     "saveSpec": null,
-    "fetchSpec": "^5.0.0"
+    "fetchSpec": ">=2.0.0"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/cordova-plugin-file/-/cordova-plugin-file-5.0.0.tgz",
-  "_shasum": "d397682321669c000be8c71f8ef4438aae8f925d",
-  "_spec": "cordova-plugin-file@^5.0.0",
-  "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\ion2FullApp-PRO-version",
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-file/-/cordova-plugin-file-6.0.1.tgz",
+  "_shasum": "49606b8c15a5688d4728f92e4a7325a061de07f5",
+  "_spec": "cordova-plugin-file@>=2.0.0",
+  "_where": "/Users/logoshealth/git/MobileApp",
   "author": {
     "name": "Apache Software Foundation"
   },
@@ -34,16 +34,10 @@
     "id": "cordova-plugin-file",
     "platforms": [
       "android",
-      "amazon-fireos",
-      "ubuntu",
+      "browser",
       "ios",
       "osx",
-      "wp7",
-      "wp8",
-      "blackberry10",
-      "windows8",
-      "windows",
-      "firefoxos"
+      "windows"
     ]
   },
   "deprecated": false,
@@ -62,7 +56,7 @@
       "5.0.0": {
         "cordova-android": ">=6.3.0"
       },
-      "6.0.0": {
+      "7.0.0": {
         "cordova": ">100"
       }
     }
@@ -73,16 +67,10 @@
     "file",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-amazon-fireos",
-    "cordova-ubuntu",
+    "cordova-browser",
     "cordova-ios",
     "cordova-osx",
-    "cordova-wp7",
-    "cordova-wp8",
-    "cordova-blackberry10",
-    "cordova-windows8",
-    "cordova-windows",
-    "cordova-firefoxos"
+    "cordova-windows"
   ],
   "license": "Apache-2.0",
   "name": "cordova-plugin-file",
@@ -95,5 +83,5 @@
     "test": "npm run eslint"
   },
   "types": "./types/index.d.ts",
-  "version": "5.0.0"
+  "version": "6.0.1"
 }

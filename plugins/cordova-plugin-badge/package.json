@@ -1,35 +1,38 @@
 {
-  "_from": "cordova-plugin-badge@>=0.8.5",
+  "_args": [
+    [
+      "cordova-plugin-badge@0.8.7",
+      "/Users/logoshealth/git/MobileApp"
+    ]
+  ],
+  "_from": "cordova-plugin-badge@0.8.7",
   "_id": "cordova-plugin-badge@0.8.7",
   "_inBundle": false,
   "_integrity": "sha512-s+s4yusKdeJ4sMPhQs4zR3lR2UuROzSy14GFAp00pTHPiBfCtxeINSUYAZYnpuO3RGx6PPlVCwSJpVG0IdM58g==",
   "_location": "/cordova-plugin-badge",
   "_phantomChildren": {},
   "_requested": {
-    "type": "range",
+    "type": "version",
     "registry": true,
-    "raw": "cordova-plugin-badge@>=0.8.5",
+    "raw": "cordova-plugin-badge@0.8.7",
     "name": "cordova-plugin-badge",
     "escapedName": "cordova-plugin-badge",
-    "rawSpec": ">=0.8.5",
+    "rawSpec": "0.8.7",
     "saveSpec": null,
-    "fetchSpec": ">=0.8.5"
+    "fetchSpec": "0.8.7"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/cordova-plugin-badge/-/cordova-plugin-badge-0.8.7.tgz",
-  "_shasum": "fe4942aa24af6822da85c01ccce6a831afff5931",
-  "_spec": "cordova-plugin-badge@>=0.8.5",
-  "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\ion2FullApp-PRO-version",
+  "_spec": "0.8.7",
+  "_where": "/Users/logoshealth/git/MobileApp",
   "author": {
     "name": "Sebastián Katzer"
   },
   "bugs": {
     "url": "https://github.com/katzer/cordova-plugin-badge/issues"
   },
-  "bundleDependencies": false,
   "cordova": {
     "id": "cordova-plugin-badge",
     "platforms": [
@@ -40,7 +43,6 @@
       "windows"
     ]
   },
-  "deprecated": false,
   "description": "Shows the count of unread messages as a badge on the app icon.",
   "engines": [
     {

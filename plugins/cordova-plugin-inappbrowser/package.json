@@ -1,35 +1,38 @@
 {
-  "_from": "cordova-plugin-inappbrowser@latest",
+  "_args": [
+    [
+      "cordova-plugin-inappbrowser@2.0.2",
+      "/Users/logoshealth/git/MobileApp"
+    ]
+  ],
+  "_from": "cordova-plugin-inappbrowser@2.0.2",
   "_id": "cordova-plugin-inappbrowser@2.0.2",
   "_inBundle": false,
   "_integrity": "sha1-pEj8vpdMprQpiL00VRCdkj1sl2k=",
   "_location": "/cordova-plugin-inappbrowser",
   "_phantomChildren": {},
   "_requested": {
-    "type": "tag",
+    "type": "version",
     "registry": true,
-    "raw": "cordova-plugin-inappbrowser@latest",
+    "raw": "cordova-plugin-inappbrowser@2.0.2",
     "name": "cordova-plugin-inappbrowser",
     "escapedName": "cordova-plugin-inappbrowser",
-    "rawSpec": "latest",
+    "rawSpec": "2.0.2",
     "saveSpec": null,
-    "fetchSpec": "latest"
+    "fetchSpec": "2.0.2"
   },
   "_requiredBy": [
-    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/cordova-plugin-inappbrowser/-/cordova-plugin-inappbrowser-2.0.2.tgz",
-  "_shasum": "a448fcbe974ca6b42988bd3455109d923d6c9769",
-  "_spec": "cordova-plugin-inappbrowser@latest",
-  "_where": "C:\\Users\\Marty\\Desktop\\Ionic\\ion2FullApp-PRO-version",
+  "_spec": "2.0.2",
+  "_where": "/Users/logoshealth/git/MobileApp",
   "author": {
     "name": "Apache Software Foundation"
   },
   "bugs": {
     "url": "https://issues.apache.org/jira/browse/CB"
   },
-  "bundleDependencies": false,
   "cordova": {
     "id": "cordova-plugin-inappbrowser",
     "platforms": [
@@ -40,7 +43,6 @@
       "windows"
     ]
   },
-  "deprecated": false,
   "description": "Cordova InAppBrowser Plugin",
   "devDependencies": {
     "eslint": "^4.0.0",

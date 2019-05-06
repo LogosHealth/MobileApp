@@ -32,7 +32,7 @@ cordova plugin add cordova-plugin-ionic-keyboard --save
 #### Possible values
 
 - `native`: The whole native webview will be resized when the keyboard shows/hides, it will affect the `vh` relative unit.
-- `body`: Only the html `<body>` element will be resized. Relative units are not affected, becuase the viewport does not change.
+- `body`: Only the html `<body>` element will be resized. Relative units are not affected, because the viewport does not change.
 - `ionic`: Only the html `ion-app` element will be resized. Only for ionic apps.
 
 ```xml
@@ -116,7 +116,7 @@ window.addEventListener('keyboardDidHide', () => {
 Attach handler to this event to be able to receive notification when keyboard is opened.
 
 ```js
-window.addEventListener('keyboardDidShow', (ev) => {
+window.addEventListener('keyboardDidShow', (event) => {
     // Describe your logic which will be run each time when keyboard is about to be shown.
     console.log(event.keyboardHeight);
 });
@@ -129,7 +129,7 @@ window.addEventListener('keyboardDidShow', (ev) => {
 Attach handler to this event to be able to receive notification when keyboard is about to be shown on the screen.
 
 ```js
-window.addEventListener('keyboardWillShow', (ev) => {
+window.addEventListener('keyboardWillShow', (event) => {
     // Describe your logic which will be run each time when keyboard is about to be shown.
     console.log(event.keyboardHeight);
 });
