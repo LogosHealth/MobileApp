@@ -111,7 +111,9 @@ formVisit1-page {
 
 			ion-item {
 				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
-				&.item
+        border-bottom: 1px solid #8AC7A6;
+
+        &.item
 				{
 					margin-top: 14px;
 					&.item-label-floating

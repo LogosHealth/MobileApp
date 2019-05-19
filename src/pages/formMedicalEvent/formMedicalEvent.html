@@ -70,7 +70,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row *ngIf="!fromVisit && curRec.visitid !== undefined && curRec.visitid !== null">
+          <ion-row *ngIf="!fromVisit && curRec !== undefined && curRec.visitid !== undefined && curRec.visitid !== null">
             <ion-col no-padding width-87>
               <ion-item>
                 <ion-label floating>Visit</ion-label>
@@ -82,9 +82,8 @@
                 <ion-icon name="share-alt"></ion-icon>
               </button>
             </ion-col>
-      </ion-row>
-
-        </ion-card>
+          </ion-row>
+      </ion-card>
 
         <ion-card class="sample-form">
           <ion-row>
