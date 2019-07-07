@@ -125,6 +125,7 @@ export class ListAlertPage {
                   console.log('Offset Date/Time ' + dtOffset.format());
                   offSet = dtOffset.diff(dtNow);
                   console.log('Offset milliseconds ' + offSet);
+                  self.RestService.notifyCount = self.RestService.notifyCount + 1;
                   if (offSet > 0) {
                     self.localNotifications.schedule({
                       id: self.list2.items[i].recordid,

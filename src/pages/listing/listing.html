@@ -4,12 +4,18 @@
       <b>Conquer Today {{getCurrentUserName()}}</b>
     </ion-title>
     <ion-buttons right>
-      <button *ngIf="hasNotifications" id="notification-button" ion-button icon-only (click)="showNotifications()">
-        <ion-badge id="notifications-badge">{{ notifyCount }}</ion-badge>
+      <button *ngIf="hasSubscriptions" id="notification-button" ion-button icon-only (click)="showSubscriptions()">
+        <ion-badge id="notifications-badge">{{ subscriptionCount }}</ion-badge>
+        <ion-icon name="paper"></ion-icon>
+      </button>
+      <button *ngIf="!hasSubscriptions" id="notification-button" ion-button icon-only (click)="showSubscriptions()">
         <ion-icon name="paper"></ion-icon>
       </button>
       <button *ngIf="hasNotifications" id="notification-button" ion-button icon-only (click)="showNotifications()">
         <ion-badge id="notifications-badge">{{ notifyCount }}</ion-badge>
+        <ion-icon name="notifications"></ion-icon>
+      </button>
+      <button *ngIf="!hasNotifications" id="notification-button" ion-button icon-only (click)="showNotifications()">
         <ion-icon name="notifications"></ion-icon>
       </button>
       <button *ngIf="userCount > 1" ion-button icon-only (click)="changeUser()"  [title]="getButtonLabel()">

@@ -19,6 +19,8 @@ var deviceUUID: string;
 var refreshProfiles: Boolean;
 var nav: NavController;
 var alertCtrl: AlertController;
+var notifyCount: number;
+var subscriptionCount: number;
 
 interface AuthData {
     key: string,
@@ -49,6 +51,8 @@ export class RestService {
     public deviceUUID: string;
     public userId: number;
     public refreshParent: boolean = false;
+    public notifyCount: number = 0;
+    public subscriptionCount: number = 0;
 
     constructor(public iab: InAppBrowser, private platform: Platform) {
         this.AWS = AWSme;
@@ -63,6 +67,8 @@ export class RestService {
         this.alertCtrl = alertCtrl;
         this.deviceUUID = deviceUUID;
         this.userId = userId;
+        this.notifyCount = notifyCount;
+        this.subscriptionCount = subscriptionCount;
     }
 
     curUserObj (callback) {

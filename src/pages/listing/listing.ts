@@ -39,8 +39,10 @@ export class ListingPage {
   lineChart: any;
   myphoto:any;
   blnShowFeed: boolean = false;
-  hasNotifications: boolean = true;
-  notifyCount: number = 5;
+  hasNotifications: boolean = false;
+  hasSubscriptions: boolean = true;
+  notifyCount: number = 0;
+  subscriptionCount: number = 1;
 
   constructor(
     public nav: NavController,
@@ -98,6 +100,16 @@ export class ListingPage {
     //Resetting Medicine tile title
     this.listing.categories[6].title = 'Medicine';
     this.listing.categories[1].title = 'Achieve';
+
+    //Baseline notification counts based on RestService.notifyCount which is set in the listAlert page loaded at app start
+    if (self.RestService.notifyCount > 0) {
+      self.notifyCount =  self.RestService.notifyCount;
+      self.hasNotifications = true;
+    } else {
+      self.notifyCount = 0;
+      self.hasNotifications = false;
+    }
+
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
@@ -424,6 +436,10 @@ export class ListingPage {
   }
 
   showNotifications() {
+    alert('Coming soon');
+  }
+
+  showSubscriptions() {
     alert('Coming soon');
   }
 
