@@ -114,6 +114,8 @@ export class FormExercisePage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
+    alert('Begin');
+
     if (dtNow < dtExpiration) {
       this.presentLoadingDefault();
       this.nav.getPrevious().data.refresh = false;

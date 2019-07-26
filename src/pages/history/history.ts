@@ -82,7 +82,7 @@ export class HistoryPage {
       this.nav.push(ListLabsPage, { category: category });
     } else if (category.title == 'Medical Contacts') {
       this.nav.push(ListContactPage, { category: category });
-    } else if (category.title == 'Medical Events') {
+    } else if (category.title == 'Medical Conditions') {
       this.nav.push(ListMedicalEvent, { category: category });
     } else if (category.title == 'Medication History') {
       this.nav.push(ListMedicationPage, { category: category });

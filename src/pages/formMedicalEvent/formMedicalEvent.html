@@ -1,6 +1,6 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Medical Event</ion-title>
+    <ion-title>Medical Condition</ion-title>
     <ion-buttons right>
         <button ion-button icon-only (click)="attachRecord()" [disabled]="noEventRecord()">
         <ion-icon name='attach'></ion-icon>
@@ -17,11 +17,11 @@
           <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
           <ion-row>
             <ion-item>
-              <ion-label floating>Medical Event*</ion-label>
+              <ion-label floating>Medical Condition*</ion-label>
               <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medicalevent" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
-                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value)" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()">
+                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value, idx)" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()">
                     {{item.value}}
                 </ion-item>
             </ion-list>
@@ -202,7 +202,7 @@
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
-         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Events by saying "Medical Event" at the main menu.
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Conditions by saying "Medical Condition" at the main menu.
          </p>
         </section>
       </form>

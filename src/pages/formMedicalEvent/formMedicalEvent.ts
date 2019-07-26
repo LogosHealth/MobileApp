@@ -62,6 +62,7 @@ export class FormMedicalEvent {
 
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
+  bodyAreaList = [];
   symptoms: FormArray;
   treatments: FormArray;
 
@@ -96,12 +97,12 @@ export class FormMedicalEvent {
       this.curRec = this.RestService.results[this.recId];
       console.log('CurRec from formMedicalEvent: ', this.curRec);
     } else {
-      console.log('No visit info or recId for medical event!  Must be new record from list view.');
+      console.log('No visit info or recId for medical condition!  Must be new record from list view.');
     }
 
     this.feed.category = navParams.get('category');
     if (this.feed.category == undefined || this.feed.category == null) {
-      this.feed.category = {title: 'Medical Event'};
+      this.feed.category = {title: 'Medical Condition'};
     }
 
     var self = this;
@@ -395,7 +396,7 @@ export class FormMedicalEvent {
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "Medical Event";
+                self.category.title = "Medical Condition";
                 self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
@@ -913,7 +914,7 @@ export class FormMedicalEvent {
                   var medicalevent = self.eventTerm;
                   self.curRec = {recordid: results, medicalevent: medicalevent};
                   self.loadFromId = results;
-                  console.log('new Medical Event record: ', self.curRec);
+                  console.log('new Medical Condition record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;
                 }
@@ -1076,14 +1077,14 @@ filterItems(searchTerm){
   if (this.listFilter.items !== undefined) {
     if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length ==1
       && this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()){
-        console.log('Filter Items: loop 1');
+        //console.log('Filter Items: loop 1');
         return [];
     } else if (this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;}).length > 0 &&
       this.listFilter.items[0].dictionary.filter((item) => {return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) ===0;})[0].value.toLowerCase() == searchTerm.toLowerCase()) {
-      console.log('Filter Items: loop 2');
+      //console.log('Filter Items: loop 2');
       return [];
     } else {
-      console.log('Filter Items: loop 3');
+      //console.log('Filter Items: loop 3');
       return this.listFilter.items[0].dictionary.filter((item) => {
         return item.value.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
       });
@@ -1114,8 +1115,9 @@ showList() {
   }
 }
 
-searchListTerm(strValue) {
-  console.log('SearchListTerm called');
+searchListTerm(strValue, intIndex) {
+  console.log('SearchListTerm called for ' + strValue);
+  //Add subDictionary code
   this.medicalevent.setValue(strValue);
 }
 
@@ -1237,7 +1239,7 @@ addExistingSymptoms() {
             }
           }
         }
-      console.log('Once symptoms are saved with medical event');
+      console.log('Once symptoms are saved with medical condition');
   }
 }
 
@@ -1269,7 +1271,7 @@ addExistingTreatments() {
       for (var j = 0; j < this.curRec.treatments.items.length; j++) {
         this.treatments.push(this.addExistingTreatment(j));
       }
-    console.log('Once symptoms are saved with medical event');
+    console.log('Once symptoms are saved with medical condition');
   }
 
 }
