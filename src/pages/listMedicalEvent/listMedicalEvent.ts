@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ViewController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { MedicalEventModel } from './listMedicalEvent.model';
@@ -20,7 +20,10 @@ export class ListMedicalEvent {
   loading: any;
   resultData: any;
   userTimezone: any;
+  isSelectRelated: boolean = false;
+  relatedEvent: any;
   noData: boolean = false;
+  aboutProfile: any = null;
 
   constructor(
     public nav: NavController,
@@ -29,8 +32,13 @@ export class ListMedicalEvent {
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
+    public viewCtrl: ViewController,
   ) {
     this.feed.category = navParams.get('category');
+    this.aboutProfile = navParams.get('aboutProfile');
+    if (this.feed.category.title == 'Select Related Condition') {
+      this.isSelectRelated = true;
+    }
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -68,6 +76,9 @@ export class ListMedicalEvent {
     var restURL: string;
 
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicalEventByProfile";
+    if (this.isSelectRelated) {
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ParentEventByProfile";
+    }
 
     var config = {
       invokeUrl: restURL,
@@ -82,11 +93,33 @@ export class ListMedicalEvent {
     };
     var pathTemplate = '';
     var method = 'GET';
-    var additionalParams = {
+    var additionalParams;
+
+
+
+    if (!this.isSelectRelated) {
+      additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile
         }
-    };
+      };
+      console.log('listMedicalEvent - Standard View - profileid: ' + this.RestService.currentProfile);
+    } else if (this.aboutProfile !== null && this.aboutProfile > 0) {
+      additionalParams = {
+        queryParams: {
+            profileid: this.aboutProfile
+        }
+      };
+      console.log('listMedicalEvent - Select View - about profileid: ' + this.aboutProfile);
+    } else {
+      additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile
+        }
+      };
+      console.log('listMedicalEvent - Select View - profileid: ' + this.RestService.currentProfile);
+    }
+
     var body = '';
     var self = this;
 
@@ -117,9 +150,16 @@ export class ListMedicalEvent {
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
+
+    if (!this.isSelectRelated) {
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
     this.nav.push(FormMedicalEvent, { recId: recordId });
     //alert('Open Record:' + recordId);
+    } else {
+      this.relatedEvent = this.RestService.results[recordId];
+    //fromCancel = false
+    this.dismiss(false);
+    }
   }
 
   addNew() {
@@ -128,6 +168,19 @@ export class ListMedicalEvent {
 
   formatDateTime(dateString) {
     return moment.utc(dateString).format('MMM DD YYYY');
+  }
+
+  cancelSelectRelated() {
+    //fromCancel = true
+    this.dismiss(true);
+  }
+
+  dismiss(fromCancel) {
+    if (fromCancel) {
+      this.relatedEvent = null;
+    }
+    let data = this.relatedEvent;
+    this.viewCtrl.dismiss(data);
   }
 
 /*

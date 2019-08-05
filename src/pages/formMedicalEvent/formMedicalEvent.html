@@ -21,7 +21,7 @@
               <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medicalevent" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()"></ion-input>
             </ion-item>
             <ion-list *ngIf="showList()">
-                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item.value, idx)" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()">
+                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item)" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()">
                     {{item.value}}
                 </ion-item>
             </ion-list>
@@ -38,6 +38,14 @@
                   <ion-checkbox formControlName="ischronic" ></ion-checkbox>
                 </ion-label>
             </ion-col>
+          </ion-row>
+          <ion-row *ngIf="hasBodyArea">
+            <ion-item>
+              <ion-label floating>Body Location</ion-label>
+              <ion-select formControlName="bodyarea">
+                <ion-option *ngFor="let item of bodyAreaList" [value]="item.recordid">{{item.dictionarycode}}</ion-option>
+              </ion-select>
+            </ion-item>
           </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
@@ -78,12 +86,44 @@
               </ion-item>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit(i)">
+              <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit()">
                 <ion-icon name="share-alt"></ion-icon>
               </button>
             </ion-col>
           </ion-row>
       </ion-card>
+
+      <ion-card class="sample-form">
+        <ion-row>
+          <ion-col no-padding width-77>
+            <h2 class = "section-title">Related Medical Condition</h2>
+          </ion-col>
+          <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="addParent()" [disabled]="newRec && notValid()">
+                <ion-icon name="add"></ion-icon>
+              </button>
+          </ion-col>
+          <ion-col class="columnAlign" no-padding width-10>
+            <button ion-button block class="form-action-button-top"  type="button" (click)="viewParent()" [disabled]="!hasRelated">
+              <ion-icon name="share-alt"></ion-icon>
+            </button>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="hasRelated">
+        <ion-col no-padding width-60>
+          <ion-item>
+            <ion-label floating>Condition</ion-label>
+            <ion-input type="text" formControlName="parenteventname" [disabled]="true"></ion-input>
+          </ion-item>
+      </ion-col>
+        <ion-col no-padding width-40>
+          <ion-item>
+            <ion-label floating>Onset Date</ion-label>
+            <ion-datetime displayFormat="MMM DD YYYY" formControlName="parenteventonset" [disabled]="true"></ion-datetime>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-card>
 
         <ion-card class="sample-form">
           <ion-row>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, ModalController, LoadingController, PopoverController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { MedicalEventModel, MedicalEvent, Symptom, Symptoms } from '../../pages/listMedicalEvent/listMedicalEvent.model';
@@ -13,6 +13,9 @@ import { FormMedication } from '../../pages/formMedication/formMedication';
 import { FormSymptomPage } from '../../pages/formSymptom/formSymptom';
 import { ListMedicationPage } from '../../pages/listMedication/listMedication';
 import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
+import { ListMedicalEvent } from '../../pages/listMedicalEvent/listMedicalEvent';
+import { FormVisitPage } from '../../pages/formVisit/formVisit';
+
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
@@ -59,10 +62,12 @@ export class FormMedicalEvent {
   fromEvent: any;
   fromTreatment: any;
   loadFromId: number;
-
+  relatedEvent: any;
+  hasRelated: boolean = false;
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
   bodyAreaList = [];
+  hasBodyArea: boolean = false;
   symptoms: FormArray;
   treatments: FormArray;
 
@@ -72,7 +77,7 @@ export class FormMedicalEvent {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
-    public formBuilder: FormBuilder, public popoverCtrl:PopoverController,
+    public formBuilder: FormBuilder, public popoverCtrl:PopoverController, public modalCtrl: ModalController,
     ) {
 
     this.recId = navParams.get('recId');
@@ -85,13 +90,16 @@ export class FormMedicalEvent {
     this.visitInfo = navParams.get('visit');
     if (this.visitInfo !== undefined && this.visitInfo.recordid !== undefined) {
       this.fromVisit = true;
+      console.log('visitInfo for existing event: ', this.visitInfo);
+    } else {
+      console.log('No visitInfo');
     }
     if (this.recId == undefined && (this.visitInfo !== undefined && this.visitInfo.recordid !== undefined)) {
       this.newFromVisit = true;
       this.hasVisit = true;
       this.visitid = this.visitInfo.recordid;
       this.aboutProfile = this.visitInfo.profileid;
-      console.log('visitInfo: ', this.visitInfo);
+      console.log('visitInfo for new event: ', this.visitInfo);
       //console.log('NewFromVisit is true');
     } else if (this.recId !== undefined && this.recId !== null) {
       this.curRec = this.RestService.results[this.recId];
@@ -101,6 +109,8 @@ export class FormMedicalEvent {
     }
 
     this.feed.category = navParams.get('category');
+    this.loadFromId = navParams.get('loadFromId');
+
     if (this.feed.category == undefined || this.feed.category == null) {
       this.feed.category = {title: 'Medical Condition'};
     }
@@ -150,6 +160,12 @@ export class FormMedicalEvent {
       console.log('Onset Date: ' + this.curRec.onsetdate);
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
+        parenteventid: new FormControl(this.curRec.parenteventid),
+        parenteventname: new FormControl(this.curRec.parenteventname),
+        parenteventonset: new FormControl(this.curRec.parenteventonset),
+        eventcode: new FormControl(this.curRec.eventcode),
+        bodyarea: new FormControl(this.curRec.bodyarea),
+        bodyareatext: new FormControl(this.curRec.bodyareatext),
         //medicalevent: new FormControl(this.curRec.medicalevent, Validators.required),
         onsetdate: new FormControl(this.curRec.onsetdate, Validators.compose([Validators.max(this.timeNow), Validators.required])),
         enddate: new FormControl(this.curRec.enddate, Validators.max(this.timeNow)),
@@ -167,6 +183,9 @@ export class FormMedicalEvent {
       });
       this.medicalevent = new FormControl(this.curRec.medicalevent, Validators.required);
       this.eventTerm = this.curRec.medicalevent;
+      if (this.curRec.parenteventid !== undefined && this.curRec.parenteventid > 0) {
+        this.hasRelated = true;
+      }
       //console.log('The value for medical event is: ' + this.medicalevent.value);
     } else {
       //console.log('RecId is undefined:');
@@ -174,12 +193,19 @@ export class FormMedicalEvent {
       this.medicalevent = new FormControl(null, Validators.required);
       this.card_form = new FormGroup({
         recordid: new FormControl(),
+        parenteventid: new FormControl(),
+        parenteventname: new FormControl(),
+        parenteventonset: new FormControl(),
+        eventcode: new FormControl(),
         //medicalevent: new FormControl(null, Validators.required),
+        bodyarea: new FormControl(),
+        bodyareatext: new FormControl(),
         onsetdate: new FormControl(null, Validators.compose([Validators.max(this.timeNow), Validators.required])),
         enddate: new FormControl(null, Validators.max(this.timeNow)),
         eventdescription: new FormControl(),
         dateofmeasure: new FormControl(),
         visitid: new FormControl(this.visitid),
+        visittext: new FormControl(),
         ischronic: new FormControl(),
         isallergy: new FormControl(),
         symptoms: this.formBuilder.array([]),
@@ -313,6 +339,11 @@ export class FormMedicalEvent {
         console.log('formMedicalEvent.loadDetails: ', self.curRec);
         self.addExistingSymptoms();
         self.addExistingTreatments();
+        if (self.eventTerm == '' && self.curRec !== undefined && self.curRec.medicalevent !== undefined) {
+          self.loadMainRecord();
+        } else {
+          console.log('Missed loadMainRecord ' + self.eventTerm == '');
+        }
       } else {
         console.log('No data from MedicalEvent.loadDetails');
       }
@@ -445,6 +476,12 @@ export class FormMedicalEvent {
       if (this.medicalevent.dirty){
         this.eventSave.medicalevent = this.medicalevent.value;
       }
+      if (this.card_form.get('eventcode').dirty){
+        this.eventSave.eventcode = this.card_form.get('eventcode').value;
+      }
+      if (this.card_form.get('parenteventid').dirty){
+        this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
+      }
       if (this.card_form.get('onsetdate').dirty){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
       }
@@ -506,6 +543,12 @@ export class FormMedicalEvent {
       }
       if (this.medicalevent.dirty){
         this.eventSave.medicalevent = this.medicalevent.value;
+      }
+      if (this.card_form.get('eventcode').dirty){
+        this.eventSave.eventcode = this.card_form.get('eventcode').value;
+      }
+      if (this.card_form.get('parenteventid').dirty){
+        this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
       }
       if (this.card_form.get('onsetdate').value !== null){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
@@ -631,6 +674,12 @@ export class FormMedicalEvent {
       if (this.medicalevent.dirty){
         this.eventSave.medicalevent = this.medicalevent.value;
       }
+      if (this.card_form.get('eventcode').dirty){
+        this.eventSave.eventcode = this.card_form.get('eventcode').value;
+      }
+      if (this.card_form.get('parenteventid').dirty){
+        this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
+      }
       if (this.card_form.get('onsetdate').dirty){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
       }
@@ -672,6 +721,12 @@ export class FormMedicalEvent {
       }
       if (this.medicalevent.dirty){
         this.eventSave.medicalevent = this.medicalevent.value;
+      }
+      if (this.card_form.get('eventcode').dirty){
+        this.eventSave.eventcode = this.card_form.get('eventcode').value;
+      }
+      if (this.card_form.get('parenteventid').dirty){
+        this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
       }
       if (this.card_form.get('onsetdate').value !== null){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
@@ -1115,10 +1170,47 @@ showList() {
   }
 }
 
-searchListTerm(strValue, intIndex) {
-  console.log('SearchListTerm called for ' + strValue);
+searchListTerm(objME) {
+  var self = this;
+  console.log('SearchListTerm called for ', objME);
   //Add subDictionary code
-  this.medicalevent.setValue(strValue);
+  this.medicalevent.setValue(objME.value);
+  this.card_form.get('eventcode').setValue(objME.recordid);
+  this.card_form.get('eventcode').markAsDirty();
+  //alert('strValue:' + strValue);
+
+  this.setBodyAreaByME(objME.value, function(err, result) {
+    if (result) {
+      self.hasBodyArea = true;
+      //alert('Has body area!');
+    } else {
+      self.hasBodyArea = false;
+      //alert('Has no body area!');
+    }
+  });
+}
+
+setBodyAreaByME(strTerm, callback) {
+  var returned = false;
+
+  //alert('fieldName for 0: ' + this.listFilter.items[0].dictionary[0].dictionarycode + ', strTerm = ' + strTerm);
+  for (var j = 0; j < this.listFilter.items[0].dictionary.length; j++) {
+    if (this.listFilter.items[0].dictionary[j].dictionarycode == strTerm) {
+      //alert('index for '+ strTerm + ': ' + j);
+      if (this.listFilter.items[0].dictionary[j].dictionary.length > 0) {
+        this.bodyAreaList = this.listFilter.items[0].dictionary[j].dictionary;
+        returned = true;
+        callback(null, 'Has Dictionary');
+      } else {
+        returned = true;
+        callback('No Dictionary', null);
+      }
+    }
+  }
+  if (!returned) {
+    //alert('Looped through - No match: j = ' + j);
+    callback('No Dictionary', null);
+  }
 }
 
 presentPopover(myEvent) {
@@ -1271,9 +1363,50 @@ addExistingTreatments() {
       for (var j = 0; j < this.curRec.treatments.items.length; j++) {
         this.treatments.push(this.addExistingTreatment(j));
       }
-    console.log('Once symptoms are saved with medical condition');
+  }
+}
+
+loadMainRecord() {
+  console.log('loadMainRecord start');
+  var ischronic = false;
+  var isallergy = false;
+  if (this.curRec.chronicflag !== undefined && this.curRec.chronicflag == 'Y') {
+    ischronic = true;
+  }
+  if (this.curRec.isallergy !== undefined && this.curRec.isallergy == 'Y') {
+    isallergy = true;
   }
 
+  var visittext = "";
+  if (this.curRec !== undefined && this.curRec !== null) {
+    if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
+      if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
+        visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDate(this.curRec.visitdate);
+      } else {
+        visittext = this.curRec.title + ": " + this.formatDate(this.curRec.visitdate);
+      }
+    }
+  }
+
+  this.medicalevent.setValue(this.curRec.medicalevent);
+  this.eventTerm = this.curRec.medicalevent;
+
+  this.card_form.get('recordid').setValue(this.curRec.recordid);
+  this.card_form.get('parenteventid').setValue(this.curRec.parenteventid);
+  this.card_form.get('parenteventname').setValue(this.curRec.parenteventname);
+  this.card_form.get('parenteventonset').setValue(this.curRec.parenteventonset);
+  this.card_form.get('eventcode').setValue(this.curRec.eventcode);
+  this.card_form.get('bodyarea').setValue(this.curRec.bodyarea);
+  this.card_form.get('bodyareatext').setValue(this.curRec.bodyareatext);
+  this.card_form.get('onsetdate').setValue(this.curRec.onsetdate);
+  this.card_form.get('enddate').setValue(this.curRec.enddate);
+  this.card_form.get('eventdescription').setValue(this.curRec.eventdescription);
+  this.card_form.get('dateofmeasure').setValue(this.curRec.dateofdiagnosis);
+  this.card_form.get('visitid').setValue(this.curRec.visitid);
+  this.card_form.get('profileid').setValue(this.curRec.profileid);
+  this.card_form.get('visittext').setValue(visittext);
+  this.card_form.get('ischronic').setValue(ischronic);
+  this.card_form.get('isallergy').setValue(isallergy);
 }
 
 createItem(): FormGroup {
@@ -1436,6 +1569,61 @@ viewAllTreatments() {
         self.nav.push(ListTreatmentPage, { category: cat, fromEvent: self.fromEvent });
       } else if (!result) {
         console.log('viewAllTreatments.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
+}
+
+viewParent() {
+  var cat;
+  this.checkSave = true;
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in viewParent.confirmSaveDirect' + err);
+      alert('There is an error in saving the record from viewParent');
+    } else {
+      if (result) {
+        cat = {title: 'Related Condition'};
+        self.nav.push(FormMedicalEvent, { category: cat, loadFromId: self.curRec.parenteventid });
+      } else if (!result) {
+        console.log('viewParent.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
+}
+
+addParent() {
+  var self = this;
+  var cat = {title: 'Select Related Condition'};
+
+  let profileModal = this.modalCtrl.create(ListMedicalEvent, { category: cat, aboutProfile: this.aboutProfile });
+  profileModal.onDidDismiss(data => {
+    if (data !==undefined && data !== null) {
+      self.relatedEvent = data;
+      self.hasRelated = true;
+      console.log('Result from addParent ', self.relatedEvent);
+      this.card_form.get('parenteventname').setValue(self.relatedEvent.medicalevent);
+      this.card_form.get('parenteventonset').setValue(self.relatedEvent.startdate);
+      this.card_form.get('parenteventid').setValue(self.relatedEvent.recordid);
+      this.card_form.get('parenteventid').markAsDirty();
+    }
+  });
+  profileModal.present();
+}
+
+gotoVisit() {
+  this.checkSave = true;
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in gotoVisit.confirmSaveDirect' + err);
+      alert('There is an error in saving the record from gotoVisit');
+    } else {
+      if (result) {
+        self.nav.push(FormVisitPage, { loadFromId: self.curRec.visitid });
+      } else if (!result) {
+        console.log('gotoVisit.ConfirmSaveDirect - User cancelled');
       }
     }
   });

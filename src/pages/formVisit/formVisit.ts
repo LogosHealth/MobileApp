@@ -61,6 +61,7 @@ export class FormVisitPage {
   categories_checkbox_result;
   needNew: boolean = false;
   pastVisit: boolean = false;
+  loadFromId: any;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
     public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public popoverCtrl:PopoverController,
@@ -90,6 +91,11 @@ export class FormVisitPage {
         self.curProfile = results;
       }
     });
+
+    this.loadFromId = navParams.get('loadFromId');
+    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0) {
+      this.categoryList = 'post';
+    }
 
     if (this.recId !== undefined) {
       this.card_form = new FormGroup({
@@ -202,11 +208,21 @@ export class FormVisitPage {
     };
     var pathTemplate = '';
     var method = 'GET';
-    var additionalParams = {
+    var additionalParams;
+
+    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0) {
+      additionalParams = {
+        queryParams: {
+            visitid: this.loadFromId
+        }
+      };
+    } else {
+      additionalParams = {
         queryParams: {
             visitid: this.curRec.recordid
         }
-    };
+      };
+    }
     var body = '';
     var self = this;
 
@@ -243,6 +259,108 @@ export class FormVisitPage {
       this.addExistingPayments();
       this.addExistingTodoPosts();
     }
+  }
+
+  checkPre() {
+    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0 && (this.curRec == undefined || this.curRec.recordid == null)) {
+      ///alert('pre check worked');
+      this.loadPre();
+    }
+  }
+
+  loadPre() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.loadPreDo();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.loadPre');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.loadPre - Credentials refreshed!');
+          self.loadPostDo();
+        }
+      });
+    }
+  }
+
+  loadPreDo() {
+    var restURL: string;
+
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
+
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams;
+
+    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0) {
+      additionalParams = {
+        queryParams: {
+            visitid: this.loadFromId
+        }
+      };
+    } else {
+      additionalParams = {
+        queryParams: {
+            visitid: this.curRec.recordid
+        }
+      };
+    }
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.curRec = result.data[0];
+      self.list2Service
+      .getData()
+      .then(data => {
+        //self.list2.items = self.RestService.results;
+        console.log("Results Data for getPreVisit: ", self.curRec);
+        if (self.curRec !== undefined && self.curRec.recordid !== undefined && self.curRec.recordid > 0) {
+         self.loadPreForm();
+        } else {
+          console.log('Check pre form length = 0');
+        }
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+        console.log(result);
+        self.loading.dismiss();
+        alert('There was an error retrieving this data.  Please try again later');
+    });
+  }
+
+  loadPreForm() {
+    this.card_form.get('recordid').setValue(this.curRec.recordid);
+    this.card_form.get('visitdate').setValue(this.curRec.visitdate);
+    this.card_form.get('firstname').setValue(this.curRec.firstname);
+    this.card_form.get('physiciantitle').setValue(this.curRec.physician.title);
+    this.card_form.get('reason').setValue(this.curRec.reason);
+    this.card_form.get('profileid').setValue(this.curRec.profileid);
+    this.card_form.get('userid').setValue(this.RestService.userId);
+
+    this.addExistingInfos();
+    this.addExistingQuestions();
+    this.addExistingTodos();
   }
 
   deleteRecord(){
@@ -1252,7 +1370,7 @@ export class FormVisitPage {
       }
     }
 
-    this.nav.push(FormMedicalEvent, { recId: index, category: cat, symptomsNotChosen: symptomsNotChosen});
+    this.nav.push(FormMedicalEvent, { recId: index, category: cat, symptomsNotChosen: symptomsNotChosen, visit: this.curRec});
     //console.log('Index: ' + index);
   }
 

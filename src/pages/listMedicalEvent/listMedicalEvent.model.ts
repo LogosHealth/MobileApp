@@ -1,6 +1,8 @@
 export class MedicalEvent {
   recordid: number;
   parenteventid: number;
+  parenteventname: string;
+  parenteventonset: string;
   visitid: number;
   visitdate: string;
   title: string;
@@ -10,6 +12,9 @@ export class MedicalEvent {
   procedureid: number;
   physicianid: number;
   medicalevent:string;
+  eventcode: number;
+  bodyarea: number;
+  bodyareatext: string;
   dateofdiagnosis: string;
   onsetdate: string;
   enddate: string;

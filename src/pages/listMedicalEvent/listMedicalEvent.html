@@ -1,13 +1,13 @@
 <ion-header>
     <ion-navbar>
-      <button ion-button menuToggle>
+      <button *ngIf="!isSelectRelated" ion-button menuToggle>
         <ion-icon name="menu"></ion-icon>
       </button>
       <ion-title>
         <span  class="intro-text" text-wrap>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
-        <button ion-button icon-only (click)="addNew()">
+        <button  *ngIf="!isSelectRelated" ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
       </ion-buttons>
@@ -32,9 +32,23 @@
         </ion-row>
       </button>
     </ion-list>
-    <p class="section-tips"  *ngIf="noData"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
+    <section class="sample-form" *ngIf="isSelectRelated">
+      <ion-row no-padding class="multi-input-row">
+         <ion-col no-padding>
+           <button ion-button block class="form-action-button" type="button" (click)="cancelSelectRelated()">Cancel</button>
+         </ion-col>
+      </ion-row>
+      <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Conditions by saying "Medical Condition" at the main menu.
+      </p>
+      <p class="section-tips" *ngIf="noData && isSelectRelated"><b>No valid conditions to relate</b><br>Please select cancel to continue.</p>
+    </section>
+
+
+    <p class="section-tips"  *ngIf="noData && !isSelectRelated"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
       To get started, use the + icon above to add a Medical Event.<br><br>
       <b>LogosHealth Alexa Skill Tip:</b><br> You can add Medical Events by saying "Medical Event" at the main menu.
     </p>
   </div>
+
+
 </ion-content>

@@ -15,7 +15,7 @@
 <ion-content class="forms-examples-content">
     <div>
         <ion-segment [(ngModel)]="categoryList" [ngModelOptions]="{standalone: true}" class="forms-examples-segment">
-          <ion-segment-button class="segment-button" value="pre">
+          <ion-segment-button class="segment-button" value="pre"  (click)="checkPre()">
             Pre
           </ion-segment-button>
           <ion-segment-button class="segment-button" value="post" (click)="loadPost()" [disabled]="yetToHappen()">
