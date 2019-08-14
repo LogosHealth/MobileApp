@@ -98,6 +98,7 @@ import { FormProcedure } from '../pages/formProcedure/formProcedure';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
+import { MenuVisitItem } from '../pages/menuVisitItem/menuVisitItem';
 import { MenuLifestyle } from '../pages/menuLifestyle/menuLifestyle';
 import { MenuTreatment } from '../pages/menuTreatment/menuTreatment';
 import { MenuVisitObjMenu } from '../pages/menuVisitObjMenu/menuVisitObjMenu';
@@ -276,6 +277,7 @@ import { TextMaskModule } from 'angular2-text-mask';
 
     MenuMeasure,
     MenuVisitOutcome,
+    MenuVisitItem,
     MenuLifestyle,
     MenuTreatment,
     MenuVisitObjMenu,
@@ -399,6 +401,7 @@ import { TextMaskModule } from 'angular2-text-mask';
 
     MenuMeasure,
     MenuVisitOutcome,
+    MenuVisitItem,
     MenuLifestyle,
     MenuTreatment,
     MenuVisitObjMenu,

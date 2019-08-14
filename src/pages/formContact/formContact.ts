@@ -35,12 +35,15 @@ export class FormContactPage {
   stateList: DictionaryItem[];
   doctorTypeList: DictionaryItem[];
   saveModel: ListContact = new ListContact();
+  loadFromId: number;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
+    this.loadFromId = navParams.get('loadFromId');
+
     if (this.recId !== undefined) {
       //console.log('FacilityType: ' + this.curRec.facilitytype);
       if(this.curRec.facilitytype !== undefined && this.curRec.facilitytype !== null && this.curRec.facilitytype !== "") {
@@ -189,13 +192,99 @@ export class FormContactPage {
           );
           self.card_form.controls["phonenumber"].setValue(conformedPhoneNumber.conformedValue);
         }
-        self.loading.dismiss();
+
+        if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+          self.loadDetails();
+        } else {
+          self.loading.dismiss();
+        }
       });
     }).catch( function(result){
+      if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
+        self.loadDetails();
+      } else {
         console.log('Catch Result from formContact.loadDictionaries: ', result);
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
-      });
+      }
+    });
+  }
+
+  loadDetails() {
+    //this.presentLoadingDefault();
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            loadFromId: this.loadFromId,
+        }
+    };
+    var body = '';
+    var self = this;
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.loadFromId = null;
+      if (result !== undefined && result.data !== undefined && result.data[0] !== undefined && result.data[0].recordid !==undefined) {
+        self.recId = 0;
+        self.curRec = result.data[0];
+        self.newRec = false;
+        console.log('formContact.loadDetails: ', self.curRec);
+        self.loadMainRecord();
+      } else {
+        console.log('No data from formContact.loadDetails');
+      }
+      self.loading.dismiss();
+    }).catch( function(result){
+      self.loadFromId = null;
+      console.log('Err from formContact.loadDetails: ', result);
+      self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
+    });
+  }
+
+  loadMainRecord() {
+    this.card_form.get('recordid').setValue(this.curRec.recordid);
+    this.card_form.get('title').setValue(this.curRec.title);
+    this.card_form.get('firstname').setValue(this.curRec.firstname);
+    this.card_form.get('firstnamelock').setValue(this.curRec.firstnamelock);
+    this.card_form.get('lastname').setValue(this.curRec.lastname);
+    this.card_form.get('lastnamelock').setValue(this.curRec.lastnamelock);
+    this.card_form.get('suffix').setValue(this.curRec.suffix);
+    this.card_form.get('streetaddress').setValue(this.curRec.streetaddress);
+    this.card_form.get('city').setValue(this.curRec.city);
+    this.card_form.get('state').setValue(this.curRec.state);
+    this.card_form.get('zipcode').setValue(this.curRec.zipcode);
+    this.card_form.get('phonenumber').setValue(this.curRec.phonenumber);
+    this.card_form.get('email').setValue(this.curRec.email);
+    this.card_form.get('website').setValue(this.curRec.website);
+    this.card_form.get('latitude').setValue(this.curRec.latitude);
+    this.card_form.get('longitude').setValue(this.curRec.longitude);
+    this.card_form.get('badaddress').setValue(this.curRec.badaddress);
+    this.card_form.get('fromgoogle').setValue(this.curRec.fromgoogle);
+    this.card_form.get('facilitytype').setValue(this.curRec.facilitytype);
+    this.card_form.get('googleurl').setValue(this.curRec.googleurl);
+    this.card_form.get('profile2contactid').setValue(this.curRec.profile2contactid);
+    this.card_form.get('relationship').setValue(this.curRec.relationship);
+    this.card_form.get('doctortype').setValue(this.curRec.doctortype);
+    this.card_form.get('covered').setValue(this.curRec.covered);
+    this.card_form.get('profileid').setValue(this.curRec.profileid);
+    this.card_form.get('timezone').setValue(this.curRec.timezone);
+    this.card_form.get('active').setValue(this.curRec.active);
   }
 
   public today() {

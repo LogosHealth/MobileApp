@@ -50,7 +50,7 @@
   "cordova-plugin-ionic": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-ionic@^4.1.7"
+      "id": "cordova-plugin-ionic@4.2.0"
     },
     "is_top_level": true,
     "variables": {

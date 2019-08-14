@@ -1,6 +1,6 @@
 <ion-header>
     <ion-navbar>
-      <button ion-button menuToggle>
+      <button *ngIf="!isSelectRelated" ion-button menuToggle>
         <ion-icon name="menu"></ion-icon>
       </button>
       <ion-title>
@@ -42,6 +42,17 @@
           </ion-item-options>
       </ion-item-sliding>
     </ion-list>
+
+    <section class="sample-form" *ngIf="isSelectRelated">
+      <ion-row no-padding class="multi-input-row">
+         <ion-col no-padding>
+           <button ion-button block class="form-action-button" type="button" (click)="cancelSelectRelated()">Cancel</button>
+         </ion-col>
+      </ion-row>
+      <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Conditions by saying "Medical Condition" at the main menu.
+      </p>
+    </section>
+
     <p class="section-tips"  *ngIf="noData">To get started, use the + icon above to add your medical contacts.  Once entered, you can swipe right ☛ on the contact to call them or schedule a visit.</p>
   </div>
 </ion-content>

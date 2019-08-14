@@ -24,7 +24,8 @@
             <h3 class="item-title">{{item.medicalevent}}</h3>
             <p class = "item-description">Start Date: {{formatDateTime(item.onsetdate)}}</p>
             <p class = "item-description" *ngIf="item.enddate !== undefined && item.enddate !== null">End Date: {{formatDateTime(item.enddate)}}</p>
-            <p class = "item-description" *ngIf="item.chronicflag !== undefined && item.chronicflag !== null && item.chronicflag == 'Y'">Ongoing: Yes</p>
+            <p class = "item-description" *ngIf="item.chronicflag !== undefined && item.chronicflag !== null && item.chronicflag == 'Y'">Chronic: Yes</p>
+            <p class = "item-description" *ngIf="item.parenteventid !== undefined && item.parenteventid !== null && item.parenteventid > 0">Related Condition: {{item.parenteventname}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ProcedureModel, Procedure } from '../../pages/listProcedure/listProcedure.model';
@@ -7,11 +7,12 @@ import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { DictionaryModel } from '../../pages/models/dictionary.model';
 import { ListOrderService } from '../../pages/listOrder/listOrder.service';
+import { MenuHelp } from '../../pages/menuHelp/menuHelp';
 
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formExercise-page',
+  selector: 'formVisit1-page',
   templateUrl: 'formProcedure.html'
 })
 export class FormProcedure {
@@ -40,6 +41,9 @@ export class FormProcedure {
   momentNow: any;
   checkSave: boolean = false;
   loadFromId: number;
+  fromType: any;
+  fromEvent: any;
+  eventVisit: any;
 
   procedurename: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -48,14 +52,24 @@ export class FormProcedure {
   userCount: any = 0;
   fromVisit: any;
 
+  checkTiming: boolean = false;
+  hasVisit: boolean = false;
+  needsVisit: boolean = false;
+  showPhysician: boolean = false;
+
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
-    public list2Service: ListOrderService, public navParams: NavParams) {
+    public list2Service: ListOrderService, public popoverCtrl:PopoverController, public navParams: NavParams) {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
     this.fromVisit = navParams.get('fromVisit');
     this.loadFromId = navParams.get('loadFromId');
-
+    this.fromType = navParams.get('fromType');
+    this.fromEvent = navParams.get('fromEvent');
+    this.eventVisit = navParams.get('eventVisit');
+    console.log('Init formProc fromEvent', this.fromEvent);
+    console.log('Init formProc eventVisit', this.eventVisit);
+    console.log('Init formProc fromType: ', this.fromType);
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
@@ -74,31 +88,51 @@ export class FormProcedure {
     }
 
     if (this.recId !== undefined) {
+      var visittext = "";
+      if (this.curRec !== undefined && this.curRec !== null) {
+        if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
+          if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
+            visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDateTime(this.curRec.visitdate);
+          } else {
+            visittext = this.curRec.title + ": " + this.formatDateTime(this.curRec.visitdate);
+          }
+        }
+      }
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         medicaleventid: new FormControl(this.curRec.medicaleventid),
         visitid: new FormControl(this.curRec.visitid),
+        visittext: new FormControl(visittext),
         description: new FormControl(this.curRec.description),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         result: new FormControl(this.curRec.result),
+        proceduretiming: new FormControl(this.curRec.proceduretiming),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
       });
       this.procedurename = new FormControl(this.curRec.procedurename, Validators.required);
       this.procedureTerm = this.curRec.procedurename;
+      if ((this.curRec.visitid == undefined || this.curRec.visitid == null) && this.curRec.proceduretiming == 'aftervisit') {
+        this.needsVisit = true;
+      }
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
         visitid: new FormControl(),
+        visittext: new FormControl(),
         description: new FormControl(),
         dateofmeasure: new FormControl(),
         result: new FormControl(),
+        proceduretiming: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
       });
       this.procedurename = new FormControl(null, Validators.required);
+      if (this.fromType !==undefined && this.fromType == 'condition with visit') {
+        this.checkTiming = true;
+      }
     }
   }
 
@@ -189,7 +223,7 @@ export class FormProcedure {
   loadDetails() {
     //this.presentLoadingDefault();
     var restURL: string;
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicationByProfile";
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
     var config = {
       invokeUrl: restURL,
       accessKey: this.RestService.AuthData.accessKeyId,
@@ -214,20 +248,20 @@ export class FormProcedure {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      console.log('Result from formMed.loadDetails - loadFromID: ' + self.loadFromId, result);
+      console.log('Result from formProc.loadDetails - loadFromID: ' + self.loadFromId, result);
       if (result !== undefined && result.data !== undefined && result.data[0] !== undefined && result.data[0].recordid > 0) {
         self.recId = 0;
         self.curRec = result.data[0];
         self.newRec = false;
         self.loading.dismiss();
-        console.log('formMedication.loadDetails: ', self.curRec);
+        console.log('formProc.loadDetails: ', self.curRec);
         self.fillFormDetails();
       } else {
-        console.log('formMedication.loadDetails - no data: ', result);
+        console.log('formProc.loadDetails - no data: ', result);
         self.loading.dismiss();
       }
     }).catch( function(result){
-      console.log('Err from formMedication.loadDetails: ', result);
+      console.log('Err from formProc.loadDetails: ', result);
       self.loading.dismiss();
       alert('There was an error retrieving this data.  Please try again later');
     });
@@ -262,15 +296,26 @@ export class FormProcedure {
   }
 
   fillFormDetails() {
+    var visittext = "";
+    if (this.curRec !== undefined && this.curRec !== null) {
+      if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
+        if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
+          visittext = "Dr. " + this.curRec.lastname + ": " + this.curRec.visitdate;
+        } else {
+          visittext = this.curRec.title + ": " + this.curRec.visitdate;
+        }
+      }
+    }
+
     console.log('Add data from fillFormDetails: ', this.curRec);
     this.card_form.get('recordid').setValue(this.curRec.recordid);
     this.card_form.get('medicaleventid').setValue(this.curRec.medicaleventid);
     this.card_form.get('visitid').setValue(this.curRec.visitid);
-    this.card_form.get('procedurename').setValue(this.curRec.procedurename);
+    this.card_form.get('visittext').setValue(visittext);
     this.card_form.get('description').setValue(this.curRec.description);
-    this.card_form.get('result').setValue(this.curRec.result);
     this.card_form.get('dateofmeasure').setValue(this.curRec.dateofmeasure);
-    this.card_form.get('confirmed').setValue(this.curRec.confirmed);
+    this.card_form.get('result').setValue(this.curRec.result);
+    this.card_form.get('proceduretiming').setValue(this.curRec.proceduretiming);
     this.procedurename.setValue(this.curRec.procedurename);
     this.procedureTerm = this.curRec.procedurename;
     console.log('Event term from fillformdetails'+ this.curRec.medicationname);
@@ -347,7 +392,7 @@ export class FormProcedure {
               .then(function(result){
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
-                self.category.title = "Measure";
+                self.category.title = "Procedure";
                 self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
@@ -431,10 +476,43 @@ export class FormProcedure {
       if (this.card_form.get('procedurename').dirty){
         this.formSave.procedurename = this.card_form.get('procedurename').value;
       }
+      if (this.card_form.get('medicaleventid').dirty){
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('visitid').dirty){
+        this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.formSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('dateofmeasure').dirty){
+        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.card_form.get('result').dirty){
+        this.formSave.result = this.card_form.get('result').value;
+      }
+      if (this.card_form.get('proceduretiming').dirty){
+        this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
+      }
     } else {
       this.formSave.procedurename = this.card_form.get('procedurename').value;
-      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
-        this.formSave.dateofmeasure = this.calculateDateTime();
+      if (this.card_form.get('medicaleventid').dirty){
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('visitid').dirty){
+        this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.formSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('dateofmeasure').dirty){
+        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.card_form.get('result').dirty){
+        this.formSave.result = this.card_form.get('result').value;
+      }
+      if (this.card_form.get('proceduretiming').dirty){
+        this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
       }
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
@@ -549,6 +627,61 @@ export class FormProcedure {
     });
     alert.present();
     return canLeave
+  }
+
+  setTiming(strTiming) {
+    var visittext;
+    var visitid;
+    var visitdate;
+    if (strTiming == 'atvisit') {
+      console.log('setTiming at visit eventVisit: ', this.eventVisit);
+      console.log('setTiming at visit fromEvent: ', this.fromEvent);
+      if (this.eventVisit !== undefined && this.eventVisit !== null && this.eventVisit.physician !== undefined) {
+        visitid = this.eventVisit.recordid;
+        visitdate = this.eventVisit.visitdate;
+        if (this.eventVisit.physician.lastname !== undefined && this.eventVisit.physician.lastname !== null) {
+          visittext = "Dr. " + this.eventVisit.physician.lastname + ": " + visitdate;
+        } else {
+          visittext = this.eventVisit.physician.title + ": " + visitdate;
+        }
+      } else if (this.fromEvent !== undefined && this.fromEvent !== null) {
+        visitid = this.fromEvent.visitid;
+        visitdate = this.fromEvent.dateofdiagnosis;
+        if (this.fromEvent.lastname !== undefined && this.fromEvent.lastname !== null) {
+          visittext = "Dr. " + this.fromEvent.lastname + ": " + visitdate;
+        } else {
+          visittext = this.fromEvent.title + ": " + visitdate;
+        }
+      }
+      this.card_form.get('dateofmeasure').setValue(visitdate);
+      this.card_form.get('visitid').setValue(visitid);
+      this.card_form.get('visitid').markAsDirty();
+      this.card_form.get('visittext').setValue(visittext);
+      this.hasVisit = true;
+      this.needsVisit = false;
+    } else if (strTiming == 'aftervisit') {
+      if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null) {
+        this.card_form.get('visitid').setValue(null);
+        this.card_form.get('visitid').markAsDirty();
+        this.card_form.get('visittext').setValue(null);
+      }
+      this.needsVisit = true;
+      this.hasVisit = false;
+    }
+  }
+
+  presentHelp(myEvent) {
+    var title = 'Procedure timing';
+    var helptext = "Choose the appropriate procedure timing.  For procedures performed at the diagnosis visit, the proper information will auto-populate<br><br>" +
+    "For an upcoming procedure, you can schedule the visit through the schedule a visit button (calendar) after entering the procedure name.";
+
+    let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+    });
+    popover.present({
+      ev: myEvent
+    });
   }
 
   presentLoadingDefault() {

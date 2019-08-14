@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, ViewController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListContactModel } from './listContacts.model';
@@ -24,6 +24,8 @@ export class ListContactPage {
   resultData: any;
   userTimezone: any;
   noData: boolean = false;
+  isSelectRelated: boolean = false;
+  relatedSelection: any;
 
   constructor(
     public nav: NavController,
@@ -32,9 +34,13 @@ export class ListContactPage {
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController,
+    public viewCtrl: ViewController,
     private callNumber: CallNumber
   ) {
     this.feed.category = navParams.get('category');
+    if (this.feed.category.title == 'Select Heathcare Provider') {
+      this.isSelectRelated = true;
+    }
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -121,9 +127,26 @@ export class ListContactPage {
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormContactPage, { recId: recordId });
-    //alert('Open Record:' + recordId);
+
+    if (!this.isSelectRelated) {
+      this.nav.push(FormContactPage, { recId: recordId });
+      } else {
+        this.relatedSelection = this.RestService.results[recordId];
+      this.dismiss(false);
+      }
+  }
+
+  cancelSelectRelated() {
+    //fromCancel = true
+    this.dismiss(true);
+  }
+
+  dismiss(fromCancel) {
+    if (fromCancel) {
+      this.relatedSelection = null;
+    }
+    let data = this.relatedSelection;
+    this.viewCtrl.dismiss(data);
   }
 
   scheduleVisit(index) {

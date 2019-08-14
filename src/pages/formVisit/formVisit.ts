@@ -8,6 +8,7 @@ import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } 
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
+import { MenuVisitItem } from '../../pages/menuVisitItem/menuVisitItem';
 import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu';
 //import { ListLabsPage } from '../../pages/listLabs/listLabs';
 //mport { FormLabsPage } from '../../pages/formLabs/formLabs';
@@ -39,6 +40,7 @@ export class FormVisitPage {
   saving: boolean = false;
   showTips: boolean = true;
   infos: FormArray;
+  visititems: FormArray;
   questions: FormArray;
   todos: FormArray;
   symptomCheck: boolean = false;
@@ -105,6 +107,7 @@ export class FormVisitPage {
         physiciantitle: new FormControl(this.curRec.physician.title),
         reason: new FormControl(this.curRec.reason),
         infos: this.formBuilder.array([]),
+        visititems: this.formBuilder.array([]),
         questions: this.formBuilder.array([]),
         todos: this.formBuilder.array([]),
         importantinfo: new FormControl(),
@@ -140,6 +143,7 @@ export class FormVisitPage {
         physiciantitle: new FormControl(title),
         reason: new FormControl(),
         infos: this.formBuilder.array([]),
+        visititems: this.formBuilder.array([]),
         questions: this.formBuilder.array([]),
         todos: this.formBuilder.array([]),
         importantinfo: new FormControl(),
@@ -1859,6 +1863,35 @@ export class FormVisitPage {
     this.checkSave = true;
     alert('Coming soon.  This button will allow you to add procedures and vaccines with occurred from this visit');
     console.log('LoadMenu dataobj: ' + dataObj);
+  }
+
+  presentVisitItem(myEvent) {
+    var self = this;
+    var dataObj;
+    let popover = this.popoverCtrl.create(MenuVisitItem);
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        self.loadVisitItem(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+  loadVisitItem(dataObj) {
+    console.log('LoadVisitItem dataobj: ' + dataObj);
+    if (dataObj == 'procedure') {
+      alert('Add new procedure');
+    } else if (dataObj == 'vaccine') {
+      alert('Add new vaccine');
+    } else if (dataObj == 'lab') {
+      alert('Add new lab');
+    }  else if (dataObj == 'therapy') {
+      alert('Add new therapy');
+    }
   }
 
   addNewDiagnosis(): void {

@@ -2,7 +2,7 @@
   "name": "healthcare.logos.visual",
   "author": "Logos Health",
   "homepage": "https://logos.healthcare",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "displayName": "Logos Health Mobile App",
   "scripts": {
     "clean": "ionic-app-scripts clean",
@@ -50,7 +50,7 @@
     "bourbon": "4.3.4",
     "call-number": "^1.0.1",
     "chart.js": "^2.7.3",
-    "cordova-android": "^7.1.1",
+    "cordova-android": "^7.1.4",
     "cordova-android-support-gradle-release": "^1.4.4",
     "cordova-browser": "5.0.4",
     "cordova-ios": "^4.5.5",

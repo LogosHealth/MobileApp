@@ -49,6 +49,7 @@ export class FormSymptomPage {
     this.loadFromId = navParams.get('loadFromId');
     console.log('formSymptom loadFromId: ' + this.loadFromId);
     this.fromEvent = navParams.get('fromEvent');
+    console.log('formSymptom fromEvent: ', this.fromEvent);
     this.curRec = RestService.results[this.recId];
 
     var self = this;
@@ -376,6 +377,7 @@ calculateEndDate() {
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
+
       if (this.card_form.get('symptom').dirty){
         this.formSave.symptomname = this.card_form.get('symptom').value;
       }
@@ -386,6 +388,15 @@ calculateEndDate() {
         this.formSave.enddate = this.calculateEndDate();
       }
     } else {
+      //New Insert
+
+      //If this symptom was created from a medical condition (through the medical condition page), add the medical condition reference
+      if (this.fromEvent !== undefined && this.fromEvent !== null && this.fromEvent.medicaleventid > 0) {
+        this.formSave.medicaleventid = this.fromEvent.medicaleventid;
+      } else {
+        console.log('Symptom insert not from Event: ', this.fromEvent);
+      }
+
       this.formSave.symptomname = this.card_form.get('symptom').value;
       if (this.card_form.get('symptomdescription').dirty){
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
@@ -586,10 +597,13 @@ calculateEndDate() {
   }
 
   formatDateTime(dateString) {
+    console.log('FormatDateTime: datestring: ' + dateString);
     if (dateString !== undefined && dateString !== null && dateString !== "") {
       if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY');
+        console.log('formatDateTime has tz return is: ' + moment(dateString).tz(this.userTimezone).toISOString());
+        return moment(dateString).tz(this.userTimezone).toISOString();
       } else {
+        console.log('formatDateTime no tz return is: ' + moment(dateString).format('MMM DD YYYY'));
         return moment(dateString).format('MMM DD YYYY');
       }
     } else {

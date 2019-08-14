@@ -78,7 +78,35 @@
             </ion-col>
           </ion-row>
 
-          <ion-row *ngIf="!fromVisit && curRec !== undefined && curRec.visitid !== undefined && curRec.visitid !== null">
+          <ion-row>
+            <ion-col>
+              <ion-label class="section-checkbox-label">Medically Confirmed
+                <ion-checkbox formControlName="ismedicallyconfirmed" [disabled]="hasVisit" (click)="flipMC()"></ion-checkbox>
+              </ion-label>
+            </ion-col>
+          </ion-row>
+
+          <ion-row *ngIf="ismedicallyconfirmed && !hasVisit">
+            <ion-col no-padding width-77>
+              <ion-item>
+                <ion-label floating>Healthcare Provider</ion-label>
+                <ion-input type="text" formControlName="physiciantitle" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-mid"  type="button" (click)="addPhysician()" [disabled]="newRec && notValid()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-mid"  type="button" (click)="viewPhysician()" [disabled]="!hasPhysician">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
+          </ion-col>
+        </ion-row>
+
+
+          <ion-row *ngIf="!fromVisit && hasVisit">
             <ion-col no-padding width-87>
               <ion-item>
                 <ion-label floating>Visit</ion-label>
@@ -96,7 +124,7 @@
       <ion-card class="sample-form">
         <ion-row>
           <ion-col no-padding width-77>
-            <h2 class = "section-title">Related Medical Condition</h2>
+            <h2 class = "section-title">Related Condition</h2>
           </ion-col>
           <ion-col class="columnAlign" no-padding width-10>
               <button ion-button block class="form-action-button-top"  type="button" (click)="addParent()" [disabled]="newRec && notValid()">

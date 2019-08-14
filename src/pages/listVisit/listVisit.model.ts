@@ -7,6 +7,7 @@ export class ListVisit {
   physician: VisitPhysician;
   reason: string;
   importantinfo: ImportantInfos;
+  visititem: VisitItems;
   notes: string;
   callnotes: CallNotes;
   todos: ToDos;
@@ -51,6 +52,10 @@ export class ImportantInfo {
 }
 
 export class ImportantInfos {
+  items: Array<ImportantInfo>;
+}
+
+export class VisitItems {
   items: Array<ImportantInfo>;
 }
 

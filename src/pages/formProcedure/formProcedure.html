@@ -11,9 +11,25 @@
 <ion-content class="forms-examples-content">
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
-        <section class="form-section">
-          <h2 class = "section-title" *ngIf="newRec">New Procedure Record</h2>
-          <h2 class = "section-title" *ngIf="!newRec">{{ curRec.procedurename }}</h2>
+        <ion-card class="sample-form">
+          <h2 class = "section-title-center" *ngIf="newRec">New Procedure Record</h2>
+          <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.procedurename }}</h2>
+
+          <ion-row *ngIf="newRec && checkTiming">
+            <ion-col>
+              <h2 class = "section-title" (click)="presentHelp(myEvent)">Timing of Procedureⓘ</h2>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="newRec && checkTiming">
+            <ion-item>
+              <ion-label floating>Select the proper timing for procedure*</ion-label>
+              <ion-select formControlName="proceduretiming">
+                <ion-option class="section-title" value="atvisit" (ionSelect)="setTiming('atvisit')">Performed at diagnosis visit</ion-option>
+                <ion-option class="section-title" value="aftervisit" (ionSelect)="setTiming('aftervisit')">To be performed - schedule visit</ion-option>
+              </ion-select>
+            </ion-item>
+          </ion-row>
+
           <ion-row *ngIf="newRec">
             <ion-item>
               <ion-label floating>Procedure*</ion-label>
@@ -36,12 +52,11 @@
             </ion-col>
             <ion-col no-padding *ngIf="newRec">
               <ion-item>
-                <ion-label floating>Date of Procedure*</ion-label>
+                <ion-label floating>Date of Procedure</ion-label>
                 <ion-datetime displayFormat="MMM DD YYYY hh:mm a" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
-          <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
           <ion-row>
             <ion-item>
               <ion-label floating>Description</ion-label>
@@ -54,11 +69,41 @@
               <ion-input type="text" formControlName="result"></ion-input>
             </ion-item>
           </ion-row>
-        </section>
+        </ion-card>
+
+        <ion-card class="sample-form" *ngIf="hasVisit || needsVisit">
+          <ion-row>
+            <ion-col no-padding width-87>
+              <h2 class = "section-title">Visit</h2>
+            </ion-col>
+            <ion-col *ngIf="needsVisit" class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="newVisit()" [disabled]="(!card_form.valid || !procedurename.valid) && !needsVisit">
+                <ion-icon name="calendar"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-87>
+              <ion-item>
+                <ion-label floating>Visit Name</ion-label>
+                <ion-input type="text" formControlName="visittext" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit()" [disabled]="(!card_form.valid || !procedurename.valid)">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+
+
+
+
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !procedurename.dirty) || !card_form.valid)">Save</button>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !procedurename.dirty) || !card_form.valid || !procedurename.valid)">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>

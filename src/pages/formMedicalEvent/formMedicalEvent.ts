@@ -15,7 +15,9 @@ import { ListMedicationPage } from '../../pages/listMedication/listMedication';
 import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
 import { ListMedicalEvent } from '../../pages/listMedicalEvent/listMedicalEvent';
 import { FormVisitPage } from '../../pages/formVisit/formVisit';
-
+import { FormProcedure } from '../../pages/formProcedure/formProcedure';
+import { ListContactPage } from '../../pages/listContacts/listContacts';
+import { FormContactPage } from '../../pages/formContact/formContact';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
@@ -64,6 +66,9 @@ export class FormMedicalEvent {
   loadFromId: number;
   relatedEvent: any;
   hasRelated: boolean = false;
+  ismedicallyconfirmed: boolean  = false;
+  hasPhysician: boolean = false;
+
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
   bodyAreaList = [];
@@ -87,7 +92,7 @@ export class FormMedicalEvent {
 
     console.log('symptomsNotChosen from formMedicalEvent: ', this.symptomsNotChosen);
     console.log('recId from formMedicalEvent: ' + this.recId);
-    this.visitInfo = navParams.get('visit');
+    //this.visitInfo = navParams.get('visit');
     if (this.visitInfo !== undefined && this.visitInfo.recordid !== undefined) {
       this.fromVisit = true;
       console.log('visitInfo for existing event: ', this.visitInfo);
@@ -103,6 +108,9 @@ export class FormMedicalEvent {
       //console.log('NewFromVisit is true');
     } else if (this.recId !== undefined && this.recId !== null) {
       this.curRec = this.RestService.results[this.recId];
+      if (this.curRec.visitid !== undefined && this.curRec.visitid !== null && this.curRec.visitid > 0) {
+        this.hasVisit = true;
+      }
       console.log('CurRec from formMedicalEvent: ', this.curRec);
     } else {
       console.log('No visit info or recId for medical condition!  Must be new record from list view.');
@@ -110,6 +118,7 @@ export class FormMedicalEvent {
 
     this.feed.category = navParams.get('category');
     this.loadFromId = navParams.get('loadFromId');
+    console.log('FormMedEvent hasVisit: ' + this.hasVisit);
 
     if (this.feed.category == undefined || this.feed.category == null) {
       this.feed.category = {title: 'Medical Condition'};
@@ -132,7 +141,6 @@ export class FormMedicalEvent {
       this.timeNow = this.momentNow.format('HH:mm');
     }
     //console.log('Init Medical Event - recId = ' + this.recId);
-    console.log('')
     if (this.recId !== undefined) {
       console.log('RecId should populate form: ' + this.curRec.onsetdate);
       var ischronic = false;
@@ -144,6 +152,9 @@ export class FormMedicalEvent {
       }
       if (this.curRec.isallergy !== undefined && this.curRec.isallergy == 'Y') {
         isallergy = true;
+      }
+      if (this.curRec.medicallyconfirmed !== undefined && this.curRec.medicallyconfirmed == 'Y') {
+        this.ismedicallyconfirmed = true;
       }
 
       var visittext = "";
@@ -175,6 +186,9 @@ export class FormMedicalEvent {
         visittext: new FormControl(visittext),
         ischronic: new FormControl(ischronic),
         isallergy: new FormControl(isallergy),
+        ismedicallyconfirmed: new FormControl(this.ismedicallyconfirmed),
+        physicianid: new FormControl(this.curRec.physicianid),
+        physiciantitle: new FormControl(this.curRec.title),
         symptoms: this.formBuilder.array([]),
         treatments: this.formBuilder.array([]),
         confirmed: new FormControl(),
@@ -186,6 +200,10 @@ export class FormMedicalEvent {
       if (this.curRec.parenteventid !== undefined && this.curRec.parenteventid > 0) {
         this.hasRelated = true;
       }
+      if (this.curRec.physicianid !== undefined && this.curRec.physicianid > 0) {
+        this.hasPhysician = true;
+      }
+
       //console.log('The value for medical event is: ' + this.medicalevent.value);
     } else {
       //console.log('RecId is undefined:');
@@ -208,6 +226,9 @@ export class FormMedicalEvent {
         visittext: new FormControl(),
         ischronic: new FormControl(),
         isallergy: new FormControl(),
+        ismedicallyconfirmed: new FormControl(),
+        physicianid: new FormControl(),
+        physiciantitle: new FormControl(),
         symptoms: this.formBuilder.array([]),
         treatments: this.formBuilder.array([]),
         confirmed: new FormControl(),
@@ -482,6 +503,9 @@ export class FormMedicalEvent {
       if (this.card_form.get('parenteventid').dirty){
         this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
       }
+      if (this.card_form.get('physicianid').dirty){
+        this.eventSave.physicianid = this.card_form.get('physicianid').value;
+      }
       if (this.card_form.get('onsetdate').dirty){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
       }
@@ -549,6 +573,9 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('parenteventid').dirty){
         this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
+      }
+      if (this.card_form.get('physicianid').dirty){
+        this.eventSave.physicianid = this.card_form.get('physicianid').value;
       }
       if (this.card_form.get('onsetdate').value !== null){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
@@ -680,6 +707,9 @@ export class FormMedicalEvent {
       if (this.card_form.get('parenteventid').dirty){
         this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
       }
+      if (this.card_form.get('physicianid').dirty){
+        this.eventSave.physicianid = this.card_form.get('physicianid').value;
+      }
       if (this.card_form.get('onsetdate').dirty){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
       }
@@ -727,6 +757,9 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('parenteventid').dirty){
         this.eventSave.parenteventid = this.card_form.get('parenteventid').value;
+      }
+      if (this.card_form.get('physicianid').dirty){
+        this.eventSave.physicianid = this.card_form.get('physicianid').value;
       }
       if (this.card_form.get('onsetdate').value !== null){
         this.eventSave.onsetdate = this.card_form.get('onsetdate').value;
@@ -1230,10 +1263,11 @@ presentPopover(myEvent) {
 }
 
 loadMenu(dataObj) {
+  var self = this;
+
   if (dataObj !== undefined && dataObj !== null) {
     if (dataObj == 'Medication') {
       this.checkSave = true;
-      var self = this;
       this.confirmSaveDirect(function(err, result) {
         if (err) {
           console.log('Error in loadMenu.confirmSaveDirect' + err);
@@ -1245,13 +1279,37 @@ loadMenu(dataObj) {
             console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
             self.nav.push(FormMedication, {category: cat, fromEvent: fromEvent});
           } else if (!result) {
-            console.log('loadMenu.ConfirmSaveDirect - User cancelled');
+            console.log('loadMenu.ConfirmSaveDirect Medication- User cancelled');
           }
         }
       });
     } else if (dataObj == 'Procedure') {
       console.log('Add Procedure');
-      alert('Coming soon.  From here, you will be able to add a new procedure which treats this event');
+      var fromType = 'condition';
+      this.checkSave = true;
+      this.confirmSaveDirect(function(err, result) {
+        if (err) {
+          console.log('Error in loadMenu.confirmSaveDirect' + err);
+          alert('There is an error in saving the procedure record from loadMenu');
+        } else {
+          if (result) {
+            var cat = {title: dataObj};
+            console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
+            if (self.visitInfo !== undefined && self.visitInfo !== null && self.visitInfo.recordid > 0) {
+              fromType = 'condition with visit';
+            } else if (self.curRec !== undefined && self.curRec !== null && self.curRec.visitid > 0) {
+              fromType = 'condition with visit';
+            } else if (self.curRec !== undefined && self.curRec !== null && self.curRec.physicianid > 0) {
+              fromType = 'condition with contact';
+            }
+
+            self.nav.push(FormProcedure, {category: cat, fromEvent: self.curRec, eventVisit: self.visitInfo, fromType: fromType});
+          } else if (!result) {
+            console.log('loadMenu.ConfirmSaveDirect Procedure - User cancelled');
+          }
+        }
+      });
+      //alert('Coming soon.  From here, you will be able to add a new procedure which treats this event');
     } else if (dataObj == 'Therapy') {
       console.log('Add Therapy');
       alert('Coming soon.  From here, you will be able to add a new therapy which treats this event');
@@ -1603,13 +1661,61 @@ addParent() {
       self.relatedEvent = data;
       self.hasRelated = true;
       console.log('Result from addParent ', self.relatedEvent);
-      this.card_form.get('parenteventname').setValue(self.relatedEvent.medicalevent);
-      this.card_form.get('parenteventonset').setValue(self.relatedEvent.startdate);
-      this.card_form.get('parenteventid').setValue(self.relatedEvent.recordid);
-      this.card_form.get('parenteventid').markAsDirty();
+      self.card_form.get('parenteventname').setValue(self.relatedEvent.medicalevent);
+      self.card_form.get('parenteventonset').setValue(self.relatedEvent.startdate);
+      self.card_form.get('parenteventid').setValue(self.relatedEvent.recordid);
+      self.card_form.get('parenteventid').markAsDirty();
     }
   });
   profileModal.present();
+}
+
+addPhysician() {
+  var self = this;
+  var cat = {title: 'Select Heathcare Provider'};
+
+  let profileModal = this.modalCtrl.create(ListContactPage, { category: cat });
+  profileModal.onDidDismiss(data => {
+    if (data !==undefined && data !== null) {
+      console.log('Result from addPhysician ', data);
+      self.card_form.get('physicianid').setValue(data.recordid);
+      self.card_form.get('physicianid').markAsDirty();
+      self.card_form.get('physiciantitle').setValue(data.title);
+    }
+  });
+  profileModal.present();
+}
+
+viewPhysician() {
+  var cat;
+  var physicianid;
+  this.checkSave = true;
+  var self = this;
+  this.confirmSaveDirect(function(err, result) {
+    if (err) {
+      console.log('Error in viewPhysician.confirmSaveDirect' + err);
+      alert('There is an error in saving the record from viewPhysician');
+    } else {
+      if (result) {
+        cat = {title: 'Healthcare Provider'};
+        physicianid = self.card_form.get('physicianid').value;
+        self.nav.push(FormContactPage, { category: cat, loadFromId: physicianid });
+      } else if (!result) {
+        console.log('viewPhysician.ConfirmSaveDirect - User cancelled');
+      }
+    }
+  });
+}
+
+flipMC() {
+  if (this.card_form.get('ismedicallyconfirmed').value == true) {
+    this.ismedicallyconfirmed = true;
+  } else {
+    this.ismedicallyconfirmed = false;
+    this.card_form.get('physicianid').setValue(null);
+    this.card_form.get('physicianid').markAsDirty();
+    this.card_form.get('physiciantitle').setValue(null);
+  }
 }
 
 gotoVisit() {

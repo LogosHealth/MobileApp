@@ -102,6 +102,35 @@
             <ion-card  class="sample-form">
               <ion-row>
                 <ion-col no-padding width-85>
+                  <h2 class = "section-title" >To Be Performed at Visit</h2>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="presentVisitItem($event)">
+                    <ion-icon name="add"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+              <div formArrayName="questions" *ngFor="let info of card_form.get('visititems').controls; let i = index;">
+                <div [formGroupName]="i">
+                  <ion-row>
+                    <ion-item  text-wrap>
+                      <ion-label floating>Question {{ i + 1 }}</ion-label>
+                      <ion-textarea type="text" formControlName="category" autosize></ion-textarea>
+                    </ion-item>
+                  </ion-row>
+                  <ion-row>
+                    <ion-item  text-wrap>
+                      <ion-label floating>Answer</ion-label>
+                      <ion-textarea type="text" formControlName="name" autosize></ion-textarea>
+                    </ion-item>
+                  </ion-row>
+                </div>
+              </div>
+            </ion-card>
+
+            <ion-card  class="sample-form">
+              <ion-row>
+                <ion-col no-padding width-85>
                   <h2 class = "section-title" >Key Questions</h2>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
