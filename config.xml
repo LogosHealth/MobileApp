@@ -101,7 +101,7 @@
     <plugin name="cordova-plugin-ionic" spec="4.2.0">
         <variable name="APP_ID" value="0f127b9d" />
         <variable name="CHANNEL_NAME" value="Master" />
-        <variable name="UPDATE_METHOD" value="background" />
+        <variable name="UPDATE_METHOD" value="auto" />
     </plugin>
     <engine name="browser" spec="5.0.4" />
 </widget>
