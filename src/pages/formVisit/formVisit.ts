@@ -4,7 +4,7 @@ import { Validators, FormGroup, FormControl, FormArray,  FormBuilder, FormsModul
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { FormChooseInfo } from '../../pages/formChooseInfo/formChooseInfo';
-import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions } from '../../pages/listVisit/listVisit.model';
+import { ListVisit, ImportantInfo, ImportantInfos, ToDos, Question, Questions, VisitItems } from '../../pages/listVisit/listVisit.model';
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
 import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
@@ -13,15 +13,16 @@ import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu'
 //import { ListLabsPage } from '../../pages/listLabs/listLabs';
 //mport { FormLabsPage } from '../../pages/formLabs/formLabs';
 //import { ListVisitPage } from '../../pages/listVisit/listVisit';
-//import { ListVaccinesPage } from '../../pages/listVaccines/listVaccines';
-//import { FormVaccinesPage } from '../../pages/formVaccines/formVaccines';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 import { FormMedicalEvent } from '../../pages/formMedicalEvent/formMedicalEvent';
-import { PostVisitModel, Treatment, PostVisit } from './postVisit.model';
+import { PostVisitModel, Treatment, PostVisit, Outcome, Outcomes } from './postVisit.model';
 import { PostVisitService } from './postVisit.service';
+import { FormProcedure } from '../formProcedure/formProcedure';
+import { FormTherapy } from '../formTherapy/formTherapy';
+import { ListChooseVaccine } from '../listChooseVaccine/listChooseVaccine';
+import { FormVaccinesPage } from '../formVaccines/formVaccines';
 
 var moment = require('moment-timezone');
-
 @Component({
   selector: 'formVisit1-page',
   templateUrl: 'formVisit.html'
@@ -55,6 +56,8 @@ export class FormVisitPage {
   iiBlankAdded: boolean = false;
   selectedItems: ImportantInfos = new ImportantInfos();
   importantInfos: ImportantInfos = new ImportantInfos();
+  visitItemArray: VisitItems = new VisitItems();
+
   formSave: ListVisit = new ListVisit();
   postSave: PostVisit = new PostVisit();
   category: HistoryItemModel = new HistoryItemModel();
@@ -64,14 +67,22 @@ export class FormVisitPage {
   needNew: boolean = false;
   pastVisit: boolean = false;
   loadFromId: any;
+  createNewParams: any;
+  hasParent: boolean = false;
+  hasDate: boolean = false;
+  transfer2Post: boolean = false;
+
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
     public navParams: NavParams, public formBuilder: FormBuilder, public categoryList: FormsModule, public popoverCtrl:PopoverController,
     public list2Service: PostVisitService, public loadingCtrl: LoadingController) {
     this.recId = navParams.get('recId');
+    this.createNewParams = navParams.get('createNewParams');
     this.curRec = RestService.results[this.recId];
     console.log('formVisit - initial recId: ', this.recId);
     console.log('formVisit - initial curRec: ', this.curRec);
+    console.log('formVisit - initial createNewParams: ', this.createNewParams);
+
     if (this.curRec == undefined) {
       this.curRec = {
         recordid: null
@@ -84,24 +95,40 @@ export class FormVisitPage {
     this.contact = navParams.get('contact');
     this.selectedItems.items = [];
     this.importantInfos.items = [];
+    this.visitItemArray.items = [];
     this.categoryList = 'pre';
     var self = this;
     this.momentNow = moment(new Date());
+
     this.RestService.curProfileObj(function (error, results) {
       if (!error) {
         self.userTimezone = results.timezone;
         self.curProfile = results;
       }
     });
-
     this.loadFromId = navParams.get('loadFromId');
     if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0) {
       this.categoryList = 'post';
     }
 
+    var preason = null;
+
     if (this.recId !== undefined) {
+      if (this.curRec.parentvisitid !== undefined && this.curRec.parentvisitid !==null) {
+        this.hasParent = true;
+        preason = this.curRec.parentreason + " " + this.formatRealDate(this.curRec.parentdate);
+      }
+      if (this.curRec.visitdate !== undefined && this.curRec.visitdate !== null) {
+        this.hasDate = true;
+      } else {
+        this.hasDate = false;
+      }
+
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
+        parentvisitid: new FormControl(this.curRec.parentvisitid),
+        parentreason: new FormControl(preason),
+        parentdate: new FormControl(this.curRec.parentdate),
         visitdate: new FormControl(this.curRec.visitdate, Validators.required),
         firstname: new FormControl(this.curRec.firstname),
         physiciantitle: new FormControl(this.curRec.physician.title),
@@ -114,30 +141,50 @@ export class FormVisitPage {
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.RestService.userId),
       });
-      if (this.momentNow > moment(this.curRec.visitdate)) {
+      //console.log('MomentNow = ' + this.momentNow.format('MMM-DD-YYYY hh:mm a'));
+      //console.log('VisitDate = ' + moment(this.curRec.visitdate).format('MMM-DD-YYYY hh:mm a'));
+      console.log('VisitDateReal = ' + this.getRealDateTime(this.curRec.visitdate).format('MMM-DD-YYYY hh:mm a'));
+      if (this.momentNow > this.getRealDateTime(this.curRec.visitdate)) {
         this.categoryList = 'post';
         this.pastVisit = true;
         console.log('It is after the visit! - momentNow = ' + this.momentNow);
+        if (this.curRec.happened !== undefined && this.curRec.happened !== null && this.curRec.happened == 'N') {
+          //console.log('Setting transfer2Post to true - happened: ' + this.curRec.happened);
+          this.transfer2Post = true;
+        }
       } else {
         console.log('It is before the visit!');
       }
       this.addExistingInfos();
       this.addExistingQuestions();
       this.addExistingTodos();
+      this.addExistingVisitInfos();
     } else {
       this.newRec = true;
       var title = null;
       var firstNameVal = null;
+      var objUser;
       if (this.contact !==undefined && this.contact !==null) {
         title = this.contact.title;
         console.log('contact title from init: ' + this.contact.title);
+      } else if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        title = this.createNewParams.title;
       }
-      if (this.curProfile !==undefined && this.curProfile !==null) {
+      if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        objUser = this.RestService.getUserById(this.createNewParams.profileid);
+        firstNameVal = objUser.title;
+        preason = this.createNewParams.parentreason + " " + this.formatRealDate(this.createNewParams.parentdate);
+        this.hasParent = true;
+      } else if (this.curProfile !==undefined && this.curProfile !==null) {
         firstNameVal = this.curProfile.title;
         console.log("curProfile: ", this.curProfile);
       }
+
       this.card_form = new FormGroup({
         recordid: new FormControl(),
+        parentvisitid: new FormControl(),
+        parentreason: new FormControl(preason),
+        parentdate: new FormControl(),
         visitdate: new FormControl(null, Validators.required),
         firstname: new FormControl(firstNameVal),
         physiciantitle: new FormControl(title),
@@ -150,6 +197,10 @@ export class FormVisitPage {
         profileid: new FormControl(),
         userid: new FormControl(),
       });
+
+      if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        this.loadPreObjects();
+      }
 
       if (this.needNew) {
         //this.saveNew();
@@ -170,6 +221,65 @@ export class FormVisitPage {
       this.loadPost();
     }
   }
+
+  loadPreObjects() {
+    this.infos = this.card_form.get('infos') as FormArray;
+    this.visititems = this.card_form.get('visititems') as FormArray;
+    var objPre;
+
+    console.log('Start loadPreObjects');
+    if (this.createNewParams.procedureid !== undefined && this.createNewParams.procedureid > 0) {
+      objPre = this.formBuilder.group({
+        recordid: new FormControl(),
+        namevalue: new FormControl(this.createNewParams.procedurename),
+        dateofmeasure: new FormControl(),
+        reftable: new FormControl('procedure'),
+        reftablefield: new FormControl('procedureid'),
+        reftablefieldid: new FormControl(this.createNewParams.procedureid),
+        reftablefields: new FormControl('procedurename, dateofmeasure'),
+        type: new FormControl('procedure'),
+        active: new  FormControl('Y'),
+      });
+      this.visititems.push(objPre);
+      this.visititems.markAsDirty();
+      this.visititems.at(0).markAsDirty();
+      console.log('loadPreObjects - Procedure visititems: ', this.visititems);
+    }
+    if (this.createNewParams.therapyid !== undefined && this.createNewParams.therapyid > 0) {
+      objPre = this.formBuilder.group({
+        recordid: new FormControl(),
+        namevalue: new FormControl(this.createNewParams.therapyname),
+        dateofmeasure: new FormControl(),
+        reftable: new FormControl('therapy'),
+        reftablefield: new FormControl('therapyid'),
+        reftablefieldid: new FormControl(this.createNewParams.therapyid),
+        reftablefields: new FormControl('therapyname, dateofmeasure'),
+        type: new FormControl('therapy'),
+        active: new  FormControl('Y'),
+      });
+      this.visititems.push(objPre);
+      this.visititems.markAsDirty();
+      this.visititems.at(0).markAsDirty();
+      console.log('loadPreObjects - Therapy visititems: ', this.visititems);
+    }
+    if (this.createNewParams.medicaleventid !== undefined && this.createNewParams.medicaleventid > 0) {
+      objPre = this.formBuilder.group({
+        recordid: new FormControl(),
+        namevalue: new FormControl(this.createNewParams.medicalevent),
+        dateofmeasure: new FormControl(this.createNewParams.eventstart),
+        reftable: new FormControl('medicalevent'),
+        reftablefield: new FormControl('medicaleventid'),
+        reftablefieldid: new FormControl(this.createNewParams.medicaleventid),
+        reftablefields: new FormControl('medicalevent, startdate'),
+        type: new FormControl('medicalevent'),
+        active: new  FormControl('Y'),
+      });
+      this.infos.push(objPre);
+      this.infos.markAsDirty();
+      this.infos.at(0).markAsDirty();
+    }
+  }
+
 
   loadPost() {
     var dtNow = moment(new Date());
@@ -289,7 +399,7 @@ export class FormVisitPage {
           self.RestService.appRestart();
         } else {
           console.log('From ' + self.formName + '.loadPre - Credentials refreshed!');
-          self.loadPostDo();
+          self.loadPreDo();
         }
       });
     }
@@ -354,7 +464,22 @@ export class FormVisitPage {
   }
 
   loadPreForm() {
+    var preason;
+    console.log('formVisit - loadPreForm: ', this.curRec);
+    if (this.curRec.parentvisitid !== undefined && this.curRec.parentvisitid !==null) {
+      this.hasParent = true;
+      preason = this.curRec.parentreason + " " + this.formatRealDate(this.curRec.parentdate);
+    }
+    if (this.curRec.visitdate !== undefined && this.curRec.visitdate !== null) {
+      this.hasDate = true;
+    } else {
+      this.hasDate = false;
+    }
+
     this.card_form.get('recordid').setValue(this.curRec.recordid);
+    this.card_form.get('parentvisitid').setValue(this.curRec.parentvisitid);
+    this.card_form.get('parentreason').setValue(preason);
+    this.card_form.get('parentdate').setValue(this.curRec.parentdate);
     this.card_form.get('visitdate').setValue(this.curRec.visitdate);
     this.card_form.get('firstname').setValue(this.curRec.firstname);
     this.card_form.get('physiciantitle').setValue(this.curRec.physician.title);
@@ -365,6 +490,7 @@ export class FormVisitPage {
     this.addExistingInfos();
     this.addExistingQuestions();
     this.addExistingTodos();
+    this.addExistingVisitInfos();
   }
 
   deleteRecord(){
@@ -457,6 +583,262 @@ export class FormVisitPage {
     alert.present();
   }
 
+  navSaveRecord(callback){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.navSaveRecordDo(function (err, results) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, results);
+        }
+      });
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.navSaveRecordDo(function (err, results) {
+            if (err) {
+              callback(err, null);
+            } else {
+              callback(null, results);
+            }
+          });
+        }
+      });
+    }
+  }
+
+  navSaveRecordDo(callback){
+    this.saving = true;
+    console.log('Save record in formVisit called!');
+    if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+      this.formSave.recordid = this.card_form.get('recordid').value;
+      this.formSave.active = 'Y';
+      console.log('Cur Profile: ', this.curProfile);
+      if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+        this.formSave.profileid = this.curRec.profileid;
+      } else {
+        this.formSave.profileid = this.curProfile.profileid;
+      }
+      this.formSave.userid = this.RestService.userId;
+      if (this.card_form.get('reason').dirty) {
+        this.formSave.reason = this.card_form.get('reason').value;
+      }
+      if (this.card_form.get('visitdate').dirty) {
+        this.formSave.visitdate = this.card_form.get('visitdate').value;
+      }
+    } else {
+      this.formSave.active = 'Y';
+      console.log('Cur Profile: ', this.curProfile);
+
+      if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        this.formSave.profileid = this.createNewParams.profileid;
+      } else if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+        this.formSave.profileid = this.curRec.profileid;
+      } else {
+        this.formSave.profileid = this.curProfile.profileid;
+      }
+
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.reason = this.card_form.get('reason').value;
+      this.formSave.visitdate = this.card_form.get('visitdate').value;
+
+      //This is the only field within the post visit section:
+      console.log('Contact from promote to visit', this.contact);
+      if (this.curRec !== undefined  && this.curRec.physician !== undefined) {
+        this.formSave.contactid = this.curRec.physician.recordid;
+      } else if (this.contact !== undefined) {
+        this.formSave.contactid = this.contact.recordid;
+      } else if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        this.formSave.contactid = this.createNewParams.contactid;
+      }
+      if (this.createNewParams !==undefined && this.createNewParams !==null && this.createNewParams.parentvisitid !== undefined
+        && this.createNewParams.parentvisitid > 0) {
+          this.formSave.parentvisitid = this.createNewParams.parentvisitid;
+      }
+      this.formSave.accountid = this.RestService.Profiles[0].accountid;
+      if (this.curRec.scheduleinstanceid !== undefined && this.curRec.scheduleinstanceid !== null) {
+        this.formSave.scheduleinstanceid = this.curRec.scheduleinstanceid;
+      }
+    }
+    this.infos = this.card_form.get('infos') as FormArray;
+    if (this.infos.dirty) {
+      var impInfos: ImportantInfos = new ImportantInfos();
+      var impInfo: ImportantInfo;
+      var infoForm;
+      console.log('formVisit Save - infos dirty', this.selectedItems);
+      impInfos.items = [];
+      for (var j = 0; j < this.infos.length; j++) {
+        infoForm = this.infos.at(j) as FormGroup;
+        if (infoForm.dirty) {
+          impInfo = {
+            recordid: infoForm.get("recordid").value,
+            namevalue: infoForm.get("namevalue").value,
+            dateofmeasure: infoForm.get("dateofmeasure").value,
+            reftable: infoForm.get("reftable").value,
+            reftablefield: infoForm.get("reftablefield").value,
+            reftablefieldid: infoForm.get("reftablefieldid").value,
+            reftablefields: infoForm.get("reftablefields").value,
+            type: infoForm.get("type").value,
+            active: 'Y',
+            selected: false,
+            medicaleventid: null,
+          }
+          impInfos.items.push(impInfo);
+          console.log('formVisit - impInfo, ', impInfo);
+        } else {
+          console.log('InfoForm not dirty')
+        }
+      }
+      this.formSave.importantinfo = impInfos;
+    } else {
+      console.log('formVisit Save - infos not dirty');
+    }
+    this.todos = this.card_form.get('todos') as FormArray;
+    if (this.todos.dirty) {
+      var impTodos: ToDos = new ToDos();
+      var impTodo: ToDo;
+      var todoForm;
+      console.log('formVisit Save - todos dirty');
+      impTodos.items = [];
+      for (j = 0; j < this.todos.length; j++) {
+        todoForm = this.todos.at(j) as FormGroup;
+        if (todoForm.dirty) {
+          impTodo = new ToDo();
+          impTodo.recordid = todoForm.get("recordid").value;
+          if (todoForm.get("taskname").dirty) {
+            impTodo.taskname = todoForm.get("taskname").value;
+          }
+          if (todoForm.get("duedate").dirty) {
+            impTodo.duedate = todoForm.get("duedate").value;
+          }
+          if (todoForm.get("completedflag").dirty) {
+            if (todoForm.get("completedflag").value == true) {
+              impTodo.completedflag = 'Y';
+            } else {
+              impTodo.completedflag = 'N';
+            }
+          }
+          if (todoForm.get("active").dirty) {
+            impTodo.active = todoForm.get("active").value;
+          }
+          impTodos.items.push(impTodo);
+        }
+      }
+      this.formSave.todos = impTodos;
+    } else {
+      console.log('formVisit Save - todos not dirty');
+    }
+    this.questions = this.card_form.get('questions') as FormArray;
+    if (this.questions.dirty) {
+      var impQuestions: Questions = new Questions();
+      var impQuestion: Question;
+      var questionForm;
+      console.log('formVisit Save - quest dirty');
+      impQuestions.items = [];
+      for (j = 0; j < this.questions.length; j++) {
+        questionForm = this.questions.at(j) as FormGroup;
+        if (questionForm.dirty) {
+          impQuestion = new Question();
+          impQuestion.recordid = questionForm.get("recordid").value;
+          if (questionForm.get("question").dirty) {
+            impQuestion.question = questionForm.get("question").value;
+          }
+          if (questionForm.get("answer").dirty) {
+            impQuestion.answer = questionForm.get("answer").value;
+          }
+          if (questionForm.get("active").dirty) {
+            impQuestion.active = questionForm.get("active").value;
+          }
+          impQuestions.items.push(impQuestion);
+        }
+      }
+      this.formSave.questions = impQuestions;
+    } else {
+      console.log('formVisit Save - todos not dirty');
+    }
+  //Add visitinfos
+      this.visititems = this.card_form.get('visititems') as FormArray;
+      if (this.visititems.dirty) {
+        var visititems: VisitItems = new VisitItems();
+        var visitInfo: ImportantInfo;
+        var visitForm;
+        console.log('formVisit Save - infos dirty', this.selectedItems);
+        visititems.items = [];
+        for (j = 0; j < this.infos.length; j++) {
+          visitForm = this.visititems.at(j) as FormGroup;
+          if (visitForm.dirty) {
+            visitInfo = {
+              recordid: visitForm.get("recordid").value,
+              namevalue: visitForm.get("namevalue").value,
+              dateofmeasure: visitForm.get("dateofmeasure").value,
+              reftable: visitForm.get("reftable").value,
+              reftablefield: visitForm.get("reftablefield").value,
+              reftablefieldid: visitForm.get("reftablefieldid").value,
+              reftablefields: visitForm.get("reftablefields").value,
+              type: visitForm.get("type").value,
+              active: 'Y',
+              selected: false,
+              medicaleventid: null,
+            }
+            visititems.items.push(visitInfo);
+            console.log('formVisit - visitInfo, ', visitInfo);
+          } else {
+            console.log('Visit Form not dirty');
+          }
+        }
+        this.formSave.visititem = visititems;
+      } else {
+          console.log('formVisit Save - visitinfo not dirty');
+      }
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params = {
+        //pathParameters: this.vaccineSave
+      };
+      var pathTemplate = '';
+      var method = 'POST';
+      var additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+      };
+      var body = JSON.stringify(this.formSave);
+      var self = this;
+      console.log('Calling Post', this.formSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.RestService.results = result.data;
+      console.log('Happy Path: ' + self.RestService.results);
+      self.category.title = "Visit";
+      self.curRec = self.formSave
+      self.curRec.recordid = result.data;
+      self.loading.dismiss();
+      callback(null, result.data);
+    }).catch( function(result){
+      console.log('Error in formVisit.save: ',result);
+      self.loading.dismiss();
+      callback(result, null);
+    });
+  }
+
   navSavePostRecord(callback){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -494,6 +876,7 @@ export class FormVisitPage {
 
   navSavePostRecordDo(callback){
     this.saving = true;
+
     //console.log('Save record in formVisit called!');
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.postSave.recordid = this.card_form.get('recordid').value;
@@ -537,9 +920,52 @@ export class FormVisitPage {
           }
         }
         this.postSave.todopost = impTodos;
-        console.log('formVisit todopost dirty: ', this.formSave.todopost);
+        console.log('formVisit todopost dirty: ', this.postSave.todopost);
       } else {
         console.log('formVisit.postsave - todopost not dirty');
+      }
+
+      this.outcomes = this.card_formPost.get('outcomes') as FormArray;
+      if (this.outcomes.dirty) {
+        var impOutcomes: Outcomes = new Outcomes();
+        var impOutcome: Outcome;
+        var outcomeForm;
+        impOutcomes.items = [];
+        for (j = 0; j < this.outcomes.length; j++) {
+          outcomeForm = this.outcomes.at(j) as FormGroup;
+          console.log('OutcomeForm for j: ' + j, outcomeForm);
+          if (outcomeForm.dirty) {
+            impOutcome = new Outcome();
+            if (outcomeForm.get("recordid") !== undefined && outcomeForm.get("recordid") !== null && outcomeForm.get("recordid").value !== undefined) {
+              impOutcome.recordid = outcomeForm.get("recordid").value;
+            }
+            impOutcome.visitid = outcomeForm.get("visitid").value;
+            if (outcomeForm.get("reftable").dirty) {
+              impOutcome.reftable = outcomeForm.get("reftable").value;
+            }
+            if (outcomeForm.get("reftablefield").dirty) {
+              impOutcome.reftablefield = outcomeForm.get("reftablefield").value;
+            }
+            if (outcomeForm.get("reftablefieldid").dirty) {
+              impOutcome.reftablefieldid = outcomeForm.get("reftablefieldid").value;
+            }
+            if (outcomeForm.get("reftablefields").dirty) {
+              impOutcome.reftablefields = outcomeForm.get("reftablefields").value;
+            }
+            if (outcomeForm.get("type").dirty) {
+              impOutcome.type = outcomeForm.get("type").value;
+            }
+            if (outcomeForm.get("active").dirty) {
+              impOutcome.active = outcomeForm.get("active").value;
+            }
+            console.log('formVisit todopost impOutcome: ', impOutcome);
+            impOutcomes.items.push(impOutcome);
+          }
+        }
+        this.postSave.outcomes = impOutcomes;
+        console.log('formVisit outcomes dirty: ', this.postSave.outcomes);
+      } else {
+        console.log('formVisit.postsave - outcomes not dirty');
       }
 
     }
@@ -654,6 +1080,48 @@ export class FormVisitPage {
         console.log('formVisit.postsave - todopost not dirty');
       }
 
+      this.outcomes = this.card_formPost.get('outcomes') as FormArray;
+      if (this.outcomes.dirty) {
+        var impOutcomes: Outcomes = new Outcomes();
+        var impOutcome: Outcome;
+        var outcomeForm;
+        impOutcomes.items = [];
+        for (j = 0; j < this.outcomes.length; j++) {
+          outcomeForm = this.outcomes.at(j) as FormGroup;
+          if (outcomeForm.dirty) {
+            impOutcome = new Outcome();
+            if (outcomeForm.get("recordid").value !== undefined && outcomeForm.get("recordid").value !== null) {
+              impOutcome.recordid = outcomeForm.get("recordid").value;
+            }
+            impOutcome.visitid = outcomeForm.get("visitid").value;
+            if (outcomeForm.get("reftable").dirty) {
+              impOutcome.reftable = outcomeForm.get("reftable").value;
+            }
+            if (outcomeForm.get("reftablefield").dirty) {
+              impOutcome.reftablefield = outcomeForm.get("reftablefield").value;
+            }
+            if (outcomeForm.get("reftablefieldid").dirty) {
+              impOutcome.reftablefieldid = outcomeForm.get("reftablefieldid").value;
+            }
+            if (outcomeForm.get("reftablefields").dirty) {
+              impOutcome.reftablefields = outcomeForm.get("reftablefields").value;
+            }
+            if (outcomeForm.get("type").dirty) {
+              impOutcome.type = outcomeForm.get("type").value;
+            }
+            if (outcomeForm.get("active").dirty) {
+              impOutcome.active = outcomeForm.get("active").value;
+            }
+            console.log('formVisit todopost impOutcome: ', impOutcome);
+            impOutcomes.items.push(impOutcome);
+          }
+        }
+        this.postSave.outcomes = impOutcomes;
+        console.log('formVisit outcomes dirty: ', this.postSave.outcomes);
+      } else {
+        console.log('formVisit.postsave - outcomes not dirty');
+      }
+
     }
 
     var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitPostByVisit";
@@ -738,11 +1206,15 @@ export class FormVisitPage {
     } else {
       this.formSave.active = 'Y';
       console.log('Cur Profile: ', this.curProfile);
-      if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
+
+      if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        this.formSave.profileid = this.createNewParams.profileid;
+      } else if (this.curRec !== undefined && this.curRec.profileid !== undefined) {
         this.formSave.profileid = this.curRec.profileid;
       } else {
         this.formSave.profileid = this.curProfile.profileid;
       }
+
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
       this.formSave.visitdate = this.card_form.get('visitdate').value;
@@ -753,6 +1225,12 @@ export class FormVisitPage {
         this.formSave.contactid = this.curRec.physician.recordid;
       } else if (this.contact !== undefined) {
         this.formSave.contactid = this.contact.recordid;
+      } else if (this.createNewParams !==undefined && this.createNewParams !==null) {
+        this.formSave.contactid = this.createNewParams.contactid;
+      }
+      if (this.createNewParams !==undefined && this.createNewParams !==null && this.createNewParams.parentvisitid !== undefined
+        && this.createNewParams.parentvisitid > 0) {
+          this.formSave.parentvisitid = this.createNewParams.parentvisitid;
       }
       this.formSave.accountid = this.RestService.Profiles[0].accountid;
       if (this.curRec.scheduleinstanceid !== undefined && this.curRec.scheduleinstanceid !== null) {
@@ -770,19 +1248,22 @@ export class FormVisitPage {
         infoForm = this.infos.at(j) as FormGroup;
         if (infoForm.dirty) {
           impInfo = {
-            recordid: this.importantInfos.items[j].recordid,
-            namevalue: this.importantInfos.items[j].namevalue,
-            dateofmeasure: this.importantInfos.items[j].dateofmeasure,
-            reftable: this.importantInfos.items[j].reftable,
-            reftablefield: this.importantInfos.items[j].reftablefield,
-            reftablefieldid: this.importantInfos.items[j].reftablefieldid,
-            reftablefields: this.importantInfos.items[j].reftablefields,
-            type: this.importantInfos.items[j].type,
+            recordid: infoForm.get("recordid").value,
+            namevalue: infoForm.get("namevalue").value,
+            dateofmeasure: infoForm.get("dateofmeasure").value,
+            reftable: infoForm.get("reftable").value,
+            reftablefield: infoForm.get("reftablefield").value,
+            reftablefieldid: infoForm.get("reftablefieldid").value,
+            reftablefields: infoForm.get("reftablefields").value,
+            type: infoForm.get("type").value,
             active: 'Y',
             selected: false,
             medicaleventid: null,
           }
           impInfos.items.push(impInfo);
+          console.log('formVisit - impInfo, ', impInfo);
+        } else {
+          console.log('InfoForm not dirty')
         }
       }
       this.formSave.importantinfo = impInfos;
@@ -850,8 +1331,42 @@ export class FormVisitPage {
       }
       this.formSave.questions = impQuestions;
     } else {
-      console.log('formVisit Save - quest not dirty');
+      console.log('formVisit Save - todos not dirty');
     }
+      //Add visitinfos
+      this.visititems = this.card_form.get('visititems') as FormArray;
+      if (this.visititems.dirty) {
+        var visititems: VisitItems = new VisitItems();
+        var visitInfo: ImportantInfo;
+        var visitForm;
+        console.log('formVisit Save - infos dirty', this.selectedItems);
+        visititems.items = [];
+        for (j = 0; j < this.infos.length; j++) {
+          visitForm = this.visititems.at(j) as FormGroup;
+          if (visitForm.dirty) {
+            visitInfo = {
+              recordid: visitForm.get("recordid").value,
+              namevalue: visitForm.get("namevalue").value,
+              dateofmeasure: visitForm.get("dateofmeasure").value,
+              reftable: visitForm.get("reftable").value,
+              reftablefield: visitForm.get("reftablefield").value,
+              reftablefieldid: visitForm.get("reftablefieldid").value,
+              reftablefields: visitForm.get("reftablefields").value,
+              type: visitForm.get("type").value,
+              active: 'Y',
+              selected: false,
+              medicaleventid: null,
+            }
+            visititems.items.push(visitInfo);
+            console.log('formVisit - visitInfo, ', visitInfo);
+          } else {
+            console.log('Visit Form not dirty');
+          }
+        }
+        this.formSave.visititem = visititems;
+      } else {
+          console.log('formVisit Save - visitinfo not dirty');
+      }
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
       var config = {
         invokeUrl: restURL,
@@ -968,7 +1483,10 @@ export class FormVisitPage {
     var dt =  this.card_form.get('importantinfo').value;
     var self = this;
     var profileid;
-    if (this.curRec.profileid !== undefined) {
+
+    if (this.createNewParams !== undefined && this.createNewParams !== null &&  this.createNewParams.profileid > 0) {
+      profileid = this.createNewParams.profileid;
+    } else if (this.curRec.profileid !== undefined) {
       profileid = this.curRec.profileid;
       console.log('form visit Profile id from curRec: ' + profileid);
     } else {
@@ -1055,6 +1573,158 @@ export class FormVisitPage {
     return moment.utc(dateString).format('MMM DD YYYY hh:mm a');
   }
 
+  formatRealDate(dateString) {
+    //alert('FormatDateTime called');
+    //Date time is captured in local time for this date - must be local time display
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      var offsetDate = new Date(moment(dateString).toISOString());
+      var offset = offsetDate.getTimezoneOffset() / 60;
+      return moment(dateString).add(offset, 'hours').format('MMM DD YYYY');
+    } else {
+      return moment(dateString).format('MMM DD YYYY');
+    }
+  }
+
+  getRealDateTime(dateString) {
+    //alert('FormatDateTime called');
+    //Date time is captured in local time for this date - must be local time display
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      var offsetDate = new Date(moment(dateString).toISOString());
+      var offset = offsetDate.getTimezoneOffset() / 60;
+      return moment(dateString).add(offset, 'hours');
+    } else {
+      return moment(dateString);
+    }
+  }
+
+  setToPost() {
+    //this.presentLoadingDefault();
+    this.formSave.userid = this.RestService.currentProfile;
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VisitByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //pathParameters: this.vaccineSave
+    };
+    var pathTemplate = '';
+    var method = 'POST';
+    var additionalParams = {
+      queryParams: {
+        set2post: this.curRec.recordid
+      }
+    };
+    var body = JSON.stringify(this.formSave);
+    var self = this;
+    console.log('Calling Post', this.formSave);
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      console.log('Happy Path for setToPost: ' + result.data);
+      //self.loading.dismiss();
+      self.push2Outcomes();
+    }).catch( function(result){
+      console.log('Error in setToPost: ',result);
+      //self.loading.dismiss();
+      alert('There was an error saving this data.  Please try again later');
+      self.push2Outcomes();
+    });
+  }
+
+  push2Outcomes() {
+    var outcome;
+    var addCount = 0;
+    //var self = this;
+
+    this.outcomes = this.card_formPost.get('outcomes') as FormArray;
+    if (this.curRec.visititem !== undefined && this.curRec.visititem.items !== undefined && this.curRec.visititem.items.length > 0) {
+      for (var j = 0; j < this.curRec.visititem.items.length; j++) {
+        if (this.curRec.visititem.items[j].type == "procedure" || this.curRec.visititem.items[j].type == "therapy" ||
+        this.curRec.visititem.items[j].type == "vaccine") {
+          this.outcomes.push(this.addNewOutcomeFromVisitInfo(this.curRec.visititem.items[j]));
+          outcome = this.outcomes.at(addCount) as FormGroup;
+          outcome.get('reftable').markAsDirty();
+          outcome.get('reftablefield').markAsDirty();
+          outcome.get('reftablefieldid').markAsDirty();
+          outcome.get('reftablefields').markAsDirty();
+          outcome.get('type').markAsDirty();
+          addCount = addCount + 1;
+        }
+      }
+      if (addCount > 0) {
+        this.navSavePostRecord(function(err, results) {
+          if (err) {
+            console.log('Push 2 outcome err: ', err);
+            //self.loading.dismiss();
+          } else {
+            console.log('Push 2 outcome success: ', results);
+            //self.loading.dismiss();
+          }
+        });
+      }
+    }
+  }
+
+  addNewOutcomeFromVisitInfo(objVI): FormGroup {
+    return this.formBuilder.group({
+      reftable: new FormControl(objVI.reftable),
+      reftablefield: new FormControl(objVI.reftablefield),
+      reftablefieldid: new FormControl(objVI.reftablefieldid),
+      reftablefields: new FormControl(objVI.reftablefields),
+      type: new FormControl(objVI.type),
+      visitid: new FormControl(this.curRec.recordid),
+      active: new FormControl('Y'),
+      namevalue: new FormControl(objVI.namevalue),
+      dateofmeasure: new FormControl(objVI.dateofmeasure),
+    });
+  }
+
+  addExistingVisitInfos() {
+    console.log('Start addExistingVisitInfos - visititems: ', this.curRec.visititem);
+    this.visititems = this.card_form.get('visititems') as FormArray;
+    if (this.curRec.visititem !== undefined && this.curRec.visititem.items !== undefined && this.curRec.visititem.items.length > 0) {
+      var exitLoop = 0;
+      while (this.visititems.length !== 0 || exitLoop > 9) {
+        this.visititems.removeAt(0);
+        exitLoop = exitLoop + 1;
+      }
+      for (var j = 0; j < this.curRec.visititem.items.length; j++) {
+        console.log('In addExistingVisitInfos loop ' + j);
+        this.visitItemArray.items.push(this.curRec.visititem.items[j]);
+        this.visititems.push(this.addExistingVisitInfo(j));
+      }
+      if (this.transfer2Post) {
+        console.log('transfer2post - true1.  Calling setToPost' );
+        this.setToPost();
+      } else {
+        console.log('transfer2post - false 1.' );
+      }
+    } else if (this.transfer2Post) {
+      console.log('transfer2post - true2.  Calling setToPost' );
+      this.setToPost();
+    } else {
+      console.log('transfer2post - false 2.' );
+    }
+  }
+
+  addExistingVisitInfo(index): FormGroup {
+    return this.formBuilder.group({
+      recordid: new FormControl(this.curRec.visititem.items[index].recordid),
+      namevalue: new FormControl(this.curRec.visititem.items[index].namevalue),
+      dateofmeasure: new FormControl(this.formatDateTime(this.curRec.visititem.items[index].dateofmeasure)),
+      reftable: new FormControl(this.curRec.visititem.items[index].reftable),
+      reftablefield: new FormControl(this.curRec.visititem.items[index].reftablefield),
+      reftablefieldid: new FormControl(this.curRec.visititem.items[index].reftablefieldid),
+      reftablefields: new FormControl(this.curRec.visititem.items[index].reftablefields),
+      type: new FormControl(this.curRec.visititem.items[index].type),
+      active: new FormControl(this.curRec.visititem.items[index].active),
+    });
+  }
+
   addExistingInfos() {
     this.infos = this.card_form.get('infos') as FormArray;
     if (this.curRec.importantinfo !== undefined && this.curRec.importantinfo.items !== undefined && this.curRec.importantinfo.items.length > 0) {
@@ -1063,13 +1733,6 @@ export class FormVisitPage {
         this.infos.removeAt(0);
         exitLoop = exitLoop + 1;
       }
-/*
-      if (this.iiBlankAdded) {
-        this.infos.removeAt(0);
-        this.iiBlankAdded = false;
-        console.log('Flipped iiBlank from AddExistingInfos');
-      }
-*/
       for (var j = 0; j < this.curRec.importantinfo.items.length; j++) {
         this.importantInfos.items.push(this.curRec.importantinfo.items[j]);
         this.infos.push(this.addExistingInfo(j));
@@ -1836,10 +2499,27 @@ export class FormVisitPage {
 
   loadMenu(dataObj) {
     console.log('LoadMenu dataobj: ' + dataObj);
+    var createNewParams;
+    var parentvisitid;
+    var parentreason;
+
     if (dataObj == 'lab') {
 
     } else if (dataObj == 'visit') {
+      if (this.curRec.parentvisitid !== undefined && this.curRec.parentvisitid !== null) {
+        parentvisitid = this.curRec.parentvisitid;
+        parentreason = this.curRec.parentreason + " " + this.formatDateTime(this.curRec.parentdate);
+      } else {
+        parentvisitid = this.curRec.recordid;
+        parentreason = this.curRec.reason + " " + this.formatDateTime(this.curRec.visitdate);
+      }
 
+      createNewParams = {
+        'profileid':this.curRec.profileid,
+        'parentvisitid': parentvisitid,
+        'parentreason':parentreason
+      }
+      this.nav.push(FormVisitPage, {createNewParams: createNewParams});
     }
   }
 
@@ -1859,9 +2539,123 @@ export class FormVisitPage {
     });
   }
 
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSavePostRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSavePostRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSavePostRecord: ', results);
+                if (self.newRec) {
+                  //var medicalevent = self.eventTerm;
+                  self.curRec = {recordid: results};
+                  self.loadFromId = results;
+                  //console.log('new Medical Condition record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      this.loadFromId = this.curRec.recordid;
+      callback(null, true);
+    }
+  }
+
+  confirmSaveDirectPre(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                self.loadFromId = self.curRec.recordid;
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      this.loadFromId = this.curRec.recordid;
+      callback(null, true);
+    }
+  }
+
   loadOutcome(dataObj) {
     this.checkSave = true;
-    alert('Coming soon.  This button will allow you to add procedures and vaccines with occurred from this visit');
+    var self = this;
+    var cat;
+
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in addSymptom.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from addSymptom');
+      } else {
+        if (result) {
+          console.log('Result from formVisit.confirmSaveDirect: ', result);
+          if (dataObj == 'procedure') {
+            cat = {title: 'Procedure'};
+            self.curRec.mode = 'outcome';
+            self.nav.push(FormProcedure, {category: cat, fromVisit: self.curRec});
+          } else if (dataObj == 'therapy') {
+            cat = {title: 'Therapy'};
+            self.curRec.mode = 'outcome';
+            self.nav.push(FormTherapy, {category: cat, fromVisit: self.curRec});
+          }
+        } else if (!result) {
+          console.log('formVisit.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+
+    //alert('Coming soon.  This button will allow you to add procedures and vaccines with occurred from this visit');
     console.log('LoadMenu dataobj: ' + dataObj);
   }
 
@@ -1882,16 +2676,76 @@ export class FormVisitPage {
   }
 
   loadVisitItem(dataObj) {
-    console.log('LoadVisitItem dataobj: ' + dataObj);
-    if (dataObj == 'procedure') {
-      alert('Add new procedure');
-    } else if (dataObj == 'vaccine') {
-      alert('Add new vaccine');
-    } else if (dataObj == 'lab') {
-      alert('Add new lab');
-    }  else if (dataObj == 'therapy') {
-      alert('Add new therapy');
-    }
+    //console.log('LoadVisitItem dataobj: ' + dataObj);
+    this.checkSave = true;
+    var cat;
+    var self = this;
+
+    this.confirmSaveDirectPre(function(err, result) {
+      if (err) {
+        console.log('Error in addSymptom.confirmSaveDirect' + err);
+        alert('There is an error in saving the visit record from loadVisitItem');
+      } else {
+        if (result) {
+          console.log('Result from loadVisitItem: ', result);
+          if (dataObj == 'procedure') {
+            cat = {title: 'Procedure'};
+            self.curRec.mode = 'visitinfo';
+            let profileModal = self.modalCtrl.create(FormProcedure, { category: cat,fromVisit: self.curRec });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('Data from loadVisitItem - procedure: ', data);
+                self.visititems = self.card_form.get('visititems') as FormArray;
+                self.visititems.push(self.addNewVisitInfo(data));
+              }
+            });
+            profileModal.present();
+          } else if (dataObj == 'vaccine') {
+            //alert('Add new vaccine');
+            cat = {title: 'Select Vaccine'};
+            self.curRec.mode = 'visitinfo';
+            let profileModal = self.modalCtrl.create(ListChooseVaccine, { category: cat, fromVisit: self.curRec });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('Data from loadVisitItem - vaccine: ', data);
+                self.visititems = self.card_form.get('visititems') as FormArray;
+                var vaccineinfo = {
+                  namevalue: data.vaccinename,
+                  type: 'vaccine',
+                  dateofmeasure: data.visitdate
+                }
+                self.visititems.push(self.addNewVisitInfo(vaccineinfo));
+              }
+            });
+            profileModal.present();
+          } else if (dataObj == 'lab') {
+            alert('Coming Soon!  This will allow you to choose the lab/lab panel which will be performed at this visit.');
+          } else if (dataObj == 'therapy') {
+            cat = {title: 'Therapy'};
+            self.curRec.mode = 'visitinfo';
+            let profileModal = self.modalCtrl.create(FormTherapy, { category: cat,fromVisit: self.curRec });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('Data from loadVisitItem - therapy: ', data);
+                self.visititems = self.card_form.get('visititems') as FormArray;
+                self.visititems.push(self.addNewVisitInfo(data));
+              }
+            });
+            profileModal.present();
+          }
+        } else if (!result) {
+          console.log('formVisit.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  }
+
+  addNewVisitInfo(data): FormGroup {
+    return this.formBuilder.group({
+      namevalue: new FormControl(data.namevalue),
+      type: new FormControl(data.type),
+      dateofmeasure: new FormControl(this.formatDateTime(data.dateofmeasure)),
+    });
   }
 
   addNewDiagnosis(): void {
@@ -1959,11 +2813,42 @@ export class FormVisitPage {
     if (objType == 'medication') {
       cat = {title: 'Medication'};
       this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: true });
+    } else if  (objType == 'procedure') {
+      cat = {title: 'Procedure'};
+      this.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, fromVisit: this.curRec });
+    } else if  (objType == 'therapy') {
+      cat = {title: 'Therapy'};
+      this.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, fromVisit: this.curRec });
+    }
+  }
+
+  checkDate() {
+    if (this.card_form.get("visitdate").value !== undefined && this.card_form.get("visitdate").value !== null) {
+      this.hasDate = true;
+      console.log('has date: true');
+    } else {
+      this.hasDate = false;
+      console.log('has date: false');
     }
   }
 
   updateOutcome(index) {
-    alert('Coming soon.  This button will allow you update the outcome information');
+    var cat;
+
+    var outcomes = this.card_formPost.get('outcomes') as FormArray;
+    var objType = outcomes.at(index).get('type').value;
+    var objRecordid = outcomes.at(index).get('reftablefieldid').value;
+
+    if (objType == 'procedure') {
+      cat = {title: 'Procedure'};
+      this.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, fromVisit: this.curRec });
+    } else if (objType == 'therapy') {
+      cat = {title: 'Therapy'};
+      this.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, fromVisit: this.curRec });
+    } else if (objType == 'vaccine') {
+      cat = {title: 'Vaccine'};
+      this.nav.push(FormVaccinesPage, { loadFromId: objRecordid, category: cat, fromVisit: this.curRec });
+    }
   }
 
   addNewPayment() {
@@ -1975,23 +2860,27 @@ export class FormVisitPage {
   }
 
   presentLoadingDefault() {
-    this.loading = this.loadingCtrl.create({
-    spinner: 'hide',
-    content: `
-      <div class="custom-spinner-container">
-        <div class="custom-spinner-box">
-           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
-           Loading...
-        </div>
-      </div>`,
-    });
+    if (this.loading == undefined || this.loading == null) {
+      this.loading = this.loadingCtrl.create({
+        spinner: 'hide',
+        content: `
+          <div class="custom-spinner-container">
+            <div class="custom-spinner-box">
+               <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+               Loading...
+            </div>
+          </div>`,
+        });
 
-    this.loading.present();
+        this.loading.present();
 
-    setTimeout(() => {
-      this.loading.dismiss();
-      //console.log('Timeout for spinner called ' + this.formName);
-    }, 15000);
+        setTimeout(() => {
+          this.loading.dismiss();
+          //console.log('Timeout for spinner called ' + this.formName);
+        }, 15000);
+    } else {
+      console.log('loading existing', this.loading);
+    }
   }
 
 }

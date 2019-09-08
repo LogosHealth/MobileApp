@@ -351,6 +351,15 @@ module.exports = [
     "clobbers": [
       "window.StatusBar"
     ]
+  },
+  {
+    "id": "cordova-plugin-ionic.common",
+    "file": "plugins/cordova-plugin-ionic/www/common.js",
+    "pluginId": "cordova-plugin-ionic",
+    "clobbers": [
+      "IonicCordova"
+    ],
+    "runs": true
   }
 ];
 module.exports.metadata = 
@@ -371,7 +380,8 @@ module.exports.metadata =
   "cordova-plugin-photo-library": "2.1.1",
   "cordova-plugin-splashscreen": "5.0.2",
   "cordova-plugin-statusbar": "2.4.2",
-  "cordova-plugin-whitelist": "1.3.3"
+  "cordova-plugin-whitelist": "1.3.3",
+  "cordova-plugin-ionic": "4.1.7"
 };
 // BOTTOM OF METADATA
 });

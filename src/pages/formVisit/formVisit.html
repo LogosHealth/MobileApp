@@ -38,7 +38,7 @@
                 <ion-col no-padding width-60>
                   <ion-item>
                     <ion-label floating>Visit Date</ion-label>
-                    <ion-datetime displayFormat="MMM DD YYYY hh:mm A"  formControlName="visitdate" minuteValues="0,15,30,45"></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD YYYY hh:mm A"  formControlName="visitdate" minuteValues="0,15,30,45" max="2021-12-31" (ionBlur)="checkDate()"></ion-datetime>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-35>
@@ -53,6 +53,14 @@
                   <ion-item>
                     <ion-label floating>Reason</ion-label>
                     <ion-textarea type="text" formControlName="reason" autosize></ion-textarea>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row *ngIf="hasParent">
+                <ion-col no-padding>
+                  <ion-item>
+                    <ion-label floating>Original Reason</ion-label>
+                    <ion-input type="text" formControlName="parentreason" [disabled]="true"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>
@@ -105,26 +113,19 @@
                   <h2 class = "section-title" >To Be Performed at Visit</h2>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
-                  <button ion-button block class="form-action-button-top"  type="button" (click)="presentVisitItem($event)">
+                  <button ion-button block class="form-action-button-top"  type="button" (click)="presentVisitItem($event)" [disabled]="!hasDate">
                     <ion-icon name="add"></ion-icon>
                   </button>
                 </ion-col>
               </ion-row>
-              <div formArrayName="questions" *ngFor="let info of card_form.get('visititems').controls; let i = index;">
-                <div [formGroupName]="i">
-                  <ion-row>
+              <div formArrayName="visititems" *ngFor="let info of card_form.get('visititems').controls; let i = index;">
+                <ion-row [formGroupName]="i">
                     <ion-item  text-wrap>
-                      <ion-label floating>Question {{ i + 1 }}</ion-label>
-                      <ion-textarea type="text" formControlName="category" autosize></ion-textarea>
+                      <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
+                      <ion-label *ngIf="info.value.type == null" floating>Name</ion-label>
+                      <ion-input type="text" formControlName="namevalue" [disabled]="true">{{info.namevalue}}</ion-input>
                     </ion-item>
-                  </ion-row>
-                  <ion-row>
-                    <ion-item  text-wrap>
-                      <ion-label floating>Answer</ion-label>
-                      <ion-textarea type="text" formControlName="name" autosize></ion-textarea>
-                    </ion-item>
-                  </ion-row>
-                </div>
+                </ion-row>
               </div>
             </ion-card>
 
@@ -177,13 +178,13 @@
                   <ion-col class="columnAlignLeft2" no-padding width-40>
                     <ion-item  text-wrap>
                       <ion-label floating>Task {{ i + 1 }}</ion-label>
-                      <ion-input type="text" formControlName="taskname" (focusout)="syncTaskName(i)" [disabled]="isComplete(i)"></ion-input>
+                      <ion-input type="text" formControlName="taskname" (ionBlur)="syncTaskName(i)" [disabled]="isComplete(i)"></ion-input>
                     </ion-item>
                   </ion-col>
                   <ion-col no-padding width-40>
                     <ion-item text-wrap>
                       <ion-label floating>Task Date</ion-label>
-                      <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (focusout)="syncDueDate(i)" [disabled]="isComplete(i)"></ion-datetime>
+                      <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (ionBlur)="syncDueDate(i)" [disabled]="isComplete(i)"></ion-datetime>
                     </ion-item>
                   </ion-col>
                   <ion-col class="columnInline" no-padding width-10 *ngIf="curRec.recordid !==null">
@@ -281,7 +282,7 @@
             <ion-card class="sample-form">
                 <ion-row>
                   <ion-col no-padding width-87>
-                    <h2 class = "section-title" >Preventative/Procedure</h2>
+                    <h2 class = "section-title" >Preventative/Treatment</h2>
                   </ion-col>
                   <ion-col class="columnAlign" no-padding width-10>
                       <button ion-button block class="form-action-button-top"  type="button" (click)="presentOutcome($event)">
@@ -327,13 +328,13 @@
                     <ion-col class="columnAlignLeft2" no-padding width-40>
                       <ion-item  text-wrap>
                         <ion-label floating>Task {{ i + 1 }}</ion-label>
-                        <ion-input type="text" formControlName="taskname" (focusout)="syncTaskNamePost(i)" [disabled]="isCompletePost(i)"></ion-input>
+                        <ion-input type="text" formControlName="taskname" (ionBlur)="syncTaskNamePost(i)" [disabled]="isCompletePost(i)"></ion-input>
                       </ion-item>
                     </ion-col>
                     <ion-col no-padding width-40>
                       <ion-item text-wrap>
                         <ion-label floating>Task Date</ion-label>
-                        <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (focusout)="syncDueDatePost(i)" [disabled]="isCompletePost(i)"></ion-datetime>
+                        <ion-datetime displayFormat="MMM DD hh:mm A" formControlName="duedate" (ionBlur)="syncDueDatePost(i)" [disabled]="isCompletePost(i)"></ion-datetime>
                       </ion-item>
                     </ion-col>
                     <ion-col class="columnInline" no-padding width-10 *ngIf="curRec.recordid !==null">

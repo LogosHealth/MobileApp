@@ -6,6 +6,11 @@
       <ion-title>
         <span>{{ feed.category.title }}</span>
       </ion-title>
+      <ion-buttons right>
+        <button  *ngIf="!isSelectRelated" ion-button icon-only (click)="addNew()">
+          <ion-icon name='add'></ion-icon>
+        </button>
+      </ion-buttons>
     </ion-navbar>
   </ion-header>
 
@@ -16,15 +21,13 @@
         <ion-row no-padding class="content-row one-line" *ngIf="item.schedules.length > 0; else templateName">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-90 class="item-content" >
-            <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
+            <h3 class="item-title">{{item.name}}</h3>
             <div ion-item *ngFor="let sched of item.schedules">
               <p class="item-description">Dose: {{sched.interval}}</p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow !==sched.agerangehigh">Schedule: {{sched.agerangelow}} to {{sched.agerangehigh}} {{sched.agerangeunit}} </p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
-              <p class="item-description" *ngIf="sched.agerangelow==0">Schedule: {{sched.notes}}</p>
-              <p class="item-description">Date: {{sched.startdate}}</p>
-              <p class="item-description" *ngIf="sched.contactid !== null">Physician: {{getName(sched.contactid)}}</p>
-              <p class="item-description" *ngIf="sched.contactid == null">Physician: {{sched.physician}}</p>
+              <p class="item-description">Date: {{sched.datereceived}}</p>
+              <p class="item-description" *ngIf="sched.contactid !== null">Physician: Dr. {{sched.lastname}}</p>
               <br>
             </div>
           </ion-col>
@@ -36,9 +39,8 @@
           <ion-row no-padding class="content-row one-line">
             <ion-col no-padding width-90 class="item-content">
               <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
-              <p class="item-description">Date: {{formatDateTime(item.startdate)}}</p>
-              <p class="item-description" *ngIf="item.contactid !== null" >Physician: {{getName(item.contactid)}}</p>
-              <p class="item-description" *ngIf="item.contactid == null" >Physician: {{item.physician}}</p>
+              <p class="item-description">Date: {{formatDateTime(item.datereceived)}}</p>
+              <p class="item-description">Physician: Dr. {{item.lastname}}</p>
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">
               <ion-icon name="arrow-forward"></ion-icon>

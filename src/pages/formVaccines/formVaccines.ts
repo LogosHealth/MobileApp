@@ -6,11 +6,14 @@ import { ListVaccinesModel, ListVaccines, ListVaccineSchedule } from '../../page
 import { HistoryItemModel } from '../../pages/history/history.model';
 import { ListContactModel } from '../../pages/listContacts/listContacts.model';
 import { ListContactService } from '../../pages/listContacts/listContacts.service';
+import { FormVisitPage } from '../../pages/formVisit/formVisit';
+import { FormContactPage } from '../../pages/formContact/formContact';
+
 
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVaccines-page',
+  selector: 'formVisit1-page',
   templateUrl: 'formVaccines.html'
 })
 export class FormVaccinesPage {
@@ -21,6 +24,8 @@ export class FormVaccinesPage {
   vaccine_array: FormArray;
   vaccine_schedule: FormGroup;
   curRec: any;
+  newRec: boolean = false;
+  newObj: any;
   saving: boolean = false;
   loading: any;
   listContacts: ListContactModel = new ListContactModel();
@@ -35,52 +40,62 @@ export class FormVaccinesPage {
     public loadingCtrl: LoadingController, public navParams: NavParams) {
 
     this.recId = navParams.get('recId');
-    this.curRec = RestService.results[this.recId];
+    this.newObj = navParams.get('newObj');
+    if (this.newObj !== undefined && this.newObj !== null) {
+      this.curRec = this.newObj;
+      this.newRec = true;
+    } else {
+      this.curRec = RestService.results[this.recId];
+    }
+
+    this.vaccine_array = new FormArray([]);
     if (this.curRec.schedules !== undefined && this.curRec.schedules.length > 0) {
-      this.vaccine_array = new FormArray([]);
       for (var i = 0; i < this.curRec.schedules.length; i++) {
         var dtSched;
-        if (this.curRec.schedules[i].startdate == 'Invalid date') {
+        if (this.curRec.schedules[i].datereceived == 'Invalid date') {
           dtSched = '';
         } else {
-          dtSched = new Date(this.curRec.schedules[i].startdate).toISOString();
+          dtSched = new Date(this.curRec.schedules[i].datereceived).toISOString();
         }
         this.vaccine_schedule = new FormGroup({
           recordid: new FormControl(this.curRec.schedules[i].recordid),
+          vaccine_templateid: new FormControl(),
           interval: new FormControl(this.curRec.schedules[i].interval),
           agerangelow: new FormControl(this.curRec.schedules[i].agerangelow),
           agerangehigh: new FormControl(this.curRec.schedules[i].agerangehigh),
           agerangeunit: new FormControl(this.curRec.schedules[i].agerangeunit),
           notes: new FormControl(this.curRec.schedules[i].notes),
-          exp_date: new FormControl(dtSched, Validators.required),
-          physician: new FormControl(this.curRec.schedules[i].physician),
+          datereceived: new FormControl(this.formatDate(dtSched), Validators.required),
           contactid: new FormControl(this.curRec.schedules[i].contactid, Validators.required),
-          visitid: new FormControl(this.curRec.schedules[i].visitid)
+          visitid: new FormControl(this.curRec.schedules[i].visitid),
+          title: new FormControl(this.curRec.schedules[i].title),
+          firstname: new FormControl(this.curRec.schedules[i].firstname),
+          lastname: new FormControl('Dr. ' + this.curRec.schedules[i].lastname)
         });
         this.vaccine_array.push(this.vaccine_schedule);
       }
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         vaccine_name: new FormControl(this.curRec.name),
+        description: new FormControl(this.curRec.description),
+        protectfrom: new FormControl(this.curRec.protectfrom),
+        profileid: new FormControl(this.curRec.profileid),
         confirmed: new FormControl(this.curRec.confirmed),
         schedules: this.vaccine_array
       });
+      console.log('Form vaccine sched forms- ', this.card_form.get('schedules'));
     } else {
-      var dt;
-      if (this.curRec.startdate == 'Invalid date') {
-        dt = '';
-      } else {
-        dt = new Date(this.curRec.startdate).toISOString();
-      }
+      console.log('A newly saved vaccine record more manual schedule entry - newRec = '+ this.newRec);
+
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         vaccine_name: new FormControl(this.curRec.name),
+        description: new FormControl(this.curRec.description),
+        protectfrom: new FormControl(this.curRec.protectfrom),
+        profileid: new FormControl(this.curRec.profileid),
         confirmed: new FormControl(this.curRec.confirmed),
-        exp_date: new FormControl(dt, Validators.required),
-        physician: new FormControl(this.curRec.physician),
-        contactid: new FormControl(this.curRec.contactid, Validators.required),
-        visitid: new FormControl(this.curRec.visitid)
-    });
+        schedules: this.vaccine_array
+      });
     }
   }
 
@@ -91,7 +106,7 @@ export class FormVaccinesPage {
 
     if (dtNow < dtExpiration) {
       this.presentLoadingDefault();
-      this.loadContacts();
+      this.loadSchedules();
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -101,13 +116,57 @@ export class FormVaccinesPage {
           self.RestService.appRestart();
         } else {
           console.log('From '+ self.formName + ' - Credentials refreshed!');
-          self.loadContacts();
+          self.loadSchedules();
         }
       });
     }
   }
-
+/*
   loadContacts() {
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            contacttype: "doctor"
+        }
+    };
+    var body = '';
+    var self = this;
+    var contacts = [];
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      contacts = result.data;
+      self.listContactService
+      .getData()
+      .then(data => {
+        self.listContacts.items = contacts;
+        self.loadSchedules();
+        self.loading.dismiss();
+      });
+    }).catch( function(result){
+      console.log(result);
+      self.loadSchedules();
+      self.loading.dismiss();
+      alert('There was an error retrieving this data.  Please try again later');
+    });
+  }
+*/
+
+  loadSchedules() {
     var restURL: string;
     restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ContactByProfile";
     var config = {
@@ -183,18 +242,17 @@ export class FormVaccinesPage {
         console.log('VaccineSaveArray: ', vaccineSaveArray);
         this.vaccineSched = new ListVaccineSchedule;
         isChanged = false;
-        if (vaccineSaveArray.controls[i].get('exp_date').dirty) {
-          isChanged = true;
-          this.vaccineSched.startdate = vaccineSaveArray.controls[i].get('exp_date').value;
-          console.log('Start Date: ' + this.vaccineSched.startdate);
-        }
-        if (vaccineSaveArray.controls[i].get('physician').dirty) {
-          isChanged = true;
-          this.vaccineSched.physician = vaccineSaveArray.controls[i].get('physician').value;
-        }
         if (vaccineSaveArray.controls[i].get('contactid').dirty) {
           isChanged = true;
           this.vaccineSched.contactid = vaccineSaveArray.controls[i].get('contactid').value;
+        }
+        if (vaccineSaveArray.controls[i].get('visitid').dirty) {
+          isChanged = true;
+          this.vaccineSched.visitid = vaccineSaveArray.controls[i].get('visitid').value;
+        }
+        if (vaccineSaveArray.controls[i].get('datereceived').dirty) {
+          isChanged = true;
+          this.vaccineSched.datereceived = vaccineSaveArray.controls[i].get('datereceived').value;
         }
         if (isChanged) {
           this.vaccineSched.recordid = vaccineSaveArray.controls[i].get('recordid').value;
@@ -202,17 +260,8 @@ export class FormVaccinesPage {
           this.vaccineSave.schedules.push(this.vaccineSched);
         }
       }
-    } else {
-      if (this.card_form.get('exp_date').dirty) {
-        this.vaccineSave.startdate = this.card_form.get('exp_date').value;
-      }
-      if (this.card_form.get('physician').dirty) {
-        this.vaccineSave.physician = this.card_form.get('physician').value;
-      }
-      if (this.card_form.get('contactid').dirty) {
-        this.vaccineSave.contactid = this.card_form.get('contactid').value;
-      }
     }
+
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
       var config = {
         invokeUrl: restURL,
@@ -374,14 +423,14 @@ export class FormVaccinesPage {
         console.log('VaccineSaveArray: ', vaccineSaveArray);
         this.vaccineSched = new ListVaccineSchedule;
         isChanged = false;
-        if (vaccineSaveArray.controls[i].get('exp_date').dirty) {
+        if (vaccineSaveArray.controls[i].get('datereceived').dirty) {
           isChanged = true;
-          this.vaccineSched.startdate = vaccineSaveArray.controls[i].get('exp_date').value;
-          console.log('Start Date: ' + this.vaccineSched.startdate);
+          this.vaccineSched.datereceived = vaccineSaveArray.controls[i].get('datereceived').value;
+          console.log('datereceived: ' + this.vaccineSched.datereceived);
         }
-        if (vaccineSaveArray.controls[i].get('physician').dirty) {
+        if (vaccineSaveArray.controls[i].get('visitid').dirty) {
           isChanged = true;
-          this.vaccineSched.physician = vaccineSaveArray.controls[i].get('physician').value;
+          this.vaccineSched.visitid = vaccineSaveArray.controls[i].get('visitid').value;
         }
         if (vaccineSaveArray.controls[i].get('contactid').dirty) {
           isChanged = true;
@@ -392,16 +441,6 @@ export class FormVaccinesPage {
           //console.log('Record id: ' + this.vaccineSched.recordid);
           this.vaccineSave.schedules.push(this.vaccineSched);
         }
-      }
-    } else {
-      if (this.card_form.get('exp_date').dirty) {
-        this.vaccineSave.startdate = this.card_form.get('exp_date').value;
-      }
-      if (this.card_form.get('physician').dirty) {
-        this.vaccineSave.physician = this.card_form.get('physician').value;
-      }
-      if (this.card_form.get('contactid').dirty) {
-        this.vaccineSave.contactid = this.card_form.get('contactid').value;
       }
     }
      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/VaccinesByProfile";
@@ -441,8 +480,49 @@ export class FormVaccinesPage {
       });
   }
 
+  gotoVisCon(index) {
+    var isVisit = false;
+    var visitid;
+    var isContact = false;
+    var contactid;
+    var cat;
+
+    this.vaccine_array = this.card_form.get('schedules') as FormArray;
+    this.vaccine_schedule  = this.vaccine_array.at(index) as FormGroup;
+
+    if (this.vaccine_schedule.get('visitid') !== undefined && this.vaccine_schedule.get('visitid') !== null
+      && this.vaccine_schedule.get('visitid').value !== undefined && this.vaccine_schedule.get('visitid').value > 0 ) {
+        visitid = this.vaccine_schedule.get('visitid').value;
+        isVisit = true;
+    }
+    if (this.vaccine_schedule.get('contactid') !== undefined && this.vaccine_schedule.get('contactid') !== null
+      && this.vaccine_schedule.get('contactid').value !== undefined && this.vaccine_schedule.get('contactid').value > 0 ) {
+        contactid = this.vaccine_schedule.get('contactid').value;
+        isContact = true;
+    }
+
+    if (isVisit) {
+      cat = {title: 'Visit'};
+      this.nav.push(FormVisitPage, { loadFromId: visitid, category: cat });
+    } else if (isContact) {
+      cat = {title: 'Contact'};
+      this.nav.push(FormContactPage, { loadFromId: contactid, category: cat });
+    } else {
+      console.log('formVaccine GotoVisCon - visCon not found!');
+    }
+
+  }
+
+  addNew() {
+    alert('Adding soon!!!');
+  }
+
   public today() {
     return new Date().toISOString().substring(0,10);
+  }
+
+  formatDate(dateString) {
+    return moment(dateString).format('MMM-DD-YYYY');
   }
 
   async ionViewCanLeave() {
@@ -475,7 +555,7 @@ export class FormVaccinesPage {
   }
 
   attachRecord() {
-    alert('Add attach doc here');
+    alert('Coming soon.  This button will allow you to link pictures and documents (e.g. PDFs) of physical medical records, images, etc.');
   }
 
   presentLoadingDefault() {

@@ -16,6 +16,7 @@ import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
 import { ListMedicalEvent } from '../../pages/listMedicalEvent/listMedicalEvent';
 import { FormVisitPage } from '../../pages/formVisit/formVisit';
 import { FormProcedure } from '../../pages/formProcedure/formProcedure';
+import { FormTherapy } from '../formTherapy/formTherapy';
 import { ListContactPage } from '../../pages/listContacts/listContacts';
 import { FormContactPage } from '../../pages/formContact/formContact';
 
@@ -537,6 +538,13 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'N';
         }
       }
+      if (this.card_form.get('ismedicallyconfirmed').dirty){
+        if (this.card_form.get('ismedicallyconfirmed').value == true) {
+          this.eventSave.medicallyconfirmed = 'Y';
+        } else {
+          this.eventSave.medicallyconfirmed = 'N';
+        }
+      }
       if (this.symptoms.dirty) {
         if (this.symptoms.length > 0) {
           console.log('Has Symptoms for event insert: ', this.symptoms);
@@ -604,6 +612,13 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'Y';
         } else {
           this.eventSave.isallergy = 'N';
+        }
+      }
+      if (this.card_form.get('ismedicallyconfirmed').dirty){
+        if (this.card_form.get('ismedicallyconfirmed').value == true) {
+          this.eventSave.medicallyconfirmed = 'Y';
+        } else {
+          this.eventSave.medicallyconfirmed = 'N';
         }
       }
 
@@ -736,6 +751,13 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'N';
         }
       }
+      if (this.card_form.get('ismedicallyconfirmed').dirty){
+        if (this.card_form.get('ismedicallyconfirmed').value == true) {
+          this.eventSave.medicallyconfirmed = 'Y';
+        } else {
+          this.eventSave.medicallyconfirmed = 'N';
+        }
+      }
     } else {
       if (this.aboutProfile !== null) {
         this.eventSave.profileid = this.aboutProfile;
@@ -785,6 +807,13 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'Y';
         } else {
           this.eventSave.isallergy = 'N';
+        }
+      }
+      if (this.card_form.get('ismedicallyconfirmed').dirty){
+        if (this.card_form.get('ismedicallyconfirmed').value == true) {
+          this.eventSave.medicallyconfirmed = 'Y';
+        } else {
+          this.eventSave.medicallyconfirmed = 'N';
         }
       }
 
@@ -1264,6 +1293,7 @@ presentPopover(myEvent) {
 
 loadMenu(dataObj) {
   var self = this;
+  var fromType;
 
   if (dataObj !== undefined && dataObj !== null) {
     if (dataObj == 'Medication') {
@@ -1285,7 +1315,7 @@ loadMenu(dataObj) {
       });
     } else if (dataObj == 'Procedure') {
       console.log('Add Procedure');
-      var fromType = 'condition';
+      fromType = 'condition';
       this.checkSave = true;
       this.confirmSaveDirect(function(err, result) {
         if (err) {
@@ -1312,7 +1342,29 @@ loadMenu(dataObj) {
       //alert('Coming soon.  From here, you will be able to add a new procedure which treats this event');
     } else if (dataObj == 'Therapy') {
       console.log('Add Therapy');
-      alert('Coming soon.  From here, you will be able to add a new therapy which treats this event');
+      fromType = 'condition';
+      this.checkSave = true;
+      this.confirmSaveDirect(function(err, result) {
+        if (err) {
+          console.log('Error in loadMenu.confirmSaveDirect' + err);
+          alert('There is an error in saving the therapy record from loadMenu');
+        } else {
+          if (result) {
+            var cat = {title: dataObj};
+            console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
+            if (self.visitInfo !== undefined && self.visitInfo !== null && self.visitInfo.recordid > 0) {
+              fromType = 'condition with visit';
+            } else if (self.curRec !== undefined && self.curRec !== null && self.curRec.visitid > 0) {
+              fromType = 'condition with visit';
+            } else if (self.curRec !== undefined && self.curRec !== null && self.curRec.physicianid > 0) {
+              fromType = 'condition with contact';
+            }
+            self.nav.push(FormTherapy, {category: cat, fromEvent: self.curRec, eventVisit: self.visitInfo, fromType: fromType});
+          } else if (!result) {
+            console.log('loadMenu.ConfirmSaveDirect Procedure - User cancelled');
+          }
+        }
+      });
     } else {
       console.log ('No data in loadMenu');
     }
@@ -1541,10 +1593,10 @@ updateEventTreatment(index) {
   var treatments = this.card_form.get('treatments') as FormArray;
   var objType = treatments.at(index).get('type').value;
   var objRecordid = treatments.at(index).get('reftablefieldid').value;
+  var self = this;
 
   if (objType == 'medication') {
     this.checkSave = true;
-    var self = this;
     this.confirmSaveDirect(function(err, result) {
       if (err) {
         console.log('Error in updateEventTreatment.confirmSaveDirect' + err);
@@ -1554,6 +1606,38 @@ updateEventTreatment(index) {
           cat = {title: 'Medication'};
           var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
           self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+        } else if (!result) {
+          console.log('updateEventTreatment.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  } else if (objType == 'procedure') {
+    this.checkSave = true;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateEventTreatment-procedure.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateEventTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Procedure'};
+          var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
+          self.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, eventVisit: self.visitInfo, fromEvent: fromEvent });
+        } else if (!result) {
+          console.log('updateEventTreatment.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  } else if (objType == 'therapy') {
+    this.checkSave = true;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateEventTreatment-therapy.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateEventTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Procedure'};
+          var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
+          self.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, eventVisit: self.visitInfo, fromEvent: fromEvent });
         } else if (!result) {
           console.log('updateEventTreatment.ConfirmSaveDirect - User cancelled');
         }
@@ -1610,7 +1694,7 @@ addFromCabinet() {
 }
 
 attachRecord() {
-  alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical medical records');
+  alert('Coming soon.  This button will allow you to link pictures and documents (e.g. PDFs) of physical medical records, images, etc.');
 }
 
 viewAllTreatments() {

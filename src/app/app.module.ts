@@ -56,6 +56,7 @@ import { ListTreatmentPage } from '../pages/listTreatment/listTreatment';
 import { ListDoseHistory } from '../pages/listDoseHistory/listDoseHistory';
 import { ListTaskPage } from '../pages/listTask/listTask';
 import { ListProcedure } from '../pages/listProcedure/listProcedure';
+import { ListChooseVaccine } from '../pages/listChooseVaccine/listChooseVaccine';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -95,6 +96,7 @@ import { FormMedicationResults } from '../pages/formMedicationResults/formMedica
 import { FormDoseHistory } from '../pages/formDoseHistory/formDoseHistory';
 import { FormNewUser } from '../pages/formNewUser/formNewUser';
 import { FormProcedure } from '../pages/formProcedure/formProcedure';
+import { FormTherapy } from '../pages/formTherapy/formTherapy';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
@@ -154,6 +156,7 @@ import { MedicalEventService } from '../pages/listMedicalEvent/listMedicalEvent.
 import { PostVisitService } from '../pages/formVisit/postVisit.service';
 import { SymptomService } from '../pages/formSymptom/formSymptom.service';
 import { ProcedureService } from '../pages/listProcedure/listProcedure.service';
+import { ChooseVaccineService } from '../pages/listChooseVaccine/listChooseVaccine.service';
 //import { DoseHistoryService } from '../pages/listDoseHistory/listDoseHistory.service';
 
 import { ScheduleService } from '../pages/schedule/schedule.service';
@@ -235,6 +238,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListDoseHistory,
     ListTaskPage,
     ListProcedure,
+    ListChooseVaccine,
 
     GridPage,
     FormLayoutPage,
@@ -274,6 +278,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormDoseHistory,
     FormNewUser,
     FormProcedure,
+    FormTherapy,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -359,6 +364,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     ListDoseHistory,
     ListTaskPage,
     ListProcedure,
+    ListChooseVaccine,
 
     GridPage,
     FormLayoutPage,
@@ -398,6 +404,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormDoseHistory,
     FormNewUser,
     FormProcedure,
+    FormTherapy,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -456,6 +463,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     PostVisitService,
     SymptomService,
     ProcedureService,
+    ChooseVaccineService,
     //DoseHistoryService,
 
     HTTP,

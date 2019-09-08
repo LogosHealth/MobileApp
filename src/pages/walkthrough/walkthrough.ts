@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.42');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.44');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
@@ -564,17 +564,17 @@ export class WalkthroughPage implements OnInit {
 
               browser2.on('loaderror').subscribe(e => {
                 console.log('Error Loading Final Auth Window ', e);
-                alert('Error Loading Final Auth Window ' + e.message);
+                //alert('Error Loading Final Auth Window ' + e.message);
               });
 
               browser2.on('loadstop').subscribe(e => {
-                  alert("url from final auth android: " + e.url);
+                  //alert("url from final auth android: " + e.url);
                   if (e.url.includes("access_token")) {
                     browser2.close();
                     var token = self.getAccessToken(e.url);
                     var refreshToken = self.getRefreshToken(e.url);
                     if (token !== 'Error') {
-                      alert('Final token for iOS is: ' + token);
+                      //alert('Final token for iOS is: ' + token);
                       self.RestService.AuthData.accessToken = token;
                       self.RestService.AuthData.refreshToken = refreshToken;
                       console.log('Successfully set token for iOS!!!' + token);

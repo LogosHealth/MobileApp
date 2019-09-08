@@ -49,6 +49,15 @@
     },
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-ionic": {
+      "APP_ID": "0f127b9d",
+      "CHANNEL_NAME": "Master",
+      "WARN_DEBUG": "true",
+      "UPDATE_API": "https://api.ionicjs.com",
+      "UPDATE_METHOD": "auto",
+      "MAX_STORE": "2",
+      "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },
   "dependent_plugins": {

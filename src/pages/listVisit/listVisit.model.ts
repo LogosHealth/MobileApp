@@ -1,7 +1,11 @@
 export class ListVisit {
   recordid: number;
+  parentvisitid: number;
+  parentreason: string;
+  parentdate: string;
   scheduleinstanceid: number;
   visitdate:string;
+  happened: string;
   contactid: number;
   accountid: number;
   physician: VisitPhysician;
@@ -21,7 +25,6 @@ export class ListVisit {
   userid: number;
   imageURL: string;
   timezone: string;
-
   diagnoses: Diagnoses;
 }
 

@@ -26,6 +26,7 @@ export class ListContactPage {
   noData: boolean = false;
   isSelectRelated: boolean = false;
   relatedSelection: any;
+  aboutProfile: any;
 
   constructor(
     public nav: NavController,
@@ -38,6 +39,8 @@ export class ListContactPage {
     private callNumber: CallNumber
   ) {
     this.feed.category = navParams.get('category');
+    this.aboutProfile = navParams.get('aboutProfile');
+
     if (this.feed.category.title == 'Select Heathcare Provider') {
       this.isSelectRelated = true;
     }
@@ -92,9 +95,17 @@ export class ListContactPage {
     };
     var pathTemplate = '';
     var method = 'GET';
+    var profileid;
+
+    if (this.aboutProfile !== undefined && this.aboutProfile !== null && this.aboutProfile > 0) {
+      profileid = this.aboutProfile;
+    } else {
+      profileid = this.RestService.currentProfile;
+    }
+
     var additionalParams = {
         queryParams: {
-            profileid: this.RestService.currentProfile
+            profileid: profileid
         }
     };
     var body = '';
@@ -130,10 +141,10 @@ export class ListContactPage {
 
     if (!this.isSelectRelated) {
       this.nav.push(FormContactPage, { recId: recordId });
-      } else {
-        this.relatedSelection = this.RestService.results[recordId];
+    } else {
+      this.relatedSelection = this.RestService.results[recordId];
       this.dismiss(false);
-      }
+    }
   }
 
   cancelSelectRelated() {

@@ -1,0 +1,91 @@
+{
+  "_from": "cordova-plugin-ionic@4.1.7",
+  "_id": "cordova-plugin-ionic@4.1.7",
+  "_inBundle": false,
+  "_integrity": "sha512-ckFP1ImmSgIRKXCi1Gog4ZzD5rbAyPdUhjLlmzi54aXSMRn7KSJi5e7FUJ7LbblRiv7sibynmX+54cbTjbEFdQ==",
+  "_location": "/cordova-plugin-ionic",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "cordova-plugin-ionic@4.1.7",
+    "name": "cordova-plugin-ionic",
+    "escapedName": "cordova-plugin-ionic",
+    "rawSpec": "4.1.7",
+    "saveSpec": null,
+    "fetchSpec": "4.1.7"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-ionic/-/cordova-plugin-ionic-4.1.7.tgz",
+  "_shasum": "62f486689ef7255b996279a5eafddb0ad7f7f109",
+  "_spec": "cordova-plugin-ionic@4.1.7",
+  "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\master\\MobileApp",
+  "author": {
+    "name": "Ionic"
+  },
+  "bugs": {
+    "url": "https://github.com/ionic-team/cordova-plugin-ionic/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Max Lynch",
+      "email": "max@ionic.io"
+    },
+    {
+      "name": "William Pelrine",
+      "email": "rudy@ionic.io"
+    }
+  ],
+  "cordova": {
+    "id": "cordova-plugin-ionic",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "dependencies": {
+    "mkpath": ">=1.0.0",
+    "node-version-compare": ">=1.0.1",
+    "plist": ">=1.2.0",
+    "xml2js": ">=0.4"
+  },
+  "deprecated": false,
+  "description": "Ionic Cordova SDK",
+  "engines": {
+    "cordovaDependencies": {
+      "2.0.4": {
+        "cordova-plugin-splashscreen": ">=4.0.0"
+      },
+      "3.1.3": {
+        "cordova-plugin-splashscreen": ">=5.0.1"
+      },
+      "4.1.7": {
+        "cordova-plugin-splashscreen": ">=5.0.1"
+      }
+    }
+  },
+  "homepage": "https://github.com/ionic-team/cordova-plugin-ionic#readme",
+  "issue": "https://github.com/ionic-team/cordova-plugin-ionic/issues",
+  "keywords": [
+    "ionic",
+    "cordova",
+    "deploy",
+    "liveupdates",
+    "mobile",
+    "hybrid",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "license": "MIT",
+  "name": "cordova-plugin-ionic",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ionic-team/cordova-plugin-ionic.git"
+  },
+  "version": "4.1.7"
+}

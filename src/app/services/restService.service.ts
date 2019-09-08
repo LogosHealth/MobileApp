@@ -71,6 +71,21 @@ export class RestService {
         this.subscriptionCount = subscriptionCount;
     }
 
+    getUserById (inputid) {
+      var foundObj = false;
+      //console.log("curUserObj currentProfile:" + this.currentProfile);
+      //console.log("curUserObj profiles.length:" + this.Profiles.length);
+      for (var j = 0; j < this.Profiles.length; j++) {
+          if (this.Profiles[j].profileid == inputid) {
+              foundObj = true;
+              return this.Profiles[j];
+          }
+      }
+      if (!foundObj) {
+        return null;
+      }
+    }
+
     curUserObj (callback) {
       var foundObj = false;
       //console.log("curUserObj currentProfile:" + this.currentProfile);
@@ -188,7 +203,7 @@ export class RestService {
         console.log('Refresh URL for Browser: ' + urlSend);
         let newWindow = window.open(urlSend, 'LogosHealth Login Refresh', 'toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10000, top=10000, width=10, height=10, visible=none');
         newWindow.focus();
-      } else if (this.platform.is("android")) {
+      } else if (this.platform.is("android") || this.platform.is("ios")) {
         var readCount = 0;
         urlSend = LWA_PROXY_REFRESH_MOBILE + "?refresh_token=" + self.AuthData.refreshToken;
         const browser = this.iab.create(urlSend, '_blank');
@@ -258,6 +273,10 @@ export class RestService {
     var startVal = url.indexOf("access_token=") + 13;
     var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal, endVal);
+    if (fragment.substring(4, 7) == '%7C') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(7);
+      alert('Access Token updated: ' + fragment);
+    }
     console.log('URL from getAceessToken: ' + url);
     console.log('Fragment from getAceessToken: ' + fragment);
     if (fragment !== undefined && fragment !== null && fragment !== "") {
@@ -271,6 +290,10 @@ export class RestService {
     var startVal = url.indexOf("refresh_token=") + 14;
       //var endVal = url.indexOf("&", startVal);
     var fragment = url.substring(startVal);
+    if (fragment.substring(4, 6) == '%7C') {
+      fragment = fragment.substring(0, 4) + '|' + fragment.substring(7);
+      //alert('Refresh Token updated: ' + fragment);
+    }
     console.log('URL from getRefreshToken: ' + url);
     console.log('Fragment from getRefreshToken: ' + fragment);
     return fragment;

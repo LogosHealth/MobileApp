@@ -1,9 +1,15 @@
 export class Procedure {
   recordid: number;
   medicaleventid: number;
+  verbatimindication: string;
   treatmentid: number;
   visitid: number;
+  physicianid: number;
+  title: string;
+  firstname: string;
+  lastname:string;
   procedurename: string;
+  therapyname: string;
   description:string;
   result:string;
   dateofmeasure: string;
@@ -12,6 +18,8 @@ export class Procedure {
   confirmed: string;
   profileid: number;
   userid: number;
+  namevalue: string;
+  type: string;
   timezone: string;
 }
 

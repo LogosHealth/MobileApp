@@ -10,6 +10,9 @@
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>
+        <button ion-button icon-only (click)="flipSearch()">
+          <ion-icon name='switch'></ion-icon>
+        </button>
       </ion-buttons>
     </ion-navbar>
   </ion-header>
@@ -21,7 +24,8 @@
         <ion-row no-padding class="content-row one-line">
           <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
           <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{item.procedurename}}</h3>
+            <h3 class="item-title" *ngIf="item.procedurename !== undefined && item.procedurename !== null">{{item.procedurename}}</h3>
+            <h3 class="item-title"  *ngIf="item.therapyname !== undefined && item.therapyname !== null">{{item.therapyname}}</h3>
             <p class = "item-description">Date: {{formatDateTime(item.dateofmeasure)}}</p>
             <p class = "item-description" *ngIf="item.result !== undefined && item.result !== null">Result: {{item.result}}</p>
             <p class = "item-description" *ngIf="item.description !== undefined && item.description !== null">Description: {{item.description}}</p>
@@ -32,9 +36,13 @@
         </ion-row>
       </button>
     </ion-list>
-    <p class="section-tips"  *ngIf="noData"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
+    <p class="section-tips"  *ngIf="noData && type=='Procedures'"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
       To get started, use the + icon above to add a Procedure.<br><br>
       <b>LogosHealth Alexa Skill Tip:</b><br> You can add Procedures by saying "Procedure" at the main menu.
+    </p>
+    <p class="section-tips"  *ngIf="noData && type=='Therapies'"><b>Key Benefits:</b><br> Your health records at your fingertips!<br><br>
+      To get started, use the + icon above to add a Therapy.<br><br>
+      <b>LogosHealth Alexa Skill Tip:</b><br> You can add Procedures by saying "Therapy" at the main menu.
     </p>
   </div>
 </ion-content>

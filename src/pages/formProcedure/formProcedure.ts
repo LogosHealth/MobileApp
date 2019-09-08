@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController, ModalController, ViewController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { ProcedureModel, Procedure } from '../../pages/listProcedure/listProcedure.model';
@@ -8,6 +8,10 @@ import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { DictionaryModel } from '../../pages/models/dictionary.model';
 import { ListOrderService } from '../../pages/listOrder/listOrder.service';
 import { MenuHelp } from '../../pages/menuHelp/menuHelp';
+import { FormVisitPage } from '../../pages/formVisit/formVisit';
+import { ListContactPage } from '../../pages/listContacts/listContacts';
+import { FormContactPage } from '../../pages/formContact/formContact';
+
 
 var moment = require('moment-timezone');
 
@@ -51,14 +55,19 @@ export class FormProcedure {
   items: any;
   userCount: any = 0;
   fromVisit: any;
-
+  aboutProfile: any;
   checkTiming: boolean = false;
   hasVisit: boolean = false;
   needsVisit: boolean = false;
   showPhysician: boolean = false;
+  hasPhysician: boolean = false;
+  hasEvent: boolean = false;
+  needsDate: boolean = false;
+  visitMode: any = null;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
-    public list2Service: ListOrderService, public popoverCtrl:PopoverController, public navParams: NavParams) {
+    public list2Service: ListOrderService, public popoverCtrl:PopoverController, public navParams: NavParams, public modalCtrl: ModalController,
+    public viewCtrl: ViewController) {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
@@ -67,6 +76,9 @@ export class FormProcedure {
     this.fromType = navParams.get('fromType');
     this.fromEvent = navParams.get('fromEvent');
     this.eventVisit = navParams.get('eventVisit');
+    console.log('Init formProc recId', this.recId);
+    console.log('Init formProc curRec', this.curRec);
+    console.log('Init formProc fromVisit', this.fromVisit);
     console.log('Init formProc fromEvent', this.fromEvent);
     console.log('Init formProc eventVisit', this.eventVisit);
     console.log('Init formProc fromType: ', this.fromType);
@@ -89,20 +101,35 @@ export class FormProcedure {
 
     if (this.recId !== undefined) {
       var visittext = "";
+      var physicianname;
       if (this.curRec !== undefined && this.curRec !== null) {
         if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
           if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
-            visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDateTime(this.curRec.visitdate);
+            visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDateTime(this.curRec.dateofmeasure);
+            physicianname = "Dr. " + this.curRec.lastname;
           } else {
-            visittext = this.curRec.title + ": " + this.formatDateTime(this.curRec.visitdate);
+            visittext = this.curRec.title + ": " + this.formatDateTime(this.curRec.dateofmeasure);
+            physicianname = this.curRec.title;
           }
+        } else if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
+          visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDateTime(this.curRec.dateofmeasure);
+          physicianname = "Dr. " + this.curRec.lastname;
+        } else if (this.curRec.title !== undefined && this.curRec.title !== null) {
+          visittext = this.curRec.title + ": " + this.formatDateTime(this.curRec.dateofmeasure);
+          physicianname = this.curRec.title;
         }
       }
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         medicaleventid: new FormControl(this.curRec.medicaleventid),
+        verbatimindication: new FormControl(this.curRec.verbatimindication),
         visitid: new FormControl(this.curRec.visitid),
         visittext: new FormControl(visittext),
+        physicianid: new FormControl(this.curRec.physicianid),
+        physicianname: new FormControl(physicianname),
+        title: new FormControl(this.curRec.title),
+        firstname: new FormControl(this.curRec.firstname),
+        lastname: new FormControl(this.curRec.lastname),
         description: new FormControl(this.curRec.description),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         result: new FormControl(this.curRec.result),
@@ -112,16 +139,39 @@ export class FormProcedure {
       });
       this.procedurename = new FormControl(this.curRec.procedurename, Validators.required);
       this.procedureTerm = this.curRec.procedurename;
+      console.log('formProcdure Has curRec: ', this.curRec);
       if ((this.curRec.visitid == undefined || this.curRec.visitid == null) && this.curRec.proceduretiming == 'aftervisit') {
         this.needsVisit = true;
+        console.log('Set form to needsVisit');
+      } else if (this.curRec.visitid !== undefined && this.curRec.visitid !== null && this.curRec.visitid > 0) {
+        this.hasVisit = true;
+        console.log('Set form to hasVisit');
+      } else {
+        this.showPhysician = true;
+        if (this.curRec.physicianid !== undefined && this.curRec.physicianid !== null) {
+          this.hasPhysician = true;
+        }
+        console.log('Set form to showPhysician');
+      }
+      if (this.curRec.medicaleventid !== undefined && this.curRec.medicaleventid !== null) {
+        this.hasEvent = true;
+      }
+      if (this.curRec.dateofmeasure == undefined || this.curRec.dateofmeasure == null) {
+        this.needsDate = true;
       }
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
+        verbatimindication: new FormControl(),
         visitid: new FormControl(),
         visittext: new FormControl(),
+        physicianid: new FormControl(),
+        physicianname: new FormControl(),
+        title: new FormControl(),
+        firstname: new FormControl(),
+        lastname: new FormControl(),
         description: new FormControl(),
         dateofmeasure: new FormControl(),
         result: new FormControl(),
@@ -132,6 +182,34 @@ export class FormProcedure {
       this.procedurename = new FormControl(null, Validators.required);
       if (this.fromType !==undefined && this.fromType == 'condition with visit') {
         this.checkTiming = true;
+      } else if (this.fromVisit !== undefined && this.fromVisit !== null) {
+        this.hasVisit =true;
+
+        if (this.fromVisit.physician !== undefined && this.fromVisit.physician.lastname !== undefined && this.fromVisit.physician.lastname !== null) {
+          visittext = "Dr. " + this.fromVisit.physician.lastname + ": " + this.formatDateTime(this.fromVisit.visitdate);
+          physicianname = "Dr. " + this.fromVisit.physician.lastname;
+        } else if (this.fromVisit.physician !== undefined) {
+          visittext = this.fromVisit.physician.title + ": " + this.formatDateTime(this.fromVisit.visitdate);
+          physicianname = this.fromVisit.physician.title;
+        }
+        this.card_form.get('visitid').setValue(this.fromVisit.recordid);
+        this.card_form.get('visittext').setValue(visittext);
+        if (this.fromVisit.visitdate !== undefined && this.fromVisit.visitdate !== null) {
+          this.card_form.get('dateofmeasure').setValue(this.fromVisit.visitdate);
+        }
+        if (this.fromVisit.mode !== undefined && this.fromVisit.mode !== null) {
+          this.visitMode = this.fromVisit.mode;
+        }
+      } else {
+        this.showPhysician = true;
+      }
+      if (this.fromEvent !==undefined && this.fromEvent !==null && this.fromEvent.recordid !== undefined && this.fromEvent.recordid > 0) {
+        this.card_form.get('medicaleventid').setValue(this.fromEvent.recordid);
+        this.card_form.get('verbatimindication').setValue(this.fromEvent.medicalevent);
+        this.hasEvent = true;
+        this.aboutProfile = this.fromEvent.profileid;
+      } else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
+        this.aboutProfile = this.eventVisit.profileid;
       }
     }
   }
@@ -300,25 +378,50 @@ export class FormProcedure {
     if (this.curRec !== undefined && this.curRec !== null) {
       if(this.curRec.visitid !== undefined && this.curRec.visitid !== null) {
         if (this.curRec.lastname !== undefined && this.curRec.lastname !== null) {
-          visittext = "Dr. " + this.curRec.lastname + ": " + this.curRec.visitdate;
+          visittext = "Dr. " + this.curRec.lastname + ": " + this.formatDateTime(this.curRec.dateofmeasure);
         } else {
-          visittext = this.curRec.title + ": " + this.curRec.visitdate;
+          visittext = this.curRec.title + ": " + this.formatDateTime(this.curRec.dateofmeasure);
         }
       }
     }
-
     console.log('Add data from fillFormDetails: ', this.curRec);
     this.card_form.get('recordid').setValue(this.curRec.recordid);
     this.card_form.get('medicaleventid').setValue(this.curRec.medicaleventid);
     this.card_form.get('visitid').setValue(this.curRec.visitid);
     this.card_form.get('visittext').setValue(visittext);
     this.card_form.get('description').setValue(this.curRec.description);
-    this.card_form.get('dateofmeasure').setValue(this.curRec.dateofmeasure);
+    this.card_form.get('dateofmeasure').setValue(this.formatDateTime(this.curRec.dateofmeasure));
     this.card_form.get('result').setValue(this.curRec.result);
     this.card_form.get('proceduretiming').setValue(this.curRec.proceduretiming);
     this.procedurename.setValue(this.curRec.procedurename);
     this.procedureTerm = this.curRec.procedurename;
-    console.log('Event term from fillformdetails'+ this.curRec.medicationname);
+
+    if (this.curRec.dateofmeasure == undefined || this.curRec.dateofmeasure == null) {
+      this.needsDate = true;
+    }
+    if ((this.curRec.visitid == undefined || this.curRec.visitid == null) && this.curRec.proceduretiming == 'aftervisit') {
+      this.needsVisit = true;
+      this.showPhysician = false;
+      this.hasVisit = false;
+      console.log('Set form to needsVisit');
+    } else if (this.curRec.visitid !== undefined && this.curRec.visitid !== null && this.curRec.visitid > 0) {
+      if ((this.eventVisit !== undefined && this.eventVisit !== null) || (this.fromVisit !== undefined && this.fromVisit !== null)) {
+        console.log('Procedure has visit, but is coming from a visit - eventVisit, ',  this.eventVisit);
+        console.log('Procedure has visit, but is coming from a visit - fromVisit, ',  this.fromVisit);
+        this.showPhysician = false;
+      } else {
+        this.hasVisit = true;
+        this.showPhysician = false;
+        console.log('Set form to hasVisit');
+      }
+    } else {
+      this.showPhysician = true;
+      if (this.curRec.physicianid !== undefined && this.curRec.physicianid !== null) {
+        this.hasPhysician = true;
+      }
+      console.log('Set form to showPhysician');
+    }
+
   }
 
   deleteRecord(){
@@ -470,17 +573,20 @@ export class FormProcedure {
     this.saving = true;
     if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
       this.formSave.recordid = this.card_form.get('recordid').value;
-      this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
-      if (this.card_form.get('procedurename').dirty){
-        this.formSave.procedurename = this.card_form.get('procedurename').value;
+
+      if (this.procedurename.dirty){
+        this.formSave.procedurename = this.procedurename.value;
       }
-      if (this.card_form.get('medicaleventid').dirty){
+      if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('physicianid').dirty){
+        this.formSave.physicianid = this.card_form.get('physicianid').value;
       }
       if (this.card_form.get('description').dirty){
         this.formSave.description = this.card_form.get('description').value;
@@ -495,12 +601,148 @@ export class FormProcedure {
         this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
       }
     } else {
-      this.formSave.procedurename = this.card_form.get('procedurename').value;
-      if (this.card_form.get('medicaleventid').dirty){
+      this.formSave.procedurename = this.procedurename.value;
+      if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
+        this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('physicianid').value !== undefined && this.card_form.get('physicianid').value !== null){
+        this.formSave.physicianid = this.card_form.get('physicianid').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.formSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('dateofmeasure').value !== undefined && this.card_form.get('dateofmeasure').value !== null){
+        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.card_form.get('result').dirty){
+        this.formSave.result = this.card_form.get('result').value;
+      }
+      if (this.card_form.get('proceduretiming').dirty){
+        this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
+      }
+      if (this.aboutProfile !== undefined && this.aboutProfile !== null) {
+        this.formSave.profileid = this.aboutProfile;
+      } else {
+        this.formSave.profileid = this.RestService.currentProfile;
+      }
+
+      this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
+      this.formSave.active = 'Y';
+    }
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
+      var config = {
+        invokeUrl: restURL,
+        accessKey: this.RestService.AuthData.accessKeyId,
+        secretKey: this.RestService.AuthData.secretKey,
+        sessionToken: this.RestService.AuthData.sessionToken,
+        region:'us-east-1'
+      };
+      var apigClient = this.RestService.AWSRestFactory.newClient(config);
+      var params;
+      var additionalParams;
+      var pathTemplate = '';
+      var method = 'POST';
+
+      params = {
+        //pathParameters: this.vaccineSave
+      };
+
+      if (this.visitMode !== undefined && this.visitMode !== null) {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile,
+              mode: this.visitMode
+          }
+        };
+      } else {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile
+          }
+        };
+      }
+      console.log('fromProcedure save: ', additionalParams);
+
+      var body = JSON.stringify(this.formSave);
+      var self = this;
+      console.log('Calling Post', this.formSave);
+      apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+      .then(function(result){
+        self.RestService.results = result.data;
+        console.log('Happy Path: ' + self.RestService.results);
+        //self.category.title = "Measure";
+        self.loading.dismiss();
+        if (self.visitMode !== undefined && self.visitMode !== null) {
+          self.formSave.recordid = result.data;
+          self.formSave.namevalue = self.formSave.procedurename;
+          self.formSave.type = 'procedure';
+          self.dismiss();
+        } else {
+          self.nav.pop();
+        }
+      }).catch( function(result){
+        console.log('Error results from formProcedure.save: ',result);
+        self.loading.dismiss();
+        alert('There was an error saving this data.  Please try again later');
+      });
+  }
+
+  navSaveRecord(callback){
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
+    if (dtNow < dtExpiration) {
+      this.presentLoadingDefault();
+      this.navSaveRecordDo(function (err, results) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, results);
+        }
+      });
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from ' + self.formName + '.saveRecord');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          console.log('From ' + self.formName + '.saveRecord - Credentials refreshed!');
+          self.navSaveRecordDo(function (err, results) {
+            if (err) {
+              callback(err, null);
+            } else {
+              callback(null, results);
+            }
+          });
+        }
+      });
+    }
+  }
+
+  navSaveRecordDo(callback){
+    this.saving = true;
+    this.checkSave = false;
+    if (this.card_form.get('recordid').value !==undefined && this.card_form.get('recordid').value !==null) {
+      this.formSave.recordid = this.card_form.get('recordid').value;
+      this.formSave.userid = this.RestService.userId;
+      this.formSave.active = 'Y';
+      if (this.procedurename.dirty){
+        this.formSave.procedurename = this.procedurename.value;
+      }
+      if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('physicianid').dirty){
+        this.formSave.physicianid = this.card_form.get('physicianid').value;
       }
       if (this.card_form.get('description').dirty){
         this.formSave.description = this.card_form.get('description').value;
@@ -514,12 +756,40 @@ export class FormProcedure {
       if (this.card_form.get('proceduretiming').dirty){
         this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
       }
-      this.formSave.profileid = this.RestService.currentProfile;
+    } else {
+      this.formSave.procedurename = this.procedurename.value;
+      if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
+        this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
+        this.formSave.visitid = this.card_form.get('visitid').value;
+      }
+      if (this.card_form.get('physicianid').value !== undefined && this.card_form.get('physicianid').value !== null){
+        this.formSave.physicianid = this.card_form.get('physicianid').value;
+      }
+      if (this.card_form.get('description').dirty){
+        this.formSave.description = this.card_form.get('description').value;
+      }
+      if (this.card_form.get('dateofmeasure').dirty){
+        this.formSave.dateofmeasure = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.card_form.get('result').dirty){
+        this.formSave.result = this.card_form.get('result').value;
+      }
+      if (this.card_form.get('proceduretiming').dirty){
+        this.formSave.proceduretiming = this.card_form.get('proceduretiming').value;
+      }
+      if (this.aboutProfile !== undefined && this.aboutProfile !== null) {
+        this.formSave.profileid = this.aboutProfile;
+      } else {
+        this.formSave.profileid = this.RestService.currentProfile;
+      }
+
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
     }
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
-      var config = {
+    var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
+    var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
         secretKey: this.RestService.AuthData.secretKey,
@@ -542,16 +812,235 @@ export class FormProcedure {
       console.log('Calling Post', this.formSave);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
-        self.RestService.results = result.data;
-        console.log('Happy Path: ' + self.RestService.results);
-        self.category.title = "Measure";
+        console.log('Happy Path: ', result);
         self.loading.dismiss();
-        self.nav.pop();
+        callback(null, result.data);
       }).catch( function(result){
-        console.log('Error results from formProcedure.save: ',result);
+        console.log('Error from formMedicalEvent.save: ',result);
         self.loading.dismiss();
         alert('There was an error saving this data.  Please try again later');
+        callback(result, null);
       });
+  }
+
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  self.curRec = {recordid: results};
+                  self.loadFromId = results;
+                  console.log('new Procedure record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      this.loadFromId = this.curRec.recordid;
+      this.checkSave = false;
+      callback(null, true);
+    }
+  }
+
+  newContact() {
+    this.checkSave = true;
+    var self = this;
+    var physicianname;
+
+    console.log('Called newContact');
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in newContact.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from newContact');
+      } else {
+        console.log('NewContact.result: ', result);
+        if (result) {
+          var cat = {title: 'Select Heathcare Provider'};
+          let profileModal = self.modalCtrl.create(ListContactPage, { category: cat });
+          profileModal.onDidDismiss(data => {
+            if (data !==undefined && data !== null) {
+              console.log('newContact - response: ', data);
+              self.card_form.get('physicianid').setValue(data.recordid);
+              self.card_form.get('physicianid').markAsDirty();
+              self.card_form.get('title').setValue(data.title);
+              self.card_form.get('firstname').setValue(data.firstname);
+              self.card_form.get('lastname').setValue(data.lastname);
+
+              if (data.lastname !== undefined && data.lastname !== null) {
+                physicianname = "Dr. " + data.lastname;
+              } else {
+                physicianname = data.title;
+              }
+              //place code to create a visit
+              self.card_form.get('physicianname').setValue(physicianname);
+              self.hasPhysician = true;
+            }
+          });
+          profileModal.present();
+        } else if (!result) {
+          console.log('newContact.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  }
+
+  gotoContact() {
+    this.checkSave = true;
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in gotoContact.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from gotoContact');
+      } else {
+        if (result) {
+          self.nav.push(FormContactPage, { loadFromId: self.curRec.physicianid });
+        } else if (!result) {
+          console.log('gotoContact.ConfirmSaveDirect - User cancelled');        }
+      }
+    });
+  }
+
+  newVisit() {
+    this.checkSave = true;
+    var self = this;
+    var createNewParams;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in newContact.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from newContact');
+      } else {
+        if (result) {
+          var cat = {title: 'Select Heathcare Provider'};
+          var profileid = null;
+          var procedureid = null;
+          var procedurename = null;
+          var medicaleventid = null;
+          var medicalevent = null;
+          var eventstart = null;
+          var parentvisitid = null;
+          var parentreason = null;
+
+
+          if (self.aboutProfile !== undefined && self.aboutProfile !== null) {
+            profileid = self.aboutProfile;
+          } else if (self.curRec !== undefined && self.curRec.profileid !== undefined && self.curRec.profileid > 0) {
+            profileid = self.curRec.profileid;
+          } else {
+            profileid = self.RestService.currentProfile;
+          }
+
+          if (self.eventVisit !== undefined && self.eventVisit !== null) {
+            if (self.eventVisit.parentvisitid !== undefined && self.eventVisit.parentvisitid !== null) {
+              parentvisitid = self.eventVisit.parentvisitid;
+              parentreason = self.eventVisit.parentreason + " " + self.formatDateTime(self.eventVisit.parentdate);
+            } else {
+              parentvisitid = self.eventVisit.recordid;
+              parentreason = self.eventVisit.reason + " " + self.formatDateTime(self.eventVisit.visitdate);
+            }
+          } else if (self.fromVisit !== undefined && self.fromVisit !== null) {
+            if (self.fromVisit.parentvisitid !== undefined && self.fromVisit.parentvisitid !== null) {
+              parentvisitid = self.fromVisit.parentvisitid;
+              parentreason = self.fromVisit.parentreason + " " + self.formatDateTime(self.fromVisit.parentdate);
+            } else {
+              parentvisitid = self.fromVisit.recordid;
+              parentreason = self.fromVisit.reason + " " + self.formatDateTime(self.fromVisit.visitdate);
+            }
+          }
+          if (self.fromEvent !== undefined && self.fromEvent !== null) {
+            medicalevent = self.fromEvent.medicalevent;
+            eventstart = self.fromEvent.startdate;
+          }
+
+          if (self.curRec !== undefined && self.curRec.profileid !== undefined && self.curRec.profileid > 0
+             && self.curRec.procedurename !== undefined && self.curRec.procedurename !== null) {
+            procedureid = self.curRec.recordid;
+            procedurename = self.curRec.procedurename;
+            medicaleventid = self.curRec.medicaleventid;
+            medicalevent = self.curRec.verbatimindication;
+          } else if (self.curRec !== undefined && self.curRec.profileid !== undefined && self.curRec.profileid > 0) {
+            procedureid = self.curRec.recordid;
+            procedurename = self.procedurename.value;
+            medicaleventid = self.card_form.get('medicaleventid').value;
+            medicalevent = self.card_form.get('verbatimindication').value;
+          }
+
+          if (self.curRec !== undefined && self.curRec !== null) {
+            self.loadFromId = self.curRec.recordid;
+          }
+          let profileModal = self.modalCtrl.create(ListContactPage, { category: cat, aboutProfile: profileid });
+          profileModal.onDidDismiss(data => {
+            if (data !==undefined && data !== null) {
+              console.log('newContact - response: ', data);
+              createNewParams = {
+                'contactid':data.recordid,
+                'title':data.title,
+                'firstname':data.firstname,
+                'lastname':data.lastname,
+                'profileid':profileid,
+                'procedureid':procedureid,
+                'procedurename':procedurename,
+                'medicaleventid':medicaleventid,
+                'medicalevent':medicalevent,
+                'eventstart':eventstart,
+                'parentvisitid': parentvisitid,
+                'parentreason':parentreason
+              }
+              self.nav.push(FormVisitPage, {createNewParams: createNewParams});
+              //self.nav.push(FormVisitPage, {  });
+            }
+          });
+          profileModal.present();
+        } else if (!result) {
+          console.log('newContact.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  }
+
+  gotoVisit() {
+    this.checkSave = true;
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in gotoVisit.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from gotoVisit');
+      } else {
+        if (result) {
+          self.nav.push(FormVisitPage, { loadFromId: self.curRec.visitid });
+        } else if (!result) {
+          console.log('gotoVisit.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
   }
 
   showList() {
@@ -593,8 +1082,11 @@ export class FormProcedure {
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
+    //Date time is captured in local time for this date - must be local time display
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
+      var offsetDate = new Date(moment(dateString).toISOString());
+      var offset = offsetDate.getTimezoneOffset() / 60;
+      return moment(dateString).add(offset, 'hours').format('MMM DD YYYY hh:mm a');
     } else {
       return moment(dateString).format('MMM DD YYYY hh:mm a');
     }
@@ -605,6 +1097,16 @@ export class FormProcedure {
       const shouldLeave = await this.confirmLeave();
       return shouldLeave;
     }
+  }
+
+  cancel() {
+    this.nav.pop();
+  }
+
+  dismiss() {
+    //console.log('From chooseinfo dismiss: ', this.listSave);
+    let data = this.formSave;
+    this.viewCtrl.dismiss(data);
   }
 
   confirmLeave(): Promise<Boolean> {
@@ -654,6 +1156,7 @@ export class FormProcedure {
         }
       }
       this.card_form.get('dateofmeasure').setValue(visitdate);
+      this.card_form.get('dateofmeasure').markAsDirty();
       this.card_form.get('visitid').setValue(visitid);
       this.card_form.get('visitid').markAsDirty();
       this.card_form.get('visittext').setValue(visittext);
@@ -667,7 +1170,13 @@ export class FormProcedure {
       }
       this.needsVisit = true;
       this.hasVisit = false;
+    } else {
+      this.showPhysician = true;
     }
+  }
+
+  attachRecord() {
+    alert('Coming soon.  This button will allow you to link pictures and documents (e.g. PDFs) of physical medical records, images, etc.');
   }
 
   presentHelp(myEvent) {

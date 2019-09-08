@@ -56,6 +56,7 @@ export class HistoryPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
+    this.listing.categories[6].title = 'Treatments';
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
@@ -86,7 +87,7 @@ export class HistoryPage {
       this.nav.push(ListMedicalEvent, { category: category });
     } else if (category.title == 'Medication History') {
       this.nav.push(ListMedicationPage, { category: category });
-    } else if (category.title == 'Procedures') {
+    } else if (category.title == 'Treatments') {
       this.nav.push(ListProcedure, { category: category });
     } else if (category.title == 'Full Medical History') {
       alert('Coming soon.');

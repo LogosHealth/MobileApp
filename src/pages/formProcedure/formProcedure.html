@@ -44,13 +44,13 @@
           </ion-row>
 
           <ion-row>
-            <ion-col no-padding *ngIf="!newRec">
+            <ion-col no-padding *ngIf="!newRec && !needsDate">
               <ion-item>
                 <ion-label floating>Date of Procedure</ion-label>
                 <ion-input type="text" formControlName="dateofmeasure" [disabled]="true"></ion-input>
               </ion-item>
             </ion-col>
-            <ion-col no-padding *ngIf="newRec">
+            <ion-col no-padding *ngIf="newRec || needsDate">
               <ion-item>
                 <ion-label floating>Date of Procedure</ion-label>
                 <ion-datetime displayFormat="MMM DD YYYY hh:mm a" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
@@ -69,6 +69,12 @@
               <ion-input type="text" formControlName="result"></ion-input>
             </ion-item>
           </ion-row>
+          <ion-row *ngIf="hasEvent">
+            <ion-item>
+              <ion-label floating>For*</ion-label>
+              <ion-input type="text" formControlName="verbatimindication" [disabled]="true"></ion-input>
+          </ion-item>
+          </ion-row>
         </ion-card>
 
         <ion-card class="sample-form" *ngIf="hasVisit || needsVisit">
@@ -77,12 +83,12 @@
               <h2 class = "section-title">Visit</h2>
             </ion-col>
             <ion-col *ngIf="needsVisit" class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button"  type="button" (click)="newVisit()" [disabled]="(!card_form.valid || !procedurename.valid) && !needsVisit">
+              <button ion-button block class="form-action-button-top"  type="button" (click)="newVisit()" [disabled]="(!card_form.valid || !procedurename.valid) || !needsVisit">
                 <ion-icon name="calendar"></ion-icon>
               </button>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row *ngIf="hasVisit">
             <ion-col no-padding width-87>
               <ion-item>
                 <ion-label floating>Visit Name</ion-label>
@@ -97,16 +103,42 @@
           </ion-row>
         </ion-card>
 
-
-
+        <ion-card class="sample-form" *ngIf="showPhysician">
+          <ion-row>
+            <ion-col no-padding width-87>
+              <h2 class = "section-title">Physician</h2>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="newContact()" [disabled]="(!card_form.valid || !procedurename.valid) && !needsVisit">
+                <ion-icon name="add"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="hasPhysician">
+            <ion-col no-padding width-87>
+              <ion-item>
+                <ion-label floating>Physician Name</ion-label>
+                <ion-input type="text" formControlName="physicianname" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="gotoContact()" [disabled]="(!card_form.valid || !procedurename.valid)">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+        </ion-card>
 
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !procedurename.dirty) || !card_form.valid || !procedurename.valid)">Save</button>
             </ion-col>
-            <ion-col no-padding width-50>
+            <ion-col no-padding width-50 *ngIf="!newRec">
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            </ion-col>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <button ion-button block class="form-action-button" type="button" (click)="cancel()">Cancel</button>
             </ion-col>
          </ion-row>
          <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br> You can add Procedures by saying "Procedure" at the main menu.</p>

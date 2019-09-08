@@ -6,6 +6,7 @@ import { ProcedureModel } from './listProcedure.model';
 import { ProcedureService } from './listProcedure.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormProcedure } from '../../pages/formProcedure/formProcedure';
+import { FormTherapy } from '../formTherapy/formTherapy';
 
 var moment = require('moment-timezone');
 
@@ -20,6 +21,7 @@ export class ListProcedure {
   loading: any;
   resultData: any;
   userTimezone: any;
+  type: any;
   noData: boolean = false;
 
   constructor(
@@ -31,6 +33,10 @@ export class ListProcedure {
     public loadingCtrl: LoadingController,
   ) {
     this.feed.category = navParams.get('category');
+    if (this.feed.category.title == 'Treatments') {
+      this.feed.category.title = 'Procedures';
+    }
+    this.type = this.feed.category.title;
 
     var self = this;
     this.RestService.curProfileObj(function (error, results) {
@@ -67,7 +73,14 @@ export class ListProcedure {
   loadData() {
     var restURL: string;
 
-    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
+    if (this.type == 'Procedures') {
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
+    } else if (this.type == 'Therapies') {
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/TherapyByProfile";
+    } else {
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/ProcedureByProfile";
+      console.log('listProcedure - loadData - type not found - default to Procedure');
+    }
 
     var config = {
       invokeUrl: restURL,
@@ -103,6 +116,7 @@ export class ListProcedure {
             console.log("Results Data for Get Procedures: ", self.list2.items);
         } else {
           self.noData = true;
+          self.list2.items = [];
           console.log('Results from listProcedure.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -110,6 +124,7 @@ export class ListProcedure {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -117,17 +132,41 @@ export class ListProcedure {
 
   openRecord(recordId) {
     console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormProcedure, { recId: recordId });
-    //alert('Open Record:' + recordId);
+    if (this.type == 'Procedures') {
+      this.nav.push(FormProcedure, { recId: recordId });
+    } else if (this.type == 'Therapies') {
+      this.nav.push(FormTherapy, { recId: recordId });
+    }
   }
 
   addNew() {
-    this.nav.push(FormProcedure);
+    if (this.type == 'Procedures') {
+      this.nav.push(FormProcedure);
+    } else if (this.type == 'Therapies') {
+      this.nav.push(FormTherapy);
+    }
   }
 
   formatDateTime(dateString) {
     return moment.utc(dateString).format('MMM DD YYYY');
+  }
+
+  flipSearch() {
+    if (this.type == 'Procedures') {
+      console.log('Going to Therapies');
+      this.type = 'Therapies';
+      this.feed.category.title = this.type;
+      this.presentLoadingDefault();
+      this.loadData();
+    } else if (this.type == 'Therapies') {
+      console.log('Going to Procedures');
+      this.type = 'Procedures';
+      this.feed.category.title = this.type;
+      this.presentLoadingDefault();
+      this.loadData();
+    } else {
+      console.log('Error in Flip Search - Type: ', this.type);
+    }
   }
 
   presentLoadingDefault() {
