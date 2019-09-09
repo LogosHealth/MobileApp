@@ -862,7 +862,7 @@ export class FormProcedure {
         }
       ]
     });
-    if (!this.saving && this.card_form.dirty && this.checkSave) {
+    if (!this.saving && (this.card_form.dirty || this.procedurename.dirty) && this.checkSave) {
       alert.present();
     } else {
       this.loadFromId = this.curRec.recordid;

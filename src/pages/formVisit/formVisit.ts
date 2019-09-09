@@ -21,6 +21,7 @@ import { FormProcedure } from '../formProcedure/formProcedure';
 import { FormTherapy } from '../formTherapy/formTherapy';
 import { ListChooseVaccine } from '../listChooseVaccine/listChooseVaccine';
 import { FormVaccinesPage } from '../formVaccines/formVaccines';
+import { ListContactPage } from '../../pages/listContacts/listContacts';
 
 var moment = require('moment-timezone');
 @Component({
@@ -173,8 +174,14 @@ export class FormVisitPage {
       if (this.createNewParams !==undefined && this.createNewParams !==null) {
         objUser = this.RestService.getUserById(this.createNewParams.profileid);
         firstNameVal = objUser.title;
-        preason = this.createNewParams.parentreason + " " + this.formatRealDate(this.createNewParams.parentdate);
-        this.hasParent = true;
+        if (this.createNewParams.parentreason !== undefined && this.createNewParams.parentreason !== null) {
+          this.hasParent = true;
+          if (this.createNewParams.parentdate !== undefined && this.createNewParams.parentdate !== null) {
+            preason = this.createNewParams.parentreason + " " + this.formatRealDate(this.createNewParams.parentdate);
+          } else {
+            preason = this.createNewParams.parentreason;
+          }
+        }
       } else if (this.curProfile !==undefined && this.curProfile !==null) {
         firstNameVal = this.curProfile.title;
         console.log("curProfile: ", this.curProfile);
@@ -2502,25 +2509,55 @@ export class FormVisitPage {
     var createNewParams;
     var parentvisitid;
     var parentreason;
+    var self = this;
+    var cat;
+    var profileid;
 
-    if (dataObj == 'lab') {
-
-    } else if (dataObj == 'visit') {
-      if (this.curRec.parentvisitid !== undefined && this.curRec.parentvisitid !== null) {
-        parentvisitid = this.curRec.parentvisitid;
-        parentreason = this.curRec.parentreason + " " + this.formatDateTime(this.curRec.parentdate);
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in newContact.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from newContact');
       } else {
-        parentvisitid = this.curRec.recordid;
-        parentreason = this.curRec.reason + " " + this.formatDateTime(this.curRec.visitdate);
-      }
+        if (result) {
+          if (dataObj == 'lab') {
+            alert('Coming soon.  This will allow you to add and view labs/lab panels performed at this visit.');
+          } else if (dataObj == 'visit') {
+            cat = {title: 'Select Heathcare Provider'};
 
-      createNewParams = {
-        'profileid':this.curRec.profileid,
-        'parentvisitid': parentvisitid,
-        'parentreason':parentreason
+            if (self.curRec.parentvisitid !== undefined && self.curRec.parentvisitid !== null) {
+              parentvisitid = self.curRec.parentvisitid;
+              parentreason = self.curRec.parentreason + " " + self.formatDateTime(self.curRec.parentdate);
+            } else {
+              parentvisitid = self.curRec.recordid;
+              parentreason = self.curRec.reason + " " + self.formatDateTime(self.curRec.visitdate);
+            }
+
+            profileid = self.curRec.profileid;
+            createNewParams = {
+              'profileid':profileid,
+              'parentvisitid': parentvisitid,
+              'parentreason':parentreason
+            }
+
+            let profileModal = self.modalCtrl.create(ListContactPage, { category: cat, aboutProfile: profileid });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('newContact - response: ', data);
+                createNewParams.contactid = data.recordid;
+                createNewParams.title = data.title;
+                createNewParams.firstname = data.firstname;
+                createNewParams.lastname = data.lastname;
+
+                self.nav.push(FormVisitPage, {createNewParams: createNewParams});
+              } else {
+                console.log('User cancelled select physician for follow-up visit');
+              }
+            });
+            profileModal.present();
+          }
+        }
       }
-      this.nav.push(FormVisitPage, {createNewParams: createNewParams});
-    }
+    });
   }
 
   presentOutcome(myEvent) {

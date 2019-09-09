@@ -14,44 +14,55 @@
 
 <ion-content class="forms-examples-content">
     <div class="card-example-view">
-      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="confirmRecord()">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <ion-card class="sample-form">
-          <h2 class = "section-title-center">{{ curRec.name }}</h2>
+            <h2 class = "section-title-center">{{ pageName }}</h2>
+
           <ion-row>
             <ion-item>
               <ion-label floating>Protects From</ion-label>
-              <ion-textarea type="text" formControlName="protectfrom" autosize></ion-textarea>
+              <ion-textarea type="text" formControlName="protectfrom" autosize [disabled]="true"></ion-textarea>
             </ion-item>
           </ion-row>
           <ion-row>
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Description</ion-label>
-                <ion-textarea type="text" formControlName="description" autosize></ion-textarea>
+                <ion-textarea type="text" formControlName="description" autosize [disabled]="true"></ion-textarea>
               </ion-item>
             </ion-col>
           </ion-row>
         </ion-card>
         <div formArrayName="schedules" *ngFor="let info of card_form.get('schedules').controls; let i = index;">
           <ion-card [formGroupName]="i"  class="sample-form">
-            <ion-row>
-              <ion-col no-padding width-85>
+            <ion-row *ngIf="info.value.recordid !== undefined && info.value.recordid !== null && info.value.recordid > 0">
+              <ion-col no-padding>
                 <h2 class = "section-title" *ngIf="info.value.agerangelow > 0 && info.value.agerangelow !== info.value.agerangehigh">Dose: {{info.value.interval}} ({{info.value.agerangelow}} to {{info.value.agerangehigh}} {{info.value.agerangeunit}})</h2>
                 <h2 class = "section-title"  *ngIf="info.value.agerangelow > 0 && info.value.agerangelow == info.value.agerangehigh">Dose: {{info.value.interval}} ({{info.value.agerangelow}} {{info.value.agerangeunit}})</h2>
                 <h2 class = "section-title" *ngIf="info.value.agerangelow == 0">Dose: {{info.value.interval}}</h2>
+              </ion-col>
+            </ion-row>
+            <ion-row *ngIf="info.value.recordid == undefined || info.value.recordid == null">
+              <ion-col no-padding>
+                <ion-item>
+                  <ion-label floating>Interval*</ion-label>
+                  <ion-select formControlName="vaccine_templateid">
+                    <ion-option *ngFor="let pick of stModelPick.items" [value]="pick.vaccine_templateid">{{pick.interval}} {{pick.agerangelow == 0 ? '' : '(' + pick.agerangelow + ' to ' + pick.agerangehigh + ' ' + pick.agerangeunit + ')'}}</ion-option>
+                  </ion-select>
+                </ion-item>
               </ion-col>
             </ion-row>
             <ion-row>
               <ion-col no-padding *ngIf="info.value.visitid !== undefined && info.value.visitid !== null && info.value.visitid !== 0">
                 <ion-item>
                   <ion-label floating>Date of Vaccine</ion-label>
-                  <ion-input type="text" formControlName="datereceived" [disabled]="true"></ion-input>
+                  <ion-input type="text" formControlName="datereceivedtext" [disabled]="true"></ion-input>
                 </ion-item>
               </ion-col>
               <ion-col no-padding *ngIf="info.value.visitid == undefined || info.value.visitid == null">
                 <ion-item>
-                  <ion-label floating>Date of Vaccine</ion-label>
-                  <ion-datetime displayFormat="MMM DD YYYY" [min]="1900-01-01" [max]="2021-12-31" formControlName="datereceived" ></ion-datetime>
+                  <ion-label floating>Date of Vaccine*</ion-label>
+                  <ion-datetime displayFormat="MMM DD YYYY" min="1900-01-01"  max="2021-12-31" formControlName="datereceived" ></ion-datetime>
                 </ion-item>
               </ion-col>
             </ion-row>
@@ -77,7 +88,7 @@
                 </ion-col>
               </ion-col>
               <ion-col class="columnAlign" no-padding width-10>
-                <button ion-button block class="form-action-button"  type="button" (click)="newContact()">
+                <button ion-button block class="form-action-button"  type="button" (click)="newContact(i)">
                   <ion-icon name="add"></ion-icon>
                 </button>
               </ion-col>
@@ -90,14 +101,11 @@
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="(!card_form.dirty || !card_form.valid)">Save</button>
             </ion-col>
-            <ion-col no-padding width-50 *ngIf="!newRec">
-              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
             </ion-col>
-            <ion-col no-padding width-50 *ngIf="newRec">
-              <button ion-button block class="form-action-button" type="button" (click)="cancel()">Cancel</button>
-            </ion-col>
-         </ion-row>
-         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br> You can add Vaccines by saying "Vaccine" at the main menu.</p>
+          </ion-row>
+          <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br><br> You can add Vaccines by saying "Vaccine" at the main menu.</p>
         </section>
       </form>
     </div>

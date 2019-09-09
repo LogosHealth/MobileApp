@@ -24,7 +24,20 @@ export class ListVaccineSchedule {
   title:string;
   firstname:string;
   lastname:string;
+  active: string;
 }
 export class ListVaccinesModel {
   items: Array<ListVaccines>;
+}
+export class ListVaccineST {
+  vaccine_templateid: number;
+  interval: string;
+  latest: string;
+  agerangelow:number;
+  agerangehigh:number;
+  agerangeunit:string;
+  notes:string;
+}
+export class ListVaccineSTModel {
+  items: Array<ListVaccineST>;
 }

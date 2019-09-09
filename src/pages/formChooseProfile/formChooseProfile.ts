@@ -20,6 +20,8 @@ export class FormChooseProfile {
   saving: boolean = false;
   showTips: boolean = true;
   changeUser: boolean = false;
+  selectUser: boolean = false;
+  selectedUser;
   userUpdated: boolean = false;
   userAction:string;
   categories_checkbox_open: boolean;
@@ -32,6 +34,8 @@ export class FormChooseProfile {
     if (this.userAction == 'changeUser') {
       console.log('User Action is changeUser: ');
       this.changeUser = true;
+    } else if (this.userAction == 'selectUser') {
+      this.selectUser = true;
     } else {
       console.log('User Action is set User: ', this.userAction);
     }
@@ -39,6 +43,11 @@ export class FormChooseProfile {
     this.card_form = new FormGroup({
         profileid: new FormControl(null, Validators.required),
     });
+  }
+
+  sendUser() {
+    this.selectedUser = this.card_form.get('profileid').value;
+    this.dismiss();
   }
 
   saveRecord(){
@@ -133,7 +142,7 @@ export class FormChooseProfile {
   }
 
   dismiss() {
-    let data = { 'userUpdated': this.userUpdated };
+    let data = { 'userUpdated': this.userUpdated, 'profileid':this.selectedUser };
     this.viewCtrl.dismiss(data);
   }
 

@@ -9,6 +9,9 @@ import { FormVisitPage } from '../../pages/formVisit/formVisit';
 import { CallNumber } from '@ionic-native/call-number';
 import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
 import { FormChooseNotify } from '../../pages/formChooseNotify/formChooseNotify';
+import { ListContactPage } from '../../pages/listContacts/listContacts';
+import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
+
 
 var moment = require('moment-timezone');
 
@@ -227,9 +230,44 @@ export class ListVisitPage {
       );
   }
 
-  addNew() {
-    this.nav.push(FormVisitPage);
+  newVisit() {
+    var self = this;
+    var createNewParams;
+
+    var cat = {title: 'Select Heathcare Provider'};
+    var profileid = null;
+
+    let profileModal = this.modalCtrl.create(FormChooseProfile, { action: 'selectUser' });
+    profileModal.onDidDismiss(data => {
+      console.log('Data from getDefaultUser: ', data);
+      if (data !== undefined && data !== null && data.profileid !== undefined && data.profileid > 0) {
+        createNewParams = {
+          'profileid':data.profileid
+        }
+        profileid = data.profileid;
+
+        let profileModal2 = self.modalCtrl.create(ListContactPage, { category: cat, aboutProfile: profileid });
+        profileModal2.onDidDismiss(data => {
+          if (data !==undefined && data !== null) {
+            console.log('newContact - response: ', data);
+            createNewParams.contactid = data.recordid;
+            createNewParams.title = data.title;
+            createNewParams.firstname = data.firstname;
+            createNewParams.lastname = data.lastname;
+            self.nav.push(FormVisitPage, {createNewParams: createNewParams});
+          } else {
+            console.log('listVist.newVisit: User cancelled chooseContact');
+          }
+        });
+        profileModal2.present();
+
+      } else {
+        console.log('listVist.newVisit: User cancelled chooseUser');
+      }
+    });
+    profileModal.present();
   }
+
 
   formatDateTime(dateString, recordid) {
     //alert('FormatDateTime called');

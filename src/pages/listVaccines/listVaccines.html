@@ -26,8 +26,8 @@
               <p class="item-description">Dose: {{sched.interval}}</p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow !==sched.agerangehigh">Schedule: {{sched.agerangelow}} to {{sched.agerangehigh}} {{sched.agerangeunit}} </p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
-              <p class="item-description">Date: {{sched.datereceived}}</p>
-              <p class="item-description" *ngIf="sched.contactid !== null">Physician: Dr. {{sched.lastname}}</p>
+              <p class="item-description" *ngIf="sched.datereceived !== undefined && sched.datereceived !== null">Date: {{sched.datereceived}}</p>
+              <p class="item-description" *ngIf="sched.contactid !== undefined && sched.contactid !== null">Physician: Dr. {{sched.lastname}}</p>
               <br>
             </div>
           </ion-col>
@@ -39,8 +39,6 @@
           <ion-row no-padding class="content-row one-line">
             <ion-col no-padding width-90 class="item-content">
               <h3 class="{{item.confirmed=='Y' ? 'item-title' : 'title-notconfirmed'}}">{{item.name}}</h3>
-              <p class="item-description">Date: {{formatDateTime(item.datereceived)}}</p>
-              <p class="item-description">Physician: Dr. {{item.lastname}}</p>
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">
               <ion-icon name="arrow-forward"></ion-icon>

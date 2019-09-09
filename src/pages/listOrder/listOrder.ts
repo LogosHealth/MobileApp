@@ -11,7 +11,7 @@ import { FormOrderPage } from '../../pages/formOrder/formOrder';
 
 var moment = require('moment-timezone');
 
-class MyErrorHandler implements ErrorHandler {
+export class MyErrorHandler implements ErrorHandler {
   handleError(err: any): void {
     console.log('From MyErrorHandler: ', err);
     // do something with the error
