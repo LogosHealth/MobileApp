@@ -43,6 +43,7 @@ export class ListingPage {
   hasSubscriptions: boolean = true;
   notifyCount: number = 0;
   subscriptionCount: number = 1;
+  doDefault: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -141,78 +142,118 @@ export class ListingPage {
             self.curUser = results;
             console.log('Initial curUser', self.curUser);
             self.RestService.currentProfile = self.RestService.userId;
-            self.lineChart = new Chart(self.lineCanvas.nativeElement, {
-              type: 'line',
-              data: {
-                  labels: ["Jun", "Jul", "Aug", "Sep"],
-                  datasets: [
-                      {
-                          label: "Cal Burned/Week (Target 2500/week)",
+
+            if (self.doDefault) {
+              self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+                type: 'line',
+                data: {
+                    labels: ["Jun", "Jul", "Aug", "Sep"],
+                    datasets: [
+                        {
+                            label: "Cal Burned/Week (Target 2500/week)",
+                            fill: false,
+                            lineTension: 0.1,
+                            backgroundColor: "rgba(0,0,0,1)",
+                            borderColor: "rgba(0,0,0,1)",
+                            borderCapStyle: 'butt',
+                            borderDash: [],
+                            borderDashOffset: 0.0,
+                            borderJoinStyle: 'miter',
+                            pointBorderColor: "rgba(0,0,0,1)",
+                            pointBackgroundColor: "#fff",
+                            pointBorderWidth: 1,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: "rgba(0,0,0,1)",
+                            pointHoverBorderColor: "rgba(220,220,220,1)",
+                            pointHoverBorderWidth: 2,
+                            pointRadius: 1,
+                            pointHitRadius: 10,
+                            data: [.95, 1.05, .70, 1.20],
+                            spanGaps: false,
+                        }, {
+                          label: "Cal Intake/Week (Target 21000/week)",
                           fill: false,
                           lineTension: 0.1,
-                          backgroundColor: "rgba(0,0,0,1)",
-                          borderColor: "rgba(0,0,0,1)",
+                          backgroundColor: "rgba(115, 18, 18, 1)",
+                          borderColor: "rgba(115, 18, 18, 1)",
                           borderCapStyle: 'butt',
                           borderDash: [],
                           borderDashOffset: 0.0,
                           borderJoinStyle: 'miter',
-                          pointBorderColor: "rgba(0,0,0,1)",
+                          pointBorderColor: "rgba(115, 18, 18, 1)",
                           pointBackgroundColor: "#fff",
                           pointBorderWidth: 1,
                           pointHoverRadius: 5,
-                          pointHoverBackgroundColor: "rgba(0,0,0,1)",
+                          pointHoverBackgroundColor: "rgba(115, 18, 18, 1)",
                           pointHoverBorderColor: "rgba(220,220,220,1)",
                           pointHoverBorderWidth: 2,
                           pointRadius: 1,
                           pointHitRadius: 10,
-                          data: [.95, 1.05, .70, 1.20],
+                          data: [.99, 1.05, 1.10, .87],
                           spanGaps: false,
                       }, {
-                        label: "Cal Intake/Week (Target 21000/week)",
+                        label: "Weight (Target 225)",
                         fill: false,
                         lineTension: 0.1,
-                        backgroundColor: "rgba(115, 18, 18, 1)",
-                        borderColor: "rgba(115, 18, 18, 1)",
+                        backgroundColor: "rgba(199, 100, 100, 1)",
+                        borderColor: "rgba(199, 100, 100, 1)",
                         borderCapStyle: 'butt',
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: 'miter',
-                        pointBorderColor: "rgba(115, 18, 18, 1)",
+                        pointBorderColor: "rgba(199, 100, 100, 1)",
                         pointBackgroundColor: "#fff",
                         pointBorderWidth: 1,
                         pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "rgba(115, 18, 18, 1)",
-                        pointHoverBorderColor: "rgba(220,220,220,1)",
+                        pointHoverBackgroundColor: "rgba(199, 100, 100, 1)",
+                        pointHoverBorderColor: "rgba(220,220,100,1)",
                         pointHoverBorderWidth: 2,
                         pointRadius: 1,
                         pointHitRadius: 10,
-                        data: [.99, 1.05, 1.10, .87],
+                        data: [1.01, 1.00, .99, .96],
                         spanGaps: false,
-                    }, {
-                      label: "Weight (Target 225)",
-                      fill: false,
-                      lineTension: 0.1,
-                      backgroundColor: "rgba(199, 56, 224, 1)",
-                      borderColor: "rgba(199, 56, 224, 1)",
-                      borderCapStyle: 'butt',
-                      borderDash: [],
-                      borderDashOffset: 0.0,
-                      borderJoinStyle: 'miter',
-                      pointBorderColor: "rgba(199, 56, 224, 1)",
-                      pointBackgroundColor: "#fff",
-                      pointBorderWidth: 1,
-                      pointHoverRadius: 5,
-                      pointHoverBackgroundColor: "rgba(199, 56, 224, 1)",
-                      pointHoverBorderColor: "rgba(220,220,220,1)",
-                      pointHoverBorderWidth: 2,
-                      pointRadius: 1,
-                      pointHitRadius: 10,
-                      data: [1.01, 1.00, .99, .96],
-                      spanGaps: false,
+                    },
+                    ]
+                  }
+              });
+            } else {
+              self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+                type: 'bar',
+                data: {
+                    labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    datasets: [
+                        {
+                          label: "Hours per Day",
+                          backgroundColor: ["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)",
+                          "rgba(138, 199, 166, 0.2)","rgba(54, 162, 235, 0.2)","rgba(153, 102, 255, 0.2)","rgba(59, 3, 25, 0.2)"],
+                          borderColor: ["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(138, 199, 166)",
+                          "rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(59, 3, 25)"],
+                          borderWidth: 1,
+                          data: [6, 6.5, 5, 5, 5.5, 4, 7, 8],
+                        }
+                    ]
                   },
-                  ]
-                }
-            });
+                  options: {
+                    legend: { display: false },
+                    title: {
+                      display: true,
+                      text: 'Hours of Sleep/Day'
+                    },
+                    responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                  }
+              });
+
+
+
+
+            }
 
             //Initial setting of checked field
             for (var i = 0; i < self.RestService.Profiles.length; i++) {

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="healthcare.logos.visual" version="0.0.44" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="healthcare.logos.visual" version="0.0.45" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Logos Health Mobile App</name>
     <description>The visual/mobile portion of the Logos Health "Personal Healthcare Companion" platform.  Deployed in Android and iOS.</description>
     <author email="healthlogos@gmail.com" href="http://logos.healthcare">Logos Health</author>
@@ -98,7 +98,6 @@
     <plugin name="cordova-plugin-file-transfer" spec="1.7.1" />
     <plugin name="cordova-plugin-advanced-http" spec="2.0.1" />
     <plugin name="cordova-plugin-ionic-webview" spec="^1.1.16" />
-    <engine name="browser" spec="5.0.4" />
     <plugin name="cordova-plugin-ionic" spec="4.1.7">
         <variable name="APP_ID" value="0f127b9d" />
         <variable name="CHANNEL_NAME" value="Master" />
@@ -107,4 +106,5 @@
         <variable name="UPDATE_API" value="https://api.ionicjs.com" />
         <variable name="MAX_STORE" value="2" />
     </plugin>
+    <engine name="browser" spec="5.0.4" />
 </widget>

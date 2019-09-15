@@ -275,7 +275,7 @@ export class RestService {
     var fragment = url.substring(startVal, endVal);
     if (fragment.substring(4, 7) == '%7C') {
       fragment = fragment.substring(0, 4) + '|' + fragment.substring(7);
-      alert('Access Token updated: ' + fragment);
+      //alert('Access Token updated: ' + fragment);
     }
     console.log('URL from getAceessToken: ' + url);
     console.log('Fragment from getAceessToken: ' + fragment);
