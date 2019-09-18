@@ -411,7 +411,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.48');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.49');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
