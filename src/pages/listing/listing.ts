@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavController, LoadingController, Platform, ModalController, Events, PopoverController } from 'ionic-angular';
+import { NavController, LoadingController, Platform, ModalController, Events, PopoverController, Content } from 'ionic-angular';
 import { FeedPage } from '../feed/feed';
 import 'rxjs/Rx';
 import { ListingModel } from './listing.model';
@@ -32,6 +32,7 @@ var moment = require('moment-timezone');
 })
 export class ListingPage {
   @ViewChild('lineCanvas') lineCanvas;
+  @ViewChild(Content) content: Content;
   listing: ListingModel = new ListingModel();
   loading: any;
   formName: string = "today";
@@ -591,9 +592,11 @@ export class ListingPage {
     if (this.showGraph) {
       this.showGraph = false;
       this.className = 'invisible';
+      this.content.resize();
     } else {
       this.showGraph = true;
       this.className = '';
+      this.content.resize();
     }
   }
 
