@@ -589,14 +589,16 @@ export class ListingPage {
 
 
   flipGraph() {
+
     if (this.showGraph) {
       this.showGraph = false;
       this.className = 'invisible';
-      alert('Chart is now hidden');
+      //console.log('Document: ', document);
+      document.getElementById('chart').click();
     } else {
       this.showGraph = true;
       this.className = '';
-      alert('Enjoy your chart!');
+      document.getElementById('chart').click();
     }
   }
 
