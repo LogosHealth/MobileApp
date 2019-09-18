@@ -592,11 +592,11 @@ export class ListingPage {
     if (this.showGraph) {
       this.showGraph = false;
       this.className = 'invisible';
-      this.lineChart.update();
+      alert('Chart is now hidden');
     } else {
       this.showGraph = true;
       this.className = '';
-      this.lineChart.update();
+      alert('Enjoy your chart!');
     }
   }
 
