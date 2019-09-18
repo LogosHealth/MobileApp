@@ -20,7 +20,6 @@ import { PhotoLibrary } from '@ionic-native/photo-library';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { HttpClient} from '@angular/common/http';
 import { File } from '@ionic-native/file';
-import { MenuVisitItem } from '../../pages/menuVisitItem/menuVisitItem';
 import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
@@ -48,6 +47,7 @@ export class ListingPage {
   curChart: string = "Sleep";
   showGraph: boolean = true;
   list2: ListGoalsModel = new ListGoalsModel();
+  className: string = '';
 
   constructor(
     public nav: NavController,
@@ -590,8 +590,10 @@ export class ListingPage {
   flipGraph() {
     if (this.showGraph) {
       this.showGraph = false;
+      this.className = 'invisible';
     } else {
       this.showGraph = true;
+      this.className = '';
     }
   }
 
