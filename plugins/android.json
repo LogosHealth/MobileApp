@@ -58,6 +58,9 @@
       "UPDATE_METHOD": "auto",
       "MAX_STORE": "2",
       "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "mx.ferreyra.callnumber": {
+      "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },
   "dependent_plugins": {

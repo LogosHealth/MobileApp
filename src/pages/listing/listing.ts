@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavController, LoadingController, Platform, ModalController, Events } from 'ionic-angular';
+import { NavController, LoadingController, Platform, ModalController, Events, PopoverController } from 'ionic-angular';
 import { FeedPage } from '../feed/feed';
 import 'rxjs/Rx';
 import { ListingModel } from './listing.model';
@@ -13,8 +13,6 @@ import { ListMeasurePage } from '../listMeasure/listMeasure';
 import { ListNutritionPage } from '../listNutrition/listNutrition';
 import { ListVisitPage } from '../listVisit/listVisit';
 import { ListMedicationPage } from '../listMedication/listMedication';
-
-import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 import { ListAlertPage } from '../listAlert/listAlert';
 import { LocalNotifications } from '@ionic-native/local-notifications';
 import { Chart } from 'chart.js';
@@ -22,6 +20,10 @@ import { PhotoLibrary } from '@ionic-native/photo-library';
 import { Camera, CameraOptions } from '@ionic-native/camera';
 import { HttpClient} from '@angular/common/http';
 import { File } from '@ionic-native/file';
+import { MenuVisitItem } from '../../pages/menuVisitItem/menuVisitItem';
+import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
+import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
+import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 
 var moment = require('moment-timezone');
 
@@ -35,7 +37,6 @@ export class ListingPage {
   loading: any;
   formName: string = "today";
   curUser: any;
-  userCount: number = 0;
   lineChart: any;
   myphoto:any;
   blnShowFeed: boolean = false;
@@ -44,10 +45,14 @@ export class ListingPage {
   notifyCount: number = 0;
   subscriptionCount: number = 1;
   doDefault: boolean = false;
+  curChart: string = "Sleep";
+  showGraph: boolean = true;
+  list2: ListGoalsModel = new ListGoalsModel();
 
   constructor(
     public nav: NavController,
     public listingService: ListingService,
+    public list2Service: ListGoalsService,
     public loadingCtrl: LoadingController,
     public RestService:RestService,
     private platform: Platform,
@@ -57,6 +62,7 @@ export class ListingPage {
     private camera: Camera,
     private http: HttpClient,
     private file: File,
+    public popoverCtrl:PopoverController,
     public modalCtrl: ModalController
   ) {
     var self = this;
@@ -111,6 +117,14 @@ export class ListingPage {
       self.hasNotifications = false;
     }
 
+    this.RestService.curUserObj(function (error, results) {
+      if (!error) {
+        self.curUser = results;
+        console.log('Refreshed curUser', self.curUser);
+        self.RestService.currentProfile = self.RestService.userId;
+      }
+    });
+
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
@@ -129,7 +143,6 @@ export class ListingPage {
 
   ionViewDidLoad() {
     //this.presentLoadingDefault();
-    this.userCount = this.RestService.Profiles.length;
     this.listingService
       .getData()
       .then(data => {
@@ -221,6 +234,7 @@ export class ListingPage {
                 type: 'bar',
                 data: {
                     labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    toollabels: ["Sep 8", "Sep 9", "Sep 10", "Sep 11", "Sep 12", "Sep 13", "Sep 14"],
                     datasets: [
                         {
                           label: "Hours per Day",
@@ -246,13 +260,22 @@ export class ListingPage {
                                 beginAtZero: true
                             }
                         }]
+                    },
+                    tooltips: {
+                      callbacks: {
+                          title: function(tooltipItem, data) {
+                              var label = data.toollabels[tooltipItem[0].index];
+                              return label;
+                          },
+                          label: function(tooltipItem, data) {
+                            //console.log('tipItem label: ', tooltipItem);
+                            var label = 'Hours of sleep: ' + tooltipItem.yLabel;
+                            return label;
+                          }
+                      }
                     }
                   }
               });
-
-
-
-
             }
 
             //Initial setting of checked field
@@ -264,9 +287,11 @@ export class ListingPage {
             }
             self.nav.push(ListAlertPage, { autoload: true });
             //console.log('Results from listing curUser usertitle: ', self.curUser);
+            self.loadData();
           } else {
             console.log('Error from get curUserObj: ', error);
             self.nav.push(ListAlertPage, { autoload: true });
+            self.loadData();
           }
         });
       });
@@ -280,18 +305,40 @@ export class ListingPage {
     }
   }
 
-  changeUser() {
-    let profileModal = this.modalCtrl.create(FormChooseProfile, { action: 'changeUser' });
-    profileModal.onDidDismiss(data => {
-      console.log('Data from getDefaultUser: ', data);
-      if (data !== undefined) {
-        //console.log('Data from getDefaultUser: ', data);
-        if (data.userUpdated) {
-          this.ionViewDidLoad();
+  loadData() {
+    this.presentLoadingDefault();
+
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile
         }
-      }
+    };
+    var body = '';
+    var self = this;
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.list2.items = result.data;
+      console.log('listing.loadData items: ', self.list2.items);
+      self.loading.dismiss();
+    }).catch( function(result){
+      console.log(result);
+      self.loading.dismiss();
     });
-    profileModal.present();
   }
 
   changePicture(index) {
@@ -442,14 +489,6 @@ export class ListingPage {
     alert('Press event fired');
   }
 
-  getButtonLabel() {
-    if (this.curUser !== undefined) {
-      return "Not " + this.curUser.title + "?";
-    } else {
-      return "";
-    }
-  }
-
   goToFeed(category: any) {
     console.log("Clicked goToFeed", category);
     if (category.title == 'Order a Meal') {
@@ -492,6 +531,67 @@ export class ListingPage {
       } else {
         this.RestService.Profiles[i].checked = "";
       }
+    }
+  }
+
+  changeChart(myEvent) {
+    //var self = this;
+    var range = [{recordid: 0, namevalue: 'Fitness'}, {recordid: 1, namevalue: 'Nutrition'},
+    {recordid: 2, namevalue: 'Sleep'}, {recordid: 3, namevalue: 'Weight'}];
+
+    var objItem;
+    var title = 'Progress';
+    var recCount = 4;
+    var namevalue;
+
+    if (this.list2 !== undefined && this.list2.items !== undefined && this.list2.items !== null && this.list2.items.length > 0) {
+      for (var i = 0; i < this.list2.items.length; i++) {
+        namevalue = this.list2.items[i].goalname;
+        namevalue = namevalue.charAt(0).toUpperCase() + namevalue.slice(1);
+        objItem = {recordid: recCount, namevalue: namevalue};
+        range.unshift(objItem);
+        recCount = recCount + 1;
+      }
+    }
+
+    let popover = this.popoverCtrl.create(MenuDynamic, {itemList: range, title: title});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        console.log('listing.changeChart: ', data);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+  changeRange(myEvent) {
+    //var self = this;
+    var dataObj;
+    var range = [{recordid: 0, namevalue: 'Last Week'}, {recordid: 1, namevalue: 'Last Month'},
+    {recordid: 2, namevalue: 'Last Quarter'}, {recordid: 3, namevalue: 'Last Year'}];
+    var title = 'Range';
+
+    let popover = this.popoverCtrl.create(MenuDynamic, {itemList: range, title: title});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data;
+        console.log('listing.changeChart: ', dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+
+  flipGraph() {
+    if (this.showGraph) {
+      this.showGraph = false;
+    } else {
+      this.showGraph = true;
     }
   }
 

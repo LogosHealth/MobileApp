@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, LoadingController, Platform } from 'ionic-angular';
+import { NavController, LoadingController, Platform, ModalController } from 'ionic-angular';
 import 'rxjs/Rx';
 import { FormFoodPref } from '../formFoodPref/formFoodPref';
 import { List2Page } from '../list-2/list-2';
@@ -10,6 +10,7 @@ import { SettingsService } from './settingstab.service';
 import { ListSchedulePage } from '../listSchedule/listSchedule';
 import { FormLifestyle } from '../formLifestyle/formLifestyle';
 import { RestService } from '../../app/services/restService.service';
+import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 
 var moment = require('moment-timezone');
 
@@ -21,6 +22,8 @@ export class SettingsTabPage {
   listing: SettingsModel = new SettingsModel();
   loading: any;
   formName: string = "settings";
+  userCount: number = 0;
+  curUser: any;
 
   constructor(
     public nav: NavController,
@@ -28,6 +31,7 @@ export class SettingsTabPage {
     public loadingCtrl: LoadingController,
     private platform: Platform,
     public RestService:RestService,
+    public modalCtrl: ModalController,
   ) {
     this.platform.ready().then((rdy) => {
       console.log('SettingTab Platform ready');
@@ -36,6 +40,7 @@ export class SettingsTabPage {
 
   ionViewDidLoad() {
     this.presentLoadingDefault();
+    this.userCount = this.RestService.Profiles.length;
     this.listingService
       .getData()
       .then(data => {
@@ -159,6 +164,42 @@ export class SettingsTabPage {
         console.log(body);
         self.loading.dismiss();
     });
+  }
+
+  changeUser() {
+    var self = this;
+    let profileModal = this.modalCtrl.create(FormChooseProfile, { action: 'changeUser' });
+    profileModal.onDidDismiss(data => {
+      console.log('Data from getDefaultUser: ', data);
+      if (data !== undefined) {
+        //console.log('Data from getDefaultUser: ', data);
+        if (data.userUpdated) {
+          this.RestService.curUserObj(function (error, results) {
+            if (!error) {
+              self.curUser = results;
+              console.log('settingTab curUser, ', self.curUser);
+              self.RestService.currentProfile = self.RestService.userId;
+
+              for (var i = 0; i < self.RestService.Profiles.length; i++) {
+                if (self.RestService.Profiles[i].profileid == self.RestService.currentProfile) {
+                  self.RestService.Profiles[i].checked = "checked";
+                  console.log('Initial User Set - i = ' + i);
+                }
+              }
+            }
+          });
+        }
+      }
+    });
+    profileModal.present();
+  }
+
+  getButtonLabel() {
+    if (this.curUser !== undefined) {
+      return "Not " + this.curUser.title + "?";
+    } else {
+      return "";
+    }
   }
 
   presentLoadingDefault() {

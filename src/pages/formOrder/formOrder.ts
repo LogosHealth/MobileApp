@@ -62,7 +62,7 @@ export class FormOrderPage {
     var phoneNum = this.curRec.phone;
     this.callNumber.callNumber(phoneNum, true)
       .then(() => alert('Launched dialer!'))
-      .catch(() => alert('This capability is only availabe through call-capable devices.  Please manually call: ' + phoneNum + ' to order.'));
+      .catch((err => alert('This capability is only availabe through call-capable devices.  Please manually call: ' + phoneNum + ' to order.  Error ' + err)));
   }
 
   public today() {

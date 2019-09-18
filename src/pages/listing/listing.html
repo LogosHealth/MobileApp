@@ -18,23 +18,23 @@
       <button *ngIf="!hasNotifications" id="notification-button" ion-button icon-only (click)="showNotifications()">
         <ion-icon name="notifications"></ion-icon>
       </button>
-      <button *ngIf="userCount > 1" ion-button icon-only (click)="changeUser()"  [title]="getButtonLabel()">
-        <ion-icon name="person"></ion-icon>
+      <button ion-button icon-only (click)="flipGraph()">
+        <ion-icon name="stats"></ion-icon>
       </button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content class="listing-content">
-  <ion-card-content>
+  <ion-card-content class="{{showGraph ? '': 'invisible'}}">
     <canvas #lineCanvas></canvas>
   </ion-card-content>
-  <ion-row class="container">
+  <ion-row class="container" *ngIf="showGraph">
     <ion-col width-70 no-padding>
-        <a class="btn-two blue mini">Sleep</a>
+        <a class="btn-two blue mini" (click)="changeChart($event)">{{curChart}}</a>
     </ion-col>
     <ion-col width-27 no-padding>
-        <a class="btn-two blue mini">Last Week</a>
+        <a class="btn-two blue mini" (click)="changeRange($event)">Last Week</a>
     </ion-col>
   </ion-row>
 <h4 class="categories-title">Family</h4>

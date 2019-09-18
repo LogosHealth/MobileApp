@@ -6,7 +6,7 @@ import { FormGroup, FormControl, FormArray,  FormBuilder } from '@angular/forms'
   selector: 'menuMeasure-page',
   template: `
     <ion-list [formGroup]="card_form">
-      <ion-list-header  class="list-title">Select</ion-list-header>
+      <ion-list-header  class="list-title">{{title}}</ion-list-header>
       <div formArrayName="itemArray" *ngFor="let item of itemArray.controls; let j = index;">
         <div [formGroupName]="j">
           <button ion-item class="list-item" (click)="close(item.value.recordid)">{{item.value.namevalue}} </button>
@@ -19,10 +19,17 @@ export class MenuDynamic {
   itemList: any;
   itemArray: FormArray;
   card_form: FormGroup;
+  title: any = 'Select';
+  titleCheck: any;
 
   constructor(public viewCtrl: ViewController, public navParams: NavParams, public formBuilder: FormBuilder) {
     this.itemList = navParams.get('itemList');
+    this.titleCheck = navParams.get('title');
+    if (this.titleCheck !== undefined && this.titleCheck !== null) {
+      this.title = this.titleCheck;
+    }
     console.log('Item list from menuDynamic: ', this.itemList);
+
 
     this.card_form = new FormGroup({
       itemArray: this.formBuilder.array([]),

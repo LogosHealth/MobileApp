@@ -95,4 +95,7 @@
     <preference name="SplashScreenDelay" value="3000" />
     <preference name="loadUrlTimeoutValue" value="100000" />
     <preference name="CordovaWebViewEngine" value="CDVUIWebViewEngine" />
+    <feature name="CallNumber">
+        <param name="android-package" value="mx.ferreyra.callnumber.CFCallNumber" />
+    </feature>
 </widget>

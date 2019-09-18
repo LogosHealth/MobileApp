@@ -50,6 +50,9 @@ listing-page {
 	.listing-content
 	{
 
+    .invisible {
+      display:none;
+    }
 
 		.label-name
 		{
@@ -180,7 +183,8 @@ listing-page {
 .color .yellow {background: #f0d264;}
 .color .green  {background: #82c8a0;}
 .color .cyan   {background: #7fccde;}
-.color .blue   {background: #6698cb;}
+.color .blue   {background: #8AC7A6;}
+//.color .blue   {background: #6698cb;}
 .color .purple {background: #cb99c5;}
 
 
@@ -188,7 +192,7 @@ listing-page {
     background-color: white;
     border-radius: 4px;
     //text-align: center;
-    margin-left: 40px;
+    margin-left: 25px;
     margin-bottom: 20px;
 }
 .btn, .btn-two {
@@ -239,7 +243,7 @@ button[class*="btn"] {border: 0;}
 }
 
 /* Colors for .btn and .btn-two */
-.btn.blue, .btn-two.blue     {background-color: #7fb1bf;}
+.btn.blue, .btn-two.blue     {background-color: #8AC7A6;}
 .btn.green, .btn-two.green   {background-color: #9abf7f;}
 .btn.red, .btn-two.red       {background-color: #fa5a5a;}
 .btn.purple, .btn-two.purple {background-color: #cb99c5;}

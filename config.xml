@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="healthcare.logos.visual" version="0.0.45" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="healthcare.logos.visual" version="0.0.46" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Logos Health Mobile App</name>
     <description>The visual/mobile portion of the Logos Health "Personal Healthcare Companion" platform.  Deployed in Android and iOS.</description>
     <author email="healthlogos@gmail.com" href="http://logos.healthcare">Logos Health</author>
@@ -88,8 +88,6 @@
         <variable name="ANDROID_SUPPORT_VERSION" value="27.+" />
     </plugin>
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
-    <plugin name="cordova-plugin-local-notification" spec="0.9.0-beta.2" />
-    <plugin name="mx.ferreyra.callnumber" spec="~0.0.2" />
     <plugin name="cordova-plugin-photo-library" spec="2.1.1">
         <variable name="PHOTO_LIBRARY_USAGE_DESCRIPTION" value="To choose photos" />
     </plugin>
@@ -107,4 +105,6 @@
         <variable name="MAX_STORE" value="2" />
     </plugin>
     <engine name="browser" spec="5.0.4" />
+    <plugin name="mx.ferreyra.callnumber" spec="~0.0.2" />
+    <plugin name="cordova-plugin-local-notification" spec="0.9.0-beta.2" />
 </widget>
