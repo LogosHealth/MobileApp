@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>{{title}}</ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content class="forms-examples-content">
+    <div class="card-example-view">
+      <form class="sample-form card-form">
+        <section class="form-section">
+          <h2 class = "section-title">{{ message }}</h2>
+          <br>
+          <ion-row no-padding class="center-row">
+              <ion-col>
+                  <button ion-button block class="form-action-button-center" type="button" (click)="closeForm()">OK</button>
+              </ion-col>
+           </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

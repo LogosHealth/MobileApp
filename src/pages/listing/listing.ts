@@ -23,6 +23,8 @@ import { File } from '@ionic-native/file';
 import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
+import { FormMessage } from '../../pages/formMessage/formMessage';
+
 
 var moment = require('moment-timezone');
 
@@ -589,16 +591,31 @@ export class ListingPage {
 
 
   flipGraph() {
+    var message;
+    var title;
 
     if (this.showGraph) {
       this.showGraph = false;
       this.className = 'invisible';
-      //console.log('Document: ', document);
-      document.getElementById('chart').click();
+
+      title = 'Change Chart Visibility';
+      message = 'The Chart is now hidden';
+      let profileModal = this.modalCtrl.create(FormMessage, { title: title, message: message });
+      profileModal.onDidDismiss(data => {
+        console.log('Returned from flipGraph');
+      });
+      profileModal.present();
     } else {
       this.showGraph = true;
       this.className = '';
-      document.getElementById('chart').click();
+
+      title = 'Change Chart Visibility';
+      message = 'Enjoy tracking your progress!';
+      let profileModal = this.modalCtrl.create(FormMessage, { title: title, message: message });
+      profileModal.onDidDismiss(data => {
+        console.log('Returned from flipGraph');
+      });
+      profileModal.present();
     }
   }
 

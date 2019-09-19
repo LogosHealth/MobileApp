@@ -241,12 +241,28 @@ formExercise-page {
 				margin: 10px;
 			}
 
-			.form-action-button
+      .center-row
+      {
+        align-items: center;
+        text-align:center;
+      }
+
+      .form-action-button
 			{
 				margin-top: 20px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
+      }
+
+      .form-action-button-center
+			{
+				margin-top: 20px;
+        display: block;
+        max-width: 100px;
+        margin: auto;
+				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
 			}
+
 		}
 
 		.post-example-view
@@ -423,7 +439,18 @@ formExercise-page {
 					}
 				}
 
-				.multi-input-row
+
+				.center-row
+				{
+          align-items: center;
+          text-align:center;
+
+					ion-col {
+            align-items: center;
+          }
+        }
+
+        .multi-input-row
 				{
 					@include align-items(flex-end);
 
