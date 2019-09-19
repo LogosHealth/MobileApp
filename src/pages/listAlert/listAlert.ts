@@ -105,6 +105,7 @@ export class ListAlertPage {
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       var results = result.data;
+      self.RestService.results = results;
       self.list2Service
       .getData()
       .then(data => {
@@ -120,11 +121,11 @@ export class ListAlertPage {
             if (self.list2.items.length > 0) {
               for (var i = 0; i < self.list2.items.length; i++) {
                 if (self.list2.items[i].triggered == 'N') {
-                  console.log('Trigger Date/Time ' + self.list2.items[i].triggerdate);
+                  //console.log('Trigger Date/Time ' + self.list2.items[i].triggerdate);
                   dtOffset = moment.tz(self.list2.items[i].triggerdate, moment.tz.guess());
-                  console.log('Offset Date/Time ' + dtOffset.format());
+                  //console.log('Offset Date/Time ' + dtOffset.format());
                   offSet = dtOffset.diff(dtNow);
-                  console.log('Offset milliseconds ' + offSet);
+                  //console.log('Offset milliseconds ' + offSet);
                   self.RestService.notifyCount = self.RestService.notifyCount + 1;
                   if (offSet > 0) {
                     self.localNotifications.schedule({
@@ -145,6 +146,7 @@ export class ListAlertPage {
                   }
                 }
               }
+              console.log('Local Notifications: ', self.localNotifications);
             }
         } else {
           console.log('Results from listAlert.loadData', self.RestService.results);

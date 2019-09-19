@@ -107,9 +107,11 @@ export class ListingPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
-    //Resetting Medicine tile title
-    this.listing.categories[6].title = 'Medicine';
-    this.listing.categories[1].title = 'Achieve';
+    if (this.listing.categories !== undefined && this.listing.categories.length > 0) {
+      //Resetting Medicine tile title
+      this.listing.categories[6].title = 'Medicine';
+      this.listing.categories[1].title = 'Achieve';
+    }
 
     //Baseline notification counts based on RestService.notifyCount which is set in the listAlert page loaded at app start
     if (self.RestService.notifyCount > 0) {
