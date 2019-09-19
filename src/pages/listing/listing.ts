@@ -120,14 +120,6 @@ export class ListingPage {
       self.hasNotifications = false;
     }
 
-    this.RestService.curUserObj(function (error, results) {
-      if (!error) {
-        self.curUser = results;
-        console.log('Refreshed curUser', self.curUser);
-        self.RestService.currentProfile = self.RestService.userId;
-      }
-    });
-
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();
