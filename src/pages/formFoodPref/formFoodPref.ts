@@ -923,6 +923,7 @@ export class FormFoodPref {
   }
 
   saveDataDo() {
+    var self = this;
     var indexFPM
     var blnDietChanged = false;
     var blnFoodChanged = false;
@@ -970,11 +971,13 @@ export class FormFoodPref {
           } else {
             saveCategory.answervalue = 'N';
           }
-          console.log("saveCategory: ", saveCategory);
+          //console.log("saveCategory: ", saveCategory);
           saveCategoryModel.items.push(saveCategory);
           console.log("saveCategoryModel: ", saveCategoryModel.items);
         } else {
-          self.loading.dismiss();
+          if (self.loading !== undefined && self.loading !== null) {
+            self.loading.dismiss();
+          }
           alert("Check Data");
         }
       }
@@ -1003,7 +1006,6 @@ export class FormFoodPref {
         }
       };
       var body = JSON.stringify(this.savePref);
-      var self = this;
       console.log('Calling Post', this.savePref);
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
         .then(function(result){
@@ -1064,23 +1066,25 @@ export class FormFoodPref {
   }
 
   presentLoadingDefault() {
-    this.loading = this.loadingCtrl.create({
-    spinner: 'hide',
-    content: `
-      <div class="custom-spinner-container">
-        <div class="custom-spinner-box">
-           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
-           Loading...
-        </div>
-      </div>`,
-    });
+    if (this.loading == undefined || this.loading == null) {
+      this.loading = this.loadingCtrl.create({
+        spinner: 'hide',
+        content: `
+          <div class="custom-spinner-container">
+            <div class="custom-spinner-box">
+               <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+               Loading...
+            </div>
+          </div>`,
+        });
 
-    this.loading.present();
+        this.loading.present();
 
-    setTimeout(() => {
-      this.loading.dismiss();
-      //console.log('Timeout for spinner called ' + this.formName);
-    }, 15000);
+        setTimeout(() => {
+          this.loading.dismiss();
+          //console.log('Timeout for spinner called ' + this.formName);
+        }, 15000);
+    }
   }
 
 }

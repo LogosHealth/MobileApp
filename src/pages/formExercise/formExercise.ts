@@ -408,9 +408,11 @@ export class FormExercisePage {
       };
       var pathTemplate = '';
       var method = 'POST';
+      var localNowDate = moment().format('YYYY-MM-DD');
       var additionalParams = {
           queryParams: {
-              profileid: this.RestService.currentProfile
+              profileid: this.RestService.currentProfile,
+              localNowDate: localNowDate
           }
       };
       var body = JSON.stringify(this.exerciseSave);

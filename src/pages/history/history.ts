@@ -56,7 +56,9 @@ export class HistoryPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
-    this.listing.categories[6].title = 'Treatments';
+    if (this.listing !== undefined && this.listing.categories !== undefined) {
+      this.listing.categories[6].title = 'Treatments';
+    }
     //if expired - refresh token
     if (dtNow > dtExpiration) {
       this.presentLoadingDefault();

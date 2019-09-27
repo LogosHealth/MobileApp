@@ -46,11 +46,22 @@ export class ListingPage {
   hasSubscriptions: boolean = true;
   notifyCount: number = 0;
   subscriptionCount: number = 1;
-  doDefault: boolean = false;
-  curChart: string = "Sleep";
+  loadDataDone: boolean = false;
+  curChart: string = "Metric";
+  curUnit: string = "Unit";
   showGraph: boolean = true;
   list2: ListGoalsModel = new ListGoalsModel();
   className: string = '';
+  chartData: any;
+  chartLabel: any;
+  offsetStr: any;
+  timezone: any;
+  loadChartObj: any;
+  saveChartData: boolean = false;
+  backgroundColor: any = ["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)",
+                          "rgba(138, 199, 166, 0.2)","rgba(54, 162, 235, 0.2)","rgba(153, 102, 255, 0.2)","rgba(59, 3, 25, 0.2)"];
+  borderColor: any = ["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(138, 199, 166)",
+                          "rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(59, 3, 25)"];
 
   constructor(
     public nav: NavController,
@@ -147,85 +158,29 @@ export class ListingPage {
         this.listing.banner_title = data.banner_title;
         this.listing.categories = data.categories;
         var self = this;
+
+        //*************ADD CODE TO GET TIMEZONE FROM DEVICE ************************************** */
         this.RestService.curUserObj(function (error, results) {
           if (!error) {
             self.curUser = results;
             console.log('Initial curUser', self.curUser);
             self.RestService.currentProfile = self.RestService.userId;
-
-            if (self.doDefault) {
-              self.lineChart = new Chart(self.lineCanvas.nativeElement, {
-                type: 'line',
-                data: {
-                    labels: ["Jun", "Jul", "Aug", "Sep"],
-                    datasets: [
-                        {
-                            label: "Cal Burned/Week (Target 2500/week)",
-                            fill: false,
-                            lineTension: 0.1,
-                            backgroundColor: "rgba(0,0,0,1)",
-                            borderColor: "rgba(0,0,0,1)",
-                            borderCapStyle: 'butt',
-                            borderDash: [],
-                            borderDashOffset: 0.0,
-                            borderJoinStyle: 'miter',
-                            pointBorderColor: "rgba(0,0,0,1)",
-                            pointBackgroundColor: "#fff",
-                            pointBorderWidth: 1,
-                            pointHoverRadius: 5,
-                            pointHoverBackgroundColor: "rgba(0,0,0,1)",
-                            pointHoverBorderColor: "rgba(220,220,220,1)",
-                            pointHoverBorderWidth: 2,
-                            pointRadius: 1,
-                            pointHitRadius: 10,
-                            data: [.95, 1.05, .70, 1.20],
-                            spanGaps: false,
-                        }, {
-                          label: "Cal Intake/Week (Target 21000/week)",
-                          fill: false,
-                          lineTension: 0.1,
-                          backgroundColor: "rgba(115, 18, 18, 1)",
-                          borderColor: "rgba(115, 18, 18, 1)",
-                          borderCapStyle: 'butt',
-                          borderDash: [],
-                          borderDashOffset: 0.0,
-                          borderJoinStyle: 'miter',
-                          pointBorderColor: "rgba(115, 18, 18, 1)",
-                          pointBackgroundColor: "#fff",
-                          pointBorderWidth: 1,
-                          pointHoverRadius: 5,
-                          pointHoverBackgroundColor: "rgba(115, 18, 18, 1)",
-                          pointHoverBorderColor: "rgba(220,220,220,1)",
-                          pointHoverBorderWidth: 2,
-                          pointRadius: 1,
-                          pointHitRadius: 10,
-                          data: [.99, 1.05, 1.10, .87],
-                          spanGaps: false,
-                      }, {
-                        label: "Weight (Target 225)",
-                        fill: false,
-                        lineTension: 0.1,
-                        backgroundColor: "rgba(199, 100, 100, 1)",
-                        borderColor: "rgba(199, 100, 100, 1)",
-                        borderCapStyle: 'butt',
-                        borderDash: [],
-                        borderDashOffset: 0.0,
-                        borderJoinStyle: 'miter',
-                        pointBorderColor: "rgba(199, 100, 100, 1)",
-                        pointBackgroundColor: "#fff",
-                        pointBorderWidth: 1,
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "rgba(199, 100, 100, 1)",
-                        pointHoverBorderColor: "rgba(220,220,100,1)",
-                        pointHoverBorderWidth: 2,
-                        pointRadius: 1,
-                        pointHitRadius: 10,
-                        data: [1.01, 1.00, .99, .96],
-                        spanGaps: false,
-                    },
-                    ]
-                  }
-              });
+            if (self.curUser.timezone !== undefined && self.curUser.timezone !== null) {
+              self.offsetStr = moment().tz(self.curUser.timezone).format('Z');
+              self.timezone = self.curUser.timezone;
+              console.log ('listing.ionLoad offsetStr: ', self.offsetStr);
+            } else {
+              self.timezone = "UTC";
+              self.offsetStr = "+00:00";
+            }
+            console.log ('listing.ionLoad background color: ', self.backgroundColor);
+            if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
+              self.loadChartObj = {
+                chart: self.curUser.chart,
+                chartunit: self.curUser.chartunit,
+                offset: self.offsetStr
+              }
+              self.loadData();
             } else {
               self.lineChart = new Chart(self.lineCanvas.nativeElement, {
                 type: 'bar',
@@ -273,6 +228,7 @@ export class ListingPage {
                     }
                   }
               });
+              self.loadData();
             }
 
             //Initial setting of checked field
@@ -284,7 +240,6 @@ export class ListingPage {
             }
             self.nav.push(ListAlertPage, { autoload: true });
             //console.log('Results from listing curUser usertitle: ', self.curUser);
-            self.loadData();
           } else {
             console.log('Error from get curUserObj: ', error);
             self.nav.push(ListAlertPage, { autoload: true });
@@ -331,10 +286,22 @@ export class ListingPage {
     .then(function(result){
       self.list2.items = result.data;
       console.log('listing.loadData items: ', self.list2.items);
-      self.loading.dismiss();
+      if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
+        self.loadDataDone = true;
+        self.loadChartData();
+      } else {
+        self.loadDataDone = true;
+        self.loading.dismiss();
+      }
     }).catch( function(result){
-      console.log(result);
-      self.loading.dismiss();
+      if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
+        self.loadDataDone = true;
+        self.loadChartData();
+      } else {
+        console.log(result);
+        self.loadDataDone = true;
+        self.loading.dismiss();
+      }
     });
   }
 
@@ -532,20 +499,21 @@ export class ListingPage {
   }
 
   changeChart(myEvent) {
-    //var self = this;
-    var range = [{recordid: 0, namevalue: 'Fitness'}, {recordid: 1, namevalue: 'Nutrition'},
-    {recordid: 2, namevalue: 'Sleep'}, {recordid: 3, namevalue: 'Weight'}];
+    var self = this;
+    var range = [{recordid: 0, namevalue: 'nutrition'}, {recordid: 1, namevalue: 'sleep'}, {recordid: 2, namevalue: 'weight'}];
 
     var objItem;
     var title = 'Progress';
     var recCount = 4;
     var namevalue;
+    var chartMenuVal;
 
     if (this.list2 !== undefined && this.list2.items !== undefined && this.list2.items !== null && this.list2.items.length > 0) {
+      console.log('listing.changeChart list2', this.list2);
       for (var i = 0; i < this.list2.items.length; i++) {
         namevalue = this.list2.items[i].goalname;
-        namevalue = namevalue.charAt(0).toUpperCase() + namevalue.slice(1);
-        objItem = {recordid: recCount, namevalue: namevalue};
+        //namevalue = namevalue.charAt(0).toUpperCase() + namevalue.slice(1);
+        objItem = {recordid: recCount, namevalue: namevalue, goalid: this.list2.items[i].recordid};
         range.unshift(objItem);
         recCount = recCount + 1;
       }
@@ -556,6 +524,33 @@ export class ListingPage {
       console.log('From popover onDismiss: ', data);
       if (data !==undefined && data !== null) {
         console.log('listing.changeChart: ', data);
+        console.log('listing.changeChart range: ', range);
+        for (var i = 0; i < range.length; i++) {
+          if (range[i].recordid == data.choosePage) {
+            chartMenuVal = range[i].namevalue;
+          }
+        }
+          console.log('listing.changeChart chartMenuVal: ', chartMenuVal);
+        if (data !== undefined && data !== null) {
+          if (data.choosePage > 2) {
+            for (var j = 0; j < self.list2.items.length; j++) {
+              if (self.list2.items[j].goalname == chartMenuVal) {
+                self.loadChartObj.chart = 'goal:' + self.list2.items[j].recordid;
+                self.saveChartData = true;
+                self.chartLabel = chartMenuVal;
+              }
+            }
+            console.log('Chart from Goal: ', self.loadChartObj.chart);
+            self.loadChartData();
+          } else {
+            if (chartMenuVal !== self.loadChartObj.chart) {
+              self.loadChartObj.chart = chartMenuVal;
+              self.saveChartData = true;
+              self.loadChartData();
+            }
+
+          }
+        }
       }
     });
     popover.present({
@@ -564,18 +559,32 @@ export class ListingPage {
   }
 
   changeRange(myEvent) {
-    //var self = this;
-    var dataObj;
-    var range = [{recordid: 0, namevalue: 'Last Week'}, {recordid: 1, namevalue: 'Last Month'},
-    {recordid: 2, namevalue: 'Last Quarter'}, {recordid: 3, namevalue: 'Last Year'}];
+    var self = this;
+    var range = [{recordid: 0, namevalue: 'Last Week', unit: 'week'}, {recordid: 1, namevalue: 'Last Month', unit: 'month'},
+    {recordid: 2, namevalue: 'Last Quarter', unit: 'quarter'}, {recordid: 3, namevalue: 'Last Year', unit: 'year'}];
     var title = 'Range';
+    var chartMenuVal;
+
 
     let popover = this.popoverCtrl.create(MenuDynamic, {itemList: range, title: title});
     popover.onDidDismiss(data => {
       console.log('From popover onDismiss: ', data);
       if (data !==undefined && data !== null) {
-        dataObj = data;
-        console.log('listing.changeChart: ', dataObj);
+        console.log('listing.changeChart: ', data);
+        console.log('listing.changeChart range: ', range);
+        for (var i = 0; i < range.length; i++) {
+          if (range[i].recordid == data.choosePage) {
+            chartMenuVal = range[i].unit;
+          }
+        }
+          console.log('listing.changeChart chartMenuVal: ', chartMenuVal);
+        if (data !== undefined && data !== null) {
+          if (chartMenuVal !== self.loadChartObj.chartunit) {
+            self.loadChartObj.chartunit = chartMenuVal;
+            self.saveChartData = true;
+            self.loadChartData();
+          }
+        }
       }
     });
     popover.present({
@@ -583,6 +592,166 @@ export class ListingPage {
     });
   }
 
+  loadChartData() {
+    this.presentLoadingDefault();
+
+    var restURL: string;
+    restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/StatsByProfile";
+    var config = {
+      invokeUrl: restURL,
+      accessKey: this.RestService.AuthData.accessKeyId,
+      secretKey: this.RestService.AuthData.secretKey,
+      sessionToken: this.RestService.AuthData.sessionToken,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: this.RestService.currentProfile,
+            chart: this.loadChartObj.chart,
+            chartunit: this.loadChartObj.chartunit,
+            offset: this.timezone,
+            saveChartData: this.saveChartData,
+        }
+    };
+    var body = '';
+    var self = this;
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      self.chartData = result.data;
+      console.log('listing.loadCharData: ', self.chartData);
+      self.saveChartData = false;
+      if (self.loading !== undefined && self.loading !== null) {
+        self.loading.dismiss();
+      }
+      self.populateGraph();
+    }).catch( function(result){
+      console.log(result);
+      self.saveChartData = false;
+      if (self.loading !== undefined && self.loading !== null) {
+        self.loading.dismiss();
+      }
+    });
+  }
+
+  populateGraph() {
+    var self = this;
+    var chartType;
+    var dataLabel;
+    var chartTitle;
+    var ttLabel;
+    var chartFrags;
+    var recordid;
+    var curGoal;
+    var blnGoalMatch = false;
+
+    var bgColor = [];
+    var bColor = [];
+
+    this.curChart = this.loadChartObj.chart;
+    if (this.curChart.substring(0, 4) == 'goal') {
+      console.log('curChart as a goal before: ' + this.curChart);
+      chartFrags = this.curChart.split(':');
+      recordid = chartFrags[1];
+      for (var j = 0; j < this.list2.items.length; j++) {
+        if (this.list2.items[j].recordid == recordid) {
+          curGoal = this.list2.items[j];
+          blnGoalMatch = true;
+          this.curChart = curGoal.goalname;
+          chartType = 'bar';
+          dataLabel = curGoal.goalunitvalue + ' per Day';
+          chartTitle = 'Your goal: ' + curGoal.goalname;
+          ttLabel =  curGoal.goalunitvalue + ': ';
+        }
+      }
+      if (!blnGoalMatch) {
+        console.log('Err - Goal not found! for ' + recordid, this.list2.items);
+        this.curChart = 'Error Goal not Found!';
+        chartType = 'bar';
+        dataLabel = '';
+        chartTitle = 'Error Goal not Found!';
+        ttLabel =  '';
+      }
+      console.log('curChart label update after: ' + this.curChart);
+
+    }
+    this.curUnit = this.loadChartObj.chartunit;
+
+    if (this.loadChartObj.chart == 'sleep') {
+      chartType = 'bar';
+      dataLabel = 'Hours per Day';
+      chartTitle = 'Hours of Sleep/Day';
+      ttLabel =  'Hours of sleep: ';
+    } else if (this.loadChartObj.chart == 'weight') {
+      chartType = 'line';
+      dataLabel = 'lbs';
+      chartTitle = 'Weight (lbs)';
+      ttLabel =  'Weight (lbs): ';
+    } else if (this.loadChartObj.chart == 'nutrition') {
+      chartType = 'bar';
+      dataLabel = 'calories';
+      chartTitle = 'Calories/Day';
+      ttLabel =  'Calories: ';
+    }
+
+    for (var i = 0; i < self.chartData.x_labels.length; i++) {
+      bgColor.push(self.backgroundColor[i % 7]);
+      bColor.push(self.borderColor[i % 7]);
+    }
+    if (self.lineChart !== undefined && self.lineChart !== null) {
+      self.lineChart.destroy();
+    }
+
+    self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+      type: chartType,
+      data: {
+          labels: self.chartData.x_labels,
+          toollabels: self.chartData.x_tt_labels,
+          datasets: [
+              {
+                label: dataLabel,
+                backgroundColor: bgColor,
+                borderColor: bColor,
+                borderWidth: 1,
+                data: self.chartData.data_values,
+              }
+          ]
+        },
+        options: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: chartTitle
+          },
+          responsive: true,
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          },
+          tooltips: {
+            callbacks: {
+                title: function(tooltipItem, data) {
+                    var label = data.toollabels[tooltipItem[0].index];
+                    return label;
+                },
+                label: function(tooltipItem, data) {
+                  //console.log('tipItem label: ', tooltipItem);
+                  var label = ttLabel + tooltipItem.yLabel;
+                  return label;
+                }
+            }
+          }
+        }
+    });
+  }
 
   flipGraph() {
     var message;
@@ -614,23 +783,26 @@ export class ListingPage {
   }
 
   presentLoadingDefault() {
-    this.loading = this.loadingCtrl.create({
-    spinner: 'hide',
-    content: `
-      <div class="custom-spinner-container">
-        <div class="custom-spinner-box">
-           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
-           Loading...
-        </div>
-      </div>`,
-    });
+    //console.log('presentLoadingDefault: ', this.loading);
+    if (this.loading == undefined || this.loading == null) {
+      this.loading = this.loadingCtrl.create({
+        spinner: 'hide',
+        content: `
+          <div class="custom-spinner-container">
+            <div class="custom-spinner-box">
+               <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+               Loading...
+            </div>
+          </div>`,
+        });
 
-    this.loading.present();
+        this.loading.present();
 
-    setTimeout(() => {
-      this.loading.dismiss();
-      console.log('Timeout for spinner called ' + this.formName);
-    }, 15000);
+        setTimeout(() => {
+          this.loading.dismiss();
+          console.log('Timeout for spinner called ' + this.formName);
+        }, 15000);
+    }
   }
 
 }

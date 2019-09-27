@@ -78,11 +78,19 @@ export class ListGoalProgressPage {
     var params = {
       //email: accountInfo.getEmail()
     };
+
+    //moment() retrieves now in local time
+    var localNowDate = moment().format('YYYY-MM-DD')
+    var localNowDateTime = moment().format('YYYY-MM-DD HH:mm')
+    console.log ('listGoalProgress.loadData Now(in local time) ', moment().format('YYYY-MM-DD HH:mm'));
+    console.log ('listGoalProgress.loadData Now(in local time) ', moment().format('YYYY-MM-DD'));
     var pathTemplate = '';
     var method = 'GET';
     var additionalParams = {
         queryParams: {
             profileid: this.RestService.currentProfile,
+            localNowDate: localNowDate,
+            localNowDateTime: localNowDateTime,
             getStats: 'Y'
         }
     };
