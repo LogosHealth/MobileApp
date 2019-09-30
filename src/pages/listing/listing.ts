@@ -24,7 +24,7 @@ import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
 import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { FormMessage } from '../../pages/formMessage/formMessage';
-
+import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
 var moment = require('moment-timezone');
 
@@ -56,6 +56,8 @@ export class ListingPage {
   chartLabel: any;
   offsetStr: any;
   timezone: any;
+  listingUserId: any;
+  firstTimeLoaded: boolean = false;
   loadChartObj: any;
   saveChartData: boolean = false;
   backgroundColor: any = ["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)",
@@ -146,6 +148,8 @@ export class ListingPage {
           self.loading.dismiss();
         }
       });
+    } else if (self.listingUserId !== self.RestService.userId) {
+      self.ionViewDidLoad();
     }
   }
 
@@ -159,12 +163,19 @@ export class ListingPage {
         this.listing.categories = data.categories;
         var self = this;
 
+        let namedChartAnnotation = ChartAnnotation;
+        namedChartAnnotation["id"]="annotation";
+        Chart.pluginService.register( namedChartAnnotation);
+
         //*************ADD CODE TO GET TIMEZONE FROM DEVICE ************************************** */
         this.RestService.curUserObj(function (error, results) {
           if (!error) {
             self.curUser = results;
             console.log('Initial curUser', self.curUser);
-            self.RestService.currentProfile = self.RestService.userId;
+            self.listingUserId = self.RestService.userId;
+            if (!self.firstTimeLoaded) {
+              self.RestService.currentProfile = self.RestService.userId;
+            }
             if (self.curUser.timezone !== undefined && self.curUser.timezone !== null) {
               self.offsetStr = moment().tz(self.curUser.timezone).format('Z');
               self.timezone = self.curUser.timezone;
@@ -174,6 +185,7 @@ export class ListingPage {
               self.offsetStr = "+00:00";
             }
             console.log ('listing.ionLoad background color: ', self.backgroundColor);
+            self.firstTimeLoaded = true;
             if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
               self.loadChartObj = {
                 chart: self.curUser.chart,
@@ -182,6 +194,14 @@ export class ListingPage {
               }
               self.loadData();
             } else {
+              self.loadChartObj = {
+                chart: 'sleep',
+                chartunit: 'week',
+                offset: self.timezone
+              }
+              self.saveChartData = true;
+              self.loadData();
+              /*
               self.lineChart = new Chart(self.lineCanvas.nativeElement, {
                 type: 'bar',
                 data: {
@@ -189,13 +209,13 @@ export class ListingPage {
                     toollabels: ["Sep 8", "Sep 9", "Sep 10", "Sep 11", "Sep 12", "Sep 13", "Sep 14"],
                     datasets: [
                         {
-                          label: "Hours per Day",
+                          label: "Default Chart",
                           backgroundColor: ["rgba(255, 99, 132, 0.2)","rgba(255, 159, 64, 0.2)","rgba(255, 205, 86, 0.2)",
                           "rgba(138, 199, 166, 0.2)","rgba(54, 162, 235, 0.2)","rgba(153, 102, 255, 0.2)","rgba(59, 3, 25, 0.2)"],
                           borderColor: ["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(138, 199, 166)",
                           "rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(59, 3, 25)"],
                           borderWidth: 1,
-                          data: [6, 6.5, 5, 5, 5.5, 4, 7, 8],
+                          data: [7, 7, 7, 7, 7, 7, 7, 7],
                         }
                     ]
                   },
@@ -203,7 +223,7 @@ export class ListingPage {
                     legend: { display: false },
                     title: {
                       display: true,
-                      text: 'Hours of Sleep/Day'
+                      text: 'Default data'
                     },
                     responsive: true,
                     scales: {
@@ -228,7 +248,8 @@ export class ListingPage {
                     }
                   }
               });
-              self.loadData();
+              */
+              //self.loadData();
             }
 
             //Initial setting of checked field
@@ -543,6 +564,7 @@ export class ListingPage {
             console.log('Chart from Goal: ', self.loadChartObj.chart);
             self.loadChartData();
           } else {
+            console.log('LoadChartObj: ', self.loadChartObj);
             if (chartMenuVal !== self.loadChartObj.chart) {
               self.loadChartObj.chart = chartMenuVal;
               self.saveChartData = true;
@@ -624,7 +646,6 @@ export class ListingPage {
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       self.chartData = result.data;
-      console.log('listing.loadCharData: ', self.chartData);
       self.saveChartData = false;
       if (self.loading !== undefined && self.loading !== null) {
         self.loading.dismiss();
@@ -648,24 +669,45 @@ export class ListingPage {
     var chartFrags;
     var recordid;
     var curGoal;
+    var goalNumber;
     var blnGoalMatch = false;
-
+    var blnIsGoal = false;
     var bgColor = [];
     var bColor = [];
 
+    var daysperweek;
+    var goalPercent;
+    var beyondWeek = false;
+    var ttSplit;
+    var daysDone;
+    var daysTotal;
+    var donePercent;
+    var finalPecent;
+    var finalValue;
+    var goalAdjusted = [];
+    var goalAdjusted2 = [];
+
+    beyondWeek = false;
     this.curChart = this.loadChartObj.chart;
+    this.curUnit = this.loadChartObj.chartunit;
+    console.log('populateGraph - CharData: ', self.chartData);
     if (this.curChart.substring(0, 4) == 'goal') {
       console.log('curChart as a goal before: ' + this.curChart);
+      blnIsGoal = true;
       chartFrags = this.curChart.split(':');
       recordid = chartFrags[1];
       for (var j = 0; j < this.list2.items.length; j++) {
         if (this.list2.items[j].recordid == recordid) {
           curGoal = this.list2.items[j];
+          console.log('populateGraph - curGoal ', curGoal);
+          daysperweek = curGoal.daysperweekvalue;
           blnGoalMatch = true;
           this.curChart = curGoal.goalname;
+          goalNumber = curGoal.goalnumber;
           chartType = 'bar';
           dataLabel = curGoal.goalunitvalue + ' per Day';
-          chartTitle = 'Your goal: ' + curGoal.goalname;
+          chartTitle = curGoal.goalname.charAt(0).toUpperCase() + curGoal.goalname.slice(1) + ' (' + curGoal.goalnumber + ' ' +
+            ((curGoal.goalunitvalue=='Number') ? 'Reps' : curGoal.goalunitvalue) + ' - ' + curGoal.daysperweekvalue + ' days a week)';
           ttLabel =  curGoal.goalunitvalue + ': ';
         }
       }
@@ -676,11 +718,13 @@ export class ListingPage {
         dataLabel = '';
         chartTitle = 'Error Goal not Found!';
         ttLabel =  '';
+      } else if (self.curUnit !== undefined && self.curUnit !== undefined && self.curUnit !== 'week') {
+        console.log('Has Goal and beyond week - unit = ' + self.curUnit);
+        beyondWeek = true;
       }
       console.log('curChart label update after: ' + this.curChart);
 
     }
-    this.curUnit = this.loadChartObj.chartunit;
 
     if (this.loadChartObj.chart == 'sleep') {
       chartType = 'bar';
@@ -702,55 +746,229 @@ export class ListingPage {
     for (var i = 0; i < self.chartData.x_labels.length; i++) {
       bgColor.push(self.backgroundColor[i % 7]);
       bColor.push(self.borderColor[i % 7]);
+      if (beyondWeek) {
+        console.log('Beyond Week called!');
+        goalPercent = daysperweek/7;
+        ttSplit = self.chartData.x_tt_labels[i].split(' ');
+        daysDone = ttSplit[0];
+        daysTotal = ttSplit[2];
+        if (!isNaN(daysDone) && !isNaN(daysTotal)) {
+          donePercent = daysDone/daysTotal;
+          if (donePercent > goalPercent) {
+            finalPecent = 1;
+          } else {
+            finalPecent = donePercent/goalPercent;
+          }
+          finalValue = finalPecent * self.chartData.data_values[i];
+          goalAdjusted.push(finalValue);
+          finalValue = self.chartData.data_values[i] - finalValue;
+          goalAdjusted2.push(finalValue);
+        } else {
+          alert('Danger Will Robinson - daysDone = ' + daysDone + ', daysTotal = ' + daysTotal);
+          console.log('Error in parsing days');
+          donePercent = 0;
+        }
+      }
     }
     if (self.lineChart !== undefined && self.lineChart !== null) {
       self.lineChart.destroy();
     }
 
-    self.lineChart = new Chart(self.lineCanvas.nativeElement, {
-      type: chartType,
-      data: {
-          labels: self.chartData.x_labels,
-          toollabels: self.chartData.x_tt_labels,
-          datasets: [
-              {
-                label: dataLabel,
-                backgroundColor: bgColor,
-                borderColor: bColor,
-                borderWidth: 1,
-                data: self.chartData.data_values,
-              }
-          ]
-        },
-        options: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: chartTitle
-          },
-          responsive: true,
-          scales: {
-              yAxes: [{
-                  ticks: {
-                      beginAtZero: true
-                  }
-              }]
-          },
-          tooltips: {
-            callbacks: {
-                title: function(tooltipItem, data) {
-                    var label = data.toollabels[tooltipItem[0].index];
-                    return label;
+    if (blnIsGoal && beyondWeek) {
+      console.log('Calling goal chart!');
+      self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+        type: chartType,
+        data: {
+            labels: self.chartData.x_labels,
+            toollabels: self.chartData.x_tt_labels,
+            datasets: [
+                {
+                  label: dataLabel,
+                  backgroundColor: bColor,
+                  borderColor: bColor,
+                  borderWidth: 1,
+                  data: goalAdjusted,
+                  stack: "S1",
                 },
-                label: function(tooltipItem, data) {
-                  //console.log('tipItem label: ', tooltipItem);
-                  var label = ttLabel + tooltipItem.yLabel;
-                  return label;
+                {
+                  label: dataLabel,
+                  backgroundColor: bgColor,
+                  borderColor: bColor,
+                  borderWidth: 1,
+                  data: goalAdjusted2,
+                  stack: "S1",
+                },
+            ]
+          },
+          options: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: chartTitle
+            },
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+            },
+            tooltips: {
+              callbacks: {
+                  title: function(tooltipItem, data) {
+                    var label;
+                    var percentDone;
+                    //console.log('Should not be zero ' +data.datasets[0].data[tooltipItem[0].index]);
+                    if (data.datasets[0].data[tooltipItem[0].index] > 0) {
+                      percentDone = data.datasets[0].data[tooltipItem[0].index]/(data.datasets[0].data[tooltipItem[0].index] +
+                        data.datasets[1].data[tooltipItem[0].index]);
+                      percentDone = Math.round(percentDone * 100);
+                    } else {
+                      percentDone = 0;
+                    }
+
+                    label = data.toollabels[tooltipItem[0].index] + ' (' + percentDone + '%)';
+                    return label;
+                  },
+                  label: function(tooltipItem, data) {
+                    //console.log('tipItem label: ', tooltipItem);
+                    var label;
+                    var total;
+
+                    total = data.datasets[0].data[tooltipItem.index] + data.datasets[1].data[tooltipItem.index];
+                    label = ttLabel + Math.round(total);
+                    return label;
+                  }
+              }
+            },
+            annotation: {
+              annotations: [{
+                drawTime: 'afterDraw',
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                value: goalNumber,
+                borderColor: 'rgb(138,199,166)',
+                borderWidth: 2,
+                borderDash: [2, 2],
+                label: {
+                  enabled: false,
+                  content: goalNumber + ' ' + curGoal.goalunitvalue
                 }
+              }]
+            }
+        }
+      });
+    } else if (blnIsGoal) {
+      console.log('Calling goal chart!');
+      self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+        type: chartType,
+        data: {
+            labels: self.chartData.x_labels,
+            toollabels: self.chartData.x_tt_labels,
+            datasets: [
+                {
+                  label: dataLabel,
+                  backgroundColor: bgColor,
+                  borderColor: bColor,
+                  borderWidth: 1,
+                  data: self.chartData.data_values,
+                }
+            ]
+          },
+          options: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: chartTitle
+            },
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            tooltips: {
+              callbacks: {
+                  title: function(tooltipItem, data) {
+                      var label = data.toollabels[tooltipItem[0].index];
+                      return label;
+                  },
+                  label: function(tooltipItem, data) {
+                    //console.log('tipItem label: ', tooltipItem);
+                    var label = ttLabel + tooltipItem.yLabel;
+                    return label;
+                  }
+              }
+            },
+            annotation: {
+              annotations: [{
+                drawTime: 'afterDraw',
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                value: goalNumber,
+                borderColor: 'rgb(138,199,166)',
+                borderWidth: 2,
+                borderDash: [2, 2],
+                label: {
+                  enabled: false,
+                  content: goalNumber + ' ' + curGoal.goalunitvalue
+                }
+              }]
+            }
+        }
+      });
+    } else {
+      console.log('Calling normal chart!');
+      self.lineChart = new Chart(self.lineCanvas.nativeElement, {
+        type: chartType,
+        data: {
+            labels: self.chartData.x_labels,
+            toollabels: self.chartData.x_tt_labels,
+            datasets: [
+                {
+                  label: dataLabel,
+                  backgroundColor: bgColor,
+                  borderColor: bColor,
+                  borderWidth: 1,
+                  data: self.chartData.data_values,
+                }
+            ]
+          },
+          options: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: chartTitle
+            },
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            tooltips: {
+              callbacks: {
+                  title: function(tooltipItem, data) {
+                      var label = data.toollabels[tooltipItem[0].index];
+                      return label;
+                  },
+                  label: function(tooltipItem, data) {
+                    //console.log('tipItem label: ', tooltipItem);
+                    var label = ttLabel + tooltipItem.yLabel;
+                    return label;
+                  }
+              }
             }
           }
-        }
-    });
+      });
+    }
   }
 
   flipGraph() {
@@ -783,7 +1001,8 @@ export class ListingPage {
   }
 
   presentLoadingDefault() {
-    //console.log('presentLoadingDefault: ', this.loading);
+    var self = this;
+    console.log('presentLoadingDefault: ', this.loading);
     if (this.loading == undefined || this.loading == null) {
       this.loading = this.loadingCtrl.create({
         spinner: 'hide',
@@ -796,11 +1015,17 @@ export class ListingPage {
           </div>`,
         });
 
+        this.loading.onDidDismiss(() => {
+          console.log('Dismissed loading');
+          this.loading = null;
+        });
         this.loading.present();
 
         setTimeout(() => {
-          this.loading.dismiss();
-          console.log('Timeout for spinner called ' + this.formName);
+          if (self.loading !== undefined && self.loading !== null) {
+            self.loading.dismiss();
+            console.log('Timeout for spinner called ' + this.formName);
+          }
         }, 15000);
     }
   }
