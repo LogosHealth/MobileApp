@@ -6,6 +6,9 @@ export class ListNutrition {
   mealtimeformat: string;
   amount:string;
   calories:string;
+  carbs:string;
+  fat:string;
+  protein:string;
   dateofmeasure: string;
   active: string;
   profileid: number;

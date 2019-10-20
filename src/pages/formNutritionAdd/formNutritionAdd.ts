@@ -90,6 +90,9 @@ export class FormNutritionAdd {
         mealtime: new FormControl(this.formatDateTime3(this.curMeal.dateofmeasure)),
         amount: new FormControl(this.curMeal.amount),
         calories: new FormControl(this.curMeal.calories),
+        carbs: new FormControl(this.curMeal.carbs),
+        fat: new FormControl(this.curMeal.fat),
+        protein: new FormControl(this.curMeal.protein),
         dateofmeasure: new FormControl(this.formatDateTime2(this.curMeal.dateofmeasure)),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
@@ -104,6 +107,9 @@ export class FormNutritionAdd {
         mealtime: new FormControl(),
         amount: new FormControl(),
         calories: new FormControl(),
+        carbs: new FormControl(),
+        fat: new FormControl(),
+        protein: new FormControl(),
         dateofmeasure: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
@@ -280,6 +286,15 @@ export class FormNutritionAdd {
       if (this.card_form.get('calories').dirty){
         this.mealSave.calories = this.card_form.get('calories').value;
       }
+      if (this.card_form.get('carbs').dirty){
+        this.mealSave.carbs = this.card_form.get('carbs').value;
+      }
+      if (this.card_form.get('fat').dirty){
+        this.mealSave.fat = this.card_form.get('fat').value;
+      }
+      if (this.card_form.get('protein').dirty){
+        this.mealSave.protein = this.card_form.get('protein').value;
+      }
     } else {
       this.mealSave.profileid = this.RestService.currentProfile;
       this.mealSave.userid = this.RestService.userId;
@@ -318,6 +333,15 @@ export class FormNutritionAdd {
       }
       if (this.card_form.get('calories').dirty){
         this.mealSave.calories = this.card_form.get('calories').value;
+      }
+      if (this.card_form.get('carbs').dirty){
+        this.mealSave.carbs = this.card_form.get('carbs').value;
+      }
+      if (this.card_form.get('fat').dirty){
+        this.mealSave.fat = this.card_form.get('fat').value;
+      }
+      if (this.card_form.get('protein').dirty){
+        this.mealSave.protein = this.card_form.get('protein').value;
       }
 
       if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {

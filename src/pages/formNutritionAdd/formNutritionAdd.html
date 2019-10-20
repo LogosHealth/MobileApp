@@ -54,6 +54,29 @@
           </ion-col>
         </ion-row>
         <ion-row>
+          <ion-col no-padding width-31>
+              <ion-item>
+                <ion-label floating>Carbs(g)</ion-label>
+                <ion-input type="number" formControlName="carbs"></ion-input>
+              </ion-item>
+          </ion-col>
+          <ion-col no-padding width-31>
+            <ion-item>
+              <ion-label floating>Fat(g)</ion-label>
+              <ion-input type="number" formControlName="fat"></ion-input>
+            </ion-item>
+          </ion-col>
+          <ion-col no-padding width-31>
+            <ion-item>
+              <ion-label floating>Protein(g)</ion-label>
+              <ion-input type="number" formControlName="protein"></ion-input>
+            </ion-item>
+          </ion-col>
+      </ion-row>
+
+
+
+        <ion-row>
           <ion-col no-padding width-50 *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>

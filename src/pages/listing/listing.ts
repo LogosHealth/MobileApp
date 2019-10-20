@@ -647,9 +647,6 @@ export class ListingPage {
     .then(function(result){
       self.chartData = result.data;
       self.saveChartData = false;
-      if (self.loading !== undefined && self.loading !== null) {
-        self.loading.dismiss();
-      }
       self.populateGraph();
     }).catch( function(result){
       console.log(result);
@@ -968,6 +965,9 @@ export class ListingPage {
             }
           }
       });
+    }
+    if (self.loading !== undefined && self.loading !== null) {
+      self.loading.dismiss();
     }
   }
 
