@@ -7,6 +7,6 @@
     <string name="ionic_debug">true</string>
     <string name="ionic_channel_name">Master</string>
     <string name="ionic_update_api">https://api.ionicjs.com</string>
-    <string name="ionic_update_method">auto</string>
+    <string name="ionic_update_method">background</string>
     <string name="ionic_max_versions">2</string>
 </resources>

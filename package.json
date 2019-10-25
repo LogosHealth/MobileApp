@@ -2,7 +2,7 @@
   "name": "healthcare.logos.visual",
   "author": "Logos Health",
   "homepage": "https://logos.healthcare",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "displayName": "Logos Health Mobile App",
   "scripts": {
     "clean": "ionic-app-scripts clean",
@@ -51,7 +51,7 @@
     "call-number": "1.0.1",
     "chart.js": "^2.7.3",
     "chartjs-plugin-annotation": "^0.5.7",
-    "cordova-android": "^7.1.4",
+    "cordova-android": "8.1.0",
     "cordova-android-support-gradle-release": "^1.4.4",
     "cordova-browser": "5.0.4",
     "cordova-ios": "^4.5.5",
@@ -63,7 +63,7 @@
     "cordova-plugin-file": "5.0.0",
     "cordova-plugin-file-transfer": "1.7.1",
     "cordova-plugin-inappbrowser": "^2.0.2",
-    "cordova-plugin-ionic": "4.1.7",
+    "cordova-plugin-ionic": "^4.1.7",
     "cordova-plugin-ionic-keyboard": "^2.0.5",
     "cordova-plugin-ionic-webview": "^1.1.16",
     "cordova-plugin-local-notification": "0.9.0-beta.2",
@@ -151,9 +151,9 @@
       "cordova-plugin-ionic": {
         "APP_ID": "0f127b9d",
         "CHANNEL_NAME": "Master",
-        "UPDATE_METHOD": "auto",
         "WARN_DEBUG": "true",
         "UPDATE_API": "https://api.ionicjs.com",
+        "UPDATE_METHOD": "background",
         "MAX_STORE": "2"
       }
     }

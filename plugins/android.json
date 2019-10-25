@@ -55,11 +55,8 @@
       "CHANNEL_NAME": "Master",
       "WARN_DEBUG": "true",
       "UPDATE_API": "https://api.ionicjs.com",
-      "UPDATE_METHOD": "auto",
+      "UPDATE_METHOD": "background",
       "MAX_STORE": "2",
-      "PACKAGE_NAME": "healthcare.logos.visual"
-    },
-    "mx.ferreyra.callnumber": {
       "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },

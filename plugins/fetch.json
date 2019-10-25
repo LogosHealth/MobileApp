@@ -47,14 +47,6 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-ionic": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-ionic@4.1.7"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
   "mx.ferreyra.callnumber": {
     "source": {
       "type": "registry",
@@ -82,7 +74,7 @@
   "cordova-android-support-gradle-release": {
     "source": {
       "type": "registry",
-      "id": "cordova-android-support-gradle-release"
+      "id": "cordova-android-support-gradle-release@latest"
     },
     "is_top_level": true,
     "variables": {}
@@ -152,5 +144,16 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "cordova-plugin-ionic": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-ionic@v4.1.7"
+    },
+    "is_top_level": true,
+    "variables": {
+      "APP_ID": "0f127b9d",
+      "CHANNEL_NAME": "Master"
+    }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "_from": "cordova-plugin-ionic@4.1.7",
+  "_from": "cordova-plugin-ionic@v4.1.7",
   "_id": "cordova-plugin-ionic@4.1.7",
   "_inBundle": false,
   "_integrity": "sha512-ckFP1ImmSgIRKXCi1Gog4ZzD5rbAyPdUhjLlmzi54aXSMRn7KSJi5e7FUJ7LbblRiv7sibynmX+54cbTjbEFdQ==",
@@ -8,12 +8,12 @@
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "cordova-plugin-ionic@4.1.7",
+    "raw": "cordova-plugin-ionic@v4.1.7",
     "name": "cordova-plugin-ionic",
     "escapedName": "cordova-plugin-ionic",
-    "rawSpec": "4.1.7",
+    "rawSpec": "v4.1.7",
     "saveSpec": null,
-    "fetchSpec": "4.1.7"
+    "fetchSpec": "v4.1.7"
   },
   "_requiredBy": [
     "#USER",
@@ -21,7 +21,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/cordova-plugin-ionic/-/cordova-plugin-ionic-4.1.7.tgz",
   "_shasum": "62f486689ef7255b996279a5eafddb0ad7f7f109",
-  "_spec": "cordova-plugin-ionic@4.1.7",
+  "_spec": "cordova-plugin-ionic@v4.1.7",
   "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\master\\MobileApp",
   "author": {
     "name": "Ionic"

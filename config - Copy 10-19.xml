@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="healthcare.logos.visual" version="0.0.56" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="healthcare.logos.visual" version="0.0.55" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Logos Health Mobile App</name>
     <description>The visual/mobile portion of the Logos Health "Personal Healthcare Companion" platform.  Deployed in Android and iOS.</description>
     <author email="healthlogos@gmail.com" href="http://logos.healthcare">Logos Health</author>
@@ -84,6 +84,9 @@
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
     <plugin name="cordova-plugin-ionic-keyboard" spec="^2.0.5" />
     <plugin name="cordova-plugin-inappbrowser" spec="^2.0.2" />
+    <plugin name="cordova-android-support-gradle-release" spec="^1.4.4">
+        <variable name="ANDROID_SUPPORT_VERSION" value="27.+" />
+    </plugin>
     <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
     <plugin name="cordova-plugin-photo-library" spec="2.1.1">
         <variable name="PHOTO_LIBRARY_USAGE_DESCRIPTION" value="To choose photos" />
@@ -93,18 +96,15 @@
     <plugin name="cordova-plugin-file-transfer" spec="1.7.1" />
     <plugin name="cordova-plugin-advanced-http" spec="2.0.1" />
     <plugin name="cordova-plugin-ionic-webview" spec="^1.1.16" />
-    <plugin name="mx.ferreyra.callnumber" spec="~0.0.2" />
-    <plugin name="cordova-plugin-local-notification" spec="0.9.0-beta.2" />
-    <plugin name="cordova-android-support-gradle-release" spec="^1.4.4">
-        <variable name="ANDROID_SUPPORT_VERSION" value="28.+" />
-    </plugin>
-    <plugin name="cordova-plugin-ionic" spec="^4.1.7">
+    <plugin name="cordova-plugin-ionic" spec="4.1.7">
         <variable name="APP_ID" value="0f127b9d" />
         <variable name="CHANNEL_NAME" value="Master" />
+        <variable name="UPDATE_METHOD" value="auto" />
         <variable name="WARN_DEBUG" value="true" />
         <variable name="UPDATE_API" value="https://api.ionicjs.com" />
-        <variable name="UPDATE_METHOD" value="background" />
         <variable name="MAX_STORE" value="2" />
     </plugin>
+    <plugin name="mx.ferreyra.callnumber" spec="~0.0.2" />
+    <plugin name="cordova-plugin-local-notification" spec="0.9.0-beta.2" />
     <engine name="browser" spec="5.0.4" />
 </widget>

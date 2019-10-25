@@ -1022,10 +1022,7 @@ export class ListingPage {
         this.loading.present();
 
         setTimeout(() => {
-          if (self.loading !== undefined && self.loading !== null) {
-            self.loading.dismiss();
-            console.log('Timeout for spinner called ' + this.formName);
-          }
+          self.loading.dismiss();
         }, 15000);
     }
   }
