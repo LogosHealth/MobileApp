@@ -18,6 +18,14 @@ formSchedule-page {
       //background: rgb(255, 204, 235);
     }
 
+        /* Selects any disabled <input> for iOS*/
+        .input-disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+
     /* Selects any disabled <input> */
     .select-disabled {
       opacity: 0.65;
