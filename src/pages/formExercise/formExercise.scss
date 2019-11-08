@@ -93,6 +93,27 @@ formExercise-page {
 
         padding: 0px 0px;
 
+        /* Selects any disabled <input> */
+        input:disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+        /* Selects any disabled <input> */
+        .select-disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+        /* Selects any disabled <input> */
+        .datetime-disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
         .columnAlign
         {
           margin-top: 30px;
@@ -213,7 +234,7 @@ formExercise-page {
                 //line-height: 1.2;
                 //letter-spacing: 1.1px;
                 text-align: left;
-                color: $black-d;;
+                color: $black-d;
                 font-weight: 100;
                 margin: 0px;
             }
@@ -531,6 +552,7 @@ formExercise-page {
 					}
 				}
 
+        //active ion-datetime
 				ion-datetime {
 					padding-left: 0px;
 					padding-top: 8px;

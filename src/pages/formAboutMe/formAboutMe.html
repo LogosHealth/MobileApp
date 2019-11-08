@@ -85,7 +85,7 @@
                 </ion-col>
                 <ion-col no-padding width-25>
                   <ion-item>
-                    <ion-label floating>Zip Code**</ion-label>
+                    <ion-label floating>Zip**</ion-label>
                     <ion-input type="text"  maxlength="5" pattern="[0-9]{5}" formControlName="zipcode"></ion-input>
                   </ion-item>
                 </ion-col>
@@ -226,13 +226,13 @@
               <ion-row>
                 <ion-col no-padding width-25>
                   <ion-item>
-                    <ion-label floating>Height Feet</ion-label>
+                    <ion-label floating>Feet</ion-label>
                     <ion-input type="number" formControlName="heightfeet"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-25>
                   <ion-item>
-                    <ion-label floating>Height Inches</ion-label>
+                    <ion-label floating>Inches</ion-label>
                     <ion-input type="number" formControlName="heightinches"></ion-input>
                   </ion-item>
                 </ion-col>
@@ -243,7 +243,6 @@
                   </ion-item>
                 </ion-col>
               </ion-row>
-
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
@@ -273,27 +272,52 @@
                 </ion-col>
               </ion-row>
               <div  *ngIf="!isPet" >
-              <div formArrayName="races" *ngFor="let race of card_form.get('races').controls; let i = index;">
-                <ion-row [formGroupName]="i">
-                  <ion-col no-padding width-50>
-                    <ion-item text-wrap>
-                      <ion-label floating>Race</ion-label>
-                      <ion-select formControlName="racecode">
-                        <ion-option *ngFor="let r of raceList" [value]="r.recordid">{{r.dictionarycode}}</ion-option>
-                      </ion-select>
-                    </ion-item>
-                  </ion-col>
-                  <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
-                    <button ion-button block class="form-action-button create-card-button"  type="button"
-                     (click)="addRace()">Add Race</button>
-                  </ion-col>
-                  <ion-col class="columnAlign" no-padding width-25 *ngIf="i>0">
-                    <button ion-button block class="form-action-button create-card-button"  type="button"
-                     (click)="removeRace(i)">Remove Race</button>
-                  </ion-col>
-                </ion-row>
+                <div formArrayName="races" *ngFor="let race of card_form.get('races').controls; let i = index;">
+                  <ion-row [formGroupName]="i">
+                    <ion-col no-padding width-50>
+                      <ion-item text-wrap>
+                        <ion-label floating>Race</ion-label>
+                        <ion-select formControlName="racecode">
+                          <ion-option *ngFor="let r of raceList" [value]="r.recordid">{{r.dictionarycode}}</ion-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
+                      <button ion-button block class="form-action-button create-card-button"  type="button"
+                      (click)="addRace()">Add Race</button>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-25 *ngIf="i>0">
+                      <button ion-button block class="form-action-button create-card-button"  type="button"
+                      (click)="removeRace(i)">Remove Race</button>
+                    </ion-col>
+                  </ion-row>
+                </div>
               </div>
-            </div>
+
+              <br><h2 class = "section-titleleft" *ngIf="!isPet">Vision</h2>
+              <ion-row *ngIf="!isPet">
+                <ion-col>
+                  <ion-item>
+                    <ion-label floating>Visual Acuity</ion-label>
+                    <ion-input type="text" formControlName="vision"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row *ngIf="!isPet">
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>OS (left eye)</ion-label>
+                    <ion-input type="text" formControlName="visionos"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>OD (right eye)</ion-label>
+                    <ion-input type="text" formControlName="visionod"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+
             <p class="section-footnote">*Required to Save Profile</p>
             <p class="section-footnote">**Required to Confirm Profile and for Order a Meal capability</p>
           </section>

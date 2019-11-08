@@ -42,10 +42,38 @@ formVisit1-page {
       @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
       background-color: color($colors, background2, base);
 
+        /* Selects any disabled <input> */
+        input:disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+        /* Selects any disabled <input> */
+        .select-disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+        /* Selects any disabled <input> */
+        .datetime-disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
       .form-section
 			{
 				padding: 0px 14px;
-				.item:first-child
+
+        input:disabled {
+          opacity: 0.65;
+          //color: $theme-color-1;
+          //background: rgb(255, 204, 235);
+        }
+
+        .item:first-child
 				{
 					margin-top: 20px;
         }
@@ -72,6 +100,14 @@ formVisit1-page {
         margin-top: 5px;
         margin-right: 3px;
         vertical-align: bottom;
+      }
+
+      .columnAlignTypes
+      {
+        margin-top: -5px;
+        margin-right: 3px;
+        vertical-align: bottom;
+        //background: rgb(255, 204, 235);
       }
 
       .columnAligntoLabel

@@ -90,6 +90,9 @@ export class FormAboutMe {
       weight: new FormControl(),
       heightfeet: new FormControl(),
       heightinches: new FormControl(null, [Validators.min(0), Validators.max(11)]),
+      vision: new FormControl(),
+      visionos: new FormControl(),
+      visionod: new FormControl(),
       confirmed: new FormControl(),
       active: new FormControl(),
     });

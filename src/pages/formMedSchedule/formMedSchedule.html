@@ -36,7 +36,7 @@
             <ion-col no-padding width-37>
               <ion-item>
                 <ion-label floating>Units</ion-label>
-                <ion-select formControlName="inventoryunit">
+                <ion-select formControlName="inventoryunit" [disabled]="isDisabled">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
@@ -56,7 +56,7 @@
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Dose Units</ion-label>
-                <ion-select formControlName="doseunits">
+                <ion-select formControlName="doseunits"  [disabled]="isDisabled">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
@@ -81,7 +81,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row *ngIf="mode == 'cabinet'">
             <ion-col no-padding width-90>
               <ion-item>
                 <ion-label floating>Projected End Date</ion-label>

@@ -12,6 +12,26 @@ formSchedule-page {
 	{
 		background-color: color($colors, background, base);
 
+    input:disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    /* Selects any disabled <input> */
+    .select-disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    /* Selects any disabled <input> */
+    .datetime-disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
 		.checkbox-md .checkbox-checked {
 			border-color: $theme-color-1;
 			background-color: $theme-color-1;
@@ -138,6 +158,7 @@ formSchedule-page {
 		{
       @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
       background-color: color($colors, background2, base);
+
 
       .form-section
 			{

@@ -28,6 +28,7 @@ export class ListVisitPage {
   showAll: boolean = true;
   visitType: string = 'Upcoming Visit';
   noData: boolean = false;
+  filterProfile: any = null;
 
   constructor(
     public nav: NavController,
@@ -96,20 +97,39 @@ export class ListVisitPage {
 
     if (this.showAll) {
       if (this.visitType == 'Past Visit') {
-        additionalParams = {
-          queryParams: {
+        if (this.filterProfile !== undefined && this.filterProfile !== null) {
+          additionalParams = {
+            queryParams: {
+                profileid: this.filterProfile,
+                offset: tzoffset,
+                historical: 'Y'
+            }
+          };
+        } else {
+          additionalParams = {
+            queryParams: {
               accountid: this.RestService.Profiles[0].accountid,
               offset: tzoffset,
               historical: 'Y'
-          }
-        };
+            }
+          };
+        }
       } else {
-        additionalParams = {
-          queryParams: {
+        if (this.filterProfile !== undefined && this.filterProfile !== null) {
+          additionalParams = {
+            queryParams: {
+                profileid: this.filterProfile,
+                offset: tzoffset
+            }
+          };
+        } else {
+          additionalParams = {
+            queryParams: {
               accountid: this.RestService.Profiles[0].accountid,
               offset: tzoffset
-          }
-        };
+            }
+          };
+        }
       }
     } else {
       if (this.visitType == 'Past Visit') {
@@ -132,6 +152,7 @@ export class ListVisitPage {
 
     var body = '';
     var self = this;
+    self.filterProfile = null;
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
@@ -287,6 +308,17 @@ export class ListVisitPage {
         return dtConvert.format('dddd, MMMM DD hh:mm a');
     }
 
+  }
+
+  itemFilter(index) {
+    //console.log('itemFilter: ', this.RestService.results[index])
+    this.filterProfile = this.RestService.results[index].profileid;
+    this.loadData();
+    //alert(this.RestService.results[index].profileid);
+  }
+
+  getDirection(index) {
+    alert("Coming soon.  This button will link to your favorite GPS app and provide directions to this location.");
   }
 
   /*

@@ -1015,6 +1015,7 @@ export class FormFoodPref {
           Object.keys(self.card_form.controls).forEach(control => {
             self.card_form.controls[control].markAsPristine();
           });
+          self.nav.pop();
         }).catch( function(result){
           console.log('Result: ',result);
           self.loading.dismiss();

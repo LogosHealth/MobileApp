@@ -56,6 +56,7 @@ export class FormMedSchedule {
   medCompleted: boolean = false;
   isNotify: boolean = false;
   isActiveMode: boolean = false;
+  isDisabled: boolean = true;
   doseOffset: number = 0;
   endDateCalc: any;
 
@@ -159,9 +160,9 @@ export class FormMedSchedule {
       startdate: new FormControl({value: this.fromTreatment.startdate, disabled: true}),
       startinginventory: new FormControl({value: this.medication.startinginventory, disabled: true}),
       inventory: new FormControl({value: this.medication.inventory, disabled: true}),
-      inventoryunit: new FormControl({value: this.medication.inventoryunit, disabled: true}),
+      inventoryunit: new FormControl({value: this.medication.inventoryunit}),
       dosage: new FormControl({value: this.fromTreatment.dosage, disabled: true}),
-      doseunits: new FormControl({value: this.fromTreatment.doseunits, disabled: true}),
+      doseunits: new FormControl({value: this.fromTreatment.doseunits}),
       dosefrequency: new FormControl({value: this.fromTreatment.dosefrequency, disabled: true}),
       enddate: new FormControl({value: this.fromTreatment.enddate, disabled: true}),
       projectedenddate: new FormControl({value: null, disabled: true}),
@@ -743,8 +744,11 @@ createItem(): FormGroup {
       this.endDateCalc.hasPastDose = false;
     }
 
-    this.card_form.get('projectedenddate').setValue(this.endDateCalc.projEndDate);
-    console.log('End Date Calc: ', this.endDateCalc);
+
+    if (this.mode !== undefined && this.mode == 'cabinet') {
+      this.card_form.get('projectedenddate').setValue(this.endDateCalc.projEndDate);
+      console.log('End Date Calc: ', this.endDateCalc);
+    }
 
     //Sets the notify flag and disables if tracking mode is active
     if (this.fromTreatment.dosetrackingtype == 'active') {
