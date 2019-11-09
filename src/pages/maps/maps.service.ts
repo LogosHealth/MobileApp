@@ -1,4 +1,4 @@
-import {} from '@types/googlemaps';
+//import {} from 'googlemaps';
 import { Injectable, NgZone } from "@angular/core";
 
 import { Observable } from 'rxjs/Observable';
