@@ -71,7 +71,7 @@
             <ion-col no-padding width-60>
               <ion-item>
                 <ion-label floating>Start Date*</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY hh:mm a" pickerFormat="MMM DD YY hh:mm a" formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY" formControlName="startdate" minuteValues="0,15,30,45" [disabled]="medCompleted"></ion-datetime>
               </ion-item>
               </ion-col>
               <ion-col no-padding width-40>
@@ -86,13 +86,13 @@
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Dosage**</ion-label>
-                <ion-input type="number" formControlName="dosage" [disabled]="medCompleted"></ion-input>
+                <ion-input type="number" formControlName="dosage" (ionBlur)="checkDoseValid()" [disabled]="medCompleted"></ion-input>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Dose Units**</ion-label>
-                <ion-select formControlName="doseunits" [disabled]="medCompleted">
+                <ion-select formControlName="doseunits" (ionBlur)="checkDoseValid()"  [disabled]="medCompleted">
                   <ion-option class="section-title" value="pills">Pills</ion-option>
                   <ion-option class="section-title" value="mL">mL</ion-option>
                   <ion-option class="section-title" value="units">Units</ion-option>
@@ -106,7 +106,7 @@
             <ion-col>
               <ion-item>
                 <ion-label floating>Dose Frequency**</ion-label>
-                <ion-select formControlName="dosefrequency" [disabled]="medCompleted">
+                <ion-select formControlName="dosefrequency" (ionBlur)="checkDoseValid()"  [disabled]="medCompleted">
                   <ion-option class="section-title" value="As Needed" (ionSelect)="setAsNeeded()">As Needed</ion-option>
                   <ion-option class="section-title" value="Once Daily" (ionSelect)="notAsNeeded()">Once Daily</ion-option>
                   <ion-option class="section-title" value="Twice Daily" (ionSelect)="notAsNeeded()">Twice Daily</ion-option>
@@ -123,7 +123,7 @@
               <h2 class = "section-title" (click)="presentHelp(myEvent)">Dose Tracking Typeⓘ</h2>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button-top"  type="button" (click)="openSchedule()" [disabled]="isAsNeeded">
+              <button ion-button block class="form-action-button-top"  type="button" (click)="openSchedule()" [disabled]="isAsNeeded || !hasValidDoseData">
                 <ion-icon name="clock"></ion-icon>
               </button>
             </ion-col>
@@ -137,13 +137,13 @@
           <ion-row>
             <ion-item>
               <ion-label floating>Tracking type**</ion-label>
-              <ion-select formControlName="dosetrackingtype" [disabled]="medCompleted || isAsNeeded">
-                <ion-option class="section-title" value="passive">Passive</ion-option>
-                <ion-option class="section-title" value="active">Active</ion-option>
+              <ion-select formControlName="dosetrackingtype" (ionBlur)="checkDoseValid()" [disabled]="medCompleted || isAsNeeded">
+                <ion-option class="section-title" value="passive" (ionSelect)="checkDoseValid()">Passive</ion-option>
+                <ion-option class="section-title" value="active" (ionSelect)="checkDoseValid()">Active</ion-option>
               </ion-select>
             </ion-item>
           </ion-row>
-
+          <p class="section-tips" *ngIf="showTips"><b>**</b>To set up a dosing schedule and (optional) notifications, please fill out all fields marked ** and use the clock button above (activated when data is entered).  The dose frequency must not be "As Needed" for scheduling.</p>
         </ion-card>
 
         <ion-card class="sample-form">
@@ -215,7 +215,7 @@
                 <button ion-button block class="form-action-button" type="submit" [disabled]="!(card_form.dirty || card_form.valid)">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
-              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || mode=='basic'">Delete</button>
             </ion-col>
          </ion-row>
         </section>

@@ -41,9 +41,14 @@ listing-page {
   }
 
 	.listing-header {
+    text-align:left
 		.header-logo
 		{
 			width: 34vw;
+    }
+    .header-left
+    {
+      text-align:left
     }
   }
 

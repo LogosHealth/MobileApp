@@ -85,7 +85,7 @@
           <ion-row *ngIf="mode=='basic' && needEventList==false">
             <ion-item>
               <ion-label floating>For*</ion-label>
-              <ion-input type="text" formControlName="verbatimindication" [disabled]="true"></ion-input>
+              <ion-input (ionBlur)="checkBasicValid()" type="text" formControlName="verbatimindication" [disabled]="true"></ion-input>
             </ion-item>
           </ion-row>
           <ion-row *ngIf="mode=='basic' && needEventList==true">
@@ -100,7 +100,7 @@
             <ion-col no-padding width-60>
               <ion-item>
                 <ion-label floating>Start Date</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY hh:mm a" pickerFormat="MMM DD YY hh:mm a" formControlName="startdate"  minuteValues="0,15,30,45" [disabled]="isDone"></ion-datetime>
+                <ion-datetime (ionBlur)="checkBasicValid()" displayFormat="MMM DD YYYY" formControlName="startdate"  minuteValues="0,15,30,45" [disabled]="isDone"></ion-datetime>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-40>
@@ -177,12 +177,12 @@
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
                 <button ion-button block class="form-action-button-top"  type="button" (click)="addNewTreatmentResults()"
-                [disabled]="isDone || treatingEvent || !card_form.valid || basicModeHasTR">
+                [disabled]="isDone || treatingEvent || !card_form.valid || basicModeHasTR || isBasicInvalid2Save">
                   <ion-icon name="add"></ion-icon>
                 </button>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
-              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatmentResults()" [disabled]="!hasTreatments">
+              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatmentResults()" [disabled]="!hasTreatments || mode=='basic'">
                 <ion-icon name="paper"></ion-icon>
               </button>
             </ion-col>
@@ -218,10 +218,10 @@
         <section class="sample-form">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !medication.dirty) || !card_form.valid)">Save</button>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !medication.dirty) || !card_form.valid || isBasicInvalid2Save)">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
-              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || hasTreatments">Delete</button>
+              <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec || (hasTreatments && mode=='cabinet')">Delete</button>
             </ion-col>
          </ion-row>
          <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tips:</b><br>Once a drug is in your cabinet, say <i>"I took ibuprofen for my headache"</i> for easy data entry.<br><br>

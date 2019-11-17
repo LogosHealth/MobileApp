@@ -52,17 +52,26 @@ export class FormMedication {
   loadFromId: number;
   fromEvent: any;
   fromSymptom: any;
-  basicModeHasTR: boolean = false;
-  checkSave: boolean = false;
-
   mode: any = null;
   treatmentresults: FormArray;
-  isDone: boolean = false;
-  hasTreatments: boolean = false;
-  treatingEvent: boolean = false;
-  needEventList: boolean = false;
   eventList: any = [];
   currentEvent: any;
+
+  //set at addBasicInfo - if in basic mode and has a treatment result, diable add button as basic mode requires only 1 treatment result
+  basicModeHasTR: boolean = false;
+  //flag to highlight if a change occurred and the record needs saved to move to a forward page (not a back page)
+  checkSave: boolean = false;
+  //Needed because can't use valid as field requirements are different between basic and cabinet modes
+  isBasicInvalid2Save: boolean = false;
+  //represents if the drug package has been completed
+  isDone: boolean = false;
+  //Set in addExistingTreatmentResults - used to inactivate delete button - set to true with 1 or more TRs
+  hasTreatments: boolean = false;
+  //Set in addExistingTreatmentResults - used to deactivate TR add button - set to true if the workflow is coming from the medical event
+  treatingEvent: boolean = false;
+  //Used to render either a freetext verbatim of structured medical event list
+  needEventList: boolean = false;
+  //Represents a new Medicine Cabinet drug - when true, sets mode to cabinet and disables mode control
   newFromCabinet: boolean = false;
 
   medication: FormControl = new FormControl();
@@ -517,8 +526,8 @@ export class FormMedication {
 
   deleteRecordDo(){
     let alert = this.alertCtrl.create({
-      title: 'Confirm Delete',
-      message: 'Are you certain you want to delete this record?',
+      title: 'Are you certain???',
+      message: 'Are you absolutely certain you want to delete this record?  By deleting this record, this drug will be wiped from your medical history.  Unless this was created and populated in error, adding an end date is the proper way to complete a medication regimen.',
       buttons: [
         {
           text: 'Cancel',
@@ -1491,10 +1500,39 @@ openSchedule () {
   });
 }
 
+checkBasicValid() {
+  //MM 11-15-19 This function checks if the data needed to save a record in Basic mode is met (similar to the Valid form).
+  //Cannot use the Valid form method because of the differing requirements between basic and cabinet modes
+  //This flag will stop an initial basic record save without having a start date and indication entered
+  var invalidCount = 0;
+
+  if (this.mode == 'basic') {
+    console.log('checkBaicValid - medeventid: ' + this.card_form.get('medicaleventid').value);
+    console.log('checkBaicValid - verbatimindication: ' + this.card_form.get('verbatimindication').value);
+    console.log('checkBaicValid - symptomid: ' + this.card_form.get('symptomid').value);
+    console.log('checkBaicValid - startdate: ' + this.card_form.get('startdate').value);
+    if (this.card_form.get('medicaleventid').value == null && this.card_form.get('verbatimindication').value == null &&
+     this.card_form.get('symptomid').value == null) {
+      invalidCount = invalidCount + 1;
+    }
+    if (this.card_form.get('startdate').value == null) {
+      invalidCount = invalidCount + 1;
+    }
+    if (invalidCount > 0) {
+      this.isBasicInvalid2Save = true;
+    } else {
+      this.isBasicInvalid2Save = false;
+    }
+  }
+}
+
 setMode (mode) {
   this.mode = mode;
-  console.log("from setMode: " + mode);
+  this.checkBasicValid();
+  //console.log("from setMode: " + mode);
 }
+
+
 
 addNewTreatmentResults() {
   var cat;
@@ -1603,6 +1641,7 @@ setCurrentEvent (item) {
   } else {
     console.log('Error in setCurEvt bad type: ' + this.currentEvent.type);
   }
+  this.checkBasicValid();
 }
 
   presentLoadingDefault() {

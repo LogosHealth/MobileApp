@@ -315,6 +315,12 @@ export class FormGoalsPage {
     this.goalsSave.daysperweek = this.card_form.get('daysperweek').value;
     this.goalsSave.reward = this.card_form.get('reward').value;
     this.goalsSave.rewardtiming = this.card_form.get('rewardtiming').value;
+
+
+    var timedifference = new Date().getTimezoneOffset();
+    timedifference = timedifference/60;
+
+
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/GoalsByProfile";
       var config = {
         invokeUrl: restURL,
@@ -331,7 +337,8 @@ export class FormGoalsPage {
       var method = 'POST';
       var additionalParams = {
           queryParams: {
-              profileid: this.RestService.currentProfile
+              profileid: this.RestService.currentProfile,
+              offset: timedifference
           }
       };
       var body = JSON.stringify(this.goalsSave);

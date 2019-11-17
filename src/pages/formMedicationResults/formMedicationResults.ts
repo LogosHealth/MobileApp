@@ -48,6 +48,7 @@ export class FormMedicationResults {
   feed: FeedModel = new FeedModel();
   eventHasFocus: boolean = false;
   isDone: boolean = false;
+  hasValidDoseData: boolean = false;
 
   listFilter: DictionaryModel = new DictionaryModel();
   medication: any;
@@ -278,6 +279,38 @@ export class FormMedicationResults {
      }
   }
 
+  checkDoseValid() {
+    //MM 11-15-19 This function checks if the data needed to save a record in Basic mode is met (similar to the Valid form).
+    //Cannot use the Valid form method because of the differing requirements between basic and cabinet modes
+    //This flag will stop an initial basic record save without having a start date and indication entered
+    var invalidCount = 0;
+
+    if (this.mode == 'basic') {
+      console.log('checkDoseValid - dosage: ' + this.card_form.get('dosage').value);
+      console.log('checkDoseValid - doseunits: ' + this.card_form.get('doseunits').value);
+      console.log('checkDoseValid - dosefrequency: ' + this.card_form.get('dosefrequency').value);
+      console.log('checkDoseValid - dosetrackingtype: ' + this.card_form.get('dosetrackingtype').value);
+      if (this.card_form.get('dosage').value == null) {
+        invalidCount = invalidCount + 1;
+      }
+      if (this.card_form.get('doseunits').value == null) {
+        invalidCount = invalidCount + 1;
+      }
+      if (this.card_form.get('dosefrequency').value == null || this.card_form.get('dosefrequency').value == 'As Needed') {
+        invalidCount = invalidCount + 1;
+      }
+      if (this.card_form.get('dosetrackingtype').value == null) {
+        invalidCount = invalidCount + 1;
+      }
+
+      if (invalidCount > 0) {
+        this.hasValidDoseData = false;
+      } else {
+        this.hasValidDoseData = true;
+      }
+    }
+  }
+
   addExistingSideEffects() {
     console.log('Starting addExistingSideEffects');
     this.sideeffects = this.card_form.get('sideeffects') as FormArray;
@@ -291,6 +324,9 @@ export class FormMedicationResults {
       for (var j = 0; j < this.sideeffectdata.items.length; j++) {
         this.sideeffects.push(this.addExistingSideEffect(j));
       }
+      this.checkDoseValid();
+    } else {
+      this.checkDoseValid();
     }
   }
 
@@ -942,8 +978,8 @@ presentHelp(myEvent) {
   var self = this;
   var dataObj;
   var title = 'Dose Tracking Mode';
-  var helptext = "<b>Passive:</b> Each dose will be automatically captured and removed from the current inventory based on dose schedule.<br><br>" +
-  "<b>Active:</b> Each dose must be explicitly acknowledged through mobile notifications using voice interface.";
+  var helptext = "<b>Passive:</b> Each dose will be automatically captured and removed from the current inventory (in cabinet mode) based on dose schedule.<br><br>" +
+  "<b>Active:</b> Each dose must be explicitly acknowledged.";
 
   let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
   popover.onDidDismiss(data => {
@@ -1028,10 +1064,12 @@ addSideeffect() {
 setAsNeeded() {
   this.card_form.get('dosetrackingtype').setValue('active');
   this.isAsNeeded = true;
+  //this.checkDoseValid();
 }
 
 notAsNeeded() {
   this.isAsNeeded = false;
+  //this.checkDoseValid();
 }
 
 setCurrentEvent (item) {
