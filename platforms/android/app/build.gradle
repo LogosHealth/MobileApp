@@ -22,32 +22,33 @@ apply plugin: 'com.android.application'
 buildscript {
     repositories {
         mavenCentral()
-        google()
+        maven {
+            url "https://maven.google.com"
+        }
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
     }
 }
 
 // Allow plugins to declare Maven dependencies via build-extras.gradle.
 allprojects {
     repositories {
-        mavenCentral()
+        mavenCentral();
         jcenter()
     }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.10.3'
+    gradleVersion = '4.1.0'
 }
 
 // Configuration properties. Set these via environment variables, build-extras.gradle, or gradle.properties.
 // Refer to: http://www.gradle.org/docs/current/userguide/tutorial_this_and_that.html
 ext {
     apply from: '../CordovaLib/cordova.gradle'
-
     // The value for android.compileSdkVersion.
     if (!project.hasProperty('cdvCompileSdkVersion')) {
         cdvCompileSdkVersion = null;
@@ -63,14 +64,6 @@ ext {
     // Sets the minSdkVersion to the given value.
     if (!project.hasProperty('cdvMinSdkVersion')) {
         cdvMinSdkVersion = null
-    }
-    // Sets the maxSdkVersion to the given value.
-    if (!project.hasProperty('cdvMaxSdkVersion')) {
-        cdvMaxSdkVersion = null
-    }
-    // The value for android.targetSdkVersion.
-    if (!project.hasProperty('cdvTargetSdkVersion')) {
-        cdvTargetSdkVersion = null;
     }
     // Whether to build architecture-specific APKs.
     if (!project.hasProperty('cdvBuildMultipleApks')) {
@@ -98,7 +91,6 @@ ext {
 }
 
 // PLUGIN GRADLE EXTENSIONS START
-apply from: "../cordova-android-support-gradle-release/visual-cordova-android-support-gradle-release.gradle"
 apply from: "../cordova-plugin-badge/visual-badge.gradle"
 apply from: "../cordova-plugin-local-notification/visual-localnotification.gradle"
 // PLUGIN GRADLE EXTENSIONS END
@@ -114,12 +106,10 @@ if (hasBuildExtras2) {
 }
 
 // Set property defaults after extension .gradle files.
-ext.cdvCompileSdkVersion = cdvCompileSdkVersion == null ? (
-    defaultCompileSdkVersion == null 
-        ? privateHelpers.getProjectTarget()
-        : defaultCompileSdkVersion 
-) : Integer.parseInt('' + cdvCompileSdkVersion);
-
+if (ext.cdvCompileSdkVersion == null) {
+    ext.cdvCompileSdkVersion = privateHelpers.getProjectTarget()
+    //ext.cdvCompileSdkVersion = project.ext.defaultCompileSdkVersion
+}
 if (ext.cdvBuildToolsVersion == null) {
     ext.cdvBuildToolsVersion = privateHelpers.findLatestInstalledBuildTools()
     //ext.cdvBuildToolsVersion = project.ext.defaultBuildToolsVersion
@@ -134,14 +124,7 @@ if (ext.cdvReleaseSigningPropertiesFile == null && file('../release-signing.prop
 // Cast to appropriate types.
 ext.cdvBuildMultipleApks = cdvBuildMultipleApks == null ? false : cdvBuildMultipleApks.toBoolean();
 ext.cdvVersionCodeForceAbiDigit = cdvVersionCodeForceAbiDigit == null ? false : cdvVersionCodeForceAbiDigit.toBoolean();
-
-// minSdkVersion, maxSdkVersion and targetSdkVersion
 ext.cdvMinSdkVersion = cdvMinSdkVersion == null ? defaultMinSdkVersion : Integer.parseInt('' + cdvMinSdkVersion)
-if (cdvMaxSdkVersion != null) {
-    ext.cdvMaxSdkVersion = Integer.parseInt('' + cdvMaxSdkVersion)
-}
-ext.cdvTargetSdkVersion = cdvTargetSdkVersion == null ? defaultTargetSdkVersion  : Integer.parseInt('' + cdvTargetSdkVersion)
-
 ext.cdvVersionCode = cdvVersionCode == null ? null : Integer.parseInt('' + cdvVersionCode)
 
 def computeBuildTargetName(debugBuild) {
@@ -164,41 +147,30 @@ cdvBuildRelease.dependsOn {
     return computeBuildTargetName(false)
 }
 
-task cdvPrintProps {
-    doLast {
-        println('cdvCompileSdkVersion=' + cdvCompileSdkVersion)
-        println('cdvBuildToolsVersion=' + cdvBuildToolsVersion)
-        println('cdvVersionCode=' + cdvVersionCode)
-        println('cdvVersionCodeForceAbiDigit=' + cdvVersionCodeForceAbiDigit)
-        println('cdvMinSdkVersion=' + cdvMinSdkVersion)
-        println('cdvMaxSdkVersion=' + cdvMaxSdkVersion)
-        println('cdvTargetSdkVersion=' + cdvTargetSdkVersion)
-        println('cdvBuildMultipleApks=' + cdvBuildMultipleApks)
-        println('cdvReleaseSigningPropertiesFile=' + cdvReleaseSigningPropertiesFile)
-        println('cdvDebugSigningPropertiesFile=' + cdvDebugSigningPropertiesFile)
-        println('cdvBuildArch=' + cdvBuildArch)
-        println('computedVersionCode=' + android.defaultConfig.versionCode)
-        android.productFlavors.each { flavor ->
-            println('computed' + flavor.name.capitalize() + 'VersionCode=' + flavor.versionCode)
-        }
+task cdvPrintProps << {
+    println('cdvCompileSdkVersion=' + cdvCompileSdkVersion)
+    println('cdvBuildToolsVersion=' + cdvBuildToolsVersion)
+    println('cdvVersionCode=' + cdvVersionCode)
+    println('cdvVersionCodeForceAbiDigit=' + cdvVersionCodeForceAbiDigit)
+    println('cdvMinSdkVersion=' + cdvMinSdkVersion)
+    println('cdvBuildMultipleApks=' + cdvBuildMultipleApks)
+    println('cdvReleaseSigningPropertiesFile=' + cdvReleaseSigningPropertiesFile)
+    println('cdvDebugSigningPropertiesFile=' + cdvDebugSigningPropertiesFile)
+    println('cdvBuildArch=' + cdvBuildArch)
+    println('computedVersionCode=' + android.defaultConfig.versionCode)
+    android.productFlavors.each { flavor ->
+        println('computed' + flavor.name.capitalize() + 'VersionCode=' + flavor.versionCode)
     }
 }
 
 android {
+
     defaultConfig {
         versionCode cdvVersionCode ?: new BigInteger("" + privateHelpers.extractIntFromManifest("versionCode"))
         applicationId privateHelpers.extractStringFromManifest("package")
 
         if (cdvMinSdkVersion != null) {
             minSdkVersion cdvMinSdkVersion
-        }
-
-        if (cdvMaxSdkVersion != null) {
-            maxSdkVersion cdvMaxSdkVersion
-        }
-
-        if(cdvTargetSdkVersion != null) {
-            targetSdkVersion cdvTargetSdkVersion
         }
     }
 
@@ -279,7 +251,6 @@ android {
         }
         addSigningProps(cdvReleaseSigningPropertiesFile, signingConfigs.release)
     }
-
     if (cdvDebugSigningPropertiesFile) {
         addSigningProps(cdvDebugSigningPropertiesFile, signingConfigs.debug)
     }
@@ -296,9 +267,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
     // SUB-PROJECT DEPENDENCIES START
     implementation(project(path: ":CordovaLib"))
-    implementation "com.squareup.okhttp3:okhttp-urlconnection:3.10.0"
-    implementation "com.android.support:support-v4:24.1.1+"
-    implementation "com.android.support:support-v4:26.+"
+    compile "com.squareup.okhttp3:okhttp-urlconnection:3.10.0"
+    compile "com.android.support:support-v4:24.1.1+"
+    compile "com.android.support:support-v4:26.+"
     // SUB-PROJECT DEPENDENCIES END
 }
 
