@@ -1,0 +1,57 @@
+{
+  "_from": "mx.ferreyra.callnumber@latest",
+  "_id": "mx.ferreyra.callnumber@0.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-J9FJiMrfWG9Q8AQEz/cgYLcXTTD/Z5+vfq29hn8K7yVWjxkSzr7zFi7Dpn8wcv2iKHBHDJY+U0z8yoAzDugXMw==",
+  "_location": "/mx.ferreyra.callnumber",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "mx.ferreyra.callnumber@latest",
+    "name": "mx.ferreyra.callnumber",
+    "escapedName": "mx.ferreyra.callnumber",
+    "rawSpec": "latest",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/mx.ferreyra.callnumber/-/mx.ferreyra.callnumber-0.0.2.tgz",
+  "_shasum": "dda64ced1d5a19e801d5c64f17f02bcd0599cb63",
+  "_spec": "mx.ferreyra.callnumber@latest",
+  "_where": "C:\\Users\\marty\\OneDrive\\Desktop\\Ionic\\master\\MobileApp",
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/Rohfosho/CordovaCallNumberPlugin/issues"
+  },
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "mx.ferreyra.callnumber",
+    "platforms": [
+      "ios",
+      "android"
+    ]
+  },
+  "deprecated": false,
+  "description": "Call Number from Cordova Application",
+  "homepage": "https://github.com/Rohfosho/CordovaCallNumberPlugin#readme",
+  "keywords": [
+    "cordova",
+    "call",
+    "dialer",
+    "phonegap",
+    "ecosystem:cordova",
+    "cordova-ios",
+    "cordova-android"
+  ],
+  "license": "Apache 2.0",
+  "name": "mx.ferreyra.callnumber",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rohfosho/CordovaCallNumberPlugin.git"
+  },
+  "version": "0.0.2"
+}
