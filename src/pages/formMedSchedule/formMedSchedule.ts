@@ -160,9 +160,9 @@ export class FormMedSchedule {
       startdate: new FormControl({value: this.fromTreatment.startdate, disabled: true}),
       startinginventory: new FormControl({value: this.medication.startinginventory, disabled: true}),
       inventory: new FormControl({value: this.medication.inventory, disabled: true}),
-      inventoryunit: new FormControl({value: this.medication.inventoryunit}),
+      inventoryunit: new FormControl(this.medication.inventoryunit),
       dosage: new FormControl({value: this.fromTreatment.dosage, disabled: true}),
-      doseunits: new FormControl({value: this.fromTreatment.doseunits}),
+      doseunits: new FormControl(this.fromTreatment.doseunits),
       dosefrequency: new FormControl({value: this.fromTreatment.dosefrequency, disabled: true}),
       enddate: new FormControl({value: this.fromTreatment.enddate, disabled: true}),
       projectedenddate: new FormControl({value: null, disabled: true}),
@@ -175,6 +175,7 @@ export class FormMedSchedule {
       profilesnotify: this.formBuilder.array([ this.createItem() ], Validators.required),
       times: this.formBuilder.array([]),
     });
+    console.log('Dose Units - initial entry: ', this.card_form.get('doseunits').value);
     this.addExistingProfiles();
   }
 

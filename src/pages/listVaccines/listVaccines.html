@@ -26,7 +26,7 @@
               <p class="item-description">Dose: {{sched.interval}}</p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow !==sched.agerangehigh">Schedule: {{sched.agerangelow}} to {{sched.agerangehigh}} {{sched.agerangeunit}} </p>
               <p class="item-description" *ngIf="sched.agerangelow > 0 && sched.agerangelow ==sched.agerangehigh">Schedule: {{sched.agerangelow}} {{sched.agerangeunit}} </p>
-              <p class="item-description" *ngIf="sched.datereceived !== undefined && sched.datereceived !== null">Date: {{sched.datereceived}}</p>
+              <p class="item-description" *ngIf="sched.datereceived !== undefined && sched.datereceived !== null">Date: {{formatDateTime(sched.datereceived)}}</p>
               <p class="item-description" *ngIf="sched.contactid !== undefined && sched.contactid !== null">Physician: Dr. {{sched.lastname}}</p>
               <br>
             </div>

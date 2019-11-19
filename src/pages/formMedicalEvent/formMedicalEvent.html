@@ -73,7 +73,7 @@
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
                 <ion-label floating>Date of Diagnosis</ion-label>
-                <ion-datetime displayFormat="MMM-DD-YY" [max]="today()" formControlName="dateofmeasure" [disabled]="hasVisit"></ion-datetime>
+                <ion-datetime displayFormat="MMM DD YYYY" [max]="today()" formControlName="dateofmeasure" [disabled]="hasVisit"></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -187,7 +187,7 @@
                 <ion-col no-padding width-37>
                   <ion-item>
                     <ion-label floating>Start Date</ion-label>
-                    <ion-datetime displayFormat="MMM-DD-YY" formControlName="dateofmeasure"></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD YYYY" formControlName="dateofmeasure"></ion-datetime>
                   </ion-item>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>

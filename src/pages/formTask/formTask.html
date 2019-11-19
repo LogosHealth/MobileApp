@@ -51,7 +51,7 @@
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>
-                <ion-datetime displayFormat="MMM DD YYYY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
+                <ion-datetime displayFormat="DDD MMM DD YY" [min]="getMinDayDate()" [max]="today()"  formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
           </ion-col>
         </ion-row>
@@ -73,7 +73,7 @@
           <ion-col width-50>
             <ion-item>
               <ion-label floating>Due Date</ion-label>
-              <ion-datetime displayFormat="MMM DD YYYY" [min]="today()" max="2024"  formControlName="duedate" ></ion-datetime>
+              <ion-datetime displayFormat="DDD MMM DD YY" [min]="today()" max="2024"  formControlName="duedate" ></ion-datetime>
             </ion-item>
           </ion-col>
           <ion-col class="columnAlignLow" width-50>
