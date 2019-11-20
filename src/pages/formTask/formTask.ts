@@ -409,7 +409,7 @@ export class FormTaskPage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    return moment().format('YYYY-MM-DD');;
   }
 
   formatDateTime(dateString) {

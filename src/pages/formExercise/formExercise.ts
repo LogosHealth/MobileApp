@@ -473,7 +473,8 @@ export class FormExercisePage {
   }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
+    //return new Date().toISOString().substring(0,10);
+    return moment().format('YYYY-MM-DD');;
   }
 
   formatDateTime(dateString) {

@@ -155,7 +155,7 @@ export class FormMedSchedule {
 
     this.card_form = new FormGroup({
       recordid: new FormControl(),
-      treatmentid: new FormControl(this.fromTreatment.treatmentid),
+      treatmentid: new FormControl(this.fromTreatment.recordid),
       medicationname: new FormControl({value: this.medication.medicationname, disabled: true}),
       startdate: new FormControl({value: this.fromTreatment.startdate, disabled: true}),
       startinginventory: new FormControl({value: this.medication.startinginventory, disabled: true}),
@@ -202,6 +202,18 @@ export class FormMedSchedule {
         }
       });
     }
+  }
+
+  ionViewWillLeave() {
+    var data;
+    console.log('ionViewWillLeave() called');
+    if (this.saved) {
+      data = this.fromTreatment;
+      console.log('Data saved and sent for extract', data);
+    } else {
+      data = null;
+    }
+    this.nav.getPrevious().data.newSched = data;
   }
 
   loadDetails() {
@@ -329,6 +341,7 @@ export class FormMedSchedule {
     }
     if (this.card_form.get('notifyoffset').dirty){
       this.modelSave.notifyoffset = this.card_form.get('notifyoffset').value;
+      this.fromTreatment.notifyoffset = this.card_form.get('notifyoffset').value;
     }
     if (this.endDateCalc.hasPastDose) {
       this.modelSave.backCalculate = 'Y';
@@ -357,6 +370,7 @@ export class FormMedSchedule {
       strProfiles = strProfiles.substring(0, strProfiles.length -2);
       console.log('String Profiles final: ' + strProfiles);
       this.modelSave.notifyprofiles = strProfiles;
+      this.fromTreatment.notifyprofiles = strProfiles;
     }
 
     this.times = this.card_form.get('times') as FormArray;
@@ -385,6 +399,7 @@ export class FormMedSchedule {
         }
       }
       this.modelSave.scheduletimes = impTimes;
+      this.fromTreatment.scheduletimes = impTimes;
     }
 
     var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/DoseScheduleTreatment";
@@ -531,6 +546,7 @@ export class FormMedSchedule {
     this.notifySelected = isSelected;
     //console.log('Notify Selected: ' + this.notifySelected);
     console.log('readProfilesNotify isNotify: ' + this.isNotify);
+    return this.isNotify;
   }
 
  populateProfilesNotify() {
@@ -766,6 +782,9 @@ createItem(): FormGroup {
     }
 
   saveNotReady() {
+    var isNotifyLocal = this.readProfilesNotify();
+    console.log('isNotifyLocal from saveNotReady: ' + isNotifyLocal);
+
     var returnVal = false;
     if (this.isNotify) {
       if (!this.card_form.dirty || !this.card_form.valid || !this.notifySelected) {

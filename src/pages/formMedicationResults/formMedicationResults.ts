@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController, ViewController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { TreatmentResult } from '../../pages/listMedication/listMedication.model';
@@ -67,7 +67,7 @@ export class FormMedicationResults {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
-    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, //private callNumber: CallNumber
+    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, public viewCtrl: ViewController//private callNumber: CallNumber
     ) {
 
     this.recId = navParams.get('recId');
@@ -204,8 +204,15 @@ export class FormMedicationResults {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
-
     this.checkSave = false;
+
+    var newSched = this.navParams.get("newSched");
+    console.log('New Schedule from Schedule save: ', newSched);
+    if (newSched !== undefined && newSched !== null) {
+      this.curRec = newSched;
+      this.RestService.results[this.recId] = newSched;
+    }
+
     if (dtNow < dtExpiration) {
       this.loadDetails();
     } else {
@@ -286,10 +293,10 @@ export class FormMedicationResults {
     var invalidCount = 0;
 
     if (this.mode == 'basic') {
-      console.log('checkDoseValid - dosage: ' + this.card_form.get('dosage').value);
-      console.log('checkDoseValid - doseunits: ' + this.card_form.get('doseunits').value);
-      console.log('checkDoseValid - dosefrequency: ' + this.card_form.get('dosefrequency').value);
-      console.log('checkDoseValid - dosetrackingtype: ' + this.card_form.get('dosetrackingtype').value);
+      //console.log('checkDoseValid - dosage: ' + this.card_form.get('dosage').value);
+      //console.log('checkDoseValid - doseunits: ' + this.card_form.get('doseunits').value);
+      //console.log('checkDoseValid - dosefrequency: ' + this.card_form.get('dosefrequency').value);
+      //console.log('checkDoseValid - dosetrackingtype: ' + this.card_form.get('dosetrackingtype').value);
       if (this.card_form.get('dosage').value == null) {
         invalidCount = invalidCount + 1;
       }
@@ -795,8 +802,8 @@ navSaveRecordDo(callback){
     .then(function(result){
       self.loading.dismiss();
       if (!updateOnly) {
-        this.curRec = this.eventSave;
-        this.curRec.recordid = result.data;
+        self.curRec = self.eventSave;
+        self.curRec.recordid = result.data;
       }
       callback(null, result.data);
     }).catch( function(result){
@@ -1018,6 +1025,7 @@ loadMenu(dataObj) {
 openSchedule() {
   this.checkSave = true;
   var self = this;
+
   this.confirmSaveDirect(function(err, result) {
     if (err) {
       console.log('Error in openSchedule.confirmSaveDirect' + err);

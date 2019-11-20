@@ -315,16 +315,7 @@ export class FormNutritionPage {
   }
 
   public today() {
-    //Used as max day in date of measure control
-    var momentNow;
-
-    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
-      momentNow = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
-    } else {
-      momentNow = this.momentNow.format('YYYY-MM-DD');
-    }
-    //console.log('From Today momentNow: ' + momentNow);
-    return momentNow;
+    return moment().format('YYYY-MM-DD');;
   }
 
   formatDateTime(dateString) {

@@ -83,7 +83,7 @@ export class SettingsTabPage {
       this.nav.push(ListGoalsPage, { category: category });
     } else if (category.title == 'Profile') {
       this.nav.push(FormAboutMe, { category: category, homePage: this });
-    } else if (category.title == 'Schedules & Alerts') {
+    } else if (category.title == 'Reminders & Alerts') {
       this.nav.push(ListSchedulePage, { category: category });
     } else if (category.title == 'Lifestyle') {
         this.nav.push(FormLifestyle, { category: category });

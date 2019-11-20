@@ -1174,6 +1174,7 @@ export class FormMedication {
 
   public today() {
     //Used as max day in date of measure control
+    /*
     var momentNow;
 
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
@@ -1183,6 +1184,8 @@ export class FormMedication {
     }
     //console.log('From Today momentNow: ' + momentNow);
     return momentNow;
+*/
+  return moment().format('YYYY-MM-DD');;
   }
 
   public todayNow() {
