@@ -155,6 +155,37 @@ export class ListMedicationPage {
 
   }
 
+  isActive(index) {
+    var selMed = this.RestService.results[index];
+    var blnActive = false;
+
+    //console.log('isActive: index ' + index);
+    //console.log('isActive: selMed ', selMed);
+
+    if (selMed !== undefined) {
+      if (selMed.mode == 'cabinet') {
+        blnActive = true;
+      } else if (selMed.mode == 'basic') {
+        if (selMed.treatmentresults !== undefined && selMed.treatmentresults.items !== undefined && selMed.treatmentresults.items[0] !== undefined) {
+          if (selMed.treatmentresults.items[0].dosetrackingtype == 'active' && selMed.treatmentresults.items[0].dosetrackingstate == 'activated') {
+            blnActive = true;
+          }
+        }
+      }
+    }
+    return blnActive;
+  }
+
+  addDose(index) {
+    var selMed = this.RestService.results[index];
+    if (selMed.mode == 'cabinet') {
+
+    } else if (selMed.mode == 'basic') {
+
+    }
+
+  }
+
   presentHelp(myEvent) {
     var title = 'Drug Mode';
     var helptext = "<b>Basic:</b> Pertains to a single indication and includes only start and stop dates.  Great for maintenance and historical medications.<br><br>" +

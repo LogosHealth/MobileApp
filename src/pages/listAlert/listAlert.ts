@@ -62,14 +62,14 @@ export class ListAlertPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.loadData();
     } else {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listAlert');
-          self.loading.dismiss();
+          //self.loading.dismiss();
           self.RestService.appRestart();
         } else {
           console.log('From listAlert - Credentials refreshed!');
@@ -153,14 +153,14 @@ export class ListAlertPage {
         }
         if (self.autoload) {
           self.nav.pop();
-          self.loading.dismiss();
+          //self.loading.dismiss();
         }else {
-          self.loading.dismiss();
+          //self.loading.dismiss();
         }
       });
     }).catch( function(result){
         console.log(result);
-        self.loading.dismiss();
+        //self.loading.dismiss();
     });
   }
 
@@ -170,14 +170,14 @@ export class ListAlertPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.setAlertDoneDo(recordid);
     } else {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listAlert');
-          self.loading.dismiss();
+          //self.loading.dismiss();
           self.RestService.appRestart();
         } else {
           console.log('From listAlert - Credentials refreshed!');
@@ -219,11 +219,11 @@ export class ListAlertPage {
     .then(function(result){
       self.RestService.results = result.data;
       console.log('Happy Path from listAlert setAlertDone: ' + self.RestService.results);
-      self.loading.dismiss();
+      //self.loading.dismiss();
     }).catch( function(result){
       console.log('Result: ',result);
       console.log(body);
-      self.loading.dismiss();
+      //self.loading.dismiss();
     });
   }
 
@@ -233,14 +233,14 @@ export class ListAlertPage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.setAlertConfirmedDo(recordid);
     } else {
-      this.presentLoadingDefault();
+      //this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
         if (err) {
           console.log('Need to login again!!! - Credentials expired from listAlert');
-          self.loading.dismiss();
+          //self.loading.dismiss();
           self.RestService.appRestart();
         } else {
           console.log('From listAlert - Credentials refreshed!');
@@ -283,11 +283,11 @@ export class ListAlertPage {
     .then(function(result){
       self.RestService.results = result.data;
       console.log('Happy Path from listAlert setAlertDone: ' + self.RestService.results);
-      self.loading.dismiss();
+      //self.loading.dismiss();
     }).catch( function(result){
       console.log('Result: ',result);
       console.log(body);
-      self.loading.dismiss();
+      //self.loading.dismiss();
     });
   }
 

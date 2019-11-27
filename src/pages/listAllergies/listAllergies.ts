@@ -2,9 +2,12 @@ import { Component } from '@angular/core';
 import { NavController, NavParams, LoadingController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
-import { ListAllergiesModel } from './listAllergies.model';
-import { ListAllergiesService } from './listAllergies.service';
+//import { ListAllergiesModel } from './listAllergies.model';
+//import { ListAllergiesService } from './listAllergies.service';
 import { RestService } from '../../app/services/restService.service';
+import { MedicalEventModel } from '../../pages/listMedicalEvent/listMedicalEvent.model';
+import { MedicalEventService } from '../../pages/listMedicalEvent/listMedicalEvent.service';
+
 import { FormAllergyPage } from '../../pages/formAllergy/formAllergy';
 
 var moment = require('moment-timezone');
@@ -14,20 +17,22 @@ var moment = require('moment-timezone');
   templateUrl: 'listAllergies.html'
 })
 export class ListAllergiesPage {
-  list2: ListAllergiesModel = new ListAllergiesModel();
+  list2: MedicalEventModel = new MedicalEventModel();
   feed: FeedModel = new FeedModel();
   loading: any;
   resultData: any;
   noData: boolean = false;
+  aboutProfile: any = null;
 
   constructor(
     public nav: NavController,
-    public list2Service: ListAllergiesService,
+    public list2Service: MedicalEventService,
     public navParams: NavParams,
     public RestService:RestService,
     public loadingCtrl: LoadingController
   ) {
     this.feed.category = navParams.get('category');
+    this.aboutProfile = navParams.get('aboutProfile');
   }
 
   ionViewWillEnter() {
@@ -57,7 +62,7 @@ export class ListAllergiesPage {
     var restURL: string;
 
     if (this.feed.category.title == 'Allergies') {
-      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AllergiesByProfile";
+      restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/MedicalEventByProfile";
     }
     var config = {
       invokeUrl: restURL,
@@ -72,11 +77,24 @@ export class ListAllergiesPage {
     };
     var pathTemplate = '';
     var method = 'GET';
-    var additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile
-        }
+    var additionalParams;
+
+  if (this.aboutProfile !== undefined && this.aboutProfile !== null && this.aboutProfile > 0) {
+    additionalParams = {
+      queryParams: {
+          profileid: this.aboutProfile,
+          isAllergy: 'Y'
+      }
     };
+    console.log('listAllergy - Select View - about profileid: ' + this.aboutProfile);
+  } else {
+    additionalParams = {
+      queryParams: {
+          profileid: this.RestService.currentProfile,
+          isAllergy: 'Y'
+      }
+    };
+  }
     var body = '';
     var self = this;
 

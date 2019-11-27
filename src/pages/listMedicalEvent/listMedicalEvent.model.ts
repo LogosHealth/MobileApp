@@ -21,7 +21,7 @@ export class MedicalEvent {
   eventdescription:string;
   chronicflag:string;
   isallergy:string;
-  allergyseverity:string;
+  severity:string;
   medicallyconfirmed: string;
   processsymptom: boolean;
   symptoms:Symptoms;

@@ -1,114 +1,275 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Allergy Form</ion-title>
+    <ion-title>Allergy</ion-title>
+    <ion-buttons right>
+        <button ion-button icon-only (click)="attachRecord()" [disabled]="noEventRecord()">
+        <ion-icon name='attach'></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content class="forms-examples-content">
-
-    <div class="card-example-view">
-      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
-        <section class="form-section">
+    <div class="forms-examples-section">
+      <form [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <ion-card class="sample-form">
+          <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicalevent }}</h2>
+          <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Allergy*</ion-label>
+              <ion-input type="text" [(ngModel)]="eventTerm" [formControl]="medicalevent" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()"></ion-input>
+            </ion-item>
+            <ion-list *ngIf="showList()">
+                <ion-item *ngFor="let item of items; let idx = index" (click)="searchListTerm(item)" (ionFocus)="hasFocus()" (ionBlur)="loseFocus()">
+                    {{item.value}}
+                </ion-item>
+            </ion-list>
+            <input type="submit" style="position: absolute; left: -9999px; width: 1px; height: 1px;"/>
+          </ion-row>
+          <ion-row>
+            <ion-col width-50>
+              <ion-label class="section-checkbox-label">Allergy
+                <ion-checkbox formControlName="isallergy"></ion-checkbox>
+              </ion-label>
+            </ion-col>
+            <ion-col width-50>
+                <ion-label class="section-checkbox-label">Chronic
+                  <ion-checkbox formControlName="ischronic" ></ion-checkbox>
+                </ion-label>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-item>
+              <ion-label floating>Severity</ion-label>
+              <ion-input type="number" min="1" max="10" default="1" formControlName="severity"></ion-input>
+            </ion-item>
+          </ion-row>
           <ion-row>
             <ion-col no-padding width-50>
-                <ion-item>
-                  <ion-label floating>Name</ion-label>
-                  <ion-input type="text" formControlName="allergyname"></ion-input>
-                </ion-item>
+              <ion-item>
+                <ion-label floating>Onset Date*</ion-label>
+                <ion-datetime displayFormat="MMM DD YYYY" formControlName="onsetdate"></ion-datetime>
+              </ion-item>
             </ion-col>
             <ion-col no-padding width-50>
               <ion-item>
-                <ion-label floating>Severity</ion-label>
-                <ion-input type="number" formControlName="severity"></ion-input>
+                <ion-label floating>End Date</ion-label>
+                <ion-datetime displayFormat="MMM DD YYYY" formControlName="enddate"></ion-datetime>
               </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col>
+              <ion-item>
+                <ion-label floating>Medical Notes</ion-label>
+                <ion-textarea type="text" formControlName="eventdescription" autosize></ion-textarea>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50 *ngIf="newRec">
+              <ion-item>
+                <ion-label floating>Date of Diagnosis</ion-label>
+                <ion-datetime displayFormat="MMM DD YYYY" [max]="today()" formControlName="dateofmeasure" [disabled]="hasVisit"></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col>
+              <ion-label class="section-checkbox-label">Medically Confirmed
+                <ion-checkbox formControlName="ismedicallyconfirmed" [disabled]="hasVisit" (click)="flipMC()"></ion-checkbox>
+              </ion-label>
+            </ion-col>
+          </ion-row>
+
+          <ion-row *ngIf="ismedicallyconfirmed && !hasVisit">
+            <ion-col no-padding width-77>
+              <ion-item>
+                <ion-label floating>Healthcare Provider</ion-label>
+                <ion-input type="text" formControlName="physiciantitle" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-mid"  type="button" (click)="addPhysician()" [disabled]="newRec && notValid()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-mid"  type="button" (click)="viewPhysician()" [disabled]="!hasPhysician">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
           </ion-col>
         </ion-row>
-        <ion-row>
-          <ion-col>
+
+
+          <ion-row *ngIf="!fromVisit && hasVisit">
+            <ion-col no-padding width-87>
               <ion-item>
-                <ion-label floating>Description</ion-label>
-                <ion-input text-wrap type="text" formControlName="description"></ion-input>
+                <ion-label floating>Visit</ion-label>
+                <ion-input type="text" formControlName="visittext" [disabled]="true"></ion-input>
               </ion-item>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit()">
+                <ion-icon name="share-alt"></ion-icon>
+              </button>
+            </ion-col>
+          </ion-row>
+      </ion-card>
+
+      <ion-card class="sample-form">
+        <ion-row>
+          <ion-col no-padding width-77>
+            <h2 class = "section-title">Related Condition</h2>
           </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col no-padding width-50>
-            <ion-item>
-              <ion-label floating>Date Identified</ion-label>
-              <ion-datetime displayFormat="MMM DD YYYY" [min]="1900-01-01" [max]="today()" formControlName="startdate" ></ion-datetime>
-            </ion-item>
+          <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="addParent()" [disabled]="newRec && notValid()">
+                <ion-icon name="add"></ion-icon>
+              </button>
+          </ion-col>
+          <ion-col class="columnAlign" no-padding width-10>
+            <button ion-button block class="form-action-button-top"  type="button" (click)="viewParent()" [disabled]="!hasRelated">
+              <ion-icon name="share-alt"></ion-icon>
+            </button>
         </ion-col>
-        <ion-col no-padding width-50>
+      </ion-row>
+      <ion-row *ngIf="hasRelated">
+        <ion-col no-padding width-60>
           <ion-item>
-            <ion-label floating>Medically Confirmed</ion-label>
-            <ion-select formControlName="medicallyconfirmed">
-              <ion-option class="section-title" value="N">Yes</ion-option>
-              <ion-option class="section-title" value="Y">No</ion-option>
-            </ion-select>
+            <ion-label floating>Condition</ion-label>
+            <ion-input type="text" formControlName="parenteventname" [disabled]="true"></ion-input>
+          </ion-item>
+      </ion-col>
+        <ion-col no-padding width-40>
+          <ion-item>
+            <ion-label floating>Onset Date</ion-label>
+            <ion-datetime displayFormat="MMM DD YYYY" formControlName="parenteventonset" [disabled]="true"></ion-datetime>
           </ion-item>
         </ion-col>
       </ion-row>
-      <div>
-        <div formArrayName="currentmeds" *ngFor="let med of card_form.get('currentmeds').controls; let i = index;">
-          <ion-row [formGroupName]="i">
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Current Medication</ion-label>
-                <ion-input type="text" formControlName="medicationname" [disabled]="true"></ion-input>
-              </ion-item>
+    </ion-card>
+
+        <ion-card class="sample-form">
+          <ion-row>
+            <ion-col no-padding width-67>
+              <h2 class = "section-title">Treatments</h2>
             </ion-col>
-            <ion-col class="columnAlign" no-padding width-25>
-              <button ion-button block class="form-action-button create-card-button"  type="button"
-               (click)="showMed(i)">Details</button>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="addFromCabinet()" [disabled]="noEventRecord()">
+                <ion-icon name="medkit"></ion-icon>
+              </button>
             </ion-col>
-            <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
-              <button ion-button block class="form-action-button create-card-button"  type="button"
-               (click)="addMed()">Add Med</button>
+           <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="presentPopover($event)" [disabled]="noEventRecord()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
             </ion-col>
-          </ion-row>
-        </div>
-      </div>
-      <div  *ngIf="listEvents !== undefined && listEvents.length > 0" >
-        <div formArrayName="events" *ngFor="let med of card_form.get('events').controls; let i = index;">
-          <ion-row [formGroupName]="i">
-            <ion-col no-padding width-50>
-              <ion-item>
-                <ion-label floating>Medical Event</ion-label>
-                <ion-input type="text" formControlName="medicalevent"></ion-input>
-              </ion-item>
-            </ion-col>
-            <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
-              <button ion-button block class="form-action-button create-card-button"  type="button"
-               (click)="addEvent()">Add Event</button>
-            </ion-col>
-            <ion-col class="columnAlign" no-padding width-25>
-              <button ion-button block class="form-action-button create-card-button"  type="button"
-               (click)="showEvent(i)">Details</button>
+            <ion-col class="columnAlign" no-padding width-10>
+              <button ion-button block class="form-action-button-top"  type="button" (click)="viewAllTreatments()" [disabled]="noTreatments()">
+                <ion-icon name="paper"></ion-icon>
+              </button>
             </ion-col>
           </ion-row>
-        </div>
-      </div>
-    </section>
-    <section class="form-section">
+          <div formArrayName="treatments" *ngFor="let info of card_form.get('treatments').controls; let i = index;">
+            <div [formGroupName]="i">
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
+                    <ion-label *ngIf="info.value.type == null" floating>Treatment</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-37>
+                  <ion-item>
+                    <ion-label floating>Start Date</ion-label>
+                    <ion-datetime displayFormat="MMM DD YYYY" formControlName="dateofmeasure"></ion-datetime>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="updateEventTreatment(i)" [disabled]="noEventRecord()">
+                    <ion-icon name="medical"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+            </div>
+          </div>
+        </ion-card>
+
+        <ion-card class="sample-form">
+          <ion-row>
+            <ion-col no-padding width-85>
+              <h2 class = "section-title">Symptoms</h2>
+            </ion-col>
+            <ion-col class="columnAlign" no-padding width-10>
+                <button ion-button block class="form-action-button-top"  type="button" (click)="addSymptom()" [disabled]="noEventRecord()">
+                  <ion-icon name="add"></ion-icon>
+                </button>
+            </ion-col>
+          </ion-row>
+          <div formArrayName="symptoms" *ngFor="let info of card_form.get('symptoms').controls; let i = index;">
+            <div [formGroupName]="i">
+              <ion-row>
+                <ion-col no-padding width-77>
+                  <ion-item>
+                    <ion-label floating>Symptom {{ i + 1 }}</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="removeSymptom(i)" [disabled]="noEventRecord()">
+                    <ion-icon name="remove"></ion-icon>
+                  </button>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="updateSymptom(i)" [disabled]="noEventRecord()">
+                    <ion-icon name="share-alt"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+
+              <div *ngIf="info.get('treatments') !== null">
+                <div formArrayName="treatments" *ngFor="let child of info.get('treatments').controls; let j = index;">
+                  <div  [formGroupName]="j">
+                      <ion-row>
+                          <ion-col no-padding width-47>
+                            <ion-item>
+                              <ion-label *ngIf="child.value.type !== null" floating>{{child.value.type}}</ion-label>
+                              <ion-label *ngIf="child.value.type == null" floating>Name</ion-label>
+                              <ion-input type="text" formControlName="namevalue"></ion-input>
+                            </ion-item>
+                          </ion-col>
+                          <ion-col no-padding width-40>
+                            <ion-item>
+                              <ion-label floating>For</ion-label>
+                              <ion-input type="text" formControlName="indication"></ion-input>
+                            </ion-item>
+                          </ion-col>
+                          <ion-col class="columnAlign" no-padding width-10>
+                              <button ion-button block class="form-action-button"  type="button" (click)="updateSymptomTreatment(i, j)">
+                                <ion-icon name="medical"></ion-icon>
+                              </button>
+                          </ion-col>
+                        </ion-row>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ion-card>
+        <section class="sample-form">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty || !card_form.valid">Save</button>
+                <button ion-button block class="form-action-button" type="submit" [disabled]="notValid()">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Delete</button>
             </ion-col>
          </ion-row>
-         <ion-row no-padding class="multi-input-row">
-          <ion-col no-padding width-50>
-              <button ion-button block class="form-action-button" type="button" (click)="openIncidents()" >Incident History</button>
-          </ion-col>
-          <ion-col no-padding width-50>
-            <button ion-button block class="form-action-button" type="button" (click)="openMedications()">Medication History</button>
-          </ion-col>
-       </ion-row>
-       <p class="section-tips"  *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>
-         You can add Allergy records by saying "Allergy" at the main menu.
-      </p>
+         <p class="section-tips" *ngIf="showTips"><b>LogosHealth Alexa Skill Tip:</b><br>You can add Medical Conditions by saying "Medical Condition" at the main menu.
+         </p>
         </section>
       </form>
     </div>

@@ -4,7 +4,7 @@
         <ion-icon name="menu"></ion-icon>
       </button>
       <ion-title>
-        <span>{{ feed.category.title }}</span>
+        <span>{{ feed.category.title }} ☛</span>
       </ion-title>
       <ion-buttons right>
         <button ion-button icon-only (click)="addNew()">
@@ -20,20 +20,27 @@
 <ion-content class="list-mini-content">
   <div class="list-mini">
     <ion-list>
-      <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">
-        <ion-row no-padding class="content-row one-line">
-          <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
-          <ion-col no-padding width-90 class="item-content" >
-            <h3 class="item-title">{{item.medicationname}}</h3>
-            <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Purchased: {{formatDateTime(item.purchasedate)}}</p>
-            <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
-            <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet'">Start Date: {{formatDateTime2(item.startdate)}}</p>
-          </ion-col>
-          <ion-col no-padding width-10 class="item-icon">
-            <ion-icon name="arrow-forward"></ion-icon>
-          </ion-col>
-        </ion-row>
-      </button>
+      <ion-item-sliding class="list-item" *ngFor="let item of list2.items;let i=index;">
+        <ion-item (click)="openRecord(i)">
+          <ion-row no-padding class="content-row one-line">
+            <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
+            <ion-col no-padding width-90 class="item-content" >
+              <h3 class="item-title">{{item.medicationname}}</h3>
+                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Purchased: {{formatDateTime(item.purchasedate)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
+                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet'">Start Date: {{formatDateTime2(item.startdate)}}</p>
+            </ion-col>
+            <ion-col no-padding width-10 class="item-icon">
+              <ion-icon name="arrow-forward"></ion-icon>
+            </ion-col>
+          </ion-row>
+        </ion-item>
+        <ion-item-options side="left" *ngIf="isActive(i)">
+            <button ion-button color="primary" (click)="addDose(i)">
+                <ion-icon name="medical"></ion-icon>Add Dose
+            </button>
+        </ion-item-options>
+      </ion-item-sliding>
     </ion-list>
     <p class="section-tips"  *ngIf="noData && feed.category.title == 'Medication History'">To get started, use the + icon above to add a Medicine record.<br><br>
       <b>LogosHealth Alexa Skill Tip:</b><br> You can add Medicine records by saying "Medicine" at the main menu.<br><br>
