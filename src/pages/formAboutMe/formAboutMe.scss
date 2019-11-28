@@ -10,13 +10,13 @@ formAboutMe-page {
 	.forms-examples-content
     {
 		background-color: color($colors, background, base);
-	
+
 		.form-section
 		{
 			padding: 0px 0px;
 			@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 
-			.columnAlign 
+			.columnAlign
 			{
                 margin-top: 30px;
 				vertical-align: bottom;
@@ -30,7 +30,7 @@ formAboutMe-page {
                 color: $theme-color-1;
                 font-weight: 400;
                 margin-top: 25px;
-            }           
+            }
             .section-titleleft
             {
                 font-size: 1.8rem;
@@ -42,7 +42,7 @@ formAboutMe-page {
 				margin-top: 25px;
 				margin-left: 10px;
 				margin-bottom: 0px;
-            }           
+            }
 
 
             .title-notconfirmed{
@@ -65,7 +65,7 @@ formAboutMe-page {
                 color: $theme-color-1;
                 font-weight: 100;
                 margin: 0px;
-            }           
+            }
 
 			.section-footnote
             {
@@ -76,7 +76,17 @@ formAboutMe-page {
                 color: $black-d;;
                 font-weight: 100;
                 margin: 0px;
-            }           
+            }
+        .section-toggle
+            {
+                font-size: 1.6rem;
+                //line-height: 1.2;
+                //letter-spacing: 1.1px;
+                text-align: left;
+                color: $black-d;;
+                font-weight: 100;
+                margin: 0px;
+            }
 
 			.time-item
 			{
@@ -150,7 +160,7 @@ formAboutMe-page {
 				&:first-of-type {
 					margin-top: 0px;
 				}
-	
+
 				ion-datetime {
 					@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 
@@ -163,12 +173,12 @@ formAboutMe-page {
 						color: $black-d;
 					}
 
-				}	
-	
+				}
+
 			}
 		}
 
-		
+
 	}
 
 }

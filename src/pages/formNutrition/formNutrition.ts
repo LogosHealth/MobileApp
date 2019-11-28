@@ -112,6 +112,8 @@ export class FormNutritionPage {
     var mealsArray: FormArray;
     var mealSave: ListNutrition;
     var meal: FormGroup;
+    var self = this;
+
     let alert = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to delete this day and all these meals?',
@@ -164,7 +166,6 @@ export class FormNutritionPage {
                     }
                 };
                 var body = JSON.stringify(this.formDaySave);
-                var self = this;
                 console.log('Calling Post', this.formDaySave);
                 apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
                 .then(function(result){

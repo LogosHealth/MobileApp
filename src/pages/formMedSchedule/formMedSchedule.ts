@@ -33,6 +33,7 @@ export class FormMedSchedule {
   hasActiveSched: boolean = true;
   activeProfileID: number;
   profiles = [];
+  realProfiles = [];
   modelSave: TreatmentResult  = new TreatmentResult();
   category: HistoryItemModel = new HistoryItemModel();
   userTimezone: any;
@@ -446,32 +447,9 @@ export class FormMedSchedule {
 }
 
   public today() {
-    return new Date().toISOString().substring(0,10);
-  }
-/*
-  formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
+    return moment().format('YYYY-MM-DD');;
   }
 
-  formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm a');
-    }
-  }
-
-  formatDateTime3(dateString) {
-    var tzoffset = (new Date()).getTimezoneOffset() /60; //offset in hours
-    var dtConvert = moment(dateString);
-    dtConvert = moment(dtConvert).add(tzoffset, 'hours');
-    return dtConvert.format('dddd, MMM DD hh:mm A');
-  }
-*/
   async ionViewCanLeave() {
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();
@@ -566,24 +544,6 @@ export class FormMedSchedule {
   }
 }
 
-/*populateProfilesNotify() {
-  if (this.modelSave.notifyprofiles !== undefined && this.modelSave.notifyprofiles !== null && this.modelSave.notifyprofiles !== "") {
-    var notp = this.modelSave.notifyprofiles;
-    var notifys = notp.split(",");
-    this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
-    for (var l = 0; l < notifys.length; l++) {
-      for (var k = 0; k < this.profilesNotify.length; k++) {
-        if (Number(notifys[l].trim()) == this.profilesNotify.at(k).value.profileid) {
-          this.profilesNotify.at(k).get("selected").setValue(true);
-          //console.log('Set selected for ' + this.profilesNotify.at(k).value.profileid);
-        }
-      }
-    }
-    this.card_form.markAsPristine();
-  }
-}
-*/
-
 createItem(): FormGroup {
     return this.formBuilder.group({
       profileid: new FormControl(),
@@ -601,7 +561,8 @@ createItem(): FormGroup {
   addExistingProfiles() {
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
     this.profilesNotify.removeAt(0);
-    for (var j = 0; j < this.RestService.Profiles.length; j++) {
+    this.realProfiles = this.RestService.getRealProfiles();
+    for (var j = 0; j < this.realProfiles.length; j++) {
       this.profilesNotify.push(this.addExistingProfile(j));
     }
     console.log('Profiles Notify ', this.profilesNotify);
@@ -610,9 +571,9 @@ createItem(): FormGroup {
 
   addExistingProfile(index): FormGroup {
     return this.formBuilder.group({
-      profileid: new FormControl(this.RestService.Profiles[index].profileid),
-      firstname: new FormControl(this.RestService.Profiles[index].title),
-      photopath: new FormControl(this.RestService.Profiles[index].imageURL),
+      profileid: new FormControl(this.realProfiles[index].profileid),
+      firstname: new FormControl(this.realProfiles[index].title),
+      photopath: new FormControl(this.realProfiles[index].imageURL),
       selected: new FormControl(false),
     });
   }

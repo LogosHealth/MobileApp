@@ -8,6 +8,7 @@ export class AboutMe {
   lastname: string;
   ssn: string;
   primaryflag: number;
+  hidesample: string;
   streetaddress: string;
   city: string;
   state: number;

@@ -61,6 +61,7 @@ export class FormAboutMe {
       lastname: new FormControl(null, Validators.required),
       ssn: new FormControl(),
       primaryflag: new FormControl(),
+      hidesample: new FormControl(),
       streetaddress: new FormControl(null, Validators.required),
       city: new FormControl(null, Validators.required),
       state: new FormControl(null, Validators.required),
@@ -231,6 +232,11 @@ export class FormAboutMe {
         } else {
           self.primary = false;
           self.card_form.controls["relationtoprimary"].setValidators(Validators.required);
+        }
+        if (self.list2[0].hidesample == 'Y') {
+          self.card_form.controls["hidesample"].setValue(true);
+        } else {
+          self.card_form.controls["hidesample"].setValue(false);
         }
         self.card_form.controls["streetaddress"].setValue(self.list2[0].streetaddress);
         self.card_form.controls["city"].setValue(self.list2[0].city);
@@ -660,6 +666,14 @@ export class FormAboutMe {
     if (this.card_form.controls["primaryflag"].dirty) {
       this.saveModel.primaryflag = this.card_form.controls["primaryflag"].value;
     }
+    if (this.card_form.controls["hidesample"].dirty) {
+      if (this.card_form.controls["hidesample"].value == true) {
+        this.saveModel.hidesample = 'Y';
+      } else {
+        this.saveModel.hidesample = 'N';
+      }
+    }
+
     if (this.card_form.controls["streetaddress"].dirty) {
       this.saveModel.streetaddress = this.card_form.controls["streetaddress"].value;
     }
@@ -938,6 +952,13 @@ export class FormAboutMe {
     }
     if (this.card_form.controls["primaryflag"].dirty) {
       this.saveModel.primaryflag = this.card_form.controls["primaryflag"].value;
+    }
+    if (this.card_form.controls["hidesample"].dirty) {
+      if (this.card_form.controls["hidesample"].value == true) {
+        this.saveModel.hidesample = 'Y';
+      } else {
+        this.saveModel.hidesample = 'N';
+      }
     }
     if (this.card_form.controls["streetaddress"].dirty) {
       this.saveModel.streetaddress = this.card_form.controls["streetaddress"].value;

@@ -32,6 +32,7 @@ export class FormSchedulePage {
   hasActiveSched: boolean = true;
   activeProfileID: number;
   profiles = [];
+  realProfiles = [];
   scheduleModelSave: ListSchedule  = new ListSchedule();
   scheduleSave: ActivatedSchedule = new ActivatedSchedule();
   scheduleSaveArray: ActivatedSchedules = new ActivatedSchedules();
@@ -117,11 +118,12 @@ export class FormSchedulePage {
       var eligible: Eligible = new Eligible();
       this.newRec = true;
       this.isCustom = true;
+      this.realProfiles = this.RestService.getRealProfiles();
       for (j = 0; j < this.RestService.Profiles.length; j++) {
         eligible = new Eligible();
-        eligible.profileid = this.RestService.Profiles[j].profileid;
-        eligible.firstname = this.RestService.Profiles[j].title;
-        eligible.photopath = this.RestService.Profiles[j].imageURL;
+        eligible.profileid = this.realProfiles[j].profileid;
+        eligible.firstname = this.realProfiles[j].title;
+        eligible.photopath = this.realProfiles[j].imageURL;
         //console.log('Photopath for index: ' + j + ', ' + this.RestService.Profiles[j].imageURL);
         //console.log('Eligible: ', eligible);
         eligibles.push(eligible);
@@ -953,16 +955,17 @@ export class FormSchedulePage {
   addExistingProfiles() {
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
     this.profilesNotify.removeAt(0);
-    for (var j = 0; j < this.RestService.Profiles.length; j++) {
+    this.realProfiles = this.RestService.getRealProfiles();
+    for (var j = 0; j < this.realProfiles.length; j++) {
       this.profilesNotify.push(this.addExistingProfile(j));
     }
   }
 
   addExistingProfile(index): FormGroup {
     return this.formBuilder.group({
-      profileid: new FormControl(this.RestService.Profiles[index].profileid),
-      firstname: new FormControl(this.RestService.Profiles[index].title),
-      photopath: new FormControl(this.RestService.Profiles[index].imageURL),
+      profileid: new FormControl(this.realProfiles[index].profileid),
+      firstname: new FormControl(this.realProfiles[index].title),
+      photopath: new FormControl(this.realProfiles[index].imageURL),
       selected: new FormControl(false),
     });
   }

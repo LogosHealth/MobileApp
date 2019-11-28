@@ -125,6 +125,8 @@ export class WalkthroughPage implements OnInit {
   for (var i = 0; i < this.RestService.Profiles.length; i++) {
     if (this.RestService.Profiles[i].image == 'AWS') {
       blnHasPics = true;
+    } else if (this.RestService.Profiles[i].image == './assets/images/listing/Family/sampleSally.jpg') {
+      this.RestService.Profiles[i].imageURL = './assets/images/listing/Family/sampleSally.jpg';
     } else {
       this.RestService.Profiles[i].imageURL = './assets/images/listing/Family/300x300AddImageWithText.jpg';
     }
@@ -411,7 +413,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.70');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.71');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {

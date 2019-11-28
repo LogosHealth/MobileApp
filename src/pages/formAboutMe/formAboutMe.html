@@ -45,6 +45,14 @@
                 </ion-item>
                 </ion-col>
               </ion-row>
+              <ion-row>
+                  <ion-col *ngIf="primary">
+                    <ion-item>
+                      <ion-label class="section-toggle">Hide Sample Profile</ion-label>
+                      <ion-toggle item-start formControlName="hidesample"></ion-toggle>
+                    </ion-item>
+                  </ion-col>
+              </ion-row>
 
               <ion-row no-padding width-50 *ngIf="!primary">
                 <ion-col>
@@ -274,7 +282,7 @@
               <div  *ngIf="!isPet" >
                 <div formArrayName="races" *ngFor="let race of card_form.get('races').controls; let i = index;">
                   <ion-row [formGroupName]="i">
-                    <ion-col no-padding width-50>
+                    <ion-col no-padding width-70>
                       <ion-item text-wrap>
                         <ion-label floating>Race</ion-label>
                         <ion-select formControlName="racecode">
@@ -283,12 +291,12 @@
                       </ion-item>
                     </ion-col>
                     <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
-                      <button ion-button block class="form-action-button create-card-button"  type="button"
-                      (click)="addRace()">Add Race</button>
+                      <button ion-button type="button"
+                      (click)="addRace()">+ Race</button>
                     </ion-col>
                     <ion-col class="columnAlign" no-padding width-25 *ngIf="i>0">
-                      <button ion-button block class="form-action-button create-card-button"  type="button"
-                      (click)="removeRace(i)">Remove Race</button>
+                      <button ion-button type="button"
+                      (click)="removeRace(i)">- Race</button>
                     </ion-col>
                   </ion-row>
                 </div>

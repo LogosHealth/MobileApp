@@ -29,7 +29,7 @@ export class FormChooseProfile {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public viewCtrl: ViewController) {
-    this.curRec = this.RestService.Profiles;
+    this.curRec = this.RestService.getRealProfiles();
     this.userAction = navParams.get('action');
     if (this.userAction == 'changeUser') {
       console.log('User Action is changeUser: ');

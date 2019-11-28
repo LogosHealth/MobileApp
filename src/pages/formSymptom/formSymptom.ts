@@ -7,6 +7,7 @@ import { HistoryItemModel } from '../../pages/history/history.model';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
 import { SymptomModel, Symptom } from './formSymptom.model';
+import { ListMedicationPage } from '../../pages/listMedication/listMedication';
 
 var moment = require('moment-timezone');
 
@@ -553,6 +554,73 @@ calculateEndDate() {
         self.loading.dismiss();
         callback(result, null);
       });
+  }
+
+  addFromCabinet() {
+    var cat;
+    this.checkSave = true;
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in addFromCabinet.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from addFromCabinet');
+      } else {
+        if (result) {
+          cat = {title: 'Medicine Cabinet'};
+          self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.fromEvent });
+        } else if (!result) {
+          console.log('addFromCabinet.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  }
+
+  confirmSaveDirect(callback) {
+    const alert = this.alertCtrl.create({
+      title: 'Save to Continue',
+      message: 'This navigation will auto-save the current record.  Continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+          handler: () => {
+            this.checkSave = false;
+            callback(null, false);
+          }
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            console.log('Confirm Save - Yes handle start');
+            this.checkSave = false;
+            var self = this;
+            this.navSaveRecord(function(err, results) {
+              if (err) {
+                console.log('Err from navSaveRecord: ', err);
+                callback(err, false);
+              } else {
+                console.log('Results from navSaveRecord: ', results);
+                if (self.newRec) {
+                  var symptom = self.card_form.get('symptom').value;
+                  self.curRec = {recordid: results, symptom: symptom};
+                  self.loadFromId = results;
+                  console.log('new Medical Condition record: ', self.curRec);
+                } else {
+                  self.loadFromId = self.curRec.recordid;
+                }
+                callback(null, true);
+              }
+            });
+          }
+        }
+      ]
+    });
+    if (!this.saving && this.card_form.dirty && this.checkSave) {
+      alert.present();
+    } else {
+      this.loadFromId = this.curRec.recordid;
+      callback(null, true);
+    }
   }
 
   public today() {

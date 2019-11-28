@@ -86,6 +86,18 @@ export class RestService {
       }
     }
 
+    //Returns only real profiles
+    getRealProfiles() {
+      var realProfiles = [];
+
+      for (var j = 0; j < this.Profiles.length; j++) {
+        if (this.Profiles[j].issample == 'N') {
+            realProfiles.push(this.Profiles[j]);
+        }
+      }
+      return realProfiles;
+    }
+
     curUserObj (callback) {
       var foundObj = false;
       //console.log("curUserObj currentProfile:" + this.currentProfile);

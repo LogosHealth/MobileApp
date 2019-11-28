@@ -50,6 +50,7 @@ export class FormChooseNotify {
   momentNow: any;
   monthNow: any;
   yearNow: any;
+  realProfiles = [];
   monthDefaultNext: any;
   yearDefaultNext: any;
   dictionaries: DictionaryModel = new DictionaryModel();
@@ -226,7 +227,8 @@ export class FormChooseNotify {
     //console.log('Month Default Next:' + this.monthDefaultNext);
     var eligibles = [];
     var eligible: Eligible = new Eligible();
-    for (var j = 0; j < this.RestService.Profiles.length; j++) {
+    var geteligibles = this.RestService.getRealProfiles();
+    for (var j = 0; j < geteligibles.length; j++) {
       eligible = new Eligible();
       eligible.profileid = this.RestService.Profiles[j].profileid;
       eligible.firstname = this.RestService.Profiles[j].title;
@@ -486,7 +488,8 @@ export class FormChooseNotify {
   addExistingProfiles() {
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
     this.profilesNotify.removeAt(0);
-    for (var j = 0; j < this.RestService.Profiles.length; j++) {
+    this.realProfiles = this.RestService.getRealProfiles()
+    for (var j = 0; j < this.realProfiles.length; j++) {
       this.profilesNotify.push(this.addExistingProfile(j));
     }
     console.log('Profiles Notify ', this.profilesNotify);
@@ -495,9 +498,9 @@ export class FormChooseNotify {
 
   addExistingProfile(index): FormGroup {
     return this.formBuilder.group({
-      profileid: new FormControl(this.RestService.Profiles[index].profileid),
-      firstname: new FormControl(this.RestService.Profiles[index].title),
-      photopath: new FormControl(this.RestService.Profiles[index].imageURL),
+      profileid: new FormControl(this.realProfiles[index].profileid),
+      firstname: new FormControl(this.realProfiles[index].title),
+      photopath: new FormControl(this.realProfiles[index].imageURL),
       selected: new FormControl(false),
     });
   }
