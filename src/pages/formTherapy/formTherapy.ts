@@ -47,6 +47,7 @@ export class FormTherapy {
   loadFromId: number;
   fromType: any;
   fromEvent: any;
+  fromSymptom: any;
   eventVisit: any;
   comingBack: boolean = false;
 
@@ -76,11 +77,13 @@ export class FormTherapy {
     this.loadFromId = navParams.get('loadFromId');
     this.fromType = navParams.get('fromType');
     this.fromEvent = navParams.get('fromEvent');
+    this.fromSymptom = navParams.get('fromSymptom');
     this.eventVisit = navParams.get('eventVisit');
     console.log('Init formProc recId', this.recId);
     console.log('Init formProc curRec', this.curRec);
     console.log('Init formProc fromVisit', this.fromVisit);
     console.log('Init formProc fromEvent', this.fromEvent);
+    console.log('Init formProc fromSymptom', this.fromSymptom);
     console.log('Init formProc eventVisit', this.eventVisit);
     console.log('Init formProc fromType: ', this.fromType);
     var self = this;
@@ -123,6 +126,7 @@ export class FormTherapy {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         medicaleventid: new FormControl(this.curRec.medicaleventid),
+        symptomid: new FormControl(this.curRec.symptomid),
         verbatimindication: new FormControl(this.curRec.verbatimindication),
         visitid: new FormControl(this.curRec.visitid),
         visittext: new FormControl(visittext),
@@ -165,6 +169,7 @@ export class FormTherapy {
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
+        symptomid: new FormControl(),
         verbatimindication: new FormControl(),
         visitid: new FormControl(),
         visittext: new FormControl(),
@@ -204,13 +209,23 @@ export class FormTherapy {
       } else {
         this.showPhysician = true;
       }
+      console.log('Before from check - fromSymptom: ', this.fromSymptom);
       if (this.fromEvent !==undefined && this.fromEvent !==null && this.fromEvent.recordid !== undefined && this.fromEvent.recordid > 0) {
         this.card_form.get('medicaleventid').setValue(this.fromEvent.recordid);
         this.card_form.get('verbatimindication').setValue(this.fromEvent.medicalevent);
         this.hasEvent = true;
         this.aboutProfile = this.fromEvent.profileid;
+        console.log('fromEvent accessed - symptom field updated: ', this.card_form.get('medicaleventid').value);
+      } else if (this.fromSymptom !==undefined && this.fromSymptom !==null && this.fromSymptom.symptomid !== undefined && this.fromSymptom.symptomid > 0) {
+        this.card_form.get('symptomid').setValue(this.fromSymptom.symptomid);
+        this.card_form.get('verbatimindication').setValue(this.fromSymptom.symptomname);
+        this.hasEvent = true;
+        this.aboutProfile = this.fromSymptom.profileid;
+        console.log('From Symptom accessed - symptom field updated: ', this.card_form.get('symptomid').value);
       } else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
         this.aboutProfile = this.eventVisit.profileid;
+      } else {
+        console.log('Not from any object - directly from therapy tile');
       }
     }
   }
@@ -594,6 +609,9 @@ export class FormTherapy {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -616,6 +634,9 @@ export class FormTherapy {
       this.formSave.therapyname = this.therapyname.value;
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
       }
       if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
         this.formSave.visitid = this.card_form.get('visitid').value;
@@ -750,6 +771,9 @@ export class FormTherapy {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -772,6 +796,9 @@ export class FormTherapy {
       this.formSave.therapyname = this.therapyname.value;
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
+      }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
       }
       if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
         this.formSave.visitid = this.card_form.get('visitid').value;
@@ -881,6 +908,7 @@ export class FormTherapy {
     } else {
       this.loadFromId = this.curRec.recordid;
       this.checkSave = false;
+      this.comingBack = true;
       callback(null, true);
     }
   }

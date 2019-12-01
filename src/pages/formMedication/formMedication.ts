@@ -1382,6 +1382,8 @@ export class FormMedication {
     if (!this.saving && this.card_form.dirty && this.checkSave) {
       alert.present();
     } else {
+      this.loadFromId = this.curRec.recordid;
+      this.comingBack = true;
       callback(null, true);
     }
   }

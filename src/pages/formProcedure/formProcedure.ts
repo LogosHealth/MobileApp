@@ -83,6 +83,7 @@ export class FormProcedure {
     console.log('Init formProc curRec', this.curRec);
     console.log('Init formProc fromVisit', this.fromVisit);
     console.log('Init formProc fromEvent', this.fromEvent);
+    console.log('Init formProc fromSymptom', this.fromSymptom);
     console.log('Init formProc eventVisit', this.eventVisit);
     console.log('Init formProc fromType: ', this.fromType);
     var self = this;
@@ -208,19 +209,27 @@ export class FormProcedure {
       } else {
         this.showPhysician = true;
       }
-      if (this.fromEvent !==undefined && this.fromEvent !==null && this.fromEvent.recordid !== undefined && this.fromEvent.recordid > 0) {
+      console.log('Before from check - fromSymptom: ', this.fromSymptom);
+      if (this.fromEvent !==undefined && this.fromEvent !==null && this.fromEvent.recordid !== undefined &&
+       this.fromEvent.recordid > 0) {
         this.card_form.get('medicaleventid').setValue(this.fromEvent.recordid);
         this.card_form.get('verbatimindication').setValue(this.fromEvent.medicalevent);
         this.hasEvent = true;
         this.aboutProfile = this.fromEvent.profileid;
-      } else if (this.fromSymptom !==undefined && this.fromSymptom !==null && this.fromSymptom.recordid !== undefined && this.fromSymptom.recordid > 0) {
-        this.card_form.get('symptomid').setValue(this.fromSymptom.recordid);
+        console.log('fromEvent accessed - symptom field updated: ', this.card_form.get('medicaleventid').value);
+      } else if (this.fromSymptom !==undefined && this.fromSymptom !==null && this.fromSymptom.symptomid !== undefined &&
+       this.fromSymptom.symptomid > 0) {
+        this.card_form.get('symptomid').setValue(this.fromSymptom.symptomid);
         this.card_form.get('verbatimindication').setValue(this.fromSymptom.symptomname);
         this.hasEvent = true;
         this.aboutProfile = this.fromSymptom.profileid;
-      }else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
+        console.log('From Symptom accessed - symptom field updated: ', this.card_form.get('symptomid').value);
+      } else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
         this.aboutProfile = this.eventVisit.profileid;
+      } else {
+        console.log('Not from any object - directly from procedure tile');
       }
+
     }
   }
 
@@ -631,6 +640,9 @@ export class FormProcedure {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -790,6 +802,9 @@ export class FormProcedure {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').value !== undefined && this.card_form.get('visitid').value !== null){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -897,6 +912,7 @@ export class FormProcedure {
       alert.present();
     } else {
       this.loadFromId = this.curRec.recordid;
+      this.comingBack = true;
       this.checkSave = false;
       callback(null, true);
     }

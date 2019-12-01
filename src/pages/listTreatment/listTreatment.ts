@@ -23,6 +23,8 @@ export class ListTreatmentPage {
   loadFromId: any;
   medication: any;
   fromEvent: any;
+  fromSymptom: any;
+  isSymptom: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -35,10 +37,14 @@ export class ListTreatmentPage {
     this.feed.category = navParams.get('category');
     this.loadFromId = navParams.get('loadFromId');
     this.fromEvent = navParams.get('fromEvent');
+    this.fromSymptom = navParams.get('fromSymptom');
 
     if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.loadFromId == undefined) {
       this.loadFromId = this.fromEvent.medicaleventid;
       console.log('LoadFromId added from fromEvent');
+    } else if (this.fromSymptom !== undefined && this.fromSymptom.symptomid !== undefined && this.loadFromId == undefined) {
+      this.loadFromId = this.fromSymptom.symptomid;
+      this.isSymptom = true;
     }
 
     var self = this;
@@ -93,12 +99,22 @@ export class ListTreatmentPage {
     var additionalParams;
 
     if (this.loadFromId !== undefined && this.loadFromId > 0) {
-      additionalParams = {
-        queryParams: {
-            profileid: this.RestService.currentProfile,
-            loadFromId: this.loadFromId
-        }
-      };
+      if (this.isSymptom == true) {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile,
+              loadFromId: this.loadFromId,
+              isSymptom: 'Y'
+          }
+        };
+      } else {
+        additionalParams = {
+          queryParams: {
+              profileid: this.RestService.currentProfile,
+              loadFromId: this.loadFromId
+          }
+        };
+      }
     } else {
       additionalParams = {
         queryParams: {

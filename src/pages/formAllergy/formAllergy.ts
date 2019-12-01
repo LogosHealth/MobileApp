@@ -1076,6 +1076,7 @@ export class FormAllergyPage {
       alert.present();
     } else {
       this.loadFromId = this.curRec.recordid;
+      this.comingBack = true;
       callback(null, true);
     }
   }

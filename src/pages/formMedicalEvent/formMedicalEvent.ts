@@ -1062,6 +1062,7 @@ export class FormMedicalEvent {
       alert.present();
     } else {
       this.loadFromId = this.curRec.recordid;
+      this.comingBack = true;
       callback(null, true);
     }
   }
@@ -1661,7 +1662,7 @@ updateEventTreatment(index) {
         alert('There is an error in saving the medication record from updateEventTreatment');
       } else {
         if (result) {
-          cat = {title: 'Procedure'};
+          cat = {title: 'Therapy'};
           var fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.curRec.profileid };
           self.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, eventVisit: self.visitInfo, fromEvent: fromEvent });
         } else if (!result) {
@@ -1678,20 +1679,55 @@ updateSymptomTreatment(parentIndex, index) {
   var self = this;
   var symptoms = this.card_form.get('symptoms') as FormArray;
   var symptomid = symptoms.at(parentIndex).get('recordid').value;
+  var symptomname = symptoms.at(parentIndex).get('namevalue').value;
   var treatments =  symptoms.at(parentIndex).get('treatments') as FormArray;
   var objType = treatments.at(index).get('type').value;
   var objRecordid = treatments.at(index).get('reftablefieldid').value;
+  var fromSymptom;
 
   if (objType == 'medication') {
     this.checkSave = true;
     this.confirmSaveDirect(function(err, result) {
       if (err) {
-        console.log('Error in updateSymptomTreatment.confirmSaveDirect' + err);
+        console.log('Error in updateSymptomTreatment-medication.confirmSaveDirect' + err);
         alert('There is an error in saving the medication record from updateSymptomTreatment');
       } else {
         if (result) {
           cat = {title: 'Medication'};
-          self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromSymptom: symptomid });
+          fromSymptom = {symptomid: symptomid, symptomname: symptomname, profileid: self.curRec.profileid };
+          self.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
+        } else if (!result) {
+          console.log('updateSymptomTreatment-medication.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  } else if (objType == 'procedure') {
+    this.checkSave = true;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateSymptomTreatment-procedure.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateSymptomTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Procedure'};
+          fromSymptom = {symptomid: symptomid, symptomname: symptomname, profileid: self.curRec.profileid };
+          self.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
+        } else if (!result) {
+          console.log('updateSymptomTreatment-procedure.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
+  } else if (objType == 'therapy') {
+    this.checkSave = true;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in updateSymptomTreatment-therapy.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from updateSymptomTreatment');
+      } else {
+        if (result) {
+          cat = {title: 'Therapy'};
+          fromSymptom = {symptomid: symptomid, symptomname: symptomname, profileid: self.curRec.profileid };
+          self.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
         } else if (!result) {
           console.log('updateSymptomTreatment.ConfirmSaveDirect - User cancelled');
         }

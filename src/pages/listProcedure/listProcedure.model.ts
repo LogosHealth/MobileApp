@@ -1,6 +1,7 @@
 export class Procedure {
   recordid: number;
   medicaleventid: number;
+  symptomid: number;
   verbatimindication: string;
   treatmentid: number;
   visitid: number;
