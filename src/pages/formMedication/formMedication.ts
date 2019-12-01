@@ -56,6 +56,7 @@ export class FormMedication {
   treatmentresults: FormArray;
   eventList: any = [];
   currentEvent: any;
+  comingBack: boolean = false;
 
   //set at addBasicInfo - if in basic mode and has a treatment result, diable add button as basic mode requires only 1 treatment result
   basicModeHasTR: boolean = false;
@@ -205,17 +206,24 @@ export class FormMedication {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
-
     this.checkSave = false;
+    this.saving = false;
+    this.card_form.markAsPristine();
+    this.medication.markAsPristine();
+
     if (dtNow < dtExpiration) {
-      console.log('Presenting Default');
-      this.presentLoadingDefault();
-      this.loadFilterList();
-      this.medication.valueChanges.debounceTime(700).subscribe(search => {
-        this.setFilteredItems();
-      });
-      console.log('ionViewWillEnter - going to dismiss');
-      //this.loading.dismiss();
+      if (!this.comingBack) {
+        this.presentLoadingDefault();
+        this.loadFilterList();
+        this.medication.valueChanges.debounceTime(700).subscribe(search => {
+          this.setFilteredItems();
+        });
+      } else {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDetails();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -224,12 +232,16 @@ export class FormMedication {
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From formMedication - Credentials refreshed!');
-          self.loadFilterList();
-          self.medication.valueChanges.debounceTime(700).subscribe(search => {
-            self.setFilteredItems();
-          });
-          //this.loading.dismiss();
+          if (!self.comingBack) {
+            self.loadFilterList();
+            self.medication.valueChanges.debounceTime(700).subscribe(search => {
+              self.setFilteredItems();
+            });
+          } else {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            self.loadDetails();
+          }
         }
       });
     }
@@ -1350,10 +1362,12 @@ export class FormMedication {
                 callback(err, false);
               } else {
                 console.log('Results from navSaveRecord: ', results);
+                self.comingBack = true;
                 if (self.newRec) {
                   self.curRec = self.eventSave;
                   self.curRec.recordid = results;
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Medication record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;

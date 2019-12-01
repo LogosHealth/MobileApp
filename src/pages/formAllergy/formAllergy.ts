@@ -76,6 +76,7 @@ export class FormAllergyPage {
   //hasBodyArea: boolean = false;
   symptoms: FormArray;
   treatments: FormArray;
+  comingBack: boolean = false;
 
   iiBlankAdded: boolean = false;
   eventTerm: string = '';
@@ -228,7 +229,7 @@ export class FormAllergyPage {
         visitid: new FormControl(this.visitid),
         visittext: new FormControl(),
         ischronic: new FormControl(),
-        isallergy: new FormControl(),
+        isallergy: new FormControl(true),
         ismedicallyconfirmed: new FormControl(),
         physicianid: new FormControl(),
         physiciantitle: new FormControl(),
@@ -251,13 +252,21 @@ export class FormAllergyPage {
     this.checkSave = false;
     this.saving = false;
     this.card_form.markAsPristine();
+    this.medicalevent.markAsPristine();
+    console.log('From frmAllergy ionViewWillEnter curRec: ', this.curRec);
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
-      this.loadFilterList();
-      this.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
-        this.setFilteredItems();
-      });
-      //this.loading.dismiss();
+      if (!this.comingBack) {
+        this.presentLoadingDefault();
+        this.loadFilterList();
+        this.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
+          this.setFilteredItems();
+        });
+      } else {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDetails();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -267,11 +276,16 @@ export class FormAllergyPage {
           self.RestService.appRestart();
         } else {
           console.log('From formMedicalEvent - Credentials refreshed!');
-          self.loadFilterList();
-          self.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
-            self.setFilteredItems();
-          });
-          //self.loading.dismiss();
+          if (!self.comingBack) {
+            self.loadFilterList();
+            self.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
+              self.setFilteredItems();
+            });
+          } else {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            self.loadDetails();
+          }
         }
       });
     }
@@ -536,13 +550,13 @@ export class FormAllergyPage {
           this.eventSave.chronicflag = 'N';
         }
       }
-      if (this.card_form.get('isallergy').dirty){
-        if (this.card_form.get('isallergy').value == true) {
+
+      if (this.card_form.get('isallergy').value == true) {
           this.eventSave.isallergy = 'Y';
-        } else {
+      } else {
           this.eventSave.isallergy = 'N';
-        }
       }
+
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -615,13 +629,13 @@ export class FormAllergyPage {
           this.eventSave.chronicflag = 'N';
         }
       }
-      if (this.card_form.get('isallergy').dirty){
-        if (this.card_form.get('isallergy').value == true) {
+
+      if (this.card_form.get('isallergy').value == true) {
           this.eventSave.isallergy = 'Y';
-        } else {
+      } else {
           this.eventSave.isallergy = 'N';
-        }
       }
+
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -755,13 +769,13 @@ export class FormAllergyPage {
           this.eventSave.chronicflag = 'N';
         }
       }
-      if (this.card_form.get('isallergy').dirty){
-        if (this.card_form.get('isallergy').value == true) {
+
+      if (this.card_form.get('isallergy').value == true) {
           this.eventSave.isallergy = 'Y';
-        } else {
+      } else {
           this.eventSave.isallergy = 'N';
-        }
       }
+
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -816,13 +830,13 @@ export class FormAllergyPage {
           this.eventSave.chronicflag = 'N';
         }
       }
-      if (this.card_form.get('isallergy').dirty){
-        if (this.card_form.get('isallergy').value == true) {
-          this.eventSave.isallergy = 'Y';
-        } else {
-          this.eventSave.isallergy = 'N';
-        }
+
+      if (this.card_form.get('isallergy').value == true) {
+        this.eventSave.isallergy = 'Y';
+      } else {
+        this.eventSave.isallergy = 'N';
       }
+
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -1041,10 +1055,12 @@ export class FormAllergyPage {
                 callback(err, false);
               } else {
                 console.log('Results from navSaveRecord: ', results);
+                self.comingBack = true;
                 if (self.newRec) {
                   var medicalevent = self.eventTerm;
                   self.curRec = {recordid: results, medicalevent: medicalevent};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Medical Condition record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;

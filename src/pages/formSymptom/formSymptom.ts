@@ -8,6 +8,9 @@ import { FormMedication } from '../../pages/formMedication/formMedication';
 import { MenuTreatment } from '../../pages/menuTreatment/menuTreatment';
 import { SymptomModel, Symptom } from './formSymptom.model';
 import { ListMedicationPage } from '../../pages/listMedication/listMedication';
+import { FormProcedure } from '../../pages/formProcedure/formProcedure';
+import { FormTherapy } from '../formTherapy/formTherapy';
+import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
 
 var moment = require('moment-timezone');
 
@@ -42,6 +45,7 @@ export class FormSymptomPage {
   treatments: FormArray;
   loadFromId: any;
   fromEvent: any;
+  comingBack: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
     public navParams: NavParams, public popoverCtrl:PopoverController, public formBuilder: FormBuilder) {
@@ -98,6 +102,7 @@ export class FormSymptomPage {
         medicalevent: new FormControl(),
         treatments: this.formBuilder.array([]),
       });
+      this.addExistingTreatments();
     } else {
       this.newRec = true;
       this.card_form = new FormGroup({
@@ -117,10 +122,39 @@ export class FormSymptomPage {
   }
 
   ionViewWillEnter() {
+    var dtNow = moment(new Date());
+    var dtExpiration = moment(this.RestService.AuthData.expiration);
+    var self = this;
+
     this.checkSave = false;
     this.nav.getPrevious().data.refresh = false;
-    if (this.loadFromId !== undefined && this.loadFromId !== null && this.loadFromId > 0 ) {
-      this.loadDataSymptom();
+
+    this.saving = false;
+    this.card_form.markAsPristine();
+
+    if (dtNow < dtExpiration) {
+      if (this.comingBack) {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDataSymptom();
+      }
+      //this.loading.dismiss();
+    } else {
+      this.presentLoadingDefault();
+      this.RestService.refreshCredentials(function(err, results) {
+        if (err) {
+          console.log('Need to login again!!! - Credentials expired from formMedicalEvent');
+          self.loading.dismiss();
+          self.RestService.appRestart();
+        } else {
+          if (self.comingBack) {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            this.loadDataSymptom();
+          }
+        }
+      });
     }
   }
 
@@ -152,11 +186,11 @@ export class FormSymptomPage {
 
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.loading.dismiss();
       self.recId = 0;
       self.curRec = result.data[0];
       console.log('formSymptom.loadDetails: ', self.curRec);
       self.fillFormDetails();
+      self.loading.dismiss();
     }).catch( function(result){
         console.log(result);
         self.loading.dismiss();
@@ -186,11 +220,8 @@ export class FormSymptomPage {
     this.card_form.get('enddate').setValue(this.formatDateTime(this.curRec.enddate));
     this.card_form.get('endtime').setValue(this.formatTime(this.curRec.enddate));
     this.card_form.get('medicalevent').setValue(this.curRec.medicalevent);
-
-    if (this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined && this.curRec.treatments.items.length > 0) {
-      this.addExistingTreatments();
-    }
-    console.log('Event term from fillformdetails'+ this.curRec.medicationname);
+    this.addExistingTreatments();
+    //console.log('Event term from fillformdetails'+ this.curRec.medicationname);
   }
 
   deleteRecord(){
@@ -600,10 +631,12 @@ calculateEndDate() {
                 callback(err, false);
               } else {
                 console.log('Results from navSaveRecord: ', results);
+                self.comingBack = true;
                 if (self.newRec) {
                   var symptom = self.card_form.get('symptom').value;
                   self.curRec = {recordid: results, symptom: symptom};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Medical Condition record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;
@@ -716,22 +749,77 @@ calculateEndDate() {
   }
 
   loadMenu(dataObj) {
-    if (dataObj !== undefined && dataObj !== null) {
+    var fromType;
+    var self = this;
+    var formSymptom;
 
+    if (dataObj !== undefined && dataObj !== null) {
+      formSymptom = {symptomid: this.curRec.symptomid, symptomname: this.curRec.symptomname, profileid: this.RestService.currentProfile};
+      fromType = 'symptom';
       if (dataObj == 'Medication') {
         this.checkSave = true;
         var cat = {title: dataObj};
         console.log('Form load menu - curRec.recordid: ' +  this.curRec.recordid);
-        var formSymptom = {symptomid: this.curRec.symptomid, symptomname: this.curRec.symptomname}
-        this.nav.push(FormMedication, {category: cat, fromEvent: formSymptom});
+        this.nav.push(FormMedication, {category: cat, fromSymptom: formSymptom});
       } else if (dataObj == 'Procedure') {
         console.log('Add Procedure');
-      } else if (dataObj == 'Rehab Therapy') {
-        console.log('Add Rehab Therapy');
-      } else {
+        this.checkSave = true;
+        this.confirmSaveDirect(function(err, result) {
+          if (err) {
+            console.log('Error in loadMenu.confirmSaveDirect' + err);
+            alert('There is an error in saving the procedure record from loadMenu');
+          } else {
+            if (result) {
+              var cat = {title: dataObj};
+              console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
+              self.nav.push(FormProcedure, {category: cat, fromSymptom: formSymptom, fromType: fromType});
+            } else if (!result) {
+              console.log('loadMenu.ConfirmSaveDirect Procedure - User cancelled');
+            }
+          }
+        });
+        //alert('Coming soon.  From here, you will be able to add a new procedure which treats this event');
+        } else if (dataObj == 'Rehab Therapy') {
+          console.log('Add Therapy');
+          this.checkSave = true;
+          this.confirmSaveDirect(function(err, result) {
+            if (err) {
+              console.log('Error in loadMenu.confirmSaveDirect' + err);
+              alert('There is an error in saving the therapy record from loadMenu');
+            } else {
+              if (result) {
+                var cat = {title: dataObj};
+                console.log('Form load menu - curRec.recordid: ' +  self.curRec.recordid);
+                self.nav.push(FormTherapy, {category: cat, fromEvent: formSymptom, fromType: fromType});
+              } else if (!result) {
+                console.log('loadMenu.ConfirmSaveDirect Procedure - User cancelled');
+              }
+            }
+          });
+          } else {
         console.log ('No data in loadMenu');
       }
     }
+  }
+
+  viewAllTreatments() {
+    var cat;
+    this.checkSave = true;
+    var self = this;
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in viewAllTreatments.confirmSaveDirect' + err);
+        alert('There is an error in saving the medication record from viewAllTreatments');
+      } else {
+        if (result) {
+          cat = {title: 'Treatments'};
+          var fromSymptom = {symptomid: self.curRec.recordid, symptom: self.card_form.get('symptom').value, profileid: self.RestService.currentProfile };
+          self.nav.push(ListTreatmentPage, { category: cat, fromSymptom: fromSymptom });
+        } else if (!result) {
+          console.log('viewAllTreatments.ConfirmSaveDirect - User cancelled');
+        }
+      }
+    });
   }
 
   updateSymptomTreatment(index) {
@@ -748,14 +836,15 @@ calculateEndDate() {
       var formSymptom = {symptomid: this.curRec.symptomid, symptomname: this.curRec.symptomname}
       this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, formSymptom: formSymptom });
     }
+
   }
 
   addExistingTreatments() {
+    var exitLoop = 0;
     this.treatments = this.card_form.get('treatments') as FormArray;
     if (this.curRec !== undefined && this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined
       && this.curRec.treatments.items.length > 0) {
 
-        var exitLoop = 0;
         while (this.treatments.length !== 0 || exitLoop > 9) {
           this.treatments.removeAt(0);
           exitLoop = exitLoop + 1;
@@ -764,6 +853,11 @@ calculateEndDate() {
           this.treatments.push(this.addExistingTreatment(j));
         }
       console.log('Once symptoms are saved with medical event');
+    } else {
+      while (this.treatments.length !== 0 || exitLoop > 9) {
+        this.treatments.removeAt(0);
+        exitLoop = exitLoop + 1;
+      }
     }
   }
 

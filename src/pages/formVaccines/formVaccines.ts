@@ -125,6 +125,7 @@ export class FormVaccinesPage {
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
 
+    this.card_form.markAsPristine();
     this.checkSave = false;
     if (dtNow < dtExpiration) {
       this.presentLoadingDefault();
@@ -785,7 +786,8 @@ export class FormVaccinesPage {
                 if (self.newRec) {
                   self.curRec = {recordid: results};
                   self.loadFromId = results;
-                  console.log('new Procedure record: ', self.curRec);
+                  //self.card_form.get("recordid").setValue(results);
+                  console.log('new VaccineSched record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;
                 }

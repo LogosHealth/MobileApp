@@ -956,9 +956,11 @@ export class FormSchedulePage {
     this.profilesNotify = this.card_form.get('profilesnotify') as FormArray;
     this.profilesNotify.removeAt(0);
     this.realProfiles = this.RestService.getRealProfiles();
+    console.log('From addExistingProfiles - realProfiles: ', this.realProfiles);
     for (var j = 0; j < this.realProfiles.length; j++) {
       this.profilesNotify.push(this.addExistingProfile(j));
     }
+    console.log('From addExistingProfiles - profilesNotify: ', this.profilesNotify);
   }
 
   addExistingProfile(index): FormGroup {

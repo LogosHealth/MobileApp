@@ -213,6 +213,8 @@ export class FormMedicationResults {
       this.RestService.results[this.recId] = newSched;
     }
 
+    this.card_form.markAsPristine();
+
     if (dtNow < dtExpiration) {
       this.loadDetails();
     } else {
@@ -950,6 +952,7 @@ navSaveRecordDo(callback){
                 if (self.newRec) {
                   self.curRec = {recordid: results};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('New Treatment record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;

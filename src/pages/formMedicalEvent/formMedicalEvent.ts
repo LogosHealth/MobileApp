@@ -69,13 +69,13 @@ export class FormMedicalEvent {
   hasRelated: boolean = false;
   ismedicallyconfirmed: boolean  = false;
   hasPhysician: boolean = false;
-
   medicalevent: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
   bodyAreaList = [];
   hasBodyArea: boolean = false;
   symptoms: FormArray;
   treatments: FormArray;
+  comingBack: boolean = false;
 
   iiBlankAdded: boolean = false;
   eventTerm: string = '';
@@ -249,12 +249,21 @@ export class FormMedicalEvent {
     this.checkSave = false;
     this.saving = false;
     this.card_form.markAsPristine();
+    this.medicalevent.markAsPristine();
+
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
-      this.loadFilterList();
-      this.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
-        this.setFilteredItems();
-      });
+      if (!this.comingBack) {
+        this.presentLoadingDefault();
+        this.loadFilterList();
+        this.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
+          this.setFilteredItems();
+        });
+      } else {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDetails();
+      }
       //this.loading.dismiss();
     } else {
       this.presentLoadingDefault();
@@ -264,12 +273,16 @@ export class FormMedicalEvent {
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-          console.log('From formMedicalEvent - Credentials refreshed!');
-          self.loadFilterList();
-          self.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
-            self.setFilteredItems();
-          });
-          //self.loading.dismiss();
+          if (!self.comingBack) {
+            self.loadFilterList();
+            self.medicalevent.valueChanges.debounceTime(700).subscribe(search => {
+              self.setFilteredItems();
+            });
+          } else {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            self.loadDetails();
+          }
         }
       });
     }
@@ -305,9 +318,10 @@ export class FormMedicalEvent {
       .getFilter()
       .then(data => {
         self.listFilter.items = result.data;
-        console.log('Result data from loadFilterList: ', result.data);
-        console.log('Filter items from formMedicalEvents.loadFilterList: ', self.listFilter.items);
+        //console.log('Result data from loadFilterList: ', result.data);
+        //console.log('Filter items from formMedicalEvents.loadFilterList: ', self.listFilter.items);
         self.setFilteredItems();
+        console.log('From loadFilterList - loadFromId: ', self.loadFromId);
         if (self.loadFromId !== undefined && self.loadFromId !== null && self.loadFromId > 0) {
           self.loadDetails();
         } else {
@@ -1027,10 +1041,12 @@ export class FormMedicalEvent {
                 callback(err, false);
               } else {
                 console.log('Results from navSaveRecord: ', results);
+                self.comingBack = true;
                 if (self.newRec) {
                   var medicalevent = self.eventTerm;
                   self.curRec = {recordid: results, medicalevent: medicalevent};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Medical Condition record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;
@@ -1442,6 +1458,11 @@ addExistingSymptoms() {
           }
         }
       console.log('Once symptoms are saved with medical condition');
+  } else {
+    while (this.symptoms.length !== 0 || exitLoop > 9) {
+      this.symptoms.removeAt(0);
+      exitLoop = exitLoop + 1;
+    }
   }
 }
 
@@ -1461,18 +1482,23 @@ addTreatment4Symptom(objTreat): FormGroup {
 
 
 addExistingTreatments() {
+  var exitLoop = 0;
+
   this.treatments = this.card_form.get('treatments') as FormArray;
   if (this.curRec !== undefined && this.curRec.treatments !== undefined && this.curRec.treatments.items !== undefined
     && this.curRec.treatments.items.length > 0) {
-      var exitLoop = 0;
       while (this.treatments.length !== 0 || exitLoop > 9) {
         this.treatments.removeAt(0);
         exitLoop = exitLoop + 1;
       }
-
       for (var j = 0; j < this.curRec.treatments.items.length; j++) {
         this.treatments.push(this.addExistingTreatment(j));
       }
+  } else {
+    while (this.treatments.length !== 0 || exitLoop > 9) {
+      this.treatments.removeAt(0);
+      exitLoop = exitLoop + 1;
+    }
   }
 }
 

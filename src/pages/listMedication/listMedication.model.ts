@@ -20,6 +20,8 @@ export class ListMedication {
   confirmed: string;
   completeflag: string;
   startdate: string;
+  enddate: string;
+  lastdose: string;
   active: string;
   profileid: number;
   userid: number;

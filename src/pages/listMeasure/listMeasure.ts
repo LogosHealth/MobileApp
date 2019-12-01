@@ -140,6 +140,8 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.RestService.results = [];
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -181,12 +183,12 @@ export class ListMeasurePage {
             self.list2.items = self.RestService.results;
             self.noData = false;
             self.curObj = "bloodGlucose";
-            self.RestService.results = [];
-            self.list2.items = [];
             console.log("Results Data for loadDataBG: ", self.list2.items);
         } else {
           self.curObj = "bloodGlucose";
           self.noData = true;
+          self.RestService.results = [];
+          self.list2.items = [];
           console.log('Results from listVisit.loadData', self.RestService.results);
         }
         self.loading.dismiss();
@@ -194,6 +196,8 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.RestService.results = [];
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -247,6 +251,8 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.RestService.results = [];
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -300,6 +306,8 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.RestService.results = [];
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });
@@ -353,6 +361,8 @@ export class ListMeasurePage {
     }).catch( function(result){
         console.log(result);
         self.noData = true;
+        self.RestService.results = [];
+        self.list2.items = [];
         self.loading.dismiss();
         alert('There was an error retrieving this data.  Please try again later');
     });

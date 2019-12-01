@@ -2605,6 +2605,8 @@ export class FormVisitPage {
                   //var medicalevent = self.eventTerm;
                   self.curRec = {recordid: results};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
+
                   //console.log('new Medical Condition record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;

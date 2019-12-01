@@ -279,6 +279,10 @@ export class FormNutritionAdd {
           this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
           console.log('formNutrionAdd update - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
         }
+      } else {
+        offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+        offset = offsetDate.getTimezoneOffset() / 60;
+        this.formattedDate = this.formattedDate + ' 00:00';
       }
       if (this.card_form.get('amount').dirty){
         this.mealSave.amount = this.card_form.get('amount').value;
@@ -327,6 +331,10 @@ export class FormNutritionAdd {
         }
         this.formattedDate = this.formattedDate + ' ' + this.mealSave.mealtime;
         console.log('formattedDate insert: ' + this.formattedDate);
+      } else {
+        offsetDate = new Date(moment(this.dayofmeasure).toISOString());
+        offset = offsetDate.getTimezoneOffset() / 60;
+        this.formattedDate = this.formattedDate + ' 00:00';
       }
       if (this.card_form.get('amount').dirty){
         this.mealSave.amount = this.card_form.get('amount').value;
@@ -347,7 +355,8 @@ export class FormNutritionAdd {
       if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
         //console.log('IsoString: ' + moment(this.dayofmeasure).toISOString());
         this.mealSave.dateofmeasure = moment(this.formattedDate).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
-        console.log('formNutrionAdd insert - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate);
+        console.log('formNutrionAdd insert - dateofmeasure: ' + this.mealSave.dateofmeasure + ', formatted date: ' + this.formattedDate
+        + ', offset: ' + offset);
       } else {
         this.mealSave.dateofmeasure = moment(this.formattedDate).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
       }

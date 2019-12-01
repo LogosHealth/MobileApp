@@ -48,6 +48,7 @@ export class FormTherapy {
   fromType: any;
   fromEvent: any;
   eventVisit: any;
+  comingBack: boolean = false;
 
   therapyname: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -220,15 +221,21 @@ export class FormTherapy {
     var self = this;
 
     this.checkSave = false;
+    this.card_form.markAsPristine();
+    this.therapyname.markAsPristine();
     if (dtNow < dtExpiration) {
-      console.log('Presenting Default');
-      this.presentLoadingDefault();
-      this.loadFilterList();
-      this.therapyname.valueChanges.debounceTime(700).subscribe(search => {
-        this.setFilteredItems();
-      });
-      console.log('ionViewWillEnter - going to dismiss');
-      //this.loading.dismiss();
+      if (!this.comingBack) {
+        this.presentLoadingDefault();
+        this.loadFilterList();
+        this.therapyname.valueChanges.debounceTime(700).subscribe(search => {
+          this.setFilteredItems();
+        });
+      } else {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDetails();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -238,11 +245,16 @@ export class FormTherapy {
           self.RestService.appRestart();
         } else {
           console.log('From formMedication - Credentials refreshed!');
-          self.loadFilterList();
-          self.therapyname.valueChanges.debounceTime(700).subscribe(search => {
-            self.setFilteredItems();
-          });
-          //this.loading.dismiss();
+          if (!self.comingBack) {
+            self.loadFilterList();
+            self.therapyname.valueChanges.debounceTime(700).subscribe(search => {
+              self.setFilteredItems();
+            });
+          } else {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            self.loadDetails();
+          }
         }
       });
     }
@@ -847,10 +859,12 @@ export class FormTherapy {
                 console.log('Err from navSaveRecord: ', err);
                 callback(err, false);
               } else {
+                self.comingBack = true;
                 console.log('Results from navSaveRecord: ', results);
                 if (self.newRec) {
                   self.curRec = {recordid: results};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Therapy record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;

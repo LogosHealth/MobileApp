@@ -47,7 +47,9 @@ export class FormProcedure {
   loadFromId: number;
   fromType: any;
   fromEvent: any;
+  fromSymptom: any;
   eventVisit: any;
+  comingBack: boolean = false;
 
   procedurename: FormControl = new FormControl();
   listFilter: DictionaryModel = new DictionaryModel();
@@ -75,6 +77,7 @@ export class FormProcedure {
     this.loadFromId = navParams.get('loadFromId');
     this.fromType = navParams.get('fromType');
     this.fromEvent = navParams.get('fromEvent');
+    this.fromSymptom = navParams.get('fromSymptom');
     this.eventVisit = navParams.get('eventVisit');
     console.log('Init formProc recId', this.recId);
     console.log('Init formProc curRec', this.curRec);
@@ -122,6 +125,7 @@ export class FormProcedure {
       this.card_form = new FormGroup({
         recordid: new FormControl(this.curRec.recordid),
         medicaleventid: new FormControl(this.curRec.medicaleventid),
+        symptomid: new FormControl(this.curRec.symptomid),
         verbatimindication: new FormControl(this.curRec.verbatimindication),
         visitid: new FormControl(this.curRec.visitid),
         visittext: new FormControl(visittext),
@@ -164,6 +168,7 @@ export class FormProcedure {
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
+        symptomid: new FormControl(),
         verbatimindication: new FormControl(),
         visitid: new FormControl(),
         visittext: new FormControl(),
@@ -208,7 +213,12 @@ export class FormProcedure {
         this.card_form.get('verbatimindication').setValue(this.fromEvent.medicalevent);
         this.hasEvent = true;
         this.aboutProfile = this.fromEvent.profileid;
-      } else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
+      } else if (this.fromSymptom !==undefined && this.fromSymptom !==null && this.fromSymptom.recordid !== undefined && this.fromSymptom.recordid > 0) {
+        this.card_form.get('symptomid').setValue(this.fromSymptom.recordid);
+        this.card_form.get('verbatimindication').setValue(this.fromSymptom.symptomname);
+        this.hasEvent = true;
+        this.aboutProfile = this.fromSymptom.profileid;
+      }else if (this.eventVisit !==undefined && this.eventVisit !==null && this.eventVisit.profileid !== undefined) {
         this.aboutProfile = this.eventVisit.profileid;
       }
     }
@@ -220,15 +230,22 @@ export class FormProcedure {
     var self = this;
 
     this.checkSave = false;
+    this.card_form.markAsPristine();
+    this.procedurename.markAsPristine();
+
     if (dtNow < dtExpiration) {
-      console.log('Presenting Default');
-      this.presentLoadingDefault();
-      this.loadFilterList();
-      this.procedurename.valueChanges.debounceTime(700).subscribe(search => {
-        this.setFilteredItems();
-      });
-      console.log('ionViewWillEnter - going to dismiss');
-      //this.loading.dismiss();
+      if (!this.comingBack) {
+        this.presentLoadingDefault();
+        this.loadFilterList();
+        this.procedurename.valueChanges.debounceTime(700).subscribe(search => {
+          this.setFilteredItems();
+        });
+      } else {
+        console.log(this.formName + ' Coming Back 1');
+        this.comingBack = false;
+        this.presentLoadingDefault();
+        this.loadDetails();
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -238,11 +255,16 @@ export class FormProcedure {
           self.RestService.appRestart();
         } else {
           console.log('From formMedication - Credentials refreshed!');
-          self.loadFilterList();
-          self.procedurename.valueChanges.debounceTime(700).subscribe(search => {
-            self.setFilteredItems();
-          });
-          //this.loading.dismiss();
+          if (!self.comingBack) {
+            self.loadFilterList();
+            self.procedurename.valueChanges.debounceTime(700).subscribe(search => {
+              self.setFilteredItems();
+            });
+          } else {
+            console.log(self.formName + ' Coming Back 2');
+            self.comingBack = false;
+            self.loadDetails();
+          }
         }
       });
     }
@@ -387,6 +409,7 @@ export class FormProcedure {
     console.log('Add data from fillFormDetails: ', this.curRec);
     this.card_form.get('recordid').setValue(this.curRec.recordid);
     this.card_form.get('medicaleventid').setValue(this.curRec.medicaleventid);
+    this.card_form.get('symptomid').setValue(this.curRec.symptomid);
     this.card_form.get('visitid').setValue(this.curRec.visitid);
     this.card_form.get('visittext').setValue(visittext);
     this.card_form.get('description').setValue(this.curRec.description);
@@ -582,6 +605,9 @@ export class FormProcedure {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -738,6 +764,9 @@ export class FormProcedure {
       if (this.card_form.get('medicaleventid').value !== undefined && this.card_form.get('medicaleventid').value !== null){
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      if (this.card_form.get('symptomid').value !== undefined && this.card_form.get('symptomid').value !== null){
+        this.formSave.symptomid = this.card_form.get('symptomid').value;
+      }
       if (this.card_form.get('visitid').dirty){
         this.formSave.visitid = this.card_form.get('visitid').value;
       }
@@ -848,9 +877,11 @@ export class FormProcedure {
                 callback(err, false);
               } else {
                 console.log('Results from navSaveRecord: ', results);
+                self.comingBack = true;
                 if (self.newRec) {
                   self.curRec = {recordid: results};
                   self.loadFromId = results;
+                  self.card_form.get('recordid').setValue(results);
                   console.log('new Procedure record: ', self.curRec);
                 } else {
                   self.loadFromId = self.curRec.recordid;
