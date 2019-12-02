@@ -178,6 +178,7 @@ export class ListMedicationPage {
 
   addDose(index) {
     var selMed = this.RestService.results[index];
+    alert('Coming soon!  This will allow you to quickly track medication usage.');
     if (selMed.mode == 'cabinet') {
 
     } else if (selMed.mode == 'basic') {

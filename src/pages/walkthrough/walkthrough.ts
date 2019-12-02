@@ -86,7 +86,29 @@ export class WalkthroughPage implements OnInit {
       console.log('Get Profiles results: ', resultData);
       if (self.RestService.Profiles !== undefined && self.RestService.Profiles !== null && self.RestService.Profiles[0] !== undefined &&
       self.RestService.Profiles[0].profileid !== undefined) {
-        self.getUserPics();
+        //MM 12-01-19 Added handler to create a new user if a sample account has been generated before the new user is created
+        if (self.RestService.Profiles.length == 1 && self.RestService.Profiles[0].issample == 'Y') {
+          console.log('Need to add create new user here.');
+          profileLoopCount = profileLoopCount + 1;
+          self.createProfile(function(err, results) {
+            if (err) {
+              console.log('Return Err from create profile - exit app');
+              alert('Look forward to partnering with you at a later time.  Good Bye!')
+              self.platform.exitApp();
+            } else {
+              if (profileLoopCount < 2) {
+                console.log('Profile created - calling getProfiles to load new profile');
+                self.getProfiles();
+              } else {
+                console.log('Too many loops err - exit app');
+                alert('There is an error in creating a profle.  Please try again later.  Good Bye.');
+                self.platform.exitApp();
+              }
+            }
+          });
+        } else {
+          self.getUserPics();
+        }
       } else {
         console.log('Need to add create new user here.');
         profileLoopCount = profileLoopCount + 1;
@@ -413,7 +435,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.73');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.74');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {

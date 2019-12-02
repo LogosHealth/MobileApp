@@ -194,6 +194,7 @@ export class ListingPage {
               }
               self.loadData();
             } else {
+              console.log('No active chart value yet');
               self.loadChartObj = {
                 chart: 'sleep',
                 chartunit: 'week',
@@ -201,6 +202,7 @@ export class ListingPage {
               }
               self.saveChartData = true;
               self.loadData();
+            }
               /*
               self.lineChart = new Chart(self.lineCanvas.nativeElement, {
                 type: 'bar',
@@ -250,7 +252,6 @@ export class ListingPage {
               });
               */
               //self.loadData();
-            }
 
             //Initial setting of checked field
             for (var i = 0; i < self.RestService.Profiles.length; i++) {
@@ -307,13 +308,9 @@ export class ListingPage {
     .then(function(result){
       self.list2.items = result.data;
       console.log('listing.loadData items: ', self.list2.items);
-      if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
-        self.loadDataDone = true;
-        self.loadChartData();
-      } else {
-        self.loadDataDone = true;
-        self.loading.dismiss();
-      }
+      self.loading.dismiss();
+      self.loadDataDone = true;
+      self.loadChartData();
     }).catch( function(result){
       if (self.curUser.chart !== undefined && self.curUser.chart !== null) {
         self.loadDataDone = true;
@@ -501,11 +498,11 @@ export class ListingPage {
   }
 
   showNotifications() {
-    alert('Coming soon');
+    alert('Coming soon.  This will provide your active and historical notifications.');
   }
 
   showSubscriptions() {
-    alert('Coming soon');
+    alert('Coming soon.  This will provide you the latest and best information concerning health topics which interest you (as you subscribe)');
   }
 
   setProfileID(profileID, index) {
@@ -529,7 +526,8 @@ export class ListingPage {
     var namevalue;
     var chartMenuVal;
 
-    if (this.list2 !== undefined && this.list2.items !== undefined && this.list2.items !== null && this.list2.items.length > 0) {
+    if (this.list2 !== undefined && this.list2.items !== undefined && this.list2.items !== null && this.list2.items.length > 0
+      && this.list2.items[0].goalname !== undefined) {
       console.log('listing.changeChart list2', this.list2);
       for (var i = 0; i < this.list2.items.length; i++) {
         namevalue = this.list2.items[i].goalname;
@@ -540,6 +538,7 @@ export class ListingPage {
       }
     }
 
+    console.log('changeChart range: ', range);
     let popover = this.popoverCtrl.create(MenuDynamic, {itemList: range, title: title});
     popover.onDidDismiss(data => {
       console.log('From popover onDismiss: ', data);
@@ -729,7 +728,7 @@ export class ListingPage {
       chartTitle = 'Hours of Sleep/Day';
       ttLabel =  'Hours of sleep: ';
     } else if (this.loadChartObj.chart == 'weight') {
-      chartType = 'line';
+      chartType = 'bar';
       dataLabel = 'lbs';
       chartTitle = 'Weight (lbs)';
       ttLabel =  'Weight (lbs): ';

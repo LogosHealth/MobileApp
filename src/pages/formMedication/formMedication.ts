@@ -767,15 +767,13 @@ export class FormMedication {
       this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
       this.eventSave.medicationname = this.medication.value;
+      this.eventSave.mode = this.card_form.get('mode').value;
 
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
       }
       if (this.card_form.get('manufacturer').dirty){
         this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
-      }
-      if (this.card_form.get('mode').dirty){
-        this.eventSave.mode = this.card_form.get('mode').value;
       }
       if (this.card_form.get('type').dirty){
         this.eventSave.type = this.card_form.get('type').value;
@@ -1048,15 +1046,13 @@ export class FormMedication {
       this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
       this.eventSave.medicationname = this.medication.value;
+      this.eventSave.mode = this.card_form.get('mode').value;
 
       if (this.card_form.get('formulation').dirty){
         this.eventSave.formulation = this.card_form.get('formulation').value;
       }
       if (this.card_form.get('manufacturer').dirty){
         this.eventSave.manufacturer = this.card_form.get('manufacturer').value;
-      }
-      if (this.card_form.get('mode').dirty){
-        this.eventSave.mode = this.card_form.get('mode').value;
       }
       if (this.card_form.get('type').dirty){
         this.eventSave.type = this.card_form.get('type').value;

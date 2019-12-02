@@ -1,7 +1,7 @@
 <ion-header class="listing-header">
   <ion-navbar>
-    <ion-title class="header-left">
-      <b>Conquer Today {{getCurrentUserName()}}</b>
+    <ion-title>
+      <b class="header-left">Conquer Today {{getCurrentUserName()}}</b>
     </ion-title>
     <ion-buttons right>
       <button *ngIf="hasSubscriptions" id="notification-button" ion-button icon-only (click)="showSubscriptions()">

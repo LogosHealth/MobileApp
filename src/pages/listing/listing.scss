@@ -7,17 +7,18 @@
 	font-weight: 900;
 	letter-spacing: 0.4px;
 	//color: #E1E5CE;
+  //color: #403F5E;
 	color: $white;
+	margin: 0px;
 
 	//background-color: #FFF000;
 
 	//Color here is the lettering color on the tiles
 	//color: $color;
-	margin: 0px;
 }
 
 listing-page {
-	$categories-heading-image-height: 100px;
+	//$categories-heading-image-height: 100px;
 	$categories-grid-padding: 10px;
 	$categories-horizontal-list-padding: 10px;
 	font-family:  'Poiret-One Regular';
@@ -40,25 +41,44 @@ listing-page {
     border-radius: 100%;
   }
 
-  .listing-header
-  {
-		.header-logo
+	.listing-header
+	{
+    text-align: left;
+
+      .header-left
+    	{
+        text-align: left;
+        text-overflow: inherit;
+        white-space: normal;
+        //word-wrap: normal;
+        font-size: 5vw;
+    	}
+
+    	.header-logo
 		{
 			width: 34vw;
-    }
-    .header-left
-    {
-      text-align:left
-    }
-    text-align:left
-  }
+    	}
+  	}
 
 	.listing-content
 	{
-
     .invisible {
       display:none;
     }
+
+		.categories-title
+		{
+			font-size: 1.2rem;
+
+			font-weight: 400;
+			letter-spacing: 0.7px;
+			//color: $white-d;
+			//color of category labels (e.g. Family)
+			color: #403F5E;
+			//bg color around text of category labels
+			//background-color: #E1E5CE;
+			margin: 8px 16px 16px;
+		}
 
 		.label-name
 		{
@@ -69,7 +89,6 @@ listing-page {
 			color: #403F5E;
       text-align:center
     }
-
 
 		.horizontal-categories
 		{
