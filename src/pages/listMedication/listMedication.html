@@ -27,10 +27,10 @@
             <!-- You can limit the rows of the description by using the class one-line. If you remove it, all the content from the row will be shown -->
             <ion-col no-padding width-90 class="item-content" >
               <h3 class="item-title">{{item.medicationname}}</h3>
-                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Purchased: {{formatDateTime2(item.purchasedate)}}</p>
-                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet'">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
-                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet'">Start Date: {{formatDateTime2(item.startdate)}}</p>
-                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && (item.enddate !== undefined && item.enddate !== null)">End Date: {{formatDateTime2(item.enddate)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet' || feed.category.title == 'Select Medicine'">Purchased: {{formatDateTime2(item.purchasedate)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet' || feed.category.title == 'Select Medicine'">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
+                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine'">Start Date: {{formatDateTime2(item.startdate)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine' && (item.enddate !== undefined && item.enddate !== null)">End Date: {{formatDateTime2(item.enddate)}}</p>
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">
               <ion-icon name="arrow-forward"></ion-icon>

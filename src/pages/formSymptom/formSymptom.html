@@ -37,29 +37,28 @@
             </ion-col>
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
-                <ion-label floating>Start Date*</ion-label>
-                <ion-datetime displayFormat="DDD MMM DD YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+                <ion-label floating>Start Date</ion-label>
+                <ion-datetime displayFormat="DDD MMM DD 'YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
                 <ion-label floating>Start Time</ion-label>
-                <ion-datetime displayFormat="hh:mm a" [min]="1900-01-01" [max]="today()" formControlName="starttime" ></ion-datetime>
+                <ion-datetime displayFormat="hh:mm A" [min]="1900-01-01" [max]="today()" formControlName="starttime" ></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
-          <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
           <ion-row>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>End Date</ion-label>
-                <ion-datetime displayFormat="DDD MMM DD YY" [min]="1900-01-01" [max]="today()" formControlName="enddate" ></ion-datetime>
+                <ion-datetime displayFormat="DDD MMM DD 'YY" [min]="1900-01-01" [max]="today()" formControlName="enddate" ></ion-datetime>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>End Time</ion-label>
-                <ion-datetime displayFormat="hh:mm a" [min]="1900-01-01" [max]="today()" [disabled]="!hasEndDate()" formControlName="endtime" ></ion-datetime>
+                <ion-datetime displayFormat="hh:mm A" [min]="1900-01-01" [max]="today()" [disabled]="!hasEndDate()" formControlName="endtime" ></ion-datetime>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -94,7 +93,7 @@
           </ion-row>
           <div formArrayName="treatments" *ngFor="let info of card_form.get('treatments').controls; let i = index;">
             <div [formGroupName]="i">
-              <ion-row>
+              <ion-row *ngIf="!isActiveDoseTrackedMed(i)">
                 <ion-col no-padding width-87>
                   <ion-item>
                     <ion-label floating>Treatment {{ i + 1 }}</ion-label>
@@ -107,6 +106,27 @@
                   </button>
                 </ion-col>
               </ion-row>
+
+              <ion-row *ngIf="isActiveDoseTrackedMed(i)">
+                <ion-col no-padding width-77>
+                  <ion-item>
+                    <ion-label floating>Treatment {{ i + 1 }}</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="addDose(i)" [disabled]="noSymptom()">
+                    <ion-icon name="pint"></ion-icon>
+                  </button>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="updateSymptomTreatment(i)" [disabled]="noSymptom()">
+                    <ion-icon name="medical"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+
+
             </div>
           </div>
         </ion-card>

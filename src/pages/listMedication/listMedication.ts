@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, LoadingController, PopoverController, ModalController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListMedicationModel } from './listMedication.model';
@@ -7,6 +7,7 @@ import { ListMedicationService } from './listMedication.service';
 import { RestService } from '../../app/services/restService.service';
 import { FormMedication } from '../../pages/formMedication/formMedication';
 import { MenuHelp } from '../../pages/menuHelp/menuHelp';
+import { FormMedAddDose } from '../../pages/formMedAddDose/formMedAddDose';
 
 var moment = require('moment-timezone');
 
@@ -23,7 +24,9 @@ export class ListMedicationPage {
   accountid: any;
   type: any;
   fromEvent: any;
+  fromSymptom: any;
   noData: boolean = false;
+  forSelection: boolean = false;
 
   constructor(
     public nav: NavController,
@@ -33,9 +36,18 @@ export class ListMedicationPage {
     public RestService:RestService,
     public loadingCtrl: LoadingController,
     public popoverCtrl:PopoverController,
+    public modalCtrl: ModalController,
   ) {
     this.feed.category = navParams.get('category');
     this.fromEvent = navParams.get('fromEvent');
+    this.fromSymptom = navParams.get('fromSymptom');
+    console.log('listMedication fromEvent: ', this.fromEvent);
+    console.log('listMedication fromSymptom: ', this.fromSymptom);
+
+    if (this.fromEvent !==undefined || this.fromSymptom !==undefined) {
+      this.forSelection = true;
+    }
+
     this.type = this.feed.category.title;
     if (this.feed.category.title == 'Medicine Cabinet') {
       this.accountid = this.RestService.Profiles[0].accountid;
@@ -126,6 +138,9 @@ export class ListMedicationPage {
           self.list2.items = [];
           console.log('Results from listMedication.loadData', self.RestService.results);
         }
+        if (self.forSelection) {
+          self.feed.category.title = 'Select Medicine';
+        }
         self.loading.dismiss();
       });
     }).catch( function(result){
@@ -178,13 +193,32 @@ export class ListMedicationPage {
 
   addDose(index) {
     var selMed = this.RestService.results[index];
-    alert('Coming soon!  This will allow you to quickly track medication usage.');
-    if (selMed.mode == 'cabinet') {
+    var objIncluded = 'none';
+    var self = this;
 
-    } else if (selMed.mode == 'basic') {
-
+    console.log('listMed.addDose selMed: ', selMed);
+    console.log('listMed.addDose fromEvent: ', this.fromEvent);
+    console.log('listMed.addDose fromSymp: ', this.fromSymptom);
+    if (this.fromSymptom !== undefined && this.fromSymptom !== null) {
+      objIncluded = 'symptom';
+    } else if (this.fromEvent !== undefined && this.fromEvent !== null) {
+      objIncluded = 'event';
     }
+    console.log('objIncluded - ' + objIncluded);
 
+    let profileModal = this.modalCtrl.create(FormMedAddDose, { objIncluded: objIncluded, fromSymptom: this.fromSymptom,
+      fromEvent: this.fromEvent, medication: selMed });
+    profileModal.onDidDismiss(data => {
+      console.log('Data from getDefaultUser: ', data);
+      if (data !== undefined) {
+        console.log('Data from addDose: ', data);
+        if (data.userUpdated !== undefined && data.userUpdated == true) {
+          self.nav.pop();
+        }
+      }
+    });
+    profileModal.present();
+    //alert('Coming soon!  This will allow you to quickly track medication usage.');
   }
 
   presentHelp(myEvent) {
@@ -202,15 +236,23 @@ export class ListMedicationPage {
   }
 
   openRecord(recordId) {
-    console.log("Goto Form index: " + recordId);
+    //console.log("Goto Form index: " + recordId);
     //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    console.log('listMedication.openRecord fromEvent: ', this.fromEvent);
-    if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
-      this.nav.push(FormMedication, { recId: recordId, fromEvent: this.fromEvent });
+    //console.log('listMedication.openRecord fromEvent: ', this.fromEvent);
+
+    if (!this.forSelection) {
+      if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
+        this.nav.push(FormMedication, { recId: recordId, fromEvent: this.fromEvent });
+      } else if (this.fromSymptom !== undefined && this.fromSymptom.symptomid !== undefined && this.fromSymptom.symptomid > 0) {
+        this.nav.push(FormMedication, { recId: recordId, fromSymptom: this.fromSymptom });
+      } else {
+        this.nav.push(FormMedication, { recId: recordId });
+      }
+      //alert('Open Record:' + recordId);
     } else {
-      this.nav.push(FormMedication, { recId: recordId });
+      this.addDose(recordId);
     }
-    //alert('Open Record:' + recordId);
+
   }
 
   addNew() {

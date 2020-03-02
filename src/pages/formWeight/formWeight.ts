@@ -36,6 +36,7 @@ export class FormWeightPage {
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  dtNow: any = moment(Date()).format('YYYY-MM-DDTHH:mm');
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController) {
@@ -72,8 +73,8 @@ export class FormWeightPage {
         recordid: new FormControl(),
         weight: new FormControl(null, Validators.required),
         unitofmeasure: new FormControl(),
-        dateofmeasure: new FormControl(),
-        timeofmeasure: new FormControl(),
+        dateofmeasure: new FormControl(this.dtNow),
+        timeofmeasure: new FormControl(this.dtNow),
         profileid: new FormControl(),
         userid: new FormControl()
       });
@@ -175,7 +176,9 @@ export class FormWeightPage {
     var offset;
     var finalDate;
     var strDate;
+    var strDateArr;
     var strTime;
+    var strTimeArr;
     //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
     //console.log('Start Time: ' + this.card_form.get('starttime').value);
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
@@ -185,15 +188,21 @@ export class FormWeightPage {
       strDate = this.momentNow.format('YYYY-MM-DD');
       strTime = this.momentNow.format('HH:mm');
     }
-    if (this.card_form.get('dateofmeasure').dirty) {
-      strDate = this.card_form.get('dateofmeasure').value;
+    if (this.card_form.get('dateofmeasure').value !== undefined && this.card_form.get('dateofmeasure').value !== null) {
+      strDateArr = this.card_form.get('dateofmeasure').value.split('T');
+      strDate = strDateArr[0];
+
     }
-    if (this.card_form.get('timeofmeasure').dirty) {
-      strTime = this.card_form.get('timeofmeasure').value;
-    } else if (this.card_form.get('dateofmeasure').dirty) {
+    if (this.card_form.get('timeofmeasure').value !== undefined && this.card_form.get('timeofmeasure').value !== null) {
+      strTimeArr = this.card_form.get('timeofmeasure').value.split('T');
+      strTime = strTimeArr[1].substr(0, 5);
+    } else {
       strTime = '00:00';
     }
     dtString = strDate + ' ' + strTime;
+    console.log('Date before offset: ' + strDate);
+    console.log('Time before offset: ' + strTime);
+    console.log('Final date string before offset: ' + dtString);
     offsetDate = new Date(moment(dtString).toISOString());
     offset = offsetDate.getTimezoneOffset() / 60;
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
@@ -241,9 +250,7 @@ export class FormWeightPage {
       }
     } else {
       this.formSave.weight = this.card_form.get('weight').value;
-      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
-        this.formSave.dateofmeasure = this.calculateDateTime();
-      }
+      this.formSave.dateofmeasure = this.calculateDateTime();
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
@@ -299,9 +306,9 @@ export class FormWeightPage {
 
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
+      return moment(dateString).tz(this.userTimezone).format("ddd, MMM DD 'YY, hh:mm A");
     } else {
-      return moment(dateString).format('MMM DD YYYY hh:mm a');
+      return moment(dateString).format("ddd, MMM DD 'YY, hh:mm A");
     }
   }
 

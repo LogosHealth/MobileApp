@@ -10,7 +10,16 @@ formSchedule-page {
 
 	.forms-examples-content
 	{
-		background-color: color($colors, background, base);
+		background-color: color($colors, background2, base);
+
+    //color: red;
+    input[disabled]{
+      -webkit-text-fill-color: rgba(175, 175, 175, 1);
+      //-webkit-text-fill-color: currentcolor;
+      -webkit-opacity: 0.65;
+      opacity:0.65;
+      background: white;
+    }
 
     input:disabled {
       opacity: 0.65;
@@ -167,6 +176,11 @@ formSchedule-page {
       @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
       background-color: color($colors, background2, base);
 
+      input:disabled {
+        opacity: 0.65;
+        //color: $theme-color-1;
+        //background: rgb(255, 204, 235);
+      }
 
       .form-section
 			{

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController, ModalController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { MedicalEventModel } from '../../pages/listMedicalEvent/listMedicalEvent.model';
@@ -16,6 +16,8 @@ import 'rxjs/Rx';
 import { FormMedSchedule } from '../../pages/formMedSchedule/formMedSchedule';
 import { FormMedicationResults } from '../../pages/formMedicationResults/formMedicationResults';
 import { ListMedicationResults } from '../../pages/listMedicationResults/listMedicationResults';
+//import { ListTreatmentPage } from '../listTreatment/listTreatment';
+import { FormMedAddDose } from '../../pages/formMedAddDose/formMedAddDose';
 
 var moment = require('moment-timezone');
 
@@ -80,10 +82,11 @@ export class FormMedication {
   eventTerm: string = '';
   items: any;
   userCount: any = 0;
+  dtNow: any = moment(Date()).format('YYYY-MM-DDTHH:mm');
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public list2Service: ListOrderService,
-    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, //private callNumber: CallNumber
+    public popoverCtrl:PopoverController, public formBuilder: FormBuilder, public modalCtrl: ModalController, //private callNumber: CallNumber
     ) {
 
     this.userCount = this.RestService.Profiles.length;
@@ -142,7 +145,7 @@ export class FormMedication {
         manufacturer: new FormControl(this.curRec.manufacturer),
         mode: new FormControl(this.curRec.mode, Validators.required),
         type: new FormControl(this.curRec.type),
-        purchasedate: new FormControl(this.curRec.purchasedate, Validators.max(this.momentNow)),
+        purchasedate: new FormControl(this.curRec.purchasedate, Validators.max(this.dtNow)),
         expiration: new FormControl(this.curRec.expiration),
         startinginventory: new FormControl(this.curRec.startinginventory),
         inventory: new FormControl(this.curRec.inventory),
@@ -179,7 +182,7 @@ export class FormMedication {
         manufacturer: new FormControl(),
         mode: new FormControl(modeValue, Validators.required),
         type: new FormControl(),
-        purchasedate: new FormControl(null, Validators.max(this.momentNow)),
+        purchasedate: new FormControl(null, Validators.max(this.dtNow)),
         expiration: new FormControl(null),
         startinginventory: new FormControl(),
         inventory: new FormControl(),
@@ -494,6 +497,7 @@ export class FormMedication {
       recordid: new FormControl({value: this.curRec.treatmentresults.items[index].recordid, disabled: true}),
       symptomid: new FormControl({value: this.curRec.treatmentresults.items[index].symptomid, disabled: true}),
       medicaleventid: new FormControl({value: this.curRec.treatmentresults.items[index].medicaleventid, disabled: true}),
+      profileid: new FormControl({value: this.curRec.treatmentresults.items[index].profileid, disabled: true}),
       reftable: new FormControl({value: this.curRec.treatmentresults.items[index].reftable, disabled: true}),
       reftablefield: new FormControl({value: this.curRec.treatmentresults.items[index].reftablefield, disabled: true}),
       reftablefieldid: new FormControl({value: this.curRec.treatmentresults.items[index].reftablefieldid, disabled: true}),
@@ -507,6 +511,7 @@ export class FormMedication {
       doseunits: new FormControl({value: this.curRec.treatmentresults.items[index].doseunits, disabled: true}),
       dosefrequency: new FormControl({value: this.curRec.treatmentresults.items[index].dosefrequency, disabled: true}),
       dosetrackingtype: new FormControl({value: this.curRec.treatmentresults.items[index].dosetrackingtype, disabled: true}),
+      dosetrackingstate: new FormControl({value: this.curRec.treatmentresults.items[index].dosetrackingstate, disabled: true}),
       effectiveflag: new FormControl({value: this.curRec.treatmentresults.items[index].effectiveflag, disabled: true}),
       allergyflag: new FormControl({value: this.curRec.treatmentresults.items[index].allergyflag, disabled: true}),
       comments: new FormControl({value: this.curRec.treatmentresults.items[index].comments, disabled: true}),
@@ -1216,22 +1221,7 @@ export class FormMedication {
       return moment(dateString).format('MMM DD YYYY');
     }
   }
-/*  formatDateTime(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
-    } else {
-      return moment(dateString).format('dddd, MMMM DD');
-    }
-  }
 
-  formatDateTime2(dateString) {
-    if (this.userTimezone !== undefined && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MM-DD-YYYY hh:mm A');
-    } else {
-      return moment(dateString).format('MM-DD-YYYY hh:mm A');
-    }
-  }
-*/
   updateCalc() {
     if (this.card_form.get('starttime').value !== null && this.card_form.get('waketime').value !== null) {
       var startSplit = this.card_form.get('starttime').value.split(":");
@@ -1382,6 +1372,80 @@ export class FormMedication {
       this.comingBack = true;
       callback(null, true);
     }
+  }
+
+  noMedication() {
+    if ((this.medication.value == null || this.medication.value == "") ||
+    (this.card_form.get('inventory').value !== undefined && this.card_form.get('inventory').value !== null && this.card_form.get('inventory').value == 0)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isActiveDoseTrackedMed(index) {
+    var treatments = this.card_form.get('treatmentresults') as FormArray;
+    var doseType = treatments.at(index).get('dosetrackingtype').value;
+    var dtState = treatments.at(index).get('dosetrackingstate').value;
+
+    var blnReturn = false;
+
+    if (doseType !== undefined && doseType !== null && doseType == 'active') {
+      blnReturn = true;
+    }
+
+    if (dtState !== undefined && dtState !== null && dtState == 'complete' && blnReturn == true) {
+      blnReturn = false;
+    }
+
+    return blnReturn;
+  }
+
+  addDose(index) {
+    var treatments = this.card_form.get('treatmentresults') as FormArray;
+    var objIncluded;
+    var treatment;
+
+    if (treatments.at(index).get('symptomid').value !== undefined && treatments.at(index).get('symptomid').value !== null &&
+    treatments.at(index).get('symptomid').value > 0) {
+      objIncluded = 'treatment symptom';
+      treatment = {treatmentid: treatments.at(index).get('recordid').value,
+                        profileid: treatments.at(index).get('profileid').value,
+                        conditionid: treatments.at(index).get('symptomid').value,
+                        indication: treatments.at(index).get('verbatimindication').value,
+                        medicationid: treatments.at(index).get('reftablefieldid').value,
+                        namevalue: treatments.at(index).get('namevalue').value,
+                        dosage: treatments.at(index).get('dosage').value,
+                        doseunits: treatments.at(index).get('doseunits').value,
+                    };
+
+    } else {
+      objIncluded = 'treatment event';
+      treatment = {treatmentid: treatments.at(index).get('recordid').value,
+                        profileid: treatments.at(index).get('profileid').value,
+                        conditionid: treatments.at(index).get('medicaleventid').value,
+                        indication: treatments.at(index).get('verbatimindication').value,
+                        medicationid: treatments.at(index).get('reftablefieldid').value,
+                        namevalue: treatments.at(index).get('namevalue').value,
+                        dosage: treatments.at(index).get('dosage').value,
+                        doseunits: treatments.at(index).get('doseunits').value,
+                    };
+    }
+    //var doseType = treatments.at(index).get('dosetrackingtype').value;
+    //console.log('Add Dose index ' + index + ', doseType: ' + doseType);
+
+    let profileModal = this.modalCtrl.create(FormMedAddDose, { objIncluded: objIncluded, fromTreatment: treatment });
+    profileModal.onDidDismiss(data => {
+      console.log('Data from getDefaultUser: ', data);
+      if (data !== undefined) {
+        //console.log('Data from getDefaultUser: ', data);
+        if (data.userUpdated) {
+
+        }
+      }
+    });
+    profileModal.present();
+
   }
 
 setFilteredItems() {

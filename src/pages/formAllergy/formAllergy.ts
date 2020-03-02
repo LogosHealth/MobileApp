@@ -1120,8 +1120,8 @@ export class FormAllergyPage {
           if (result) {
             console.log('Result from confirmSaveDirect: ', result);
             console.log('Getting top level confirmSaveDirect self: ', self);
-            console.log('Getting top level confirmSaveDirect this: ', this);
-            self.nav.push(FormSymptomPage, {fromEvent: self.fromEvent});
+            //console.log('Getting top level confirmSaveDirect this: ', this);
+            self.nav.push(FormSymptomPage, {fromEvent: self.curRec});
           } else if (!result) {
             console.log('addSymptom.ConfirmSaveDirect - User cancelled');
           }
@@ -1264,7 +1264,7 @@ showList() {
 }
 
 searchListTerm(objME) {
-  var self = this;
+  //var self = this;
   console.log('SearchListTerm called for ', objME);
   //Add subDictionary code
   this.medicalevent.setValue(objME.value);
@@ -1707,7 +1707,7 @@ addFromCabinet() {
     } else {
       if (result) {
         cat = {title: 'Medicine Cabinet'};
-        self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.fromEvent });
+        self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.curRec });
       } else if (!result) {
         console.log('addFromCabinet.ConfirmSaveDirect - User cancelled');
       }
@@ -1730,7 +1730,7 @@ viewAllTreatments() {
     } else {
       if (result) {
         cat = {title: 'Treatments'};
-        self.nav.push(ListTreatmentPage, { category: cat, fromEvent: self.fromEvent });
+        self.nav.push(ListTreatmentPage, { category: cat, fromEvent: self.curRec });
       } else if (!result) {
         console.log('viewAllTreatments.ConfirmSaveDirect - User cancelled');
       }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams, AlertController, LoadingController, PopoverController, ModalController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 //import { ListMeasureModel, ListMeasure } from '../../pages/listMeasure/listMeasure.model';
@@ -11,6 +11,7 @@ import { ListMedicationPage } from '../../pages/listMedication/listMedication';
 import { FormProcedure } from '../../pages/formProcedure/formProcedure';
 import { FormTherapy } from '../formTherapy/formTherapy';
 import { ListTreatmentPage } from '../../pages/listTreatment/listTreatment';
+import { FormMedAddDose } from '../../pages/formMedAddDose/formMedAddDose';
 
 var moment = require('moment-timezone');
 
@@ -46,9 +47,11 @@ export class FormSymptomPage {
   loadFromId: any;
   fromEvent: any;
   comingBack: boolean = false;
+  dtNow: any = moment(Date()).format('YYYY-MM-DDTHH:mm');
+
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public loadingCtrl: LoadingController,
-    public navParams: NavParams, public popoverCtrl:PopoverController, public formBuilder: FormBuilder) {
+    public navParams: NavParams, public popoverCtrl:PopoverController, public formBuilder: FormBuilder, public modalCtrl: ModalController) {
 
     this.recId = navParams.get('recId');
     this.loadFromId = navParams.get('loadFromId');
@@ -105,12 +108,13 @@ export class FormSymptomPage {
       this.addExistingTreatments();
     } else {
       this.newRec = true;
+      console.log('formSymptom curRec when newRec : ', this.curRec);
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         symptom: new FormControl(null, Validators.required),
         symptomdescription: new FormControl(),
-        dateofmeasure: new FormControl(),
-        starttime: new FormControl(),
+        dateofmeasure: new FormControl(this.dtNow),
+        starttime: new FormControl(this.dtNow),
         enddate: new FormControl(),
         endtime: new FormControl(),
         profileid: new FormControl(),
@@ -338,7 +342,9 @@ export class FormSymptomPage {
     var offset;
     var finalDate;
     var strDate;
+    var strDateArr;
     var strTime;
+    var strTimeArr;
     //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
     //console.log('Start Time: ' + this.card_form.get('starttime').value);
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
@@ -348,15 +354,20 @@ export class FormSymptomPage {
       strDate = this.momentNow.format('YYYY-MM-DD');
       strTime = this.momentNow.format('HH:mm');
     }
-    if (this.card_form.get('dateofmeasure').dirty) {
-      strDate = this.card_form.get('dateofmeasure').value;
+    if (this.card_form.get('dateofmeasure').value !== undefined && this.card_form.get('dateofmeasure').value !== null) {
+      strDateArr = this.card_form.get('dateofmeasure').value.split('T');
+      strDate = strDateArr[0];
     }
-    if (this.card_form.get('starttime').dirty) {
-      strTime = this.card_form.get('starttime').value;
-    } else if (this.card_form.get('dateofmeasure').dirty) {
+    if (this.card_form.get('starttime').value !== undefined && this.card_form.get('starttime').value !== null) {
+      strTimeArr = this.card_form.get('starttime').value.split('T');
+      strTime = strTimeArr[1].substr(0, 5);
+    } else {
       strTime = '00:00';
     }
     dtString = strDate + ' ' + strTime;
+    console.log('Date before offset: ' + strDate);
+    console.log('Time before offset: ' + strTime);
+    console.log('Final date string before offset: ' + dtString);
     offsetDate = new Date(moment(dtString).toISOString());
     offset = offsetDate.getTimezoneOffset() / 60;
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
@@ -367,7 +378,7 @@ export class FormSymptomPage {
       console.log('Final date with no timezone: ' + finalDate);
     }
     return finalDate;
-}
+  }
 
 calculateEndDate() {
   var dtString;
@@ -430,11 +441,9 @@ calculateEndDate() {
       }
 
       this.formSave.symptomname = this.card_form.get('symptom').value;
+      this.formSave.startdate = this.calculateDateTime();
       if (this.card_form.get('symptomdescription').dirty){
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
-      }
-      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('starttime').dirty){
-        this.formSave.startdate = this.calculateDateTime();
       }
       if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
         this.formSave.enddate = this.calculateEndDate();
@@ -530,10 +539,18 @@ calculateEndDate() {
       if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
         this.formSave.enddate = this.calculateEndDate();
       }
+
+      /*
       if (this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      */
     } else {
+      console.log('From navSav record, curRec: ', this.curRec);
+      if (this.curRec == undefined) {
+        this.curRec = new Symptom;
+        console.log('From navSav record, curRec recast: ', this.curRec);
+      }
       this.formSave.symptomname = this.card_form.get('symptom').value;
       if (this.card_form.get('symptomdescription').dirty){
         this.formSave.symptomdescription = this.card_form.get('symptomdescription').value;
@@ -544,9 +561,11 @@ calculateEndDate() {
       if (this.card_form.get('enddate').dirty && this.card_form.get('enddate').value !== null){
         this.formSave.enddate = this.calculateEndDate();
       }
+      /*
       if (this.card_form.get('medicaleventid').value !== null && this.card_form.get('medicaleventid').value > 0) {
         this.formSave.medicaleventid = this.card_form.get('medicaleventid').value;
       }
+      */
       this.formSave.profileid = this.RestService.currentProfile;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
@@ -576,8 +595,8 @@ calculateEndDate() {
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         console.log('Happy Path: ', result);
-        this.curRec.recordid = result.data[0];
-        this.curRec.symptomname = this.card_form.get('symptomname').value;
+        self.curRec.recordid = result.data[0];
+        self.curRec.symptomname = self.card_form.get('symptom').value;
         self.loading.dismiss();
         callback(null, result.data);
       }).catch( function(result){
@@ -598,7 +617,8 @@ calculateEndDate() {
       } else {
         if (result) {
           cat = {title: 'Medicine Cabinet'};
-          self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.fromEvent });
+          var fromSymptom = {symptomid: self.curRec.recordid, symptom: self.card_form.get('symptom').value, profileid: self.RestService.currentProfile };
+          self.nav.push(ListMedicationPage, { category: cat, fromSymptom: fromSymptom });
         } else if (!result) {
           console.log('addFromCabinet.ConfirmSaveDirect - User cancelled');
         }
@@ -687,14 +707,10 @@ calculateEndDate() {
   }
 
   formatDateTimeSaved(dateString) {
-    if (dateString !== undefined && dateString !== null && dateString !== "") {
-      if (this.userTimezone !== undefined && this.userTimezone !=="") {
-        return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
-      } else {
-        return moment(dateString).format('MMM DD YYYY hh:mm a');
-      }
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format("ddd, MMM DD 'YY, hh:mm A");
     } else {
-      return null;
+      return moment(dateString).format("ddd, MMM DD 'YY, hh:mm A");
     }
   }
 
@@ -823,6 +839,24 @@ calculateEndDate() {
     });
   }
 
+  isActiveDoseTrackedMed(index) {
+    var treatments = this.card_form.get('treatments') as FormArray;
+    var doseType = treatments.at(index).get('dosetrackingtype').value;
+    var dtState = treatments.at(index).get('dosetrackingstate').value;
+
+    var blnReturn = false;
+
+    if (doseType !== undefined && doseType !== null && doseType == 'active') {
+      blnReturn = true;
+    }
+
+    if (dtState !== undefined && dtState !== null && dtState == 'complete' && blnReturn == true) {
+      blnReturn = false;
+    }
+
+    return blnReturn;
+  }
+
   updateSymptomTreatment(index) {
     var cat;
     var symptomid = this.curRec.recordid;
@@ -907,7 +941,38 @@ calculateEndDate() {
     }
   }
 
+  addDose(index) {
+    var treatments = this.card_form.get('treatments') as FormArray;
+    //var doseType = treatments.at(index).get('dosetrackingtype').value;
+    var objIncluded = 'treatment symptom';
+    var treatment = {treatmentid: treatments.at(index).get('recordid').value,
+                      profileid: treatments.at(index).get('profileid').value,
+                      conditionid: treatments.at(index).get('symptomid').value,
+                      indication: treatments.at(index).get('indication').value,
+                      medicationid: treatments.at(index).get('reftablefieldid').value,
+                      namevalue: treatments.at(index).get('namevalue').value,
+                      dosage: treatments.at(index).get('dosage').value,
+                      doseunits: treatments.at(index).get('doseunits').value,
+                    };
+
+    //console.log('Add Dose index ' + index + ', doseType: ' + doseType);
+
+    let profileModal = this.modalCtrl.create(FormMedAddDose, { objIncluded: objIncluded, fromTreatment: treatment });
+    profileModal.onDidDismiss(data => {
+      console.log('Data from getDefaultUser: ', data);
+      if (data !== undefined) {
+        //console.log('Data from getDefaultUser: ', data);
+        if (data.userUpdated) {
+
+        }
+      }
+    });
+    profileModal.present();
+
+  }
+
   addExistingTreatment(index): FormGroup {
+    console.log('Treatment from symptom: ' + index, this.curRec.treatments.items[index]);
     return this.formBuilder.group({
       recordid: new FormControl({value: this.curRec.treatments.items[index].recordid, disabled: true}),
       reftable: new FormControl({value: this.curRec.treatments.items[index].reftable, disabled: true}),
@@ -918,6 +983,12 @@ calculateEndDate() {
       namevalue: new FormControl({value: this.curRec.treatments.items[index].namevalue, disabled: true}),
       indication: new FormControl({value: this.curRec.treatments.items[index].indication, disabled: true}),
       dateofmeasure: new FormControl({value: this.curRec.treatments.items[index].dateofmeasure, disabled: true}),
+      dosage: new FormControl({value: this.curRec.treatments.items[index].dosage, disabled: true}),
+      doseunits: new FormControl({value: this.curRec.treatments.items[index].doseunits, disabled: true}),
+      dosetrackingtype: new FormControl({value: this.curRec.treatments.items[index].dosetrackingtype, disabled: true}),
+      dosetrackingstate: new FormControl({value: this.curRec.treatments.items[index].dosetrackingstate, disabled: true}),
+      symptomid: new FormControl({value: this.curRec.treatments.items[index].symptomid, disabled: true}),
+      profileid: new FormControl({value: this.curRec.treatments.items[index].profileid, disabled: true}),
     });
   }
 

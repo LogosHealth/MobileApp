@@ -71,8 +71,8 @@
             </ion-col>
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
-                <ion-label floating>Date of Measure*</ion-label>
-                <ion-datetime displayFormat="DDD MMM DD YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-datetime displayFormat="DDD MMM DD 'YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
               </ion-item>
             </ion-col>
             <ion-col no-padding width-50 *ngIf="newRec">
@@ -82,7 +82,6 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <p class="section-footnote" *ngIf="newRec">*Defaults to Now when left blank</p>
         </section>
         <section class="form-section">
           <ion-row no-padding class="multi-input-row">

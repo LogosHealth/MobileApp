@@ -44,6 +44,7 @@ export class FormLabsPage {
   hourNow: any;
   minuteNow: any;
   momentNow: any;
+  dtNow: any = moment(Date()).format('YYYY-MM-DDTHH:mm');
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService,
     public navParams: NavParams, public loadingCtrl: LoadingController, public dictionaryService: DictionaryService) {
@@ -98,8 +99,8 @@ export class FormLabsPage {
         labunit: new FormControl(),
         lowerrange: new FormControl(),
         upperrange: new FormControl(),
-        dateofmeasure: new FormControl(),
-        timeofmeasure: new FormControl(),
+        dateofmeasure: new FormControl(this.dtNow),
+        timeofmeasure: new FormControl(this.dtNow),
         profileid: new FormControl(),
         userid: new FormControl(),
         confirmed: new FormControl()
@@ -404,12 +405,12 @@ export class FormLabsPage {
       strDate = this.momentNow.format('YYYY-MM-DD');
       strTime = this.momentNow.format('HH:mm');
     }
-    if (this.card_form.get('dateofmeasure').dirty) {
+    if (this.card_form.get('dateofmeasure').value !== undefined && this.card_form.get('dateofmeasure').value !== null) {
       strDate = this.card_form.get('dateofmeasure').value;
     }
-    if (this.card_form.get('timeofmeasure').dirty) {
+    if (this.card_form.get('timeofmeasure').value !== undefined && this.card_form.get('timeofmeasure').value !== null) {
       strTime = this.card_form.get('timeofmeasure').value;
-    } else if (this.card_form.get('dateofmeasure').dirty) {
+    } else {
       strTime = '00:00';
     }
     dtString = strDate + ' ' + strTime;
@@ -483,6 +484,7 @@ export class FormLabsPage {
       this.formSave.labname = this.card_form.get('labname').value;
       this.formSave.labnametext = this.card_form.get('labnametext').value;
       this.formSave.labresult = this.card_form.get('labresult').value;
+      this.formSave.dateofmeasure = this.calculateDateTime();
       if (this.card_form.get('labunit').dirty){
         this.formSave.labunit = this.card_form.get('labunit').value;
       }
@@ -494,9 +496,6 @@ export class FormLabsPage {
       }
       if (this.card_form.get('upperrange').dirty){
         this.formSave.upperrange = this.card_form.get('upperrange').value;
-      }
-      if (this.card_form.get('dateofmeasure').dirty || this.card_form.get('timeofmeasure').dirty){
-        this.formSave.dateofmeasure = this.calculateDateTime();
       }
     }
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LabsByProfile";

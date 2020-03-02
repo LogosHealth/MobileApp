@@ -98,6 +98,7 @@ import { FormNewUser } from '../pages/formNewUser/formNewUser';
 import { FormProcedure } from '../pages/formProcedure/formProcedure';
 import { FormTherapy } from '../pages/formTherapy/formTherapy';
 import { FormMessage } from '../pages/formMessage/formMessage';
+import { FormMedAddDose } from '../pages/formMedAddDose/formMedAddDose';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
@@ -188,8 +189,9 @@ import { ContactCardPage } from '../pages/contact-card/contact-card';
 import { FacebookLoginService } from '../pages/facebook-login/facebook-login.service';
 import { GoogleLoginService } from '../pages/google-login/google-login.service';
 import { GoogleMapsService } from '../pages/maps/maps.service';
-
 import { TextMaskModule } from 'angular2-text-mask';
+
+import { AlertComponent } from '../components/alert/alert';
 
 @NgModule({
   declarations: [
@@ -281,6 +283,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormProcedure,
     FormTherapy,
     FormMessage,
+    FormMedAddDose,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -307,7 +310,9 @@ import { TextMaskModule } from 'angular2-text-mask';
     CounterInput,
     Rating,
     Autosize,
-    GoogleMap
+    GoogleMap,
+
+    AlertComponent
   ],
   imports: [
     BrowserModule,
@@ -318,6 +323,7 @@ import { TextMaskModule } from 'angular2-text-mask';
       navExitApp: false
     })
   ],
+  exports: [AlertComponent],
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
@@ -408,6 +414,7 @@ import { TextMaskModule } from 'angular2-text-mask';
     FormProcedure,
     FormTherapy,
     FormMessage,
+    FormMedAddDose,
 
     MenuMeasure,
     MenuVisitOutcome,

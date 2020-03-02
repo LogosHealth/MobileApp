@@ -19,6 +19,7 @@ import { FormProcedure } from '../../pages/formProcedure/formProcedure';
 import { FormTherapy } from '../formTherapy/formTherapy';
 import { ListContactPage } from '../../pages/listContacts/listContacts';
 import { FormContactPage } from '../../pages/formContact/formContact';
+import { FormMedAddDose } from '../../pages/formMedAddDose/formMedAddDose';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/Rx';
@@ -778,6 +779,10 @@ export class FormMedicalEvent {
       } else {
         this.eventSave.profileid = this.RestService.currentProfile;
       }
+      if (this.curRec == undefined) {
+        this.curRec = new MedicalEvent;
+        console.log('From navSav record, curRec recast: ', this.curRec);
+      }
       this.eventSave.userid = this.RestService.userId;
       this.eventSave.active = 'Y';
 
@@ -872,6 +877,9 @@ export class FormMedicalEvent {
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         console.log('Happy Path: ', result);
+        //Inline save needs to populate curRec and fromEvent objects for brand new medical event records for downstream forms to function properly
+        self.curRec.recordid = result.data[0];
+        self.curRec.medicalevent = self.medicalevent.value;
         self.loading.dismiss();
         callback(null, result.data);
       }).catch( function(result){
@@ -1048,6 +1056,10 @@ export class FormMedicalEvent {
                   self.loadFromId = results;
                   self.card_form.get('recordid').setValue(results);
                   console.log('new Medical Condition record: ', self.curRec);
+                  if (self.fromEvent == undefined) {
+                    self.fromEvent = {medicaleventid: self.curRec.recordid, medicalevent: self.curRec.medicalevent, profileid: self.eventSave.profileid};
+                    console.log('new Medical Condition fromEvent: ', self.fromEvent);
+                  }
                 } else {
                   self.loadFromId = self.curRec.recordid;
                 }
@@ -1478,6 +1490,14 @@ addTreatment4Symptom(objTreat): FormGroup {
     namevalue: new FormControl({value: objTreat.namevalue, disabled: true}),
     indication: new FormControl({value: objTreat.indication, disabled: true}),
     dateofmeasure: new FormControl({value: objTreat.dateofmeasure, disabled: true}),
+
+    dosage: new FormControl({value: objTreat.dosage, disabled: true}),
+    doseunits: new FormControl({value: objTreat.doseunits, disabled: true}),
+    dosetrackingtype: new FormControl({value: objTreat.dosetrackingtype, disabled: true}),
+    dosetrackingstate: new FormControl({value: objTreat.dosetrackingstate, disabled: true}),
+    symptomid: new FormControl({value: objTreat.symptomid, disabled: true}),
+    profileid: new FormControl({value: objTreat.profileid, disabled: true}),
+
   });
 }
 
@@ -1601,9 +1621,66 @@ addExistingTreatment(index): FormGroup {
     reftablefields: new FormControl({value: this.curRec.treatments.items[index].reftablefields, disabled: true}),
     type: new FormControl({value: this.curRec.treatments.items[index].type, disabled: true}),
     namevalue: new FormControl({value: this.curRec.treatments.items[index].namevalue, disabled: true}),
-    indication: new FormControl({value: this.curRec.treatments.items[index].indication, disabled: true}),
+    indication: new FormControl({value: this.curRec.medicalevent, disabled: true}),
     dateofmeasure: new FormControl({value: dtStart, disabled: true}),
+    dosage: new FormControl({value: this.curRec.treatments.items[index].dosage, disabled: true}),
+    doseunits: new FormControl({value: this.curRec.treatments.items[index].doseunits, disabled: true}),
+    dosetrackingtype: new FormControl({value: this.curRec.treatments.items[index].dosetrackingtype, disabled: true}),
+    dosetrackingstate: new FormControl({value: this.curRec.treatments.items[index].dosetrackingstate, disabled: true}),
+    medicaleventid: new FormControl({value: this.curRec.recordid, disabled: true}),
+    profileid: new FormControl({value: this.curRec.treatments.items[index].profileid, disabled: true}),
   });
+}
+
+isActiveDoseTrackedMed(index) {
+  var treatments = this.card_form.get('treatments') as FormArray;
+  var doseType = treatments.at(index).get('dosetrackingtype').value;
+  var dtState = treatments.at(index).get('dosetrackingstate').value;
+
+  var blnReturn = false;
+
+  //console.log('From isActiveDoseTrackedMed, index: ' + index + ', doseType: ' + doseType + ', dtState: ' + dtState);
+  //console.log('From isActiveDoseTrackedMed, index: ' + index + ', treatments: ', treatments);
+  if (doseType !== undefined && doseType !== null && doseType == 'active') {
+    blnReturn = true;
+  }
+
+  if (dtState !== undefined && dtState !== null && dtState == 'complete' && blnReturn == true) {
+    blnReturn = false;
+  }
+
+  return blnReturn;
+}
+
+addDose(index) {
+  var treatments = this.card_form.get('treatments') as FormArray;
+  //var doseType = treatments.at(index).get('dosetrackingtype').value;
+  var objIncluded = 'treatment event';
+  var treatment = {treatmentid: treatments.at(index).get('recordid').value,
+                    profileid: treatments.at(index).get('profileid').value,
+                    conditionid: treatments.at(index).get('medicaleventid').value,
+                    indication: treatments.at(index).get('indication').value,
+                    medicationid: treatments.at(index).get('reftablefieldid').value,
+                    namevalue: treatments.at(index).get('namevalue').value,
+                    dosage: treatments.at(index).get('dosage').value,
+                    doseunits: treatments.at(index).get('doseunits').value,
+                  };
+
+  //console.log('Add Dose index ' + index + ', doseType: ' + doseType);
+  console.log('Add Dose index ' + index + ', treatments: ', treatments);
+
+  let profileModal = this.modalCtrl.create(FormMedAddDose, { objIncluded: objIncluded, fromTreatment: treatment });
+  profileModal.onDidDismiss(data => {
+    console.log('Data from getDefaultUser: ', data);
+    if (data !== undefined) {
+      //console.log('Data from getDefaultUser: ', data);
+      if (data.userUpdated) {
+
+      }
+    }
+  });
+  profileModal.present();
+
 }
 
 notValid() {
@@ -1747,6 +1824,7 @@ addFromCabinet() {
     } else {
       if (result) {
         cat = {title: 'Medicine Cabinet'};
+
         self.nav.push(ListMedicationPage, { category: cat, fromEvent: self.fromEvent });
       } else if (!result) {
         console.log('addFromCabinet.ConfirmSaveDirect - User cancelled');

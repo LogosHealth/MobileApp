@@ -72,6 +72,8 @@ export class FormVisitPage {
   hasParent: boolean = false;
   hasDate: boolean = false;
   transfer2Post: boolean = false;
+  dtNow: any = moment(Date());
+  dtNext: any = this.dtNow.add(1, 'days').format('YYYY-MM-DDT12:00');
 
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public modalCtrl: ModalController,
@@ -131,6 +133,7 @@ export class FormVisitPage {
         parentreason: new FormControl(preason),
         parentdate: new FormControl(this.curRec.parentdate),
         visitdate: new FormControl(this.curRec.visitdate, Validators.required),
+        visittime: new FormControl(this.curRec.visitdate, Validators.required),
         firstname: new FormControl(this.curRec.firstname),
         physiciantitle: new FormControl(this.curRec.physician.title),
         reason: new FormControl(this.curRec.reason),
@@ -192,7 +195,8 @@ export class FormVisitPage {
         parentvisitid: new FormControl(),
         parentreason: new FormControl(preason),
         parentdate: new FormControl(),
-        visitdate: new FormControl(null, Validators.required),
+        visitdate: new FormControl(this.dtNext, Validators.required),
+        visittime: new FormControl(this.dtNext, Validators.required),
         firstname: new FormControl(firstNameVal),
         physiciantitle: new FormControl(title),
         reason: new FormControl(),
@@ -209,9 +213,11 @@ export class FormVisitPage {
         this.loadPreObjects();
       }
 
+/*
       if (this.needNew) {
         //this.saveNew();
       }
+*/
     }
     this.card_formPost = new FormGroup({
       visitsummary: new FormControl(),
@@ -641,8 +647,8 @@ export class FormVisitPage {
       if (this.card_form.get('reason').dirty) {
         this.formSave.reason = this.card_form.get('reason').value;
       }
-      if (this.card_form.get('visitdate').dirty) {
-        this.formSave.visitdate = this.card_form.get('visitdate').value;
+      if (this.card_form.get('visitdate').dirty || this.card_form.get('visittime').dirty) {
+        this.formSave.visitdate = this.calculateDateTime();
       }
     } else {
       this.formSave.active = 'Y';
@@ -658,7 +664,7 @@ export class FormVisitPage {
 
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
-      this.formSave.visitdate = this.card_form.get('visitdate').value;
+      this.formSave.visitdate = this.calculateDateTime();
 
       //This is the only field within the post visit section:
       console.log('Contact from promote to visit', this.contact);
@@ -1207,8 +1213,8 @@ export class FormVisitPage {
       if (this.card_form.get('reason').dirty) {
         this.formSave.reason = this.card_form.get('reason').value;
       }
-      if (this.card_form.get('visitdate').dirty) {
-        this.formSave.visitdate = this.card_form.get('visitdate').value;
+      if (this.card_form.get('visitdate').dirty || this.card_form.get('visittime').dirty) {
+        this.formSave.visitdate = this.calculateDateTime();
       }
     } else {
       this.formSave.active = 'Y';
@@ -1224,7 +1230,7 @@ export class FormVisitPage {
 
       this.formSave.userid = this.RestService.userId;
       this.formSave.reason = this.card_form.get('reason').value;
-      this.formSave.visitdate = this.card_form.get('visitdate').value;
+      this.formSave.visitdate = this.calculateDateTime();
 
       //This is the only field within the post visit section:
       console.log('Contact from promote to visit', this.contact);
@@ -1410,6 +1416,7 @@ export class FormVisitPage {
       });
   }
 
+/*
   saveNew(){
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
@@ -1484,6 +1491,55 @@ export class FormVisitPage {
       self.loading.dismiss();
       alert('There was an error saving this data.  Please try again later');
     });
+  }
+*/
+
+  calculateDateTime() {
+    var dtString;
+    //var offsetDate;
+    //var offset;
+    var finalDate;
+    var strDate;
+    var strDateArr;
+    var strTime;
+    var strTimeArr;
+    //console.log('Date of Measure: ' + this.card_form.get('dateofmeasure').value);
+    //console.log('Start Time: ' + this.card_form.get('starttime').value);
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      strDate = this.momentNow.tz(this.userTimezone).format('YYYY-MM-DD');
+      strTime = this.momentNow.tz(this.userTimezone).format('HH:mm');
+    } else {
+      strDate = this.momentNow.format('YYYY-MM-DD');
+      strTime = this.momentNow.format('HH:mm');
+    }
+    if (this.card_form.get('visitdate').value !== undefined && this.card_form.get('visitdate').value !== null) {
+      strDateArr = this.card_form.get('visitdate').value.split('T');
+      strDate = strDateArr[0];
+    }
+    if (this.card_form.get('visittime').value !== undefined && this.card_form.get('visittime').value !== null) {
+      strTimeArr = this.card_form.get('visittime').value.split('T');
+      strTime = strTimeArr[1].substr(0, 5);
+    } else {
+      strTime = '00:00';
+    }
+    dtString = strDate + ' ' + strTime;
+    console.log('Date before offset: ' + strDate);
+    console.log('Time before offset: ' + strTime);
+    console.log('Final date string before offset: ' + dtString);
+    //offsetDate = new Date(moment(dtString).toISOString());
+    finalDate = dtString;
+
+/*
+    offset = offsetDate.getTimezoneOffset() / 60;
+    if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !== "") {
+      finalDate = moment(dtString).tz(this.userTimezone).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with timezone: ' + finalDate);
+    } else {
+      finalDate = moment(dtString).add(offset, 'hours').format('YYYY-MM-DD HH:mm');
+      console.log('Final date with no timezone: ' + finalDate);
+    }
+*/
+    return finalDate;
   }
 
   addInfo() {

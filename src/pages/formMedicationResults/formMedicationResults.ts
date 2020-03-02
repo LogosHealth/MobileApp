@@ -294,7 +294,8 @@ export class FormMedicationResults {
     //This flag will stop an initial basic record save without having a start date and indication entered
     var invalidCount = 0;
 
-    if (this.mode == 'basic') {
+    console.log('checkDoseValid - mode: ' + this.mode);
+    if (this.mode == 'basic' || this.mode == 'cabinet') {
       //console.log('checkDoseValid - dosage: ' + this.card_form.get('dosage').value);
       //console.log('checkDoseValid - doseunits: ' + this.card_form.get('doseunits').value);
       //console.log('checkDoseValid - dosefrequency: ' + this.card_form.get('dosefrequency').value);

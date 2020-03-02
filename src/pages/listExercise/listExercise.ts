@@ -121,9 +121,9 @@ export class ListExercisePage {
 
   formatDateTime(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('MMM DD YYYY hh:mm a');
+      return moment(dateString).tz(this.userTimezone).format("ddd, MMM DD 'YY, hh:mm A");
     } else {
-      return moment(dateString).format('MMM DD YYYY hh:mm a');
+      return moment(dateString).format("ddd, MMM DD 'YY, hh:mm A");
     }
   }
 

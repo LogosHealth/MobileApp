@@ -176,7 +176,7 @@
           </ion-row>
           <div formArrayName="treatments" *ngFor="let info of card_form.get('treatments').controls; let i = index;">
             <div [formGroupName]="i">
-              <ion-row>
+              <ion-row *ngIf="!isActiveDoseTrackedMed(i)">
                 <ion-col no-padding width-50>
                   <ion-item>
                     <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
@@ -187,8 +187,33 @@
                 <ion-col no-padding width-37>
                   <ion-item>
                     <ion-label floating>Start Date</ion-label>
-                    <ion-datetime displayFormat="MMM DD YYYY" formControlName="dateofmeasure"></ion-datetime>
+                    <ion-datetime displayFormat="MMM DD 'YY" formControlName="dateofmeasure"></ion-datetime>
                   </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="updateEventTreatment(i)" [disabled]="noEventRecord()">
+                    <ion-icon name="medical"></ion-icon>
+                  </button>
+                </ion-col>
+              </ion-row>
+              <ion-row *ngIf="isActiveDoseTrackedMed(i)">
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
+                    <ion-label *ngIf="info.value.type == null" floating>Treatment</ion-label>
+                    <ion-input type="text" formControlName="namevalue"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-27>
+                  <ion-item>
+                    <ion-label floating>Start Date</ion-label>
+                    <ion-datetime displayFormat="MMM DD 'YY" formControlName="dateofmeasure"></ion-datetime>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="addDose(i)" [disabled]="noEventRecord()">
+                    <ion-icon name="pint"></ion-icon>
+                  </button>
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
                   <button ion-button block class="form-action-button"  type="button" (click)="updateEventTreatment(i)" [disabled]="noEventRecord()">

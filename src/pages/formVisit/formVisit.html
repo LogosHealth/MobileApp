@@ -35,16 +35,24 @@
                 </ion-col>
               </ion-row>
               <ion-row>
-                <ion-col no-padding width-60>
-                  <ion-item>
-                    <ion-label floating>Visit Date</ion-label>
-                    <ion-datetime displayFormat="DDD MMM DD YY hh:mm A"  formControlName="visitdate" minuteValues="0,15,30,45" max="2021-12-31" (ionBlur)="checkDate()"></ion-datetime>
-                  </ion-item>
-                </ion-col>
-                <ion-col no-padding width-35>
+                <ion-col no-padding>
                   <ion-item>
                     <ion-label floating>For</ion-label>
                     <ion-input type="text" formControlName="firstname" [disabled]="true"></ion-input>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-50>
+                  <ion-item>
+                    <ion-label floating>Visit Date</ion-label>
+                    <ion-datetime displayFormat="DDD MMM DD 'YY"  formControlName="visitdate" minuteValues="0,15,30,45" max="2021-12-31" (ionBlur)="checkDate()" [disabled]="pastVisit"></ion-datetime>
+                  </ion-item>
+                </ion-col>
+                <ion-col no-padding width-45>
+                  <ion-item>
+                    <ion-label floating>Visit Time</ion-label>
+                    <ion-datetime displayFormat="hh:mm A"  formControlName="visittime" minuteValues="0,15,30,45" max="2021-12-31" (ionBlur)="checkDate()" [disabled]="pastVisit"></ion-datetime>
                   </ion-item>
                 </ion-col>
               </ion-row>

@@ -302,10 +302,19 @@ export class ListVisitPage {
         //these are stored in actual local time so need to add offset back in as moment(datestring) casts from datestring of UTC...
         //console.log('DateString from formatdatetime - listVisit: ' + dateString);
         //console.log('moment from formatdatetime - listVisit: ' + moment(dateString).format('dddd, MMMM DD hh:mm a'));
+
+
         var dtConvert = moment(dateString);
+        var dtConvert2 =  moment.utc(dateString);
+        //console.log('dtConvert1 - listVisit: ' + dtConvert1);
+        //console.log('dtConvert1 - listVisit: ' + dtConvert1);
+        //console.log('dtConvert2 - listVisit: ' + dtConvert2.format('dddd, MMMM DD hh:mm a'));
+
+        //console.log('dtConvert before - listVisit: ' + dtConvert.format('dddd, MMMM DD hh:mm a'));
         dtConvert = moment(dtConvert).add(tzoffset, 'hours');
-        //console.log('moment from formatdatetime - listVisit: ' + dtConvert.format('dddd, MMMM DD hh:mm a'));
-        return dtConvert.format('dddd, MMMM DD hh:mm a');
+        //console.log('dtConvert after - listVisit: ' + dtConvert.format('dddd, MMMM DD hh:mm a'));
+        return dtConvert2.format('dddd, MMMM DD hh:mm a');
+        //return dtConvert.format('dddd, MMMM DD hh:mm a');
     }
 
   }

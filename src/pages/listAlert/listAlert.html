@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header  *ngIf="showForm">
     <ion-navbar>
       <button ion-button menuToggle>
         <ion-icon name="menu"></ion-icon>
@@ -14,7 +14,7 @@
     </ion-navbar>
   </ion-header>
 
-<ion-content class="list-mini-content">
+<ion-content class="list-mini-content" *ngIf="showForm">
   <div class="list-mini">
     <ion-list>
       <button class="list-item" ion-item *ngFor="let item of list2.items;let i=index;" (click)="openRecord(i)">

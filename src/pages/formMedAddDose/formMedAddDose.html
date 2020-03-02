@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Capture Dose</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content">
+
+    <div class="card-example-view">
+      <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
+        <section class="form-section">
+
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>For</ion-label>
+                <ion-select formControlName="profileid" [disabled]="fromCondition" (ionBlur)="loseFocus()">
+                    <ion-option *ngFor="let rec of curRec" [value]="rec.profileid">{{rec.title}}</ion-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="fromCondition">
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label *ngIf="objIncluded == 'event' || objIncluded == 'treatment event'" floating>Medical Condition</ion-label>
+                <ion-label *ngIf="objIncluded !== 'event' && objIncluded !== 'treatment event'" floating>Symptom</ion-label>
+                <ion-input type="text" formControlName="condition" [disabled]="fromCondition"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="!fromCondition">
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label *ngIf="objIncluded == 'event' || objIncluded == 'treatment event'" floating>Medical Condition</ion-label>
+                <ion-label *ngIf="objIncluded !== 'event' && objIncluded !== 'treatment event'" floating>Symptom</ion-label>
+                <ion-select formControlName="condition" [disabled]="fromCondition" (ionBlur)="loseFocus()">
+                  <ion-option *ngFor="let item of eventList" (ionSelect)="setCurrentEvent(item)" [value]="item.name">{{item.name}} {{formatDate(item.startdate)}}</ion-option>
+                </ion-select>
+            </ion-item>
+            </ion-col>
+          </ion-row>
+
+
+          <ion-row>
+            <ion-col no-padding>
+              <ion-item>
+                <ion-label floating>Medication</ion-label>
+                <ion-input type="text" formControlName="medication" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Dose</ion-label>
+                <ion-input type="number" formControlName="dose"></ion-input>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Dose Unit</ion-label>
+                <ion-input type="text" formControlName="doseunit" [disabled]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Date of Measure</ion-label>
+                <ion-datetime displayFormat="DDD MMM DD 'YY" [min]="1900-01-01" [max]="today()" formControlName="dateofmeasure" ></ion-datetime>
+              </ion-item>
+            </ion-col>
+            <ion-col no-padding width-50>
+              <ion-item>
+                <ion-label floating>Time of Measure</ion-label>
+                <ion-datetime displayFormat="hh:mm A" [min]="1900-01-01" [max]="today()" formControlName="timeofmeasure" ></ion-datetime>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+        </section>
+
+        <section class="form-section">
+         <ion-row no-padding class="multi-input-row">
+            <ion-col no-padding width-50>
+              <button ion-button block class="form-action-button" type="button" (click)="sendUser()" [disabled]="!card_form.valid">Submit</button>
+            </ion-col>
+            <ion-col no-padding width-25>
+              <button ion-button block class="form-action-button" type="button" (click)="cancelAction()" >Cancel</button>
+            </ion-col>
+          </ion-row>
+        </section>
+      </form>
+    </div>
+</ion-content>

@@ -6,9 +6,12 @@ formVisit1-page {
 	.forms-examples-content
 	{
     //color: red;
-
-    ion-item [disabled] {
-      opacity: 0.65;
+    input[disabled]{
+      -webkit-text-fill-color: rgba(175, 175, 175, 1);
+      //-webkit-text-fill-color: currentcolor;
+      -webkit-opacity: 0.65;
+      opacity:0.65;
+      background: white;
     }
 
     /* Selects any disabled <input> for iOS*/
@@ -30,14 +33,6 @@ formVisit1-page {
       //color: $theme-color-1;
       //background: rgb(255, 204, 235);
     }
-
-    /* Selects any disabled <input> */
-    .item-disabled {
-      opacity: 0.65;
-      //color: $theme-color-1;
-      //background: rgb(255, 204, 235);
-    }
-
 
 		background-color: color($colors, background, base);
 

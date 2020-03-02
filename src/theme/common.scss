@@ -17,3 +17,15 @@
 @import "./common/auth/auth";
 @import "./common/legal/legal";
 @import "./common/layouts/lists";
+
+.ios input[disabled]{
+  -webkit-text-fill-color: rgba(175, 175, 175, 0.65);
+  //-webkit-text-fill-color: currentcolor;
+  -webkit-opacity: 0.65;
+  opacity:0.65;
+  background: white;
+}
+
+.ios .toolbar-title {
+  text-align: left;
+}

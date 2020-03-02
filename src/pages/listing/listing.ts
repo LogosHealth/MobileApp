@@ -13,8 +13,8 @@ import { ListMeasurePage } from '../listMeasure/listMeasure';
 import { ListNutritionPage } from '../listNutrition/listNutrition';
 import { ListVisitPage } from '../listVisit/listVisit';
 import { ListMedicationPage } from '../listMedication/listMedication';
-import { ListAlertPage } from '../listAlert/listAlert';
-import { LocalNotifications } from '@ionic-native/local-notifications';
+//import { ListAlertPage } from '../listAlert/listAlert';
+//import { LocalNotifications } from '@ionic-native/local-notifications';
 import { Chart } from 'chart.js';
 import { PhotoLibrary } from '@ionic-native/photo-library';
 import { Camera, CameraOptions } from '@ionic-native/camera';
@@ -25,6 +25,8 @@ import { ListGoalsModel } from '../../pages/listGoals/listGoals.model';
 import { ListGoalsService } from '../../pages/listGoals/listGoals.service';
 import { FormMessage } from '../../pages/formMessage/formMessage';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
+
+import { AlertComponent } from '../../components/alert/alert';
 
 var moment = require('moment-timezone');
 
@@ -65,6 +67,9 @@ export class ListingPage {
   borderColor: any = ["rgb(255, 99, 132)","rgb(255, 159, 64)","rgb(255, 205, 86)","rgb(138, 199, 166)",
                           "rgb(54, 162, 235)","rgb(153, 102, 255)","rgb(59, 3, 25)"];
 
+  @ViewChild(AlertComponent) alertComponent:AlertComponent;
+
+
   constructor(
     public nav: NavController,
     public listingService: ListingService,
@@ -72,7 +77,7 @@ export class ListingPage {
     public loadingCtrl: LoadingController,
     public RestService:RestService,
     private platform: Platform,
-    private localNotifications: LocalNotifications,
+    //private localNotifications: LocalNotifications,
     public events: Events,
     private photoLibrary: PhotoLibrary,
     private camera: Camera,
@@ -82,15 +87,15 @@ export class ListingPage {
     public modalCtrl: ModalController
   ) {
     var self = this;
-    this.platform.ready().then((rdy) => {
-      self.localNotifications.on('click').subscribe((notification)  => {
-        //console.log("notification id from click event " + notification.id);
-        if (notification.data.secret == 'scheduleinstance') {
-          //console.log('Click Notification - state of nav: ', self.nav);
-          alert("Please go to the Visit tile and schedule this appointment");
-        }
-      });
-    });
+    //this.platform.ready().then((rdy) => {
+      // self.localNotifications.on('click').subscribe((notification)  => {
+      //   //console.log("notification id from click event " + notification.id);
+      //   if (notification.data.secret == 'scheduleinstance') {
+      //     //console.log('Click Notification - state of nav: ', self.nav);
+      //     alert("Please go to the Visit tile and schedule this appointment");
+      //   }
+      // });
+    //});
 
     this.photoLibrary.requestAuthorization().then(() => {
       this.photoLibrary.getLibrary().subscribe({
@@ -155,6 +160,9 @@ export class ListingPage {
 
   ionViewDidLoad() {
     //this.presentLoadingDefault();
+    console.log('Alert Component: ', this.alertComponent);
+    this.alertComponent.loadData();
+
     this.listingService
       .getData()
       .then(data => {
@@ -260,11 +268,11 @@ export class ListingPage {
                 console.log('Initial User Set - i = ' + i);
               }
             }
-            self.nav.push(ListAlertPage, { autoload: true });
+            //self.nav.push(ListAlertPage, { autoload: true });
             //console.log('Results from listing curUser usertitle: ', self.curUser);
           } else {
             console.log('Error from get curUserObj: ', error);
-            self.nav.push(ListAlertPage, { autoload: true });
+            //self.nav.push(ListAlertPage, { autoload: true });
             self.loadData();
           }
         });

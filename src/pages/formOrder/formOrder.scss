@@ -5,7 +5,7 @@ formOrder-page {
 
 	.forms-examples-content
 	{
-		background-color: color($colors, background, base);
+		background-color: color($colors, background2, base);
 
 		.forms-examples-segment
 		{
@@ -34,7 +34,7 @@ formOrder-page {
 			}
 
 			ion-item {
-				@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 
 				&.item
 				{
@@ -71,7 +71,7 @@ formOrder-page {
 				color: $theme-color-1;
 				font-weight: 400;
 				margin: 0px;
-			}			
+			}
 
 			.section-title2
 			{
@@ -83,7 +83,7 @@ formOrder-page {
 				font-weight: 400;
 				margin: 0px;
 			}
-			
+
 			.section-tips
 			{
 				font-size: 1.4rem;
@@ -98,13 +98,13 @@ formOrder-page {
 				border-width: 2px;
 				border-color: $theme-color-1;
 				padding: 5px;
-			}			
+			}
 
 			.image-center{
 				display: block;
 				margin-left: auto;
 				margin-right: auto;
-				width: 100%;			
+				width: 100%;
 			}
 
 			.section-label

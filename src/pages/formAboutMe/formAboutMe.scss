@@ -9,12 +9,49 @@ formAboutMe-page {
 
 	.forms-examples-content
     {
-		background-color: color($colors, background, base);
+
+      input[disabled]{
+        -webkit-text-fill-color: rgba(175, 175, 175, 1);
+        //-webkit-text-fill-color: currentcolor;
+        -webkit-opacity: 0.65;
+        opacity:0.65;
+        background: white;
+      }
+
+      /* Selects any disabled <input> */
+      input:disabled {
+        opacity: 0.65;
+        //color: $theme-color-1;
+        //background: rgb(255, 204, 235);
+      }
+
+      /* Selects any disabled <input> for iOS*/
+      .input-disabled {
+        opacity: 0.65;
+        //color: $theme-color-1;
+        //background: rgb(255, 204, 235);
+      }
+
+      /* Selects any disabled <input> */
+      .select-disabled {
+        opacity: 0.65;
+        //color: $theme-color-1;
+        //background: rgb(255, 204, 235);
+      }
+
+      /* Selects any disabled <input> */
+      .datetime-disabled {
+        opacity: 0.65;
+        //color: $theme-color-1;
+        //background: rgb(255, 204, 235);
+      }
+
+		background-color: color($colors, background2, base);
 
 		.form-section
 		{
 			padding: 0px 0px;
-			@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+			@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 
 			.columnAlign
 			{
@@ -133,7 +170,7 @@ formAboutMe-page {
 			}
 
             ion-item {
-                @include basic-input-style(color($colors, background, base), $black-d, $white-d);
+                @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 				vertical-align: bottom;
 
 				&.item
@@ -162,7 +199,7 @@ formAboutMe-page {
 				}
 
 				ion-datetime {
-					@include basic-input-style(color($colors, background, base), $black-d, $white-d);
+					@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
 
 					padding-left: 0px;
 					padding-top: 8px;

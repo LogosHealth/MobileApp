@@ -1,20 +1,25 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, Platform } from 'ionic-angular';
-import { FeedModel } from '../feed/feed.model';
-import 'rxjs/Rx';
-import { ListAlertModel, ListAlert } from './listAlert.model';
-import { ListAlertService } from './listAlert.service';
-import { RestService } from '../../app/services/restService.service';
-import { FormSleepPage } from '../../pages/formSleep/formSleep';
+
 import { LocalNotifications } from '@ionic-native/local-notifications';
+import { ListAlertModel, ListAlert } from './listAlert.model';
+import { ListAlertService } from '../../pages/listAlert/listAlert.service';
+import { FeedModel } from '../../pages/feed/feed.model';
+import { RestService } from '../../app/services/restService.service';
 
+import { NavController, LoadingController, Platform, ModalController, Events, PopoverController, Content } from 'ionic-angular';
 var moment = require('moment-timezone');
-
+/**
+ * Generated class for the AlertComponent component.
+ *
+ * See https://angular.io/api/core/Component for more info on Angular
+ * Components.
+ */
 @Component({
-  selector: 'listExercisePage',
-  templateUrl: 'listAlert.html'
+  selector: 'alert',
+  templateUrl: 'alert.html'
 })
-export class ListAlertPage {
+
+export class AlertComponent {
   list2: ListAlertModel = new ListAlertModel();
   feed: FeedModel = new FeedModel();
   alertSave: ListAlert = new ListAlert();
@@ -22,23 +27,36 @@ export class ListAlertPage {
   formName: string = "today";
   resultData: any;
   userTimezone: any;
-  showForm: boolean = false;
   autoload: boolean = false;
-
+  text: string;
   constructor(
-    public nav: NavController,
-    public alertCtrl: AlertController,
+    //public nav: NavController,
+    //public alertCtrl: AlertController,
     public list2Service: ListAlertService,
-    public navParams: NavParams,
+    //public navParams: NavParams,
     private platform: Platform,
     public RestService:RestService,
-    public loadingCtrl: LoadingController,
+    
+    //public loadingCtrl: LoadingController,
     private localNotifications: LocalNotifications,
   ) {
     var self = this;
+
+
+    this.text = 'Hello World';
+    console.log("alert");
     this.platform.ready().then((rdy) => {
-      self.autoload = navParams.get('autoload');
-      console.log('listAlerts - autoload: ' + self.autoload);
+
+      self.localNotifications.on('click').subscribe((notification)  => {
+        //console.log("notification id from click event " + notification.id);
+        if (notification.data.secret == 'scheduleinstance') {
+          //console.log('Click Notification - state of nav: ', self.nav);
+          alert("Please go to the Visit tile and schedule this appointment");
+        }
+      });
+
+      //self.autoload = navParams.get('autoload');
+      console.log('alerts - autoload: ' + self.autoload);
       self.localNotifications.on('trigger').subscribe((notification) => {
         console.log("notification id from trigger event " + notification.id);
         this.setAlertDone(notification.id);
@@ -61,7 +79,7 @@ export class ListAlertPage {
     var dtNow = moment(new Date());
     var dtExpiration = moment(this.RestService.AuthData.expiration);
     var self = this;
-
+    console.log("ionviewwillenter");
     if (dtNow < dtExpiration) {
       //this.presentLoadingDefault();
       this.loadData();
@@ -103,6 +121,9 @@ export class ListAlertPage {
     };
     var body = '';
     var self = this;
+
+    console.log("loaddata alert");
+
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
       var results = result.data;
@@ -152,12 +173,12 @@ export class ListAlertPage {
         } else {
           console.log('Results from listAlert.loadData', self.RestService.results);
         }
-        if (self.autoload) {
-          self.nav.pop();
-          //self.loading.dismiss();
-        }else {
-          //self.loading.dismiss();
-        }
+        // if (self.autoload) {
+        //   self.nav.pop();
+        //   //self.loading.dismiss();
+        // }else {
+        //   //self.loading.dismiss();
+        // }
       });
     }).catch( function(result){
         console.log(result);
@@ -292,16 +313,16 @@ export class ListAlertPage {
     });
   }
 
-  openRecord(recordId) {
-    console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormSleepPage, { recId: recordId });
-    //alert('Open Record:' + recordId);
-  }
+  // openRecord(recordId) {
+  //   console.log("Goto Form index: " + recordId);
+  //   //console.log("Recordid from index: " + this.list2[recordId].recordid);
+  //   this.nav.push(FormSleepPage, { recId: recordId });
+  //   //alert('Open Record:' + recordId);
+  // }
 
-  addNew() {
-    this.nav.push(FormSleepPage);
-  }
+  // addNew() {
+  //   this.nav.push(FormSleepPage);
+  // }
 
   formatDateTime(dateString) {
     //alert('FormatDateTime called');
@@ -333,24 +354,24 @@ export class ListAlertPage {
     }
   }
 
-  presentLoadingDefault() {
-    this.loading = this.loadingCtrl.create({
-    spinner: 'hide',
-    content: `
-      <div class="custom-spinner-container">
-        <div class="custom-spinner-box">
-           <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
-           Loading...
-        </div>
-      </div>`,
-    });
+  // presentLoadingDefault() {
+  //   this.loading = this.loadingCtrl.create({
+  //   spinner: 'hide',
+  //   content: `
+  //     <div class="custom-spinner-container">
+  //       <div class="custom-spinner-box">
+  //          <img src="assets/images/stickManCursor3.gif" width="50" height="50" />
+  //          Loading...
+  //       </div>
+  //     </div>`,
+  //   });
 
-    this.loading.present();
+  //   this.loading.present();
 
-    setTimeout(() => {
-      this.loading.dismiss();
-      //console.log('Timeout for spinner called ' + this.formName);
-    }, 15000);
-  }
+    // setTimeout(() => {
+    //   this.loading.dismiss();
+    //   //console.log('Timeout for spinner called ' + this.formName);
+    // }, 15000);
+  //}
 
 }

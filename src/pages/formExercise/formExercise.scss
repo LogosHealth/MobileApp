@@ -5,7 +5,44 @@ formExercise-page {
 
 	.forms-examples-content
 	{
-		background-color: color($colors, background2, base);
+
+    input[disabled]{
+      -webkit-text-fill-color: rgba(175, 175, 175, 1);
+      //-webkit-text-fill-color: currentcolor;
+      -webkit-opacity: 0.65;
+      opacity:0.65;
+      background: white;
+    }
+
+    /* Selects any disabled <input> */
+    input:disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    /* Selects any disabled <input> for iOS*/
+    .input-disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    /* Selects any disabled <input> */
+    .select-disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    /* Selects any disabled <input> */
+    .datetime-disabled {
+      opacity: 0.65;
+      //color: $theme-color-1;
+      //background: rgb(255, 204, 235);
+    }
+
+    background-color: color($colors, background2, base);
 
 		.checkbox-md .checkbox-checked {
 			border-color: $theme-color-1;
@@ -92,34 +129,6 @@ formExercise-page {
         background-color: color($colors, background2, base);
 
         padding: 0px 0px;
-
-        /* Selects any disabled <input> */
-        input:disabled {
-          opacity: 0.65;
-          //color: $theme-color-1;
-          //background: rgb(255, 204, 235);
-        }
-
-        /* Selects any disabled <input> for iOS*/
-        .input-disabled {
-          opacity: 0.65;
-          //color: $theme-color-1;
-          //background: rgb(255, 204, 235);
-        }
-
-        /* Selects any disabled <input> */
-        .select-disabled {
-          opacity: 0.65;
-          //color: $theme-color-1;
-          //background: rgb(255, 204, 235);
-        }
-
-        /* Selects any disabled <input> */
-        .datetime-disabled {
-          opacity: 0.65;
-          //color: $theme-color-1;
-          //background: rgb(255, 204, 235);
-        }
 
         .columnAlign
         {
