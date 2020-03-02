@@ -45,7 +45,7 @@
     "es5-shim": "4.5.9",
     "es6-shim": "0.35.3",
     "es7-shim": "6.0.0",
-    "eslint": "^3.14.1"
+    "eslint": "^6.8.0"
   },
   "homepage": "https://github.com/terikon/cordova-plugin-photo-library#readme",
   "license": "MIT",
