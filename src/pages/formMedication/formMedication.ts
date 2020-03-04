@@ -494,7 +494,7 @@ export class FormMedication {
     }
 
     return this.formBuilder.group({
-      recordid: new FormControl({value: this.curRec.treatmentresults.items[index].recordid, disabled: true}),
+      recordid: new FormControl({value: this.curRec.treatmentresults.items[index].treatmentid, disabled: true}),
       symptomid: new FormControl({value: this.curRec.treatmentresults.items[index].symptomid, disabled: true}),
       medicaleventid: new FormControl({value: this.curRec.treatmentresults.items[index].medicaleventid, disabled: true}),
       profileid: new FormControl({value: this.curRec.treatmentresults.items[index].profileid, disabled: true}),
@@ -1648,12 +1648,16 @@ addNewTreatmentResults() {
         if (isBasic) {
           if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
             self.nav.push(FormMedicationResults, {recId: 0, medication: self.curRec, category: cat, fromEvent: self.fromEvent});
+          } else if (self.fromSymptom !== undefined && self.fromSymptom.symptomid !== undefined && self.fromSymptom.symptomid > 0) {
+            self.nav.push(FormMedicationResults, {recId: 0, medication: self.curRec, category: cat, fromSymptom: self.fromSymptom});
           } else {
             self.nav.push(FormMedicationResults, {recId: 0, medication: self.curRec, category: cat});
           }
         } else {
           if (self.fromEvent !== undefined && self.fromEvent.medicaleventid !== undefined && self.fromEvent.medicaleventid > 0) {
             self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, fromEvent: self.fromEvent});
+          } else if (self.fromSymptom !== undefined && self.fromSymptom.symptomid !== undefined && self.fromSymptom.symptomid > 0) {
+            self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, fromSymptom: self.fromSymptom});
           } else {
             self.nav.push(FormMedicationResults, {medication: self.curRec, category: cat, eventList: self.eventList});
           }

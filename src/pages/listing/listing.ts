@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavController, LoadingController, Platform, ModalController, Events, PopoverController, Content } from 'ionic-angular';
+import { NavController, LoadingController, ModalController, Events, PopoverController, Content } from 'ionic-angular';
 import { FeedPage } from '../feed/feed';
 import 'rxjs/Rx';
 import { ListingModel } from './listing.model';
@@ -76,7 +76,7 @@ export class ListingPage {
     public list2Service: ListGoalsService,
     public loadingCtrl: LoadingController,
     public RestService:RestService,
-    private platform: Platform,
+    //private platform: Platform,
     //private localNotifications: LocalNotifications,
     public events: Events,
     private photoLibrary: PhotoLibrary,
@@ -86,7 +86,7 @@ export class ListingPage {
     public popoverCtrl:PopoverController,
     public modalCtrl: ModalController
   ) {
-    var self = this;
+    //var self = this;
     //this.platform.ready().then((rdy) => {
       // self.localNotifications.on('click').subscribe((notification)  => {
       //   //console.log("notification id from click event " + notification.id);

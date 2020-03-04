@@ -7,6 +7,11 @@ import { ListMedicationService } from '../../pages/listMedication/listMedication
 import { RestService } from '../../app/services/restService.service';
 import { FormMedicationResults } from '../../pages/formMedicationResults/formMedicationResults';
 
+import { FormMedication } from '../../pages/formMedication/formMedication';
+import { FormProcedure } from '../../pages/formProcedure/formProcedure';
+import { FormTherapy } from '../formTherapy/formTherapy';
+
+
 var moment = require('moment-timezone');
 
 @Component({
@@ -149,9 +154,47 @@ export class ListTreatmentPage {
   }
 
   openRecord(recordId) {
-    console.log("Goto Form index: " + recordId);
-    //console.log("Recordid from index: " + this.list2[recordId].recordid);
-    this.nav.push(FormMedicationResults, { recId: recordId, medication: this.medication });
+    var objTreat =this.list2.items[recordId];
+    var objType = objTreat.type;
+    var objRecordid = objTreat.reftablefieldid;
+    var cat;
+    var fromEvent;
+    var fromSymptom;
+
+    //console.log("Goto Form index: " + recordId);
+    console.log("Open record Recordid: " + recordId);
+    console.log("Open record Record: ", this.list2.items[recordId]);
+
+    if (objType == 'medication') {
+      cat = {title: 'Medication'};
+      if (this.list2.items[recordId].medicaleventid !== undefined && this.list2.items[recordId].medicaleventid !== null &&
+        this.list2.items[recordId].medicaleventid > 0) {
+          fromEvent = {medicaleventid: objTreat.medicaleventid, medicalevent: objTreat.verbatimindication, profileid: objTreat.profileid };
+          this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+      } else {
+        fromSymptom = {symptomid: objTreat.symptomid, symptomname: objTreat.verbatimindication, profileid: objTreat.profileid };
+        this.nav.push(FormMedication, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
+      }
+    } else if (objType == 'procedure') {
+      if (this.list2.items[recordId].medicaleventid !== undefined && this.list2.items[recordId].medicaleventid !== null &&
+        this.list2.items[recordId].medicaleventid > 0) {
+          fromEvent = {medicaleventid: objTreat.medicaleventid, medicalevent: objTreat.verbatimindication, profileid: objTreat.profileid };
+          this.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+      } else {
+        fromSymptom = {symptomid: objTreat.symptomid, symptomname: objTreat.verbatimindication, profileid: objTreat.profileid };
+        this.nav.push(FormProcedure, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
+      }
+    } else if (objType == 'therapy') {
+      if (this.list2.items[recordId].medicaleventid !== undefined && this.list2.items[recordId].medicaleventid !== null &&
+        this.list2.items[recordId].medicaleventid > 0) {
+          fromEvent = {medicaleventid: objTreat.medicaleventid, medicalevent: objTreat.verbatimindication, profileid: objTreat.profileid };
+          this.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, fromEvent: fromEvent });
+      } else {
+        fromSymptom = {symptomid: objTreat.symptomid, symptomname: objTreat.verbatimindication, profileid: objTreat.profileid };
+        this.nav.push(FormTherapy, { loadFromId: objRecordid, category: cat, fromSymptom: fromSymptom });
+      }
+    }
+    //this.nav.push(FormMedicationResults, { recId: recordId, medication: this.medication });
     //alert('Open Record:' + recordId);
   }
 

@@ -5,8 +5,9 @@ import { ListAlertModel, ListAlert } from './listAlert.model';
 import { ListAlertService } from '../../pages/listAlert/listAlert.service';
 import { FeedModel } from '../../pages/feed/feed.model';
 import { RestService } from '../../app/services/restService.service';
+import { Platform } from 'ionic-angular';
 
-import { NavController, LoadingController, Platform, ModalController, Events, PopoverController, Content } from 'ionic-angular';
+//import { NavController, LoadingController, Platform, ModalController, Events, PopoverController, Content } from 'ionic-angular';
 var moment = require('moment-timezone');
 /**
  * Generated class for the AlertComponent component.
@@ -36,7 +37,7 @@ export class AlertComponent {
     //public navParams: NavParams,
     private platform: Platform,
     public RestService:RestService,
-    
+
     //public loadingCtrl: LoadingController,
     private localNotifications: LocalNotifications,
   ) {

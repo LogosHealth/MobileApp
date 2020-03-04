@@ -1,6 +1,11 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Capture Dose</ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="showHistory()" [disabled]="noHistory()">
+      <ion-icon name='calendar'></ion-icon>
+    </button>
+  </ion-buttons>
   </ion-navbar>
 </ion-header>
 

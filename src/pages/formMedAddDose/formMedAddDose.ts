@@ -3,6 +3,8 @@ import { NavController, NavParams, AlertController, LoadingController, ViewContr
 import { Validators, FormGroup, FormControl } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { MedAddDose } from './formMedAddDose.model';
+import { ListDoseHistory } from '../../pages/listDoseHistory/listDoseHistory';
+
 
 //import { bool } from 'aws-sdk/clients/signer';
 
@@ -182,6 +184,18 @@ export class FormMedAddDose {
     });
   }
 
+  showHistory() {
+    var cat;
+
+    cat = {title: 'Dose History'};
+    this.nav.push(ListDoseHistory, {treatmentid: this.fromTreatment.treatmentid, treatment: this.fromTreatment, category: cat});
+
+  }
+
+  noHistory() {
+
+  }
+
   loseFocus() {
     var newProfile;
 
@@ -259,6 +273,7 @@ export class FormMedAddDose {
       this.formSave.dose = this.card_form.get('dose').value;
       this.formSave.doseunit = this.card_form.get('doseunit').value;
       this.formSave.active = 'Y';
+      this.formSave.type = 'active';
       if (this.card_form.get('treatmentid').value !== undefined && this.card_form.get('treatmentid').value !== null
       && this.card_form.get('treatmentid').value > 0){
         this.formSave.treatmentid = this.card_form.get('treatmentid').value;

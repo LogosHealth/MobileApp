@@ -9,6 +9,7 @@ export class MedAddDose {
   dose: number;
   doseunit: string;
   dateofmeasure: string;
+  type: string;
   active: string;
   profileid: number;
   userid: number;
