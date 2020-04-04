@@ -286,6 +286,26 @@ export class ListMedicationPage {
     }
   }
 
+  formatDateTime3(dateString) {
+    //alert('FormatDateTime called');
+    var dtDate = new Date(dateString);
+    var dtReturn;
+
+    var offset = dtDate.getTimezoneOffset() /60;
+    var dtMoment = moment(dtDate);
+
+    dtReturn = dtMoment.add(offset, 'hours');
+
+    return dtReturn.format('dddd, MMMM DD hh:mm a');
+/*
+    if (this.userTimezone !== undefined && this.userTimezone !=="") {
+      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD hh:mm a');
+    } else {
+      return moment(dateString).format('dddd, MMMM DD hh:mm a');
+    }
+    */
+  }
+
   formatTime(timeString) {
     //alert('FormatDateTime called');
     var timeSplit = timeString.split(":");

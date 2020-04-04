@@ -85,6 +85,7 @@ export class FormMedicationResults {
     console.log('formMedication: medication: ', this.medication );
     console.log('formMedication: fromEvent: ', this.fromEvent );
     console.log('formMedication: eventList: ', this.eventList );
+    console.log('formMedication: fromSymptom: ', this.fromSymptom );
 
     if (this.medication !== undefined && this.medication !== null && this.medication.mode !== undefined) {
       this.mode = this.medication.mode;
@@ -246,8 +247,13 @@ export class FormMedicationResults {
     if (this.fromEvent !== undefined && this.fromEvent.medicaleventid !== undefined && this.fromEvent.medicaleventid > 0) {
       this.card_form.get('medicaleventid').setValue(this.fromEvent.medicaleventid);
       this.card_form.get('verbatimindication').setValue(this.fromEvent.medicalevent);
-
     }
+
+    if (this.fromSymptom !== undefined && this.fromSymptom.symptomid !== undefined && this.fromSymptom.symptomid > 0) {
+      this.card_form.get('symptomid').setValue(this.fromSymptom.symptomid);
+      this.card_form.get('verbatimindication').setValue(this.fromSymptom.symptomname);
+    }
+
 
     if (!this.newRec) {
       this.presentLoadingDefault();

@@ -523,7 +523,7 @@ export class FormMedSchedule {
     }
     this.notifySelected = isSelected;
     //console.log('Notify Selected: ' + this.notifySelected);
-    console.log('readProfilesNotify isNotify: ' + this.isNotify);
+    //console.log('readProfilesNotify isNotify: ' + this.isNotify);
     return this.isNotify;
   }
 
@@ -732,7 +732,13 @@ createItem(): FormGroup {
     if (this.fromTreatment.dosetrackingtype == 'active') {
       this.card_form.get('isnotify').setValue(true);
       this.isNotify = true;
+    }
+
+    console.log('doseTrackingState: ', this.fromTreatment);
+    if (this.fromTreatment.dosetrackingstate == 'activated') {
       this.isActiveMode = true;
+    } else {
+      this.isActiveMode = false;
     }
 
   }
@@ -744,7 +750,7 @@ createItem(): FormGroup {
 
   saveNotReady() {
     var isNotifyLocal = this.readProfilesNotify();
-    console.log('isNotifyLocal from saveNotReady: ' + isNotifyLocal);
+    //console.log('isNotifyLocal from saveNotReady: ' + isNotifyLocal);
 
     var returnVal = false;
     if (this.isNotify) {

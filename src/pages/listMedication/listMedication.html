@@ -31,6 +31,8 @@
                 <p class = "item-description" *ngIf="feed.category.title == 'Medicine Cabinet' || feed.category.title == 'Select Medicine'">Remaining: {{item.inventory}} {{item.inventoryunit}}</p>
                 <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine'">Start Date: {{formatDateTime2(item.startdate)}}</p>
                 <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine' && (item.enddate !== undefined && item.enddate !== null)">End Date: {{formatDateTime2(item.enddate)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine' && (item.lastdose !== undefined && item.lastdose !== null)">Lastest Dose: {{formatDateTime3(item.lastdose)}}</p>
+                <p class = "item-description" *ngIf="feed.category.title !== 'Medicine Cabinet' && feed.category.title !== 'Select Medicine'">Tracking Mode: {{item.mode}}</p>
             </ion-col>
             <ion-col no-padding width-10 class="item-icon">
               <ion-icon name="arrow-forward"></ion-icon>

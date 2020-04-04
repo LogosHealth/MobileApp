@@ -178,7 +178,8 @@ export class RestService {
             };
             cognitoIdentity.getId(params, function(err, data) {
               if (err) {
-                alert ("cognitoidentity.getID error = " + err);
+                console.log("cognitoidentity.getID error = " + err);
+                alert ("Application time out - For your data protection, please login again.");
                 callback('Error', null);
               } else {
                self.AuthData.cognitoId = data.IdentityId;
@@ -190,7 +191,8 @@ export class RestService {
                };
                cognitoIdentity.getCredentialsForIdentity(params2, function(err, data) {
                  if (err) {
-                  alert('Error in getCred: ' + err); // an error occurred
+                  console.log('Error in getCred: ' + err); // an error occurred
+                  alert("Application time out - For your data protection, please login again."); // an error occurred
                   callback('Error', null);
                 } else {
                   console.log('Browser Credentials Successfully Refreshed!!!');
@@ -243,7 +245,8 @@ export class RestService {
               };
               cognitoIdentity.getId(params, function(err, data) {
                 if (err) {
-                  alert ("cognitoidentity.getID error = " + err);
+                  console.log("cognitoidentity.getID error = " + err);
+                  alert("Application time out - For your data protection, please login again."); // an error occurred
                   callback('Error', null);
                 } else {
                  self.AuthData.cognitoId = data.IdentityId;
@@ -253,7 +256,8 @@ export class RestService {
                  };
                  cognitoIdentity.getCredentialsForIdentity(params2, function(err, data) {
                    if (err) {
-                    alert('Error in getCred: ' + err); // an error occurred
+                    console.log('Error in getCred: ' + err); // an error occurred
+                    alert("Application time out - For your data protection, please login again."); // an error occurred
                     callback('Error', null);
                   } else {
                     console.log('Browser Credentials Successfully Refreshed!!!');
