@@ -376,13 +376,20 @@ module.exports = [
     "clobbers": [
       "call"
     ]
+  },
+  {
+    "id": "cordova-plugin-email-composer.EmailComposer",
+    "file": "plugins/cordova-plugin-email-composer/www/email_composer.js",
+    "pluginId": "cordova-plugin-email-composer",
+    "clobbers": [
+      "cordova.plugins.email"
+    ]
   }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
   "call-number": "0.0.2",
-  "cordova-android-support-gradle-release": "1.4.4",
   "cordova-plugin-file": "5.0.0",
   "cordova-plugin-advanced-http": "2.0.1",
   "cordova-plugin-badge": "0.8.7",
@@ -398,7 +405,8 @@ module.exports.metadata =
   "cordova-plugin-photo-library": "2.1.1",
   "cordova-plugin-statusbar": "2.4.2",
   "cordova-plugin-whitelist": "1.3.3",
-  "mx.ferreyra.callnumber": "0.0.2"
+  "mx.ferreyra.callnumber": "0.0.2",
+  "cordova-plugin-email-composer": "0.9.2"
 };
 // BOTTOM OF METADATA
 });

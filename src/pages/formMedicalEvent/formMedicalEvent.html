@@ -15,6 +15,13 @@
         <ion-card class="sample-form">
           <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicalevent }}</h2>
           <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
+          <ion-row *ngIf="canSubscribe==true">
+            <ion-col>
+              <ion-label class="section-checkbox-label">Get Relevant News and Information
+                <ion-checkbox formControlName="subscribe"></ion-checkbox>
+              </ion-label>
+            </ion-col>
+          </ion-row>
           <ion-row>
             <ion-item>
               <ion-label floating>Medical Condition*</ion-label>

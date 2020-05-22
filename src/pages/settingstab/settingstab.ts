@@ -9,6 +9,7 @@ import { SettingsModel } from './settingstab.model';
 import { SettingsService } from './settingstab.service';
 import { ListSchedulePage } from '../listSchedule/listSchedule';
 import { FormLifestyle } from '../formLifestyle/formLifestyle';
+import { FormAcademy } from '../formAcademy/formAcademy';
 import { RestService } from '../../app/services/restService.service';
 import { FormChooseProfile } from '../formChooseProfile/formChooseProfile'
 
@@ -87,8 +88,8 @@ export class SettingsTabPage {
       this.nav.push(ListSchedulePage, { category: category });
     } else if (category.title == 'Lifestyle') {
         this.nav.push(FormLifestyle, { category: category });
-    } else if (category.title == 'Transform Paper Records') {
-        alert('Coming soon.  This will be a service where users can upload pdf medical records and have electronic records created for a one time fee.');
+    } else if (category.title == 'Academy') {
+      this.nav.push(FormAcademy, { category: category });
     } else {
       this.nav.push(List2Page, { category: category });
     }

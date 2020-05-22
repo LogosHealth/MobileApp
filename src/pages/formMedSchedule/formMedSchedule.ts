@@ -749,7 +749,7 @@ createItem(): FormGroup {
     }
 
   saveNotReady() {
-    var isNotifyLocal = this.readProfilesNotify();
+    //var isNotifyLocal = this.readProfilesNotify();
     //console.log('isNotifyLocal from saveNotReady: ' + isNotifyLocal);
 
     var returnVal = false;

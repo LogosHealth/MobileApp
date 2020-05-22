@@ -27,6 +27,7 @@ import { FormMessage } from '../../pages/formMessage/formMessage';
 import * as ChartAnnotation from 'chartjs-plugin-annotation';
 
 import { AlertComponent } from '../../components/alert/alert';
+import { ListSubscriptionComm } from '../listSubscriptionComm/listSubscriptionComm';
 
 var moment = require('moment-timezone');
 
@@ -45,9 +46,9 @@ export class ListingPage {
   myphoto:any;
   blnShowFeed: boolean = false;
   hasNotifications: boolean = false;
-  hasSubscriptions: boolean = true;
+  hasSubscriptions: boolean = false;
   notifyCount: number = 0;
-  subscriptionCount: number = 1;
+  subscriptionCount: number = 0;
   loadDataDone: boolean = false;
   curChart: string = "Metric";
   curUnit: string = "Unit";
@@ -138,6 +139,26 @@ export class ListingPage {
     } else {
       self.notifyCount = 0;
       self.hasNotifications = false;
+    }
+
+    if (this.RestService.Subscriptions.length > 0) {
+      var newCount = 0;
+      console.log('Subscription comms', this.RestService.Subscriptions);
+      for (var i = 0; i < this.RestService.Subscriptions.length; i++) {
+        if (this.RestService.Subscriptions[i].readflag == 'N') {
+          newCount = newCount + 1;
+        }
+      }
+
+      if (newCount > 0) {
+        console.log('newCount: ', newCount);
+        this.hasSubscriptions = true;
+        this.subscriptionCount = newCount;
+      } else {
+        this.hasSubscriptions = false;
+      }
+    } else {
+      this.hasSubscriptions = false;
     }
 
     //if expired - refresh token
@@ -510,7 +531,8 @@ export class ListingPage {
   }
 
   showSubscriptions() {
-    alert('Coming soon.  This will provide you the latest and best information concerning health topics which interest you (as you subscribe)');
+    this.nav.push(ListSubscriptionComm);
+    //alert('Coming soon.  This will provide you the latest and best information concerning health topics which interest you (as you subscribe)');
   }
 
   setProfileID(profileID, index) {

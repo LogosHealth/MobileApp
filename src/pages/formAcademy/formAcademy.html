@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Academy</ion-title>
+ </ion-navbar>
+</ion-header>
+
+<ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveData()">
+  <div>
+    <ion-card class="sample-form">
+
+    </ion-card>
+
+    <ion-card class="sample-form" >
+      <ion-row class="row-category">
+        <ion-label class="section-checkbox-label2">Subscribe To:</ion-label>
+      </ion-row>
+      <ion-row>
+        <ion-col width-50>
+          <ion-label class="section-checkbox-label">Latest News
+            <ion-checkbox formControlName="LatestNews" (click)="UpdateModel('LatestNews')"></ion-checkbox>
+          </ion-label>
+        </ion-col>
+        <ion-col width-50>
+          <ion-label class="section-checkbox-label">COVID-19
+            <ion-checkbox formControlName="COVID19" (click)="UpdateModel('COVID19')"></ion-checkbox>
+          </ion-label>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col width-50>
+          <ion-label class="section-checkbox-label">Fitness
+            <ion-checkbox formControlName="Fitness" (click)="UpdateModel('Fitness')"></ion-checkbox>
+          </ion-label>
+        </ion-col>
+        <ion-col width-50>
+          <ion-label class="section-checkbox-label">Nutrition
+            <ion-checkbox formControlName="Nutrition" (click)="UpdateModel('Nutrition')"></ion-checkbox>
+          </ion-label>
+        </ion-col>
+      </ion-row>
+    </ion-card>
+
+    <ion-col no-padding  width-100>
+      <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty" (click)="saveData()">Save</button>
+    </ion-col>
+  </div>
+</ion-content>

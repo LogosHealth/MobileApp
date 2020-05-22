@@ -20,7 +20,8 @@ var refreshProfiles: Boolean;
 var nav: NavController;
 var alertCtrl: AlertController;
 var notifyCount: number;
-var subscriptionCount: number;
+//var subscriptionCount: number;
+var subscriptions = [];
 
 interface AuthData {
     key: string,
@@ -52,12 +53,14 @@ export class RestService {
     public userId: number;
     public refreshParent: boolean = false;
     public notifyCount: number = 0;
-    public subscriptionCount: number = 0;
+    public Subscriptions: any;
+    //public subscriptionCount: number = 0;
 
     constructor(public iab: InAppBrowser, private platform: Platform) {
         this.AWS = AWSme;
         this.AWSRestFactory = apigClientFactory;
         this.Profiles = profiles;
+        this.Subscriptions = subscriptions;
         this.results = results;
         this.AuthData = AuthData;
         this.CognitoIdentity = cognitoIdentity;
@@ -68,8 +71,17 @@ export class RestService {
         this.deviceUUID = deviceUUID;
         this.userId = userId;
         this.notifyCount = notifyCount;
-        this.subscriptionCount = subscriptionCount;
+        //this.subscriptionCount = this.getSubscriptionCount();
     }
+
+    /*
+    getSubscriptionCount () {
+      if (this.Subscriptions !== undefined && this.Subscriptions !== null && this.Subscriptions.length > 0) {
+        return this.Subscriptions.length;
+      } else {
+        return 0;
+      }
+    } */
 
     getUserById (inputid) {
       var foundObj = false;

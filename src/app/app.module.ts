@@ -57,6 +57,7 @@ import { ListDoseHistory } from '../pages/listDoseHistory/listDoseHistory';
 import { ListTaskPage } from '../pages/listTask/listTask';
 import { ListProcedure } from '../pages/listProcedure/listProcedure';
 import { ListChooseVaccine } from '../pages/listChooseVaccine/listChooseVaccine';
+import { ListSubscriptionComm } from '../pages/listSubscriptionComm/listSubscriptionComm';
 
 import { GridPage } from '../pages/grid/grid';
 import { FormLayoutPage } from '../pages/form-layout/form-layout';
@@ -99,6 +100,7 @@ import { FormProcedure } from '../pages/formProcedure/formProcedure';
 import { FormTherapy } from '../pages/formTherapy/formTherapy';
 import { FormMessage } from '../pages/formMessage/formMessage';
 import { FormMedAddDose } from '../pages/formMedAddDose/formMedAddDose';
+import { FormAcademy } from '../pages/formAcademy/formAcademy';
 
 import { MenuMeasure } from '../pages/menuMeasure/menuMeasure';
 import { MenuVisitOutcome } from '../pages/menuVisitOutcome/menuVisitOutcome';
@@ -242,6 +244,7 @@ import { AlertComponent } from '../components/alert/alert';
     ListTaskPage,
     ListProcedure,
     ListChooseVaccine,
+    ListSubscriptionComm,
 
     GridPage,
     FormLayoutPage,
@@ -284,6 +287,7 @@ import { AlertComponent } from '../components/alert/alert';
     FormTherapy,
     FormMessage,
     FormMedAddDose,
+    FormAcademy,
 
     MenuMeasure,
     MenuVisitOutcome,
@@ -373,6 +377,7 @@ import { AlertComponent } from '../components/alert/alert';
     ListTaskPage,
     ListProcedure,
     ListChooseVaccine,
+    ListSubscriptionComm,
 
     GridPage,
     FormLayoutPage,
@@ -415,6 +420,7 @@ import { AlertComponent } from '../components/alert/alert';
     FormTherapy,
     FormMessage,
     FormMedAddDose,
+    FormAcademy,
 
     MenuMeasure,
     MenuVisitOutcome,

@@ -77,6 +77,7 @@ export class FormMedicalEvent {
   symptoms: FormArray;
   treatments: FormArray;
   comingBack: boolean = false;
+  canSubscribe: boolean = false;
 
   iiBlankAdded: boolean = false;
   eventTerm: string = '';
@@ -91,6 +92,11 @@ export class FormMedicalEvent {
     this.symptomsNotChosen = navParams.get('symptomsNotChosen');
     this.fromTreatment = navParams.get('fromTreatment');
     this.visitInfo =  navParams.get('visit');
+
+    var ischronic = false;
+    var isallergy = false;
+    var issubscribed = false;
+
 
     console.log('symptomsNotChosen from formMedicalEvent: ', this.symptomsNotChosen);
     console.log('recId from formMedicalEvent: ' + this.recId);
@@ -145,8 +151,6 @@ export class FormMedicalEvent {
     //console.log('Init Medical Event - recId = ' + this.recId);
     if (this.recId !== undefined) {
       console.log('RecId should populate form: ' + this.curRec.onsetdate);
-      var ischronic = false;
-      var isallergy = false;
       if (this.curRec.chronicflag !== undefined && this.curRec.chronicflag == 'Y') {
         ischronic = true;
       } else {
@@ -155,6 +159,13 @@ export class FormMedicalEvent {
       if (this.curRec.isallergy !== undefined && this.curRec.isallergy == 'Y') {
         isallergy = true;
       }
+      if (this.curRec.subscribe !== undefined && this.curRec.subscribe == 'Y') {
+        this.canSubscribe = true;
+        issubscribed = true;
+      } else if (this.curRec.subscribe !== undefined && this.curRec.subscribe == 'N') {
+        this.canSubscribe = true;
+      }
+      console.log('CanSubcribe: ', this.canSubscribe);
       if (this.curRec.medicallyconfirmed !== undefined && this.curRec.medicallyconfirmed == 'Y') {
         this.ismedicallyconfirmed = true;
       }
@@ -188,6 +199,7 @@ export class FormMedicalEvent {
         visittext: new FormControl(visittext),
         ischronic: new FormControl(ischronic),
         isallergy: new FormControl(isallergy),
+        subscribe: new FormControl(issubscribed),
         ismedicallyconfirmed: new FormControl(this.ismedicallyconfirmed),
         physicianid: new FormControl(this.curRec.physicianid),
         physiciantitle: new FormControl(this.curRec.title),
@@ -228,6 +240,7 @@ export class FormMedicalEvent {
         visittext: new FormControl(),
         ischronic: new FormControl(),
         isallergy: new FormControl(),
+        subscribe: new FormControl(),
         ismedicallyconfirmed: new FormControl(),
         physicianid: new FormControl(),
         physiciantitle: new FormControl(),
@@ -553,6 +566,17 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'N';
         }
       }
+      if (this.card_form.get('subscribe').dirty){
+        if (this.card_form.get('subscribe').value == true) {
+          this.eventSave.subscribe = 'Y';
+        } else {
+          if (this.canSubscribe){
+            this.eventSave.subscribe = 'N';
+          } else {
+            this.eventSave.subscribe = 'N/A';
+          }
+        }
+      }
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -627,6 +651,17 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'Y';
         } else {
           this.eventSave.isallergy = 'N';
+        }
+      }
+      if (this.card_form.get('subscribe').dirty){
+        if (this.card_form.get('subscribe').value == true) {
+          this.eventSave.subscribe = 'Y';
+        } else {
+          if (this.canSubscribe){
+            this.eventSave.subscribe = 'N';
+          } else {
+            this.eventSave.subscribe = 'N/A';
+          }
         }
       }
       if (this.card_form.get('ismedicallyconfirmed').dirty){
@@ -766,6 +801,17 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'N';
         }
       }
+      if (this.card_form.get('subscribe').dirty){
+        if (this.card_form.get('subscribe').value == true) {
+          this.eventSave.subscribe = 'Y';
+        } else {
+          if (this.canSubscribe){
+            this.eventSave.subscribe = 'N';
+          } else {
+            this.eventSave.subscribe = 'N/A';
+          }
+        }
+      }
       if (this.card_form.get('ismedicallyconfirmed').dirty){
         if (this.card_form.get('ismedicallyconfirmed').value == true) {
           this.eventSave.medicallyconfirmed = 'Y';
@@ -826,6 +872,17 @@ export class FormMedicalEvent {
           this.eventSave.isallergy = 'Y';
         } else {
           this.eventSave.isallergy = 'N';
+        }
+      }
+      if (this.card_form.get('subscribe').dirty){
+        if (this.card_form.get('subscribe').value == true) {
+          this.eventSave.subscribe = 'Y';
+        } else {
+          if (this.canSubscribe){
+            this.eventSave.subscribe = 'N';
+          } else {
+            this.eventSave.subscribe = 'N/A';
+          }
         }
       }
       if (this.card_form.get('ismedicallyconfirmed').dirty){
@@ -1281,12 +1338,33 @@ searchListTerm(objME) {
   });
 }
 
+
+//This is the code to show the Body Area list if there is a body area list for given medical condition
+//MM 5-21-2020 - Because we are cycling to line up the term to the dictionary list, we will also check and set the canSubscribe flag
+//if the codedictionary (i.e. hasAcademy)
 setBodyAreaByME(strTerm, callback) {
   var returned = false;
 
   //alert('fieldName for 0: ' + this.listFilter.items[0].dictionary[0].dictionarycode + ', strTerm = ' + strTerm);
   for (var j = 0; j < this.listFilter.items[0].dictionary.length; j++) {
+    //MM 5-21-2020 Code to check to see if term has academy entries - if so, make checkbox available to subscribe
     if (this.listFilter.items[0].dictionary[j].dictionarycode == strTerm) {
+      if (this.listFilter.items[0].dictionary[j].codeddictionary !== undefined && this.listFilter.items[0].dictionary[j].codeddictionary !== null &&
+        this.listFilter.items[0].dictionary[j].codeddictionary == 'hasAcademy') {
+          if (!this.canSubscribe) {
+            this.canSubscribe = true;
+            this.card_form.get('subscribe').setValue(false);
+            this.card_form.get('subscribe').markAsDirty();
+          }
+        } else {
+          if (this.canSubscribe) {
+            this.canSubscribe = false;
+            this.card_form.get('subscribe').setValue(false);
+            this.card_form.get('subscribe').markAsDirty();
+          }
+        }
+
+
       //alert('index for '+ strTerm + ': ' + j);
       if (this.listFilter.items[0].dictionary[j].dictionary.length > 0) {
         this.bodyAreaList = this.listFilter.items[0].dictionary[j].dictionary;

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, LoadingController } from 'ionic-angular';
+import { NavController, NavParams, LoadingController, PopoverController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListNutritionModel } from './listNutrition.model';
@@ -26,6 +26,7 @@ export class ListNutritionPage {
     public list2Service: ListNutritionService,
     public navParams: NavParams,
     public RestService:RestService,
+    public popoverCtrl:PopoverController,
     public loadingCtrl: LoadingController
   ) {
     this.feed.category = navParams.get('category');
@@ -155,6 +156,24 @@ export class ListNutritionPage {
       }
     }
   }
+
+  /*
+  presentPopover(myEvent) {
+    //var self = this;
+    var dataObj;
+    let popover = this.popoverCtrl.create(MenuMeasure);
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        //self.loadList(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+*/
 
   caloriesTotal(index) {
     var totalCalories = 0;

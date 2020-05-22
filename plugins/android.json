@@ -57,6 +57,10 @@
     },
     "mx.ferreyra.callnumber": {
       "PACKAGE_NAME": "healthcare.logos.visual"
+    },
+    "cordova-plugin-email-composer": {
+      "ANDROID_SUPPORT_V4_VERSION": "27.+",
+      "PACKAGE_NAME": "healthcare.logos.visual"
     }
   },
   "dependent_plugins": {

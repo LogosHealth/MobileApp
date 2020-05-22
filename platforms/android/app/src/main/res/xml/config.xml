@@ -102,4 +102,7 @@
     <preference name="SplashScreenDelay" value="3000" />
     <preference name="loadUrlTimeoutValue" value="100000" />
     <preference name="CordovaWebViewEngine" value="CDVUIWebViewEngine" />
+    <feature name="EmailComposer">
+        <param name="android-package" value="de.appplant.cordova.emailcomposer.EmailComposer" />
+    </feature>
 </widget>

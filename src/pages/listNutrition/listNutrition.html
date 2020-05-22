@@ -7,6 +7,9 @@
         <span>{{ feed.category.title }}</span>
       </ion-title>
       <ion-buttons right>
+        <button ion-button icon-only (click)="presentPopover($event)">
+          <ion-icon name='list'></ion-icon>
+        </button>
         <button ion-button icon-only (click)="addNew()">
           <ion-icon name='add'></ion-icon>
         </button>

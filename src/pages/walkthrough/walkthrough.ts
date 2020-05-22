@@ -282,8 +282,7 @@ export class WalkthroughPage implements OnInit {
         if (result.data.result !== undefined && result.data.result !== null && result.data.result !== "") {
           self.RestService.userId = result.data.result;
           console.log('userid set from login and device: ' + self.RestService.userId);
-          self.nav.setRoot(self.main_page.component);
-          self.loading.dismiss();
+          self.getSubscriptions();
         } else {
           console.log('Calling get default user!  Response is blank - seems to be CORBS issue!');
           self.getDefaultUser();
@@ -294,6 +293,54 @@ export class WalkthroughPage implements OnInit {
       }
     }).catch( function(result){
       console.log('Get User error results: ', result);
+    });
+  }
+
+  getSubscriptions() {
+    var self = this;
+    var token = accountInfo.getSessionToken();
+    var accessKey = accountInfo.getAccessKeyId();
+    var secretKey = accountInfo.getSecretKey();
+
+    var config = {
+      invokeUrl: "https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/SubscriptionCommsByProfile",
+      accessKey: accessKey,
+      secretKey: secretKey,
+      sessionToken: token,
+      region:'us-east-1'
+    };
+    var apigClient = this.RestService.AWSRestFactory.newClient(config);
+    var params = {
+      //email: accountInfo.getEmail()
+    };
+    var pathTemplate = '';
+    var method = 'GET';
+    var additionalParams = {
+        queryParams: {
+            profileid: self.RestService.userId
+        }
+    };
+    var body = '';
+
+    apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
+    .then(function(result){
+      console.log('Results from getSubscriptions:', result.data);
+      //var resultData = JSON.stringify(result.data);
+      //console.log('Default User ID for device: ', result);
+      if (result.data !== undefined && result.data !== null) {
+        console.log('subscriptionCount from subscriptionCount before set: ', self.RestService.Subscriptions.length);
+        self.RestService.Subscriptions = result.data;
+        console.log('subscriptionCount from getSubscriptions: ', self.RestService.Subscriptions);
+        console.log('subscriptionCount from subscriptionCount: ', self.RestService.Subscriptions.length);
+        self.nav.setRoot(self.main_page.component);
+        self.loading.dismiss();
+      } else {
+        console.log('subscriptionCount result is null or undefined!');
+        self.loading.dismiss();
+      }
+    }).catch( function(result){
+      console.log('getSubscriptions error results: ', result);
+      self.loading.dismiss();
     });
   }
 
@@ -435,7 +482,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.76');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.77');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
