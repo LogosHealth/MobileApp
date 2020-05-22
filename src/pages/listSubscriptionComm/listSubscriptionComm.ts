@@ -95,7 +95,7 @@ export class ListSubscriptionComm {
         self.list2[recordId].isDirty = true;
         self.isDirty = true;
       }
-      browser.close();
+      //browser.close();
       //alert('Error Loading Final Auth Window ' + e.message);
     });
 
