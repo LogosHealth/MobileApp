@@ -317,6 +317,7 @@ export class FormMedAddDose {
       apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
       .then(function(result){
         console.log('Happy Path '+ self.formName + ' Save: ', result);
+        alert('The dose has been successfully recorded');
         self.userUpdated = true;
         self.loading.dismiss();
         self.dismiss();

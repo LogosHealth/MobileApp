@@ -43,6 +43,7 @@ export class FormVaccinesPage {
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public listContactService: ListContactService,
     public formBuilder: FormBuilder, public loadingCtrl: LoadingController, public modalCtrl: ModalController, public navParams: NavParams) {
+    var adminBy;
 
     this.recId = navParams.get('recId');
     this.loadFromId = navParams.get('loadFromId');
@@ -61,6 +62,14 @@ export class FormVaccinesPage {
         } else {
           dtSched = new Date(this.curRec.schedules[i].datereceived).toISOString();
         }
+
+
+        if (this.curRec.schedules[i].lastname !== undefined && this.curRec.schedules[i].lastname !== null) {
+          adminBy = 'Dr. ' + this.curRec.schedules[i].lastname;
+        } else {
+          adminBy = this.curRec.schedules[i].title;
+        }
+
         this.vaccine_schedule = new FormGroup({
           recordid: new FormControl(this.curRec.schedules[i].recordid),
           vaccine_templateid: new FormControl(this.curRec.schedules[i].vaccine_templateid, Validators.required),
@@ -75,7 +84,7 @@ export class FormVaccinesPage {
           visitid: new FormControl(this.curRec.schedules[i].visitid),
           title: new FormControl(this.curRec.schedules[i].title),
           firstname: new FormControl(this.curRec.schedules[i].firstname),
-          lastname: new FormControl('Dr. ' + this.curRec.schedules[i].lastname),
+          lastname: new FormControl(adminBy),
           active: new FormControl('Y')
         });
         this.vaccine_array.push(this.vaccine_schedule);
@@ -205,6 +214,13 @@ export class FormVaccinesPage {
 
   addExistingSchedule(index): FormGroup {
     var dtSched = new Date(this.curRec.schedules[index].datereceived).toISOString();
+    var adminBy;
+
+    if (this.curRec.schedules[index].lastname !== undefined && this.curRec.schedules[index].lastname !== null) {
+      adminBy = 'Dr. ' + this.curRec.schedules[index].lastname;
+    } else {
+      adminBy = this.curRec.schedules[index].title;
+    }
 
     return this.formBuilder.group({
       recordid: new FormControl(this.curRec.schedules[index].recordid),
@@ -220,7 +236,7 @@ export class FormVaccinesPage {
       visitid: new FormControl(this.curRec.schedules[index].visitid),
       title: new FormControl(this.curRec.schedules[index].title),
       firstname: new FormControl(this.curRec.schedules[index].firstname),
-      lastname: new FormControl('Dr. ' + this.curRec.schedules[index].lastname),
+      lastname: new FormControl(adminBy),
       active: new FormControl('Y')
     });
   }
@@ -872,7 +888,11 @@ export class FormVaccinesPage {
         self.vaccine_schedule.get('contactid').markAsDirty();
         self.vaccine_schedule.get('title').setValue(data.title);
         self.vaccine_schedule.get('firstname').setValue(data.firstname);
-        self.vaccine_schedule.get('lastname').setValue('Dr. ' + data.lastname);
+        if (data.lastname !== undefined && data.lastname !== null) {
+          self.vaccine_schedule.get('lastname').setValue('Dr. ' + data.lastname);
+        } else {
+          self.vaccine_schedule.get('lastname').setValue(data.title);
+        }
       } else {
         console.log('User selected cancel');
       }

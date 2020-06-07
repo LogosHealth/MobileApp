@@ -35,7 +35,10 @@ menuMeasure-page {
     @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
     background-color: color($colors, background2, base);
     color: $theme-color-1;
-
+    margin-top: 25px;
+    margin-bottom: 25px;
+    margin-left: 25px;
+    margin-right: 25px;
   }
 
 }

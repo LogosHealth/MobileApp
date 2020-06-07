@@ -36,13 +36,13 @@
                         </ion-col>
                       </ion-row>
                       <ion-row>
-                        <ion-col no-padding width-55>
+                        <ion-col no-padding width-70>
                           <ion-item>
                             <ion-label floating>City**</ion-label>
                             <ion-input type="text" formControlName="city"></ion-input>
                           </ion-item>
                         </ion-col>
-                        <ion-col no-padding width-20>
+                        <ion-col no-padding width-30>
                           <ion-item>
                             <ion-label floating>State**</ion-label>
                             <ion-select formControlName="state">
@@ -50,13 +50,17 @@
                             </ion-select>
                           </ion-item>
                         </ion-col>
-                        <ion-col no-padding width-25>
+                      </ion-row>
+
+                      <ion-row>
+                        <ion-col no-padding>
                           <ion-item>
                             <ion-label floating>Zip Code***</ion-label>
                             <ion-input type="text"  maxlength="5" pattern="[0-9]{5}" formControlName="zipcode"></ion-input>
                           </ion-item>
                         </ion-col>
                       </ion-row>
+
                       <p class="section-footnote">* Required</p>
                       <p class="section-footnote">** or *** Required</p>
                     </section>

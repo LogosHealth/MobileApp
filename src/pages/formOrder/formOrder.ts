@@ -61,7 +61,7 @@ export class FormOrderPage {
   call2Order(){
     var phoneNum = this.curRec.phone;
     this.callNumber.callNumber(phoneNum, true)
-      .then(() => alert('Launched dialer!'))
+      .then(() => console.log('Launched dialer! for number: ' + phoneNum))
       .catch((err => alert('This capability is only availabe through call-capable devices.  Please manually call: ' + phoneNum + ' to order.  Error ' + err)));
   }
 

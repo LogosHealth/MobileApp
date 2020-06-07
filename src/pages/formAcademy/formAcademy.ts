@@ -106,6 +106,7 @@ export class FormAcademy {
     .then(function(result){
       self.RestService.results = result.data;
       self.academyModel.items = result.data;
+      console.log('load data - items: ', self.academyModel.items);
       self.loadForm();
     }).catch( function(result){
         console.log('Error Result from foodAcademy.loadData: ', result);
@@ -181,7 +182,7 @@ export class FormAcademy {
     this.saveAcademyModel = new AcademyModel();
     this.saveAcademyModel.items = new Array<Academy>();
 
-    console.log('academy.save: ', this.saveAcademyModel);
+    //console.log('academy.save: ', this.saveAcademyModel);
     console.log("Academy Final: ", this.saveAcademyModel);
       var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AcademyByProfile";
       var config = {
@@ -204,6 +205,7 @@ export class FormAcademy {
       };
 
       this.saveAcademyModel.userid = this.RestService.currentProfile;
+      console.log('academyModel.items: ', this.academyModel.items);
       for (var i = 0; i < this.academyModel.items.length; i++) {
         if (this.academyModel.items[i].dirty == 'Y') {
           this.saveAcademy = new Academy();

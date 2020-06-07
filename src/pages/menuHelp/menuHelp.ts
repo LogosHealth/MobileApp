@@ -5,7 +5,7 @@ import { FormControl, FormBuilder } from '@angular/forms';
 @Component({
   selector: 'menuMeasure-page',
   template: `
-  <div class="form-section" [innerHtml]="helptext"></div>
+  <div style="leftmargin:5;" class="form-section" [innerHtml]="helptext"></div>
     `
 })
 export class MenuHelp {
