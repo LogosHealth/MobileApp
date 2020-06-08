@@ -154,17 +154,17 @@ export class WalkthroughPage implements OnInit {
     }
   }
 
+  var bucketRegion = 'us-east-1';
+  var keyArray = [];
+
+  this.RestService.AWS.config.update({
+    region: bucketRegion,
+    accessKeyId: accountInfo.getAccessKeyId(),
+    secretAccessKey: accountInfo.getSecretKey(),
+    sessionToken: accountInfo.getSessionToken(),
+  });
+
   if (blnHasPics) {
-    var bucketRegion = 'us-east-1';
-    var keyArray = [];
-
-    this.RestService.AWS.config.update({
-      region: bucketRegion,
-      accessKeyId: accountInfo.getAccessKeyId(),
-      secretAccessKey: accountInfo.getSecretKey(),
-      sessionToken: accountInfo.getSessionToken(),
-    });
-
     profCount = this.RestService.Profiles.length;
     self = this;
     for (i = 0; i < this.RestService.Profiles.length; i++) {
@@ -482,7 +482,7 @@ export class WalkthroughPage implements OnInit {
     //const LWA_CLIENT = "amzn1.application-oa2-client.b7a978f5efc248a098d2c0588dfb8392";
     var atURL;
 
-    alert('Welcome to LogosHealth!  Internal Release v0.0.78');
+    alert('Welcome to LogosHealth!  Internal Release v0.0.79');
     //console.log("Starting Login Process v100");
     //console.log("Platforms:" + this.platform.platforms());
     this.platform.ready().then(() => {
