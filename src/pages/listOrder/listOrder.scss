@@ -27,14 +27,14 @@ ListOrderPage {
 				padding: 5px;
 			}
 
-		  @include layout-list-styles($theme-color-1, $white-d);
+		  @include layout-list-styles($theme-color-1, $black-d);
 			ion-list {
 				.list-item
 				{
 					.content-row
 					{
 						.title-notconfirmed{
-							color: $theme-color-3;
+							color: $theme-color-1;
 							font-size: 1.6rem;
 							font-weight: 500;
 							letter-spacing: 0.2px;

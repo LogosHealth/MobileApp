@@ -138,6 +138,7 @@ export class FormTherapy {
         description: new FormControl(this.curRec.description),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         result: new FormControl(this.curRec.result),
+        status: new FormControl(this.curRec.status),
         proceduretiming: new FormControl(this.curRec.proceduretiming),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
@@ -166,6 +167,7 @@ export class FormTherapy {
       }
     } else {
       this.newRec = true;
+      var statusVal = 'Complete';
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
@@ -181,6 +183,7 @@ export class FormTherapy {
         description: new FormControl(),
         dateofmeasure: new FormControl(),
         result: new FormControl(),
+        status: new FormControl(statusVal),
         proceduretiming: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
@@ -602,6 +605,7 @@ export class FormTherapy {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
+      this.formSave.status = this.card_form.get('status').value;
 
       if (this.therapyname.dirty){
         this.formSave.therapyname = this.therapyname.value;
@@ -662,6 +666,7 @@ export class FormTherapy {
         this.formSave.profileid = this.RestService.currentProfile;
       }
 
+      this.formSave.status = this.card_form.get('status').value;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
     }

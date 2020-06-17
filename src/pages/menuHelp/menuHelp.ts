@@ -5,6 +5,7 @@ import { FormControl, FormBuilder } from '@angular/forms';
 @Component({
   selector: 'menuMeasure-page',
   template: `
+  <ion-header><ion-title><p class="menu-title" [innerHtml]="title"></p></ion-title></ion-header>
   <div style="leftmargin:5;" class="form-section" [innerHtml]="helptext"></div>
     `
 })

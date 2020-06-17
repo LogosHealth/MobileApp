@@ -486,7 +486,7 @@ export class ListingPage {
             self.loading.dismiss();
           } else {
             self.RestService.Profiles[index].imageURL = url;
-            alert('Updated ImageURL: ' + url);
+            //alert('Updated ImageURL: ' + url);
             self.loading.dismiss();
           }
         });

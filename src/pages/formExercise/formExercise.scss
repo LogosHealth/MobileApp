@@ -5,7 +5,7 @@ formExercise-page {
 
 	.forms-examples-content
 	{
-
+/*
     input[disabled]{
       -webkit-text-fill-color: rgba(175, 175, 175, 1);
       //-webkit-text-fill-color: currentcolor;
@@ -13,31 +13,31 @@ formExercise-page {
       opacity:0.65;
       background: white;
     }
-
+*/
     /* Selects any disabled <input> */
     input:disabled {
-      opacity: 0.65;
+      opacity: 0.7;
       //color: $theme-color-1;
       //background: rgb(255, 204, 235);
     }
 
     /* Selects any disabled <input> for iOS*/
     .input-disabled {
-      opacity: 0.65;
+      opacity: 0.7;
       //color: $theme-color-1;
       //background: rgb(255, 204, 235);
     }
 
     /* Selects any disabled <input> */
     .select-disabled {
-      opacity: 0.65;
+      opacity: 0.7;
       //color: $theme-color-1;
       //background: rgb(255, 204, 235);
     }
 
     /* Selects any disabled <input> */
     .datetime-disabled {
-      opacity: 0.65;
+      opacity: 0.7;
       //color: $theme-color-1;
       //background: rgb(255, 204, 235);
     }
@@ -72,54 +72,9 @@ formExercise-page {
 			}
 		}
 
-		.list-mini-content
-		{
-			background-color: color($colors, background2, base);
-
-			.list-mini
-			{
-
-			@include layout-list-styles($theme-color-1, $white-d);
-				ion-list {
-					.list-item
-					{
-						.content-row
-						{
-							.title-notconfirmed{
-								color: $theme-color-3;
-								font-size: 1.6rem;
-								font-weight: 500;
-								letter-spacing: 0.2px;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
-							}
-
-							.item-title{
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
-							}
-
-							&.one-line
-							{
-								@include align-items(center);
-
-								.item-description
-								{
-									overflow: hidden;
-									text-overflow: ellipsis;
-									white-space: nowrap;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
 		.sample-form
 		{
+
       @include basic-input-style(color($colors, background2, base), $black-d, $white-d);
       background-color: color($colors, background, base);
 
@@ -156,7 +111,8 @@ formExercise-page {
 
 			ion-item {
 				@include basic-input-style(color($colors, background2, base), $black-d, $white-d);
-				&.item
+
+        &.item
 				{
 					margin-top: 14px;
 
@@ -164,7 +120,8 @@ formExercise-page {
 					{
 						margin-top: 0px;
 						ion-label {
-							color: $white-d;
+							color: $black-d;
+							//color: $white-d;
 						}
 					}
 

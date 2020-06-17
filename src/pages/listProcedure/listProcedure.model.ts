@@ -14,6 +14,7 @@ export class Procedure {
   description:string;
   result:string;
   dateofmeasure: string;
+  status: string;
   proceduretiming: string;
   active: string;
   confirmed: string;

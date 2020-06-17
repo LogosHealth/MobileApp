@@ -138,6 +138,7 @@ export class FormProcedure {
         description: new FormControl(this.curRec.description),
         dateofmeasure: new FormControl(this.formatDateTime(this.curRec.dateofmeasure)),
         result: new FormControl(this.curRec.result),
+        status: new FormControl(this.curRec.status),
         proceduretiming: new FormControl(this.curRec.proceduretiming),
         profileid: new FormControl(this.curRec.profileid),
         userid: new FormControl(this.curRec.userid)
@@ -166,6 +167,7 @@ export class FormProcedure {
       }
     } else {
       this.newRec = true;
+      var statusVal = 'Complete';
       this.card_form = new FormGroup({
         recordid: new FormControl(),
         medicaleventid: new FormControl(),
@@ -181,6 +183,7 @@ export class FormProcedure {
         description: new FormControl(),
         dateofmeasure: new FormControl(),
         result: new FormControl(),
+        status: new FormControl(statusVal),
         proceduretiming: new FormControl(),
         profileid: new FormControl(),
         userid: new FormControl()
@@ -607,6 +610,7 @@ export class FormProcedure {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
+      this.formSave.status = this.card_form.get('status').value;
 
       if (this.procedurename.dirty){
         this.formSave.procedurename = this.procedurename.value;
@@ -667,6 +671,7 @@ export class FormProcedure {
         this.formSave.profileid = this.RestService.currentProfile;
       }
 
+      this.formSave.status = this.card_form.get('status').value;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
     }
@@ -770,6 +775,7 @@ export class FormProcedure {
       this.formSave.recordid = this.card_form.get('recordid').value;
       this.formSave.userid = this.RestService.userId;
       this.formSave.active = 'Y';
+      this.formSave.status = this.card_form.get('status').value;
       if (this.procedurename.dirty){
         this.formSave.procedurename = this.procedurename.value;
       }
@@ -829,6 +835,7 @@ export class FormProcedure {
         this.formSave.profileid = this.RestService.currentProfile;
       }
 
+      this.formSave.status = this.card_form.get('status').value;
       this.formSave.userid = this.RestService.currentProfile;  //placeholder for user to device mapping and user identification
       this.formSave.active = 'Y';
     }
@@ -1106,7 +1113,14 @@ export class FormProcedure {
     console.log('SearchListTerm called');
     this.procedurename.setValue(strValue);
   }
+
   public today() {
+    var dtNow = moment(Date()).format('YYYY-MM-DDTHH:mm');
+    return dtNow;
+  }
+/*
+  public today() {
+
     //Used as max day in date of measure control
     var momentNow;
 
@@ -1118,6 +1132,7 @@ export class FormProcedure {
     //console.log('From Today momentNow: ' + momentNow);
     return momentNow;
   }
+*/
 
   formatDateTimeTitle(dateString) {
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {

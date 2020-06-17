@@ -5,9 +5,6 @@
         <button ion-button icon-only (click)="attachRecord()">
           <ion-icon name='attach'></ion-icon>
         </button>
-        <button ion-button icon-only (click)="presentPopover($event)">
-          <ion-icon name='more'></ion-icon>
-        </button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
@@ -290,10 +287,10 @@
             <ion-card class="sample-form">
                 <ion-row>
                   <ion-col no-padding width-87>
-                    <h2 class = "section-title" >Preventative/Treatment</h2>
+                    <h2 class = "section-title" >Performed at Visit</h2>
                   </ion-col>
                   <ion-col class="columnAlign" no-padding width-10>
-                      <button ion-button block class="form-action-button-top"  type="button" (click)="presentOutcome($event)">
+                      <button ion-button block class="form-action-button-top"  type="button" (click)="presentAtVisit($event)">
                         <ion-icon name="add"></ion-icon>
                       </button>
                   </ion-col>
@@ -317,10 +314,41 @@
                   </div>
                 </div>
               </ion-card>
+
+              <ion-card class="sample-form">
+                <ion-row>
+                  <ion-col no-padding width-87>
+                    <h2 class = "section-title" (click)="presentHelp(myEvent)">Schedule from Visitⓘ</h2>
+                  </ion-col>
+                  <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button-top"  type="button" (click)="presentFromVisit()">
+                        <ion-icon name="add"></ion-icon>
+                      </button>
+                  </ion-col>
+                </ion-row>
+                <div formArrayName="linkedvisits" *ngFor="let info of card_formPost.get('linkedvisits').controls; let i = index;">
+                  <div [formGroupName]="i">
+                    <ion-row>
+                      <ion-col no-padding width-87>
+                        <ion-item>
+                          <ion-label *ngIf="info.value.type !== null" floating>{{info.value.type}}</ion-label>
+                          <ion-label *ngIf="info.value.type == null" floating>Outcome {{ i + 1 }}</ion-label>
+                          <ion-input type="text" formControlName="namevalue"></ion-input>
+                        </ion-item>
+                      </ion-col>
+                      <ion-col class="columnAlign" no-padding width-10>
+                          <button ion-button block class="form-action-button"  type="button" (click)="updateOutcome(i)">
+                            <ion-icon name="share-alt"></ion-icon>
+                          </button>
+                      </ion-col>
+                    </ion-row>
+                  </div>
+                </div>
+              </ion-card>
               <ion-card  class="sample-form">
                 <ion-row>
                   <ion-col no-padding width-68>
-                    <h2 class = "section-title" >Guidance</h2>
+                    <h2 class = "section-title" >Tasks</h2>
                   </ion-col>
                   <ion-col class="columnAlign" no-padding width-10>
                     <button ion-button block class="form-action-button-top"  type="button" (click)="addTodoPost()">

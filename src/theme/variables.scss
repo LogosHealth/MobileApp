@@ -14,18 +14,22 @@ $white: #FFFFFF;
 $white-a: darken($white, 3%);
 $white-b: darken($white, 6%);
 $white-c: darken($white, 12%);
-$white-d: darken($white, 24%);
+$white-d: darken($white, 16%);
 
 $black: rgba(#000000, .8);
 $black-a: lighten($black, 10%);
 $black-b: lighten($black, 20%);
 $black-c: lighten($black, 40%);
-$black-d: lighten($black, 60%);
+$black-d: lighten($black, 40%);
 
 $theme-color-1: #8AC7A6;
 $theme-color-2: #8AC7A6;
 //$theme-color-2: #D2E4D4;
 $theme-color-3: #3B0319;
+
+$font-family-ios-base: "Roboto";
+$font-family-md-base: "Roboto";
+$font-family-wp-base: "Roboto";
 
 // Named Color Variables
 // --------------------------------------------------

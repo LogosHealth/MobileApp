@@ -10,6 +10,9 @@ import { ToDo } from '../../pages/listVisit/listVisit.model';
 import { MenuVisitOutcome } from '../../pages/menuVisitOutcome/menuVisitOutcome';
 import { MenuVisitItem } from '../../pages/menuVisitItem/menuVisitItem';
 import { MenuVisitObjMenu } from '../../pages/menuVisitObjMenu/menuVisitObjMenu';
+import { MenuDynamic } from '../../pages/menuDynamic/menuDynamic';
+import { MenuHelp } from '../../pages/menuHelp/menuHelp';
+
 //import { ListLabsPage } from '../../pages/listLabs/listLabs';
 //mport { FormLabsPage } from '../../pages/formLabs/formLabs';
 //import { ListVisitPage } from '../../pages/listVisit/listVisit';
@@ -50,6 +53,7 @@ export class FormVisitPage {
   checkSave: boolean = false;
   diagnoses: FormArray;
   outcomes: FormArray;
+  linkedvisits: FormArray;
   payments: FormArray;
   todopost: FormArray;
   postVisit: PostVisitModel = new PostVisitModel();
@@ -177,6 +181,9 @@ export class FormVisitPage {
       if (this.createNewParams !==undefined && this.createNewParams !==null) {
         objUser = this.RestService.getUserById(this.createNewParams.profileid);
         firstNameVal = objUser.title;
+        //MM 6-10-20 if createNewParams (i.e. setting a follow-up visit), set hasdate = true so that user can add things to be performed at visit - visit date is defaulted
+        this.hasDate = true;
+
         if (this.createNewParams.parentreason !== undefined && this.createNewParams.parentreason !== null) {
           this.hasParent = true;
           if (this.createNewParams.parentdate !== undefined && this.createNewParams.parentdate !== null) {
@@ -223,6 +230,7 @@ export class FormVisitPage {
       visitsummary: new FormControl(),
       diagnoses: this.formBuilder.array([]),
       outcomes: this.formBuilder.array([]),
+      linkedvisits: this.formBuilder.array([]),
       payments: this.formBuilder.array([]),
       todopost: this.formBuilder.array([])
     });
@@ -1921,11 +1929,11 @@ export class FormVisitPage {
   }
 
   createTodo(): FormGroup {
-    var dtNow = new Date();
+    var dtNow = moment(Date()).format('YYYY-MM-DDTHH:mm');
     return this.formBuilder.group({
       recordid: new FormControl(),
       taskname: new FormControl(),
-      duedate: new FormControl(dtNow.toISOString()),
+      duedate: new FormControl(dtNow),
       completedflag: new FormControl(),
       active: new  FormControl('Y'),
     });
@@ -2207,11 +2215,11 @@ export class FormVisitPage {
   }
 
   createTodoPost(): FormGroup {
-    var dtNow = new Date();
+    var dtNow = moment(Date()).format('YYYY-MM-DDTHH:mm');
     return this.formBuilder.group({
       recordid: new FormControl(),
       taskname: new FormControl(),
-      duedate: new FormControl(dtNow.toISOString()),
+      duedate: new FormControl(dtNow),
       completedflag: new FormControl(),
       active: new  FormControl('Y'),
     });
@@ -2632,6 +2640,110 @@ export class FormVisitPage {
     });
   }
 
+  presentAtVisit(myEvent) {
+    var self = this;
+    var dataObj;
+    var inputObj = [];
+
+    var addItem = {
+      recordid: 'lab',
+      namevalue: 'Lab Panel/Test',
+    }
+    inputObj.push(addItem);
+    addItem = {
+      recordid: 'procedure',
+      namevalue: 'Procedure',
+    }
+    inputObj.push(addItem);
+    addItem = {
+      recordid: 'therapy',
+      namevalue: 'Therapy',
+    }
+    inputObj.push(addItem);
+    addItem = {
+      recordid: 'vaccine',
+      namevalue: 'Vaccine',
+    }
+    inputObj.push(addItem);
+
+    let popover = this.popoverCtrl.create(MenuDynamic, {itemList: inputObj});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+      if (data !==undefined && data !== null) {
+        dataObj = data.choosePage;
+        self.loadOutcome(dataObj);
+      }
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
+presentFromVisit() {
+    //console.log('LoadMenu dataobj: ' + dataObj);
+    var createNewParams;
+    var parentvisitid;
+    var parentreason;
+    var self = this;
+    var cat;
+    var profileid;
+
+    this.confirmSaveDirect(function(err, result) {
+      if (err) {
+        console.log('Error in newContact.confirmSaveDirect' + err);
+        alert('There is an error in saving the record from newContact');
+      } else {
+        if (result) {
+            cat = {title: 'Select Heathcare Provider'};
+
+            if (self.curRec.parentvisitid !== undefined && self.curRec.parentvisitid !== null) {
+              parentvisitid = self.curRec.parentvisitid;
+              parentreason = self.curRec.parentreason + " " + self.formatDateTime(self.curRec.parentdate);
+            } else {
+              parentvisitid = self.curRec.recordid;
+              parentreason = self.curRec.reason + " " + self.formatDateTime(self.curRec.visitdate);
+            }
+
+            profileid = self.curRec.profileid;
+            createNewParams = {
+              'profileid':profileid,
+              'parentvisitid': parentvisitid,
+              'parentreason':parentreason
+            }
+
+            let profileModal = self.modalCtrl.create(ListContactPage, { category: cat, aboutProfile: profileid });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('newContact - response: ', data);
+                createNewParams.contactid = data.recordid;
+                createNewParams.title = data.title;
+                createNewParams.firstname = data.firstname;
+                createNewParams.lastname = data.lastname;
+
+                self.nav.push(FormVisitPage, {createNewParams: createNewParams});
+              } else {
+                console.log('User cancelled select physician for follow-up visit');
+              }
+            });
+            profileModal.present();
+        }
+      }
+    });
+  }
+
+  presentHelp(myEvent) {
+    var title = 'Schedule Upcoming Visits';
+    var helptext = "Schedule follow-up visits, upcoming procedures, therapies, labs, or vaccines resulting from this visit.";
+
+    let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
+    popover.onDidDismiss(data => {
+      console.log('From popover onDismiss: ', data);
+    });
+    popover.present({
+      ev: myEvent
+    });
+  }
+
   confirmSaveDirect(callback) {
     const alert = this.alertCtrl.create({
       title: 'Save to Continue',
@@ -2743,6 +2855,26 @@ export class FormVisitPage {
             cat = {title: 'Therapy'};
             self.curRec.mode = 'outcome';
             self.nav.push(FormTherapy, {category: cat, fromVisit: self.curRec});
+          } else if (dataObj == 'vaccine') {
+            //alert('Add new vaccine');
+            cat = {title: 'Select Vaccine'};
+            self.curRec.mode = 'visitinfo';
+            let profileModal = self.modalCtrl.create(ListChooseVaccine, { category: cat, fromVisit: self.curRec });
+            profileModal.onDidDismiss(data => {
+              if (data !==undefined && data !== null) {
+                console.log('Data from loadVisitItem - vaccine: ', data);
+                self.visititems = self.card_form.get('visititems') as FormArray;
+                var vaccineinfo = {
+                  namevalue: data.vaccinename,
+                  type: 'vaccine',
+                  dateofmeasure: data.visitdate
+                }
+                self.visititems.push(self.addNewVisitInfo(vaccineinfo));
+              }
+            });
+            profileModal.present();
+          } else if (dataObj == 'lab') {
+            alert('Coming Soon!  This will allow you to choose the lab/lab panel which will be performed at this visit.');
           }
         } else if (!result) {
           console.log('formVisit.ConfirmSaveDirect - User cancelled');

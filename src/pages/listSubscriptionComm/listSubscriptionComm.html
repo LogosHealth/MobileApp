@@ -18,12 +18,12 @@
           <ion-col *ngIf="item.readflag=='N'" no-padding width-90 class="item-content" >
             <b><h3 class="item-title">{{item.subject}}</h3></b>
             <b><p class = "item-description">Category: {{item.category}}</p></b>
-            <b><p class = "item-description">{{formatTime(item.createddate)}}</p></b>
+            <b><p class = "item-description">{{formatDateTime(item.createddate)}}</p></b>
           </ion-col>
           <ion-col *ngIf="item.readflag=='Y'" no-padding width-90 class="item-content" >
             <h3 class="item-title">{{item.subject}}</h3>
             <p class = "item-description">Category: {{item.category}}</p>
-            <p class = "item-description">{{formatTime(item.createddate)}}</p>
+            <p class = "item-description">{{formatDateTime(item.createddate)}}</p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

@@ -102,11 +102,10 @@ export class ListSubscriptionComm {
   }
 
   formatDateTime(dateString) {
-    //alert('FormatDateTime called');
     if (this.userTimezone !== undefined && this.userTimezone !== null && this.userTimezone !=="") {
-      return moment(dateString).tz(this.userTimezone).format('dddd, MMMM DD');
+      return moment(dateString).tz(this.userTimezone).format("ddd, MMM DD 'YY, hh:mm A");
     } else {
-      return moment(dateString).format('dddd, MMMM DD');
+      return moment(dateString).format("ddd, MMM DD 'YY, hh:mm A");
     }
   }
 
