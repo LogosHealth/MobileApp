@@ -2733,7 +2733,9 @@ presentFromVisit() {
 
   presentHelp(myEvent) {
     var title = 'Schedule Upcoming Visits';
-    var helptext = "Schedule follow-up visits, upcoming procedures, therapies, labs, or vaccines resulting from this visit.";
+    var helptext = 'Schedule follow-up visits, upcoming procedures, therapies, labs, or vaccines resulting from this visit.' +
+    '<br /><br />' + 'Remember to add procedures, labs, etc. to the "To Be Performed" section of the new visit.';
+
 
     let popover = this.popoverCtrl.create(MenuHelp, {title: title, helptext: helptext});
     popover.onDidDismiss(data => {

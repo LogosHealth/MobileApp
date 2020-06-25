@@ -163,7 +163,7 @@
               </div>
             </ion-card>
 
-            <ion-card  class="sample-form">
+            <ion-card class="sample-form">
               <ion-row>
                 <ion-col no-padding width-68>
                   <h2 class = "section-title" >Tasks</h2>
@@ -200,6 +200,8 @@
                 </ion-row>
               </div>
             </ion-card>
+
+            <div class="sample-form">
             <section class="form-section">
               <ion-row no-padding class="multi-input-row">
                 <ion-col class="columnInline" no-padding width-49 *ngIf="curRec.recordid !==null">
@@ -215,7 +217,10 @@
                   <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Cancel Reminder</button>
                 </ion-col>
               </ion-row>
+              <br>
             </section>
+            </div>
+
           </div>
         </div>
 
@@ -251,7 +256,7 @@
                     </ion-col>
                     <ion-col class="columnAlign" no-padding width-10>
                         <button ion-button block class="form-action-button"  type="button" (click)="updateDiagnosis(i)">
-                          <ion-icon name="share-alt"></ion-icon>
+                          <ion-icon name="open"></ion-icon>
                         </button>
                     </ion-col>
                   </ion-row>
@@ -307,7 +312,7 @@
                       </ion-col>
                       <ion-col class="columnAlign" no-padding width-10>
                           <button ion-button block class="form-action-button"  type="button" (click)="updateOutcome(i)">
-                            <ion-icon name="share-alt"></ion-icon>
+                            <ion-icon name="open"></ion-icon>
                           </button>
                       </ion-col>
                     </ion-row>
@@ -338,7 +343,7 @@
                       </ion-col>
                       <ion-col class="columnAlign" no-padding width-10>
                           <button ion-button block class="form-action-button"  type="button" (click)="updateOutcome(i)">
-                            <ion-icon name="share-alt"></ion-icon>
+                            <ion-icon name="open"></ion-icon>
                           </button>
                       </ion-col>
                     </ion-row>
@@ -409,20 +414,24 @@
                         </ion-col>
                         <ion-col class="columnAlign" no-padding width-10>
                             <button ion-button block class="form-action-button"  type="button" (click)="updateOutcome(i)">
-                              <ion-icon name="share-alt"></ion-icon>
+                              <ion-icon name="open"></ion-icon>
                             </button>
                         </ion-col>
                       </ion-row>
                     </div>
                   </div>
               </ion-card>
-              <section class="form-section">
-                <ion-row no-padding class="multi-input-row">
-                  <ion-col class="columnInline" no-padding width-50>
-                    <button ion-button block class="form-action-button" type="button" (click)="savePostRecord()" [disabled]="!card_formPost.dirty || curRec.recordid==null">Save</button>
-                  </ion-col>
-                </ion-row>
-              </section>
+
+              <div class="sample-form">
+                <section class="form-section">
+                  <ion-row no-padding class="multi-input-row">
+                    <ion-col class="column-center" no-padding width-50>
+                      <button ion-button block class="form-action-button" type="button" (click)="savePostRecord()" [disabled]="!card_formPost.dirty || curRec.recordid==null">Save</button>
+                    </ion-col>
+                  </ion-row>
+                  <br>
+                </section>
+              </div>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 @mixin categories-title-style($color){
 	display: inline-block;
-	font-family: 'Poiret-One Regular';
+	font-family: 'Roboto';
 	width: 100%;
 	text-align: center;
 	font-size: 8vw;
@@ -21,7 +21,7 @@ listing-page {
 	//$categories-heading-image-height: 100px;
 	$categories-grid-padding: 10px;
 	$categories-horizontal-list-padding: 10px;
-	font-family:  'Poiret-One Regular';
+	font-family:  'Roboto';
 	//bg color - no impact here
 	//background-color: #FFF000;
 

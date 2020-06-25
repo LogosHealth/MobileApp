@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dayofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">Nutrition Record</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50 *ngIf="newRec">
                 <ion-item>
                   <ion-label floating>Date of Measure</ion-label>
@@ -20,7 +20,7 @@
             </ion-col>
           </ion-row>
             <div formArrayName="meals" *ngFor="let meal of card_form.get('meals').controls; let i = index;">
-              <ion-row [formGroupName]="i">
+              <ion-row [formGroupName]="i" class="row-standard">
                   <ion-col no-padding width-50>
                     <ion-item text-wrap>
                       <ion-label *ngIf="meal.value.meal !== null && meal.value.mealtimeformat !== null" floating>{{meal.value.meal}} {{meal.value.mealtimeformat}}</ion-label>
@@ -43,7 +43,7 @@
                   </ion-col>
                   <ion-col class="columnAlign" no-padding width-10>
                     <button ion-button block class="form-action-button"  type="button" (click)=" updateMeal(i)">
-                      <ion-icon name="share-alt"></ion-icon>
+                      <ion-icon name="open"></ion-icon>
                     </button>
                   </ion-col>
                 </ion-row>

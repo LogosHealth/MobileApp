@@ -38,7 +38,7 @@
           <ion-col no-padding width-65 class="item-content" >
             <h3 class="item-title">{{item.name}}</h3>
             <h3 class="item-title">from {{item.restaurantname}}</h3>
-            <p class="item-description">Cost: ${{item.cost}}      Calories: {{item.calories}} </p>
+            <p class="item-description">Cost: ${{item.cost.toFixed(2)}}      Calories: {{item.calories}} </p>
           </ion-col>
           <ion-col no-padding width-10 class="item-icon">
             <ion-icon name="arrow-forward"></ion-icon>

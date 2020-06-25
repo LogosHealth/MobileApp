@@ -627,7 +627,7 @@ export class FormLabsPage {
   }
 
   attachRecord() {
-    alert('Add attach doc here');
+    alert('Coming soon.  This button will allow you to attach pictures and documents (e.g. PDFs) of physical lab records');
   }
 
   presentLoadingDefault() {

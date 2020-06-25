@@ -190,11 +190,12 @@ formExercise-page {
 				font-size: 1.4rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: left;
+				text-align: center;
 				color: $theme-color-1;
 				font-weight: 400;
 				margin-top: 20px;
-				//margin: 2px;
+        margin-left: 7px;
+        margin-right: 7px;
 				border-style: ridge;
 				border-width: 2px;
 				border-color: $theme-color-1;
@@ -235,6 +236,12 @@ formExercise-page {
 				margin: 10px;
 			}
 
+      .row-standard
+      {
+				margin-left: 7px;
+				margin-right: 7px;
+      }
+
       .center-row
       {
         align-items: center;
@@ -243,7 +250,7 @@ formExercise-page {
 
       .form-action-button
 			{
-				margin-top: 20px;
+				margin-top: 23px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
       }
@@ -447,7 +454,8 @@ formExercise-page {
         .multi-input-row
 				{
 					@include align-items(flex-end);
-
+          //margin-left: 7px;
+          //margin-right: 7px;
 					ion-col {
 						padding: 0px 7px;
 
@@ -511,11 +519,11 @@ formExercise-page {
 						padding: 0px 7px;
 
 						&:first-child{
-							padding-left: 0px;
+							padding-left: 7px;
 						}
 
 						&:last-child{
-							padding-right: 0px;
+							padding-right: 7px;
 						}
 					}
 

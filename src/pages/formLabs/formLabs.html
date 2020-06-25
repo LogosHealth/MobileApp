@@ -1,12 +1,12 @@
 <ion-header>
   <ion-navbar>
     <ion-title>Labs Form</ion-title>
-      <ion-buttons right>
-        <button ion-button icon-only>
-          <ion-icon name='attach' (click)="attachRecord()"></ion-icon>
-        </button>
-      </ion-buttons>
-  </ion-navbar>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="attachRecord()">
+        <ion-icon name='attach'></ion-icon>
+      </button>
+  </ion-buttons>
+</ion-navbar>
 </ion-header>
 
 <ion-content class="forms-examples-content">
@@ -14,9 +14,9 @@
     <div class="card-example-view">
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="confirmRecord()">
         <section class="form-section">
-          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}" *ngIf="newRec">New Lab Record</h2>
-          <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
-          <ion-row>
+          <h2 class="section-title" *ngIf="newRec">New Lab Record</h2>
+          <h2 class="section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
+          <ion-row class="row-standard">
             <ion-col>
               <ion-item>
                 <ion-label floating>Lab Test Name</ion-label>
@@ -26,7 +26,7 @@
             </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Result</ion-label>
@@ -48,7 +48,7 @@
                 </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
               <ion-col no-padding width-50>
                   <ion-item>
                       <ion-label floating>Lower Range</ion-label>
@@ -62,7 +62,7 @@
                 </ion-item>
               </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>
@@ -85,13 +85,10 @@
         </section>
         <section class="form-section">
           <ion-row no-padding class="multi-input-row">
-            <ion-col no-padding width-40>
-                <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid">Confirm</button>
-            </ion-col>
-            <ion-col no-padding width-30>
+            <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="!card_form.dirty">Save</button>
           </ion-col>
-          <ion-col no-padding width-30>
+          <ion-col no-padding width-50>
               <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()">Delete</button>
           </ion-col>
          </ion-row>

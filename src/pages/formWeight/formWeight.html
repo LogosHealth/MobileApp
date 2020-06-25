@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">New Weight Record</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Weight</ion-label>
@@ -19,7 +19,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>

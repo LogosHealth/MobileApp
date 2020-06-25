@@ -11,7 +11,7 @@
 
 <ion-content class="forms-examples-content">
     <div class="forms-examples-section">
-      <form [formGroup]="card_form" (ngSubmit)="saveRecord()">
+      <form [formGroup]="card_form" (ngSubmit)="saveRecord()" class="sample-form">
         <ion-card class="sample-form">
           <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicalevent }}</h2>
           <h2 class = "section-title-center" *ngIf="newRec">New {{ feed.category.title }}</h2>
@@ -107,7 +107,7 @@
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
               <button ion-button block class="form-action-button-mid"  type="button" (click)="viewPhysician()" [disabled]="!hasPhysician">
-                <ion-icon name="share-alt"></ion-icon>
+                <ion-icon name="open"></ion-icon>
               </button>
           </ion-col>
         </ion-row>
@@ -122,7 +122,7 @@
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
               <button ion-button block class="form-action-button"  type="button" (click)="gotoVisit()">
-                <ion-icon name="share-alt"></ion-icon>
+                <ion-icon name="open"></ion-icon>
               </button>
             </ion-col>
           </ion-row>
@@ -140,7 +140,7 @@
           </ion-col>
           <ion-col class="columnAlign" no-padding width-10>
             <button ion-button block class="form-action-button-top"  type="button" (click)="viewParent()" [disabled]="!hasRelated">
-              <ion-icon name="share-alt"></ion-icon>
+              <ion-icon name="open"></ion-icon>
             </button>
         </ion-col>
       </ion-row>
@@ -259,7 +259,7 @@
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
                   <button ion-button block class="form-action-button"  type="button" (click)="updateSymptom(i)" [disabled]="noEventRecord()">
-                    <ion-icon name="share-alt"></ion-icon>
+                    <ion-icon name="open"></ion-icon>
                   </button>
                 </ion-col>
               </ion-row>
@@ -293,7 +293,7 @@
             </div>
           </div>
         </ion-card>
-        <section class="sample-form">
+        <section class="form-section">
          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="notValid()">Save</button>

@@ -115,7 +115,7 @@ formVisit1-page {
           font-size: 1.4rem;
           line-height: 1.2;
           letter-spacing: 1.1px;
-          text-align: left;
+          text-align: center;
           color: $theme-color-1;
           font-weight: 400;
           margin-top: 20px;
@@ -137,6 +137,7 @@ formVisit1-page {
       .columnAlignTypes
       {
         margin-top: -5px;
+        margin-left: -2px;
         margin-right: 3px;
         vertical-align: bottom;
         //background: rgb(255, 204, 235);
@@ -233,7 +234,7 @@ formVisit1-page {
 				color: $theme-color-1;
 				font-weight: 400;
         margin-top: 14px;
-        margin-left: 10px;
+        margin-left: 5px;
 			}
 
       .section-checkbox-label
@@ -256,6 +257,8 @@ formVisit1-page {
 				color: $theme-color-1;
 				font-weight: 400;
 				margin-top: 20px;
+        //margin-left: 7px;
+        //margin-right: 7px;
 				//margin: 2px;
 				border-style: ridge;
 				border-width: 2px;
@@ -301,10 +304,37 @@ formVisit1-page {
 				margin: 10px;
 			}
 
+      .multi-input-row
+      {
+        ion-col {
+          padding: 0px 7px;
+
+          &:first-child{
+            padding-left: 0px;
+          }
+
+          &:last-child{
+            padding-right: 0px;
+          }
+        }
+
+        .multi-input
+        {
+          margin: 0px;
+        }
+      }
+
+      .column-center {
+        display: block;
+				margin-left: auto;
+				margin-right: auto;
+				width: 100%;
+      }
+
 			.form-action-button
 			{
 				margin-right: 10px;
-				margin-top: 20px;
+				margin-top: 25px;
 
 				@include call-to-action-button-styles(color($colors, button, base), color($colors, button, contrast));
 			}

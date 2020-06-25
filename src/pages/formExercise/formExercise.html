@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">New Exercise Record</h2>
-          <ion-row *ngIf="!noGoals">
+          <ion-row *ngIf="!noGoals" class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Exercise Type</ion-label>
@@ -27,13 +27,13 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row *ngIf="noGoals">
+          <ion-row *ngIf="noGoals"  class="row-standard">
             <ion-item>
               <ion-label floating>Exercise Type</ion-label>
               <ion-input type="text" formControlName="exercisetype"></ion-input>
             </ion-item>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Exercise Time</ion-label>
@@ -47,7 +47,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Reps</ion-label>
@@ -61,7 +61,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>

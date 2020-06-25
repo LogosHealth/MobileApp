@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTime(curRec.dayofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">{{ formatDateTime(existingInfo.dayofmeasure) }}</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Food/Item</ion-label>
@@ -19,7 +19,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Meal</ion-label>
@@ -39,7 +39,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
                 <ion-item>
                   <ion-label floating>Amount</ion-label>
@@ -53,7 +53,7 @@
               </ion-item>
           </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row class="row-standard">
           <ion-col no-padding width-31>
               <ion-item>
                 <ion-label floating>Carbs(g)</ion-label>
@@ -76,7 +76,7 @@
 
 
 
-        <ion-row>
+        <ion-row class="row-standard">
           <ion-col no-padding width-50 *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>

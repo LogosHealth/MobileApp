@@ -28,10 +28,12 @@ ListExercisePage {
 				font-size: 1.4rem;
 				line-height: 1.2;
 				letter-spacing: 1.1px;
-				text-align: left;
+				text-align: center;
 				color: $theme-color-1;
 				font-weight: 400;
-				margin-top: 20px;
+        margin-top: 20px;
+        margin-left: 7px;
+        margin-right: 7px;
 				//margin: 2px;
 				border-style: ridge;
 				border-width: 2px;

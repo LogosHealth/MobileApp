@@ -27,9 +27,6 @@ $theme-color-2: #8AC7A6;
 //$theme-color-2: #D2E4D4;
 $theme-color-3: #3B0319;
 
-$font-family-ios-base: "Roboto";
-$font-family-md-base: "Roboto";
-$font-family-wp-base: "Roboto";
 
 // Named Color Variables
 // --------------------------------------------------
@@ -118,3 +115,34 @@ $colors: (
 
 $ionicons-font-path: "../assets/fonts";
 @import "ionic.ionicons";
+
+
+$roboto-font-path: "../assets/fonts/Roboto" !default;
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  src: local("Roboto Light"), local("Roboto-Light"), url("#{$roboto-font-path}/roboto-light.woff2") format("woff2"), url("#{$roboto-font-path}/roboto-light.woff") format("woff"), url("#{$roboto-font-path}/roboto-light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Roboto"), local("Roboto-Regular"), url("#{$roboto-font-path}/roboto-regular.woff2") format("woff2"), url("#{$roboto-font-path}/roboto-regular.woff") format("woff"), url("#{$roboto-font-path}/roboto-regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  src: local("Roboto Medium"), local("Roboto-Medium"), url("#{$roboto-font-path}/roboto-medium.woff2") format("woff2"), url("#{$roboto-font-path}/roboto-medium.woff") format("woff"), url("#{$roboto-font-path}/roboto-medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Roboto Bold"), local("Roboto-Bold"), url("#{$roboto-font-path}/roboto-bold.woff2") format("woff2"), url("#{$roboto-font-path}/roboto-bold.woff") format("woff"), url("#{$roboto-font-path}/roboto-bold.ttf") format("truetype");
+}

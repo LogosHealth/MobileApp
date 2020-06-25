@@ -11,7 +11,7 @@
 
 <ion-content class="forms-examples-content">
     <div class="forms-examples-segment">
-      <form [formGroup]="card_form" (ngSubmit)="saveRecord()">
+      <form [formGroup]="card_form" (ngSubmit)="saveRecord()" class="sample-form">
         <ion-card class="sample-form">
           <h2 class = "section-title-center" *ngIf="!newRec">{{ curRec.medicationname }}</h2>
           <h2 class = "section-title-center" *ngIf="newRec">New Medicine Record</h2>
@@ -114,9 +114,7 @@
 
         <ion-card  *ngIf="mode=='cabinet'" class="sample-form">
           <ion-row>
-            <ion-col>
-              <h2 class = "section-title" >Package Info</h2>
-            </ion-col>
+            <h2 class="section-title" >Package Info</h2>
           </ion-row>
 
           <ion-row>
@@ -173,7 +171,7 @@
         <ion-card  *ngIf="mode!==null" class="sample-form">
           <ion-row>
             <ion-col no-padding no-padding width-78>
-              <h2 class = "section-title" >Dosing & Results</h2>
+              <h2 class="section-title" >Dosing & Results</h2>
             </ion-col>
             <ion-col class="columnAlign" no-padding width-10>
                 <button ion-button block class="form-action-button-top"  type="button" (click)="addNewTreatmentResults()"
@@ -205,7 +203,7 @@
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
                   <button ion-button block class="form-action-button"  type="button" (click)="updateTreatmentResults(i)">
-                    <ion-icon name="share-alt"></ion-icon>
+                    <ion-icon name="open"></ion-icon>
                   </button>
                 </ion-col>
               </ion-row>
@@ -230,7 +228,7 @@
                 </ion-col>
                 <ion-col class="columnAlign" no-padding width-10>
                   <button ion-button block class="form-action-button"  type="button" (click)="updateTreatmentResults(i)">
-                    <ion-icon name="share-alt"></ion-icon>
+                    <ion-icon name="open"></ion-icon>
                   </button>
                 </ion-col>
               </ion-row>
@@ -238,11 +236,11 @@
             </div>
           </div>
         </ion-card>
-        <div class="sample-form">
+
+        <section class="form-section">
           <p class="section-tips"  *ngIf="mode=='cabinet'"><b>Important: </b>In Medicine Cabinet mode, dosing information must be entered to activate treatment by this medication for this event/symptom.  Use the + icon above to add dose information as needed.</p>
-        </div>
-        <section class="sample-form">
-         <ion-row no-padding class="multi-input-row">
+
+          <ion-row no-padding class="multi-input-row">
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="submit" [disabled]="((!card_form.dirty && !medication.dirty) || !card_form.valid || isBasicInvalid2Save)">Save</button>
             </ion-col>
@@ -255,6 +253,7 @@
           <b>LogosHealth Mobile App Tip:</b><br>The ⓘ below means information.  Whenever you see it, click it for important details (e.g. below pertaining to different drug tracking modes).
          </p>
         </section>
+
       </form>
     </div>
 </ion-content>

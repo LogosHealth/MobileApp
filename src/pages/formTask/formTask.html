@@ -12,7 +12,7 @@
           <h2 class = "section-title" *ngIf="!newRec">{{ card_form.get('taskname').value }}</h2>
           <h2 class = "section-title" *ngIf="newRec">Task</h2>
 
-          <ion-row *ngIf="newRec">
+          <ion-row *ngIf="newRec" class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Task Name</ion-label>
@@ -21,7 +21,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row *ngIf="!upcoming">
+          <ion-row *ngIf="!upcoming" class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Task Time</ion-label>
@@ -35,7 +35,7 @@
                 </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row *ngIf="!upcoming">
+          <ion-row *ngIf="!upcoming" class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Goal Name</ion-label>
@@ -55,13 +55,13 @@
               </ion-item>
           </ion-col>
         </ion-row>
-        <ion-row *ngIf="upcoming">
+        <ion-row *ngIf="upcoming" class="row-standard">
           <ion-item>
             <ion-label floating>Objective</ion-label>
             <ion-textarea type="text" formControlName="shortdescription" autosize></ion-textarea>
           </ion-item>
         </ion-row>
-        <ion-row>
+        <ion-row class="row-standard">
           <ion-col no-padding>
             <ion-item>
               <ion-label floating>Directions</ion-label>
@@ -69,7 +69,7 @@
             </ion-item>
           </ion-col>
         </ion-row>
-        <ion-row *ngIf="upcoming">
+        <ion-row *ngIf="upcoming" class="row-standard">
           <ion-col width-50>
             <ion-item>
               <ion-label floating>Due Date</ion-label>

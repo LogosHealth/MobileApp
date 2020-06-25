@@ -5,15 +5,9 @@
 </ion-header>
 
 <ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveData()">
-  <div>
+  <div class="forms-examples-segment">
     <ion-card class="sample-form">
-
-    </ion-card>
-
-    <ion-card class="sample-form" >
-      <ion-row class="row-category">
-        <ion-label class="section-checkbox-label2">Subscribe To:</ion-label>
-      </ion-row>
+      <ion-label class="section-title" >Subscribe To:</ion-label>
       <ion-row>
         <ion-col width-50>
           <ion-label class="section-checkbox-label">Latest News
@@ -40,8 +34,15 @@
       </ion-row>
     </ion-card>
 
-    <ion-col no-padding  width-100>
-      <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty" (click)="saveData()">Save</button>
-    </ion-col>
+    <div class="sample-form">
+      <section class="form-section">
+        <ion-row no-padding class="multi-input-row">
+          <ion-col class="column-center" no-padding  width-50 >
+            <button ion-button block class="form-action-button" type="submit" [disabled]="!card_form.dirty" (click)="saveData()">Save</button>
+          </ion-col>
+        </ion-row>
+        <br>
+      </section>
+    </div>
   </div>
 </ion-content>

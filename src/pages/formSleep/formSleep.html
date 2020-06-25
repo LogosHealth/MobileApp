@@ -12,7 +12,7 @@
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTime(curRec.dateofmeasure) }}</h2>
           <h2 class = "section-title" *ngIf="newRec">New Sleep Record</h2>
 
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Hours Slept</ion-label>
@@ -21,7 +21,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Sleep Time</ion-label>
@@ -35,7 +35,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row  class="row-standard">
             <ion-col no-padding width-50 *ngIf="newRec">
               <ion-item>
                 <ion-label floating>Date of Measure (Wake)</ion-label>
