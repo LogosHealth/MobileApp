@@ -341,7 +341,7 @@ export class ListVisitPage {
     if (location !== '') {
       console.log('Location from getDirection: ', location);
       if (this.platform.is('android')) {
-        window.location.href = 'geo:' + location;
+        window.location.href = 'geo:0,0?q=' + location;
       } else if (this.platform.is('ios')) {
         window.location.href = 'maps://maps.apple.com/?q=' + location;
       } else {
