@@ -36,6 +36,7 @@ export class VisitPhysician {
   streetaddress: string;
   city: string;
   state: string;
+  statecode: string;
   zipcode: number;
   phonenumber: number;
 }

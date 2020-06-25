@@ -22,6 +22,8 @@ var alertCtrl: AlertController;
 var notifyCount: number;
 //var subscriptionCount: number;
 var subscriptions = [];
+var backFromChild: Boolean;
+var needsFormRefresh: Boolean;
 
 interface AuthData {
     key: string,
@@ -54,6 +56,9 @@ export class RestService {
     public refreshParent: boolean = false;
     public notifyCount: number = 0;
     public Subscriptions: any;
+    public backFromChild: Boolean = false;
+    public needsFormRefresh: Boolean = false;
+
     //public subscriptionCount: number = 0;
 
     constructor(public iab: InAppBrowser, private platform: Platform) {
@@ -71,7 +76,8 @@ export class RestService {
         this.deviceUUID = deviceUUID;
         this.userId = userId;
         this.notifyCount = notifyCount;
-        //this.subscriptionCount = this.getSubscriptionCount();
+        this.backFromChild = backFromChild;
+        this.needsFormRefresh = needsFormRefresh;
     }
 
     /*

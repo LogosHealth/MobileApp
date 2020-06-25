@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, ModalController, LoadingController, PopoverController } from 'ionic-angular';
+import { NavController, NavParams,  AlertController, ModalController, LoadingController, PopoverController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormArray,  FormBuilder, FormsModule } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { HistoryItemModel } from '../../pages/history/history.model';

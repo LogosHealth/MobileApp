@@ -12,7 +12,7 @@ import { ListContact } from '../../pages/listContacts/listContacts.model';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formAboutMe-page',
+  selector: 'formVisit1-page',
   templateUrl: 'formContact.html'
 })
 export class FormContactPage {
@@ -174,11 +174,11 @@ export class FormContactPage {
     var self = this;
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.RestService.results = result.data;
+      //self.RestService.results = result.data;
       self.dictionaryService
       .getData()
       .then(data => {
-        self.dictionaries.items = self.RestService.results;
+        self.dictionaries.items = result.data;
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.stateList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
         self.doctorTypeList = self.dictionaries.items[1].dictionary;
@@ -327,7 +327,7 @@ export class FormContactPage {
   }
 
   deleteRecordDo(){
-    let alert = this.alertCtrl.create({
+    let alert2 = this.alertCtrl.create({
       title: 'Confirm Delete',
       message: 'Are you certain you want to inactivate this medical contact?',
       buttons: [
@@ -376,16 +376,19 @@ export class FormContactPage {
                   self.RestService.results = result.data;
                   console.log('Happy Path: ' + self.RestService.results);
                   self.loading.dismiss();
+                  self.RestService.backFromChild = true;
+                  self.RestService.needsFormRefresh = true;
                   self.nav.pop();
                 }).catch( function(result){
-                  console.log('Result: ',result);
+                  console.log('Error in deleting contact: ',result);
+                  alert('There was an error in removing this contact.  Please try again later');
                   self.loading.dismiss();
               });
           }
         }
       ]
     });
-    alert.present();
+    alert2.present();
   }
 
   saveRecord(){
@@ -492,9 +495,13 @@ export class FormContactPage {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "Medical Contacts";
             self.loading.dismiss();
+            self.RestService.backFromChild = true;
+            self.RestService.needsFormRefresh = true;
             self.nav.pop();
           } else {
             self.loading.dismiss();
+            self.RestService.backFromChild = true;
+            self.RestService.needsFormRefresh = true;
             self.nav.pop();
           }
       }).catch( function(result){
@@ -505,6 +512,7 @@ export class FormContactPage {
   }
 
   async ionViewCanLeave() {
+    this.RestService.backFromChild = true;
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();
       return shouldLeave;

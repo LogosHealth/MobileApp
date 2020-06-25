@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, ModalController } from 'ionic-angular';
+import { NavController, Platform, AlertController, NavParams, LoadingController, ModalController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListVisitModel } from './listVisit.model';
@@ -32,6 +32,7 @@ export class ListVisitPage {
 
   constructor(
     public nav: NavController,
+    private platform: Platform,
     public alertCtrl: AlertController,
     public list2Service: ListVisitService,
     public navParams: NavParams,
@@ -327,7 +328,28 @@ export class ListVisitPage {
   }
 
   getDirection(index) {
-    alert("Coming soon.  This button will link to your favorite GPS app and provide directions to this location.");
+    var location = '';
+    var physician;
+
+    if (this.list2.items[index] !== undefined && this.list2.items[index].physician !== undefined) {
+      physician = this.list2.items[index].physician;
+      location = physician.streetaddress + ', ' + physician.city + ', ' + physician.statecode + ', ' + physician.zipcode;
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
+
+    if (location !== '') {
+      console.log('Location from getDirection: ', location);
+      if (this.platform.is('android')) {
+        window.location.href = 'geo:' + location;
+      } else if (this.platform.is('ios')) {
+        window.location.href = 'maps://maps.apple.com/?q=' + location;
+      } else {
+        alert("Maps are not supported in this technology");
+      }
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
   }
 
   /*

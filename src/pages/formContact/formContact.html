@@ -5,10 +5,10 @@
 </ion-header>
 
 <ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="saveRecord()">
-    <div>
-        <form [formGroup]="card_form">
-          <section class="form-section">
-            <h2 class = "section-title">Contact Information</h2>
+    <div class="forms-examples-segment">
+        <form [formGroup]="card_form" class="sample-form">
+          <ion-card class="sample-form">
+            <h2 class="section-title-center">Name and Address</h2>
               <ion-row *ngIf="curRec !==undefined && curRec.title !==undefined && curRec.title !== ''">
                 <ion-col>
                   <ion-item>
@@ -72,8 +72,14 @@
                   </ion-item>
                 </ion-col>
               </ion-row>
+              </ion-card>
+
+              <ion-card  class="sample-form">
               <ion-row>
-                <ion-col no-padding width-50>
+                <h2 class="section-title" >More Contact Info</h2>
+              </ion-row>
+              <ion-row>
+                <ion-col no-padding width-100>
                   <ion-item>
                     <ion-label floating>Phone Number*</ion-label>
                     <ion-input type="tel" [textMask]="{mask: masks.phoneNumber}" (keyup)="trimLastCharPhone()" formControlName="phonenumber" [disabled]="fromgoogle"></ion-input>
@@ -90,7 +96,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <ion-item>
+                  <ion-item href="card_form.get('website').value">
                     <ion-label floating>Website</ion-label>
                     <ion-input  type="url" formControlName="website" [disabled]="fromgoogle"></ion-input>
                   </ion-item>
@@ -103,6 +109,12 @@
                       <ion-input  type="url" formControlName="googleurl" [disabled]="fromgoogle"></ion-input>
                     </ion-item>
                   </ion-col>
+                </ion-row>
+              </ion-card>
+
+              <ion-card class="sample-form">
+                <ion-row>
+                  <h2 class="section-title" >Insurance Coverage</h2>
                 </ion-row>
                 <ion-row  *ngIf="!isfacility">
                   <ion-col no-padding width-60>
@@ -135,7 +147,7 @@
                 </ion-col>
               </ion-row>
           <p class="section-footnote">*Required</p>
-          </section>
+        </ion-card>
           <section class="form-section">
             <ion-row no-padding class="multi-input-row">
               <ion-col no-padding width-50>
@@ -145,6 +157,7 @@
                 <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Inactivate</button>
             </ion-col>
            </ion-row>
+           <br>
           </section>
         </form>
       </div>
