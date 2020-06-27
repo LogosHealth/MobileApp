@@ -47,8 +47,18 @@ export class ListSchedulePage {
     var self = this;
 
     if (dtNow < dtExpiration) {
-      this.presentLoadingDefault();
-      this.loadData();
+      if (!this.RestService.backFromChild) {
+        this.presentLoadingDefault();
+        this.loadData();
+      } else if (this.RestService.needsFormRefresh) {
+        this.RestService.backFromChild = false;
+        this.RestService.needsFormRefresh = false;
+        this.presentLoadingDefault();
+        this.loadData();
+      } else {
+        this.RestService.backFromChild = false;
+        this.RestService.needsFormRefresh = false;
+      }
     } else {
       this.presentLoadingDefault();
       this.RestService.refreshCredentials(function(err, results) {
@@ -58,7 +68,18 @@ export class ListSchedulePage {
           self.RestService.appRestart();
         } else {
           console.log('From listSchedule - Credentials refreshed!');
-          self.loadData();
+          if (!this.RestService.backFromChild) {
+            this.presentLoadingDefault();
+            this.loadData();
+          } else if (this.RestService.needsFormRefresh) {
+            this.RestService.backFromChild = false;
+            this.RestService.needsFormRefresh = false;
+            this.presentLoadingDefault();
+            this.loadData();
+          } else {
+            this.RestService.backFromChild = false;
+            this.RestService.needsFormRefresh = false;
+          }
         }
       });
     }

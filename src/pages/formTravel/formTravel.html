@@ -10,7 +10,7 @@
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
           <h2 class = "section-title" *ngIf="newRec">New Travel Record</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Country</ion-label>
@@ -19,7 +19,7 @@
             </ion-col>
           </ion-row>
 
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Arrival Date</ion-label>
@@ -33,7 +33,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-item>
               <ion-label floating>Reason</ion-label>
               <ion-textarea type="text" formControlName="reason" autosize></ion-textarea>

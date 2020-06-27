@@ -10,7 +10,7 @@
       <form class="sample-form card-form" [formGroup]="card_form" (ngSubmit)="saveRecord()">
         <section class="form-section">
           <h2 class = "section-title" *ngIf="newRec">New {{strType}} Record</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Partake</ion-label>
@@ -34,7 +34,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item>
                 <ion-label floating>Start Date</ion-label>
@@ -48,7 +48,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50>
               <ion-item [disabled]="!blnDoes">
                 <ion-label floating>Days/Week</ion-label>
@@ -70,7 +70,7 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-item>
               <ion-label floating>Comments</ion-label>
               <ion-textarea type="text" formControlName="comments" autosize></ion-textarea>

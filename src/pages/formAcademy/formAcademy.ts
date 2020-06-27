@@ -9,7 +9,7 @@ import { HistoryItemModel } from '../../pages/history/history.model';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formVisit1-page',
+  selector: 'formFoodPref-page',
   templateUrl: 'formAcademy.html'
 })
 export class FormAcademy {

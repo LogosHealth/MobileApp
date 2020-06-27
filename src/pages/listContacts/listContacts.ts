@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams, LoadingController, ViewController } from 'ionic-angular';
+import { NavController, Platform, AlertController, NavParams, LoadingController, ViewController } from 'ionic-angular';
 import { FeedModel } from '../feed/feed.model';
 import 'rxjs/Rx';
 import { ListContactModel } from './listContacts.model';
@@ -30,6 +30,7 @@ export class ListContactPage {
 
   constructor(
     public nav: NavController,
+    private platform: Platform,
     public alertCtrl: AlertController,
     public list2Service: ListContactService,
     public navParams: NavParams,
@@ -80,10 +81,19 @@ export class ListContactPage {
           self.loading.dismiss();
           self.RestService.appRestart();
         } else {
-
           console.log('From listContacts - Credentials refreshed!');
-          self.loadData();
-
+          if (!this.RestService.backFromChild) {
+            this.presentLoadingDefault();
+            this.loadData();
+          } else if (this.RestService.needsFormRefresh) {
+            this.RestService.backFromChild = false;
+            this.RestService.needsFormRefresh = false;
+            this.presentLoadingDefault();
+            this.loadData();
+          } else {
+            this.RestService.backFromChild = false;
+            this.RestService.needsFormRefresh = false;
+          }
         }
       });
     }
@@ -187,6 +197,32 @@ export class ListContactPage {
       .catch(() =>
         this.nav.push(FormCallNotesPage, { contact: contact, fromVisit: false })
       );
+  }
+
+  getDirection(index) {
+    var location = '';
+    var contact;
+
+    if (this.RestService.results[index] !== undefined) {
+      contact = this.RestService.results[index];
+      console.log('Contact from getDirection: ', contact);
+      location = contact.streetaddress + ', ' + contact.city + ', ' + contact.statecode + ', ' + contact.zipcode;
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
+
+    if (location !== '') {
+      console.log('Location from getDirection: ', location);
+      if (this.platform.is('android')) {
+        window.location.href = 'geo:0,0?q=' + location;
+      } else if (this.platform.is('ios')) {
+        window.location.href = 'maps://maps.apple.com/?q=' + location;
+      } else {
+        alert("Maps are not supported in this technology");
+      }
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
   }
 
   addNew() {

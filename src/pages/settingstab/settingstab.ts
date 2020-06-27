@@ -160,10 +160,78 @@ export class SettingsTabPage {
       self.RestService.Profiles = result.data;
       console.log('Body: ', resultData);
       self.listing.populars = self.RestService.Profiles;
+      self.getUserPics();
       self.loading.dismiss();
     }).catch( function(result){
         console.log(body);
         self.loading.dismiss();
+    });
+  }
+
+  getUserPics() {
+    var blnHasPics = false;
+    //var params;
+    var strKey;
+    var profCount;
+    var profActual = 0;
+    var self;
+
+    console.log('Begin getUserPics');
+    for (var i = 0; i < this.RestService.Profiles.length; i++) {
+      if (this.RestService.Profiles[i].image == 'AWS') {
+        blnHasPics = true;
+      } else if (this.RestService.Profiles[i].image == './assets/images/listing/Family/sampleSally.jpg') {
+        this.RestService.Profiles[i].imageURL = './assets/images/listing/Family/sampleSally.jpg';
+      } else {
+        this.RestService.Profiles[i].imageURL = './assets/images/listing/Family/300x300AddImageWithText.jpg';
+      }
+    }
+
+    var keyArray = [];
+
+    if (blnHasPics) {
+      profCount = this.RestService.Profiles.length;
+      self = this;
+      for (i = 0; i < this.RestService.Profiles.length; i++) {
+        if (this.RestService.Profiles[i].image == 'AWS') {
+          strKey = this.RestService.Profiles[i].accountid + "/" + this.RestService.Profiles[i].profileid + "/profilepic.jpeg";
+          keyArray[strKey] = i;
+          console.log('Str Key for profile: ' + this.RestService.Profiles[i].title + ', id - ' + this.RestService.Profiles[i].profileid + ' is ' + strKey);
+          this.getPicURL(strKey, function(err, results) {
+            if (err) {
+              profActual = profActual + 1;
+              self.RestService.Profiles[keyArray[results.key]].imageURL = './assets/images/listing/Family/300x300AddImageWithText.jpg';
+            } else {
+              self.RestService.Profiles[keyArray[results.key]].imageURL = results.url;
+              //alert('Get URL: ' + results.url);
+              profActual = profActual + 1;
+            }
+          });
+        } else {
+          profActual = profActual + 1;
+        }
+      }
+    }
+   }
+
+   getPicURL(strKey, callback) {
+    var returnObj;
+    const s3 = new this.RestService.AWS.S3();
+    console.log('Str Key from getPicURL ' + strKey);
+    var params = {Bucket: 'logoshealthuserdata', Key: strKey, Expires: 3600};
+
+    s3.getSignedUrl('getObject', params, function (err, url) {
+      if (err) {
+        console.log('Str Key from getPicURL2 ' + strKey);
+        console.log('Err in getSignedUrl from getUserPics for strKey ' + strKey + ', ' + err);
+        callback(err, null);
+      } else {
+        returnObj = {
+          key: strKey,
+          url: url,
+        }
+        callback(null, returnObj);
+      }
     });
   }
 

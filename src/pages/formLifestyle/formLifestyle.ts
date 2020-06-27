@@ -676,15 +676,20 @@ export class FormLifestyle {
   saveRecordDo(){
     this.saving = true;
     if (!this.newUser) {
-      this.saveModel.profileid = this.list2[0].profileid;
-      this.saveModel.accountid = this.list2[0].accountid;
+      this.saveModel.profileid = this.RestService.currentProfile;
+      this.saveModel.accountid = this.RestService.Profiles[0].accountid;
     } else {
-      this.saveModel.accountid = this.list2[0].accountid;
+      this.saveModel.accountid = this.RestService.Profiles[0].accountid;
     }
     this.saveModel.userid = this.RestService.userId;
     this.saveModel.active = 'Y';
+    this.saveModel.recordid = this.curRec.recordid;
 
-      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/AboutMeByProfile";
+    if (this.card_form.controls["hobbies"].dirty) {
+      this.saveModel.hobbies = this.card_form.controls["hobbies"].value;
+    }
+
+      var restURL="https://ap6oiuyew6.execute-api.us-east-1.amazonaws.com/dev/LifestyleByProfile";
       var config = {
         invokeUrl: restURL,
         accessKey: this.RestService.AuthData.accessKeyId,
@@ -711,7 +716,7 @@ export class FormLifestyle {
           self.RestService.results = result.data;
           if (!self.newUser) {
             console.log('Happy Path: ' + self.RestService.results);
-            self.category.title = "About Me";
+            //self.category.title = "About Me";
             self.loading.dismiss();
             self.nav.pop();
           } else {

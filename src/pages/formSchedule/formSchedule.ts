@@ -219,11 +219,10 @@ export class FormSchedulePage {
     var self = this;
     apigClient.invokeApi(params, pathTemplate, method, additionalParams, body)
     .then(function(result){
-      self.RestService.results = result.data;
       self.dictionaryService
       .getData()
       .then(data => {
-        self.dictionaries.items = self.RestService.results;
+        self.dictionaries.items =  result.data;
         console.log("Results Data for Get Dictionaries: ", self.dictionaries.items);
         self.intervalList = self.dictionaries.items[0].dictionary; //index 0 as aligned with sortIndex
         self.setDefault(self.profiles[0].profileid);
@@ -390,6 +389,8 @@ export class FormSchedulePage {
                 self.RestService.results = result.data;
                 console.log('Happy Path: ' + self.RestService.results);
                 self.category.title = "Schedule";
+                self.RestService.backFromChild = true;
+                self.RestService.needsFormRefresh = true;
                 self.loading.dismiss();
                 self.nav.pop();
               }).catch( function(result){
@@ -550,6 +551,8 @@ export class FormSchedulePage {
         console.log('Happy Path: ' + self.RestService.results);
         self.card_form.markAsPristine();
         self.category.title = "Schedules & Alerts";
+        self.RestService.backFromChild = true;
+        self.RestService.needsFormRefresh = true;
         self.loading.dismiss();
         self.nav.pop();
       }).catch( function(result){
@@ -581,6 +584,7 @@ export class FormSchedulePage {
   }
 */
   async ionViewCanLeave() {
+    this.RestService.backFromChild = true;
     if (!this.saving && this.card_form.dirty) {
       const shouldLeave = await this.confirmLeave();
       return shouldLeave;

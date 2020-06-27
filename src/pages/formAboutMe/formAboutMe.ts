@@ -12,7 +12,7 @@ import { TextMaskModule, conformToMask } from 'angular2-text-mask';
 var moment = require('moment-timezone');
 
 @Component({
-  selector: 'formAboutMe-page',
+  selector: 'formVisit1-page',
   templateUrl: 'formAboutMe.html'
 })
 export class FormAboutMe {
@@ -45,6 +45,7 @@ export class FormAboutMe {
   speciesList: DictionaryItem[];
   saveModel: AboutMe = new AboutMe();
   saveAge: boolean = false;
+  refreshProfile: boolean = false;
 
   constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
     public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
@@ -954,6 +955,7 @@ export class FormAboutMe {
       this.saveModel.primaryflag = this.card_form.controls["primaryflag"].value;
     }
     if (this.card_form.controls["hidesample"].dirty) {
+      this.refreshProfile = true;
       if (this.card_form.controls["hidesample"].value == true) {
         this.saveModel.hidesample = 'Y';
       } else {
@@ -1140,6 +1142,10 @@ export class FormAboutMe {
           if (!self.newUser) {
             console.log('Happy Path: ' + self.RestService.results);
             self.category.title = "About Me";
+            if (self.refreshProfile) {
+              self.navParams.get("homePage").refreshProfiles();
+              alert ('You have changed the Sample Profile setting - refreshing profiles');
+            }
             self.loading.dismiss();
             self.nav.pop();
           } else {

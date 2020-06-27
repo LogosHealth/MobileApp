@@ -46,12 +46,21 @@ formFoodPref-page {
 
 		.checkbox-md .checkbox-checked {
 			border-color: $theme-color-1;
-			background-color: $theme-color-1;
+      background-color: $theme-color-1;
+      //margin-top: 10px;
 		}
 
 		.checkbox-md .checkbox-icon {
 			border-color: $theme-color-1;
+      //margin-top: 10px;
 		}
+
+    .column-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
 
 		.form-action-button
 		{
@@ -94,41 +103,73 @@ formFoodPref-page {
 			.row-category
 			{
 				border-bottom: 1px $theme-color-1 solid;
-            }
+      }
+
+      .section-title-center
+      {
+        color: $white-d;
+        font-size: 1.8rem;
+        line-height: 1.2;
+        letter-spacing: 1.1px;
+        text-align: center;
+        color: $theme-color-1;
+        font-weight: 400;
+        margin-top: 14px;
+        margin-left: 10px;
+      }
 
 			.section-title
-            {
-                font-size: 1.6rem;
-                line-height: 1.2;
-                letter-spacing: 1.1px;
-                //text-align: center;
-                color: $theme-color-1;
-                font-weight: 700;
-                margin: 0px;
-            }
+      {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        letter-spacing: 1.1px;
+        //text-align: center;
+        color: $theme-color-1;
+        font-weight: 700;
+        margin: 0px;
+      }
 
 			.section-checkbox-label
-            {
-                font-size: 1.6rem;
-                line-height: 1.2;
-                letter-spacing: 1.1px;
-                text-align: right;
-                color: $theme-color-1;
-                font-weight: 700;
-                margin: 0px;
-            }
+      {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        letter-spacing: 1.1px;
+        text-align: right;
+        color: $theme-color-1;
+        font-weight: 700;
+        margin: 0px;
+        //margin-top: -5px;
+      }
 
-            .section-checkbox-label2
-            {
-                font-size: 1.6rem;
-                line-height: 1.2;
-                letter-spacing: 1.1px;
-                text-align: left;
-                color: $theme-color-1;
-                font-weight: 700;
-                margin: 5px;
-            }
-			ion-item {
+      .section-checkbox-label2
+      {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        letter-spacing: 1.1px;
+        text-align: left;
+        color: $theme-color-1;
+        font-weight: 700;
+        //margin: 5px;
+        margin-right: 2px;
+        //margin-top: -5px;
+      }
+
+      .column-align
+      {
+        margin-bottom: 1px;
+        vertical-align: bottom;
+      }
+
+      .column-align-title
+      {
+        margin-left: 3px;
+        margin-bottom: 1px;
+        vertical-align: bottom;
+      }
+
+
+
+      ion-item {
 				background-color: $white;
 				//@include basic-input-style(color($colors, background, base), $black-d, $white-d);
 

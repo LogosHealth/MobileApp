@@ -10,10 +10,11 @@
 </ion-header>
 
 <ion-content class="forms-examples-content"  [formGroup]="card_form" (ngSubmit)="confirmRecord()">
-    <div>
-        <form [formGroup]="card_form">
-          <section class="form-section">
-            <h2 class = "{{card_form.get('confirmed').value=='Y' ? 'section-title' : 'title-notconfirmed'}}">Profile Information</h2>
+    <div class="forms-examples-segment">
+        <form [formGroup]="card_form" class="sample-form">
+
+          <ion-card class="form-section">
+            <h2 class="section-title-center">Profile Information</h2>
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
@@ -53,6 +54,13 @@
                     </ion-item>
                   </ion-col>
               </ion-row>
+              </ion-card>
+
+              <ion-card>
+
+                <ion-row>
+                  <h2 class="section-title" >Contact Info</h2>
+                </ion-row>
 
               <ion-row no-padding width-50 *ngIf="!primary">
                 <ion-col>
@@ -62,8 +70,8 @@
                   </ion-item>
               </ion-col>
               <ion-col class="columnAlign" no-padding width-50>
-                    <button ion-button block class="form-action-button create-card-button"  type="button"
-                     (click)="copyAddress()">Copy from {{getPrimaryName()}}</button>
+                    <button ion-button block class="form-action-button-bottom2"  type="button"
+                     (click)="copyAddress()">From {{getPrimaryName()}}</button>
                 </ion-col>
               </ion-row>
 
@@ -120,19 +128,21 @@
                   </ion-item>
                 </ion-col>
               </ion-row>
+            </ion-card>
 
-              <ion-row no-padding width-50 *ngIf="!primary">
-                <ion-col>
-                  <br><h2 class = "section-titleleft">Insurance Information</h2>
-                </ion-col>
+            <ion-card>
+              <ion-row no-padding *ngIf="!primary">
                 <ion-col class="columnAlign" no-padding width-50>
-                    <button ion-button block class="form-action-button create-card-button"  type="button"
-                     (click)="copyInsurance()">Copy from {{getPrimaryName()}}</button>
+                  <h2 class="section-title" >Insurance</h2>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-47>
+                    <button ion-button block class="form-action-button-top"  type="button"
+                     (click)="copyInsurance()">From {{getPrimaryName()}}</button>
                 </ion-col>
               </ion-row>
-              <div no-padding width-50 *ngIf="primary">
-                <br><h2 class = "section-titleleft">Insurance Information</h2>
-              </div>
+              <ion-row no-padding *ngIf="primary">
+                <h2 class="section-title">Insurance</h2>
+              </ion-row>
               <ion-row>
                 <ion-col no-padding width-50>
                   <ion-item>
@@ -147,8 +157,12 @@
                   </ion-item>
                 </ion-col>
               </ion-row>
+            </ion-card>
 
-              <br><h2 class = "section-titleleft">Emergency Contact Information</h2>
+            <ion-card>
+              <ion-row>
+                <h2 class="section-title">Emergency Contact</h2>
+              </ion-row>
               <ion-row>
                   <ion-col>
                     <ion-item>
@@ -171,8 +185,12 @@
                   </ion-item>
                 </ion-col>
               </ion-row>
+            </ion-card>
 
-              <br><h2 class = "section-titleleft">Physical Information</h2>
+            <ion-card>
+              <ion-row>
+                <h2 class="section-title">Physical Information</h2>
+              </ion-row>
               <ion-row>
                 <ion-col no-padding width-50 *ngIf="!primary">
                   <ion-item>
@@ -281,8 +299,8 @@
               </ion-row>
               <div  *ngIf="!isPet" >
                 <div formArrayName="races" *ngFor="let race of card_form.get('races').controls; let i = index;">
-                  <ion-row [formGroupName]="i">
-                    <ion-col no-padding width-70>
+                  <ion-row [formGroupName]="i" *ngIf="i==0">
+                    <ion-col no-padding width-87 class="columnAlignTypes">
                       <ion-item text-wrap>
                         <ion-label floating>Race</ion-label>
                         <ion-select formControlName="racecode">
@@ -290,19 +308,40 @@
                         </ion-select>
                       </ion-item>
                     </ion-col>
-                    <ion-col class="columnAlign" no-padding width-25 *ngIf="i==0">
-                      <button ion-button type="button"
-                      (click)="addRace()">+ Race</button>
+                    <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button"  type="button" (click)="addRace()">
+                        <ion-icon name="add"></ion-icon>
+                      </button>
                     </ion-col>
-                    <ion-col class="columnAlign" no-padding width-25 *ngIf="i>0">
-                      <button ion-button type="button"
-                      (click)="removeRace(i)">- Race</button>
+                  </ion-row>
+                  <ion-row [formGroupName]="i" *ngIf="i>0">
+                    <ion-col no-padding width-77 class="columnAlignTypes">
+                      <ion-item text-wrap>
+                        <ion-label floating>Race</ion-label>
+                        <ion-select formControlName="racecode">
+                          <ion-option *ngFor="let r of raceList" [value]="r.recordid">{{r.dictionarycode}}</ion-option>
+                        </ion-select>
+                      </ion-item>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button"  type="button" (click)="addRace()">
+                        <ion-icon name="add"></ion-icon>
+                      </button>
+                    </ion-col>
+                    <ion-col class="columnAlign" no-padding width-10>
+                      <button ion-button block class="form-action-button"  type="button" (click)="addRace()">
+                        <ion-icon name="remove"></ion-icon>
+                      </button>
                     </ion-col>
                   </ion-row>
                 </div>
               </div>
+            </ion-card>
 
-              <br><h2 class = "section-titleleft" *ngIf="!isPet">Vision</h2>
+            <ion-card>
+              <ion-row>
+                <h2 class = "section-title" *ngIf="!isPet">Vision</h2>
+              </ion-row>
               <ion-row *ngIf="!isPet">
                 <ion-col>
                   <ion-item>
@@ -328,19 +367,18 @@
 
             <p class="section-footnote">*Required to Save Profile</p>
             <p class="section-footnote">**Required to Confirm Profile and for Order a Meal capability</p>
-          </section>
+            </ion-card>
+
           <section class="form-section">
             <ion-row no-padding class="multi-input-row">
-              <ion-col no-padding width-40>
-                  <button ion-button block class="form-action-button create-card-button" type="submit" [disabled]="!card_form.valid || confirmed">Confirm</button>
-              </ion-col>
-              <ion-col no-padding width-30>
+              <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="button" (click)="saveRecord()" [disabled]="checkSaveEnabled()">Save</button>
             </ion-col>
-            <ion-col no-padding width-30>
+            <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="primary || newUser">Inactivate</button>
             </ion-col>
            </ion-row>
+           <br>
           </section>
         </form>
       </div>

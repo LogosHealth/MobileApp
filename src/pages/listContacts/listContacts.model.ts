@@ -9,6 +9,7 @@ export class ListContact {
   streetaddress: string;
   city: string;
   state: string;
+  statecode: string;
   zipcode: number;
   phonenumber: number;
   email: string;

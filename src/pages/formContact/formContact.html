@@ -43,11 +43,16 @@
                 </ion-col>
               </ion-row>
               <ion-row>
-                  <ion-col>
-                    <ion-item>
-                      <ion-label floating>Address</ion-label>
-                      <ion-input type="text" formControlName="streetaddress" [disabled]="fromgoogle"></ion-input>
-                    </ion-item>
+                <ion-col no-padding width-87>
+                  <ion-item>
+                    <ion-label floating>Address</ion-label>
+                    <ion-input type="text" formControlName="streetaddress" [disabled]="fromgoogle"></ion-input>
+                  </ion-item>
+                </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="getDirection()" [disabled]="newRec">
+                    <ion-icon name="map"></ion-icon>
+                  </button>
                 </ion-col>
               </ion-row>
               <ion-row>
@@ -76,41 +81,48 @@
 
               <ion-card  class="sample-form">
               <ion-row>
-                <h2 class="section-title" >More Contact Info</h2>
+                <h2 class="section-title" >More Ways to Contact</h2>
               </ion-row>
               <ion-row>
-                <ion-col no-padding width-100>
+                <ion-col no-padding width-87>
                   <ion-item>
                     <ion-label floating>Phone Number*</ion-label>
                     <ion-input type="tel" [textMask]="{mask: masks.phoneNumber}" (keyup)="trimLastCharPhone()" formControlName="phonenumber" [disabled]="fromgoogle"></ion-input>
                   </ion-item>
                 </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="callDoc()" [disabled]="card_form.get('phonenumber').value==null">
+                    <ion-icon name="call"></ion-icon>
+                  </button>
+                </ion-col>
               </ion-row>
               <ion-row>
-                <ion-col>
+                <ion-col no-padding width-87>
                   <ion-item>
                     <ion-label floating>Email</ion-label>
                     <ion-input type="email" formControlName="email"></ion-input>
                   </ion-item>
                 </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="sendMail()" [disabled]="card_form.get('email').value==null">
+                    <ion-icon name="mail"></ion-icon>
+                  </button>
+                </ion-col>
               </ion-row>
               <ion-row>
-                <ion-col>
-                  <ion-item href="card_form.get('website').value">
+                <ion-col no-padding width-87>
+                  <ion-item>
                     <ion-label floating>Website</ion-label>
                     <ion-input  type="url" formControlName="website" [disabled]="fromgoogle"></ion-input>
                   </ion-item>
                 </ion-col>
+                <ion-col class="columnAlign" no-padding width-10>
+                  <button ion-button block class="form-action-button"  type="button" (click)="openSite()" [disabled]="card_form.get('website').value==null">
+                    <ion-icon name="globe"></ion-icon>
+                  </button>
+                </ion-col>
               </ion-row>
-              <ion-row>
-                  <ion-col>
-                    <ion-item>
-                      <ion-label floating>Google site</ion-label>
-                      <ion-input  type="url" formControlName="googleurl" [disabled]="fromgoogle"></ion-input>
-                    </ion-item>
-                  </ion-col>
-                </ion-row>
-              </ion-card>
+            </ion-card>
 
               <ion-card class="sample-form">
                 <ion-row>
@@ -151,7 +163,7 @@
           <section class="form-section">
             <ion-row no-padding class="multi-input-row">
               <ion-col no-padding width-50>
-                <button ion-button block class="form-action-button" type="submit">Save</button>
+                <button ion-button block class="form-action-button" [disabled]="((!card_form.dirty) || (!card_form.valid))" type="submit">Save</button>
             </ion-col>
             <ion-col no-padding width-50>
                 <button ion-button block class="form-action-button" type="button" (click)="deleteRecord()" [disabled]="newRec">Inactivate</button>

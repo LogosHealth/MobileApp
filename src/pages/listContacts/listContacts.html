@@ -23,8 +23,10 @@
                 <ion-col no-padding width-90 class="item-content" >
                   <h3 class="item-title" *ngIf="item.title !== undefined" text-wrap>{{item.title}} </h3>
                   <h3 class="item-title" *ngIf="item.title == undefined" text-wrap>{{item.firstname}} {{item.lastname}} {{item.suffix}}</h3>
-                  <p class = "item-description" *ngIf="item.facilitytype == undefined">{{item.relationship}}</p>
-                  <p class = "item-description" *ngIf="item.facilitytype !== undefined">{{item.facilitytype}}</p>
+                  <p class = "item-description" *ngIf="item.facilitytype == undefined"><b>{{item.relationship}}</b></p>
+                  <p class = "item-description" *ngIf="item.facilitytype !== undefined"><b>{{item.facilitytype}}</b></p>
+                  <p class = "item-description">{{item.streetaddress}}</p>
+                  <p class = "item-description">{{item.city}}, {{item.statecode}} {{item.zipcode}}</p>
                   <p class = "item-description">{{formatPhone(item.phonenumber)}}</p>
                 </ion-col>
                 <ion-col no-padding width-10 class="item-icon">
@@ -38,6 +40,9 @@
               </button>
               <button *ngIf="item.active == 'Y'" ion-button color="primary" (click)="scheduleVisit(i)">
                   <ion-icon name="calendar"></ion-icon>Schedule Visit
+              </button>
+              <button *ngIf="item.active == 'Y'" ion-button color="secondary" (click)="getDirection(i)">
+                <ion-icon name="car"></ion-icon>Map
               </button>
           </ion-item-options>
       </ion-item-sliding>

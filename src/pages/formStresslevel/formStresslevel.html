@@ -11,7 +11,7 @@
         <section class="form-section">
           <h2 class = "section-title" *ngIf="newRec">New Stress Level Record</h2>
           <h2 class = "section-title" *ngIf="!newRec">{{ formatDateTimeTitle(curRec.dateofmeasure) }}</h2>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding>
               <ion-item>
                 <ion-label floating>Level (1-10)</ion-label>
@@ -30,20 +30,20 @@
               </ion-item>
             </ion-col>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-item>
               <ion-label floating>Factors</ion-label>
               <ion-textarea type="text" formControlName="factors" autosize></ion-textarea>
             </ion-item>
           </ion-row>
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-item>
               <ion-label floating>How Managing</ion-label>
               <ion-textarea type="text" formControlName="howmanage" autosize></ion-textarea>
             </ion-item>
           </ion-row>
 
-          <ion-row>
+          <ion-row class="row-standard">
             <ion-col no-padding width-50 *ngIf="!newRec">
               <ion-item>
                 <ion-label floating>Date of Measure</ion-label>

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, AlertController, LoadingController } from 'ionic-angular';
+import { NavController, Platform, NavParams, AlertController, LoadingController } from 'ionic-angular';
 import { Validators, FormGroup, FormControl, FormBuilder } from '@angular/forms';
 import { RestService } from '../../app/services/restService.service';
 import { AboutMeService } from '../../pages/formAboutMe/formAboutMe.service';
@@ -8,6 +8,9 @@ import { DictionaryModel, DictionaryItem } from '../../pages/models/dictionary.m
 import { DictionaryService } from '../../pages/models/dictionary.service';
 import { TextMaskModule, conformToMask } from 'angular2-text-mask';
 import { ListContact } from '../../pages/listContacts/listContacts.model';
+import { FormCallNotesPage } from '../../pages/formCallNotes/formCallNotes';
+import { CallNumber } from '@ionic-native/call-number';
+import { InAppBrowser } from '@ionic-native/in-app-browser';
 
 var moment = require('moment-timezone');
 
@@ -37,8 +40,9 @@ export class FormContactPage {
   saveModel: ListContact = new ListContact();
   loadFromId: number;
 
-  constructor(public nav: NavController, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
-    public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService, public formBuilder: FormBuilder) {
+  constructor(public nav: NavController, private platform: Platform, public alertCtrl: AlertController, public RestService:RestService, public AboutMeService: AboutMeService,
+    public navParams: NavParams,  public loadingCtrl: LoadingController, public dictionaryService: DictionaryService,
+    public formBuilder: FormBuilder, private callNumber: CallNumber, public iab: InAppBrowser,) {
 
     this.recId = navParams.get('recId');
     this.curRec = RestService.results[this.recId];
@@ -301,6 +305,61 @@ export class FormContactPage {
     } else {
       return "";
     }
+  }
+
+  getDirection() {
+    var location = '';
+    var contact;
+
+    if (this.curRec !== undefined) {
+      contact = this.curRec;
+      console.log('Contact from getDirection: ', contact);
+      location = contact.streetaddress + ', ' + contact.city + ', ' + contact.statecode + ', ' + contact.zipcode;
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
+
+    if (location !== '') {
+      console.log('Location from getDirection: ', location);
+      if (this.platform.is('android')) {
+        window.location.href = 'geo:0,0?q=' + location;
+      } else if (this.platform.is('ios')) {
+        window.location.href = 'maps://maps.apple.com/?q=' + location;
+      } else {
+        alert("Maps are not supported in this technology");
+      }
+    } else {
+      alert("The address information for this visit is not currently available");
+    }
+  }
+
+  sendMail() {
+    var email = this.card_form.get('email').value
+    window.location.href = 'mailto: ' + email;
+  }
+
+  openSite() {
+    var website = this.card_form.get('website').value
+    const browser = this.iab.create(website , '_blank');
+
+    browser.on('loadstop').subscribe(e => {
+      console.log('from browser loadstop: ', e);
+    });
+
+    window.location.href = website;
+  }
+
+  callDoc() {
+    //console.log("Call Doc item", recordId);
+    var contact = this.curRec;
+    var phoneNum = this.card_form.get('phonenumber').value;
+    this.callNumber.callNumber(phoneNum, true)
+      .then(() =>
+        this.nav.push(FormCallNotesPage, { contact: contact, fromVisit: false })
+      )
+      .catch(() =>
+        this.nav.push(FormCallNotesPage, { contact: contact, fromVisit: false })
+      );
   }
 
   deleteRecord(){
