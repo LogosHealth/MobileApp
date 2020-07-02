@@ -194,18 +194,57 @@ export class ListMedicationPage {
   addDose(index) {
     var selMed = this.RestService.results[index];
     var objIncluded = 'none';
-    var self = this;
+    var fromTreatment = {treatmentid: -1, profileid: -1, conditionid: -1, indication: '', medicationid: -1, namevalue: '', dosage: '', doseunits: ''};
+    var hasTreatment = false;
+    //var self = this;
 
     console.log('listMed.addDose selMed: ', selMed);
     console.log('listMed.addDose fromEvent: ', this.fromEvent);
     console.log('listMed.addDose fromSymp: ', this.fromSymptom);
+
     if (this.fromSymptom !== undefined && this.fromSymptom !== null) {
       objIncluded = 'symptom';
     } else if (this.fromEvent !== undefined && this.fromEvent !== null) {
       objIncluded = 'event';
+    } else if (this.feed.category.title == 'Current Medicine') {
+      for (var j = 0; j < selMed.treatmentresults.items.length; j++) {
+        if (selMed.treatmentresults.items[j].profileid == this.RestService.currentProfile) {
+          if (selMed.treatmentresults.items[j].medicaleventid !== undefined && selMed.treatmentresults.items[j].medicaleventid !== null) {
+            objIncluded = 'treatment event';
+            hasTreatment = true;
+            fromTreatment.treatmentid = selMed.treatmentresults.items[j].treatmentid;
+            fromTreatment.profileid = selMed.treatmentresults.items[j].profileid;
+            fromTreatment.conditionid = selMed.treatmentresults.items[j].medicaleventid;
+            fromTreatment.indication = selMed.treatmentresults.items[j].verbatimindication;
+            fromTreatment.medicationid = selMed.treatmentresults.items[j].reftablefieldid;
+            fromTreatment.namevalue = selMed.treatmentresults.items[j].namevalue;
+            fromTreatment.dosage = selMed.treatmentresults.items[j].dosage;
+            fromTreatment.doseunits = selMed.treatmentresults.items[j].doseunits;
+
+          } else if (selMed.treatmentresults.items[j].symptomid !== undefined && selMed.treatmentresults.items[j].symptomid !== null) {
+            objIncluded = 'treatment symptom';
+            hasTreatment = true;
+            fromTreatment.treatmentid = selMed.treatmentresults.items[j].treatmentid;
+            fromTreatment.profileid = selMed.treatmentresults.items[j].profileid;
+            fromTreatment.conditionid = selMed.treatmentresults.items[j].symptomid;
+            fromTreatment.indication = selMed.treatmentresults.items[j].verbatimindication;
+            fromTreatment.medicationid = selMed.treatmentresults.items[j].reftablefieldid;
+            fromTreatment.namevalue = selMed.treatmentresults.items[j].namevalue;
+            fromTreatment.dosage = selMed.treatmentresults.items[j].dosage;
+            fromTreatment.doseunits = selMed.treatmentresults.items[j].doseunits;
+          }
+        }
+      }
     }
     console.log('objIncluded - ' + objIncluded);
+    selMed.pagelabel = this.feed.category.title;
+    if (!hasTreatment) {
+      this.nav.push(FormMedAddDose, { objIncluded: objIncluded, fromSymptom: this.fromSymptom, fromEvent: this.fromEvent, medication: selMed });
+    } else {
+      this.nav.push(FormMedAddDose, { objIncluded: objIncluded, fromTreatment: fromTreatment, medication: selMed });
+    }
 
+/*
     let profileModal = this.modalCtrl.create(FormMedAddDose, { objIncluded: objIncluded, fromSymptom: this.fromSymptom,
       fromEvent: this.fromEvent, medication: selMed });
     profileModal.onDidDismiss(data => {
@@ -218,6 +257,8 @@ export class ListMedicationPage {
       }
     });
     profileModal.present();
+*/
+
     //alert('Coming soon!  This will allow you to quickly track medication usage.');
   }
 

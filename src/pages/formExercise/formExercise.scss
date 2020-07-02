@@ -121,6 +121,13 @@ formExercise-page {
           margin-right: 3px;
         }
 
+        .column-center {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 100%;
+        }
+
 				.item:first-child
 				{
 					margin-top: 20px;

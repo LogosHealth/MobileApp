@@ -14,6 +14,7 @@ export class ListContact {
   phonenumber: number;
   email: string;
   website: string;
+  licensenum: string;
   latitude: number;
   longitude: number;
   badaddress: string;

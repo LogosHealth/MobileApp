@@ -83,16 +83,12 @@
               </ion-item>
             </ion-col>
           </ion-row>
-
         </section>
 
         <section class="form-section">
          <ion-row no-padding class="multi-input-row">
-            <ion-col no-padding width-50>
+            <ion-col class="column-center" no-padding  width-50>
               <button ion-button block class="form-action-button" type="button" (click)="sendUser()" [disabled]="!card_form.valid">Submit</button>
-            </ion-col>
-            <ion-col no-padding width-25>
-              <button ion-button block class="form-action-button" type="button" (click)="cancelAction()" >Cancel</button>
             </ion-col>
           </ion-row>
         </section>

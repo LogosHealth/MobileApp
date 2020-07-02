@@ -217,7 +217,9 @@ export class FormMedicalEvent {
       if (this.curRec.physicianid !== undefined && this.curRec.physicianid > 0) {
         this.hasPhysician = true;
       }
-
+      if (this.curRec.bodyarea !== undefined && this.curRec.bodyarea !== null) {
+        this.hasBodyArea = true;
+      }
       //console.log('The value for medical event is: ' + this.medicalevent.value);
     } else {
       //console.log('RecId is undefined:');
@@ -547,6 +549,13 @@ export class FormMedicalEvent {
       if (this.card_form.get('dateofmeasure').dirty){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
       }
+      if (this.card_form.get('bodyarea').dirty){
+        this.eventSave.bodyarea = this.card_form.get('bodyarea').value;
+      }
+      if (this.card_form.get('bodyareatext').dirty){
+        this.eventSave.bodyareatext = this.card_form.get('bodyareatext').value;
+      }
+
       /*  Should not be needed for update
       if (this.fromTreatment !== undefined && this.fromTreatment.recordid !== undefined && this.fromTreatment.recordid > 0) {
         this.eventSave.treatmentid = this.fromTreatment.recordid;
@@ -636,6 +645,13 @@ export class FormMedicalEvent {
       if (this.card_form.get('dateofmeasure').value !== null){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
       }
+      if (this.card_form.get('bodyarea').dirty){
+        this.eventSave.bodyarea = this.card_form.get('bodyarea').value;
+      }
+      if (this.card_form.get('bodyareatext').dirty){
+        this.eventSave.bodyareatext = this.card_form.get('bodyareatext').value;
+      }
+
       if (this.fromTreatment !== undefined && this.fromTreatment.recordid !== undefined && this.fromTreatment.recordid > 0) {
         this.eventSave.treatmentid = this.fromTreatment.recordid;
       }
@@ -787,6 +803,12 @@ export class FormMedicalEvent {
       if (this.card_form.get('dateofmeasure').dirty){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
       }
+      if (this.card_form.get('bodyarea').dirty){
+        this.eventSave.bodyarea = this.card_form.get('bodyarea').value;
+      }
+      if (this.card_form.get('bodyareatext').dirty){
+        this.eventSave.bodyareatext = this.card_form.get('bodyareatext').value;
+      }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
           this.eventSave.chronicflag = 'Y';
@@ -859,6 +881,12 @@ export class FormMedicalEvent {
       }
       if (this.card_form.get('dateofmeasure').value !== null){
         this.eventSave.dateofdiagnosis = this.card_form.get('dateofmeasure').value;
+      }
+      if (this.card_form.get('bodyarea').dirty){
+        this.eventSave.bodyarea = this.card_form.get('bodyarea').value;
+      }
+      if (this.card_form.get('bodyareatext').dirty){
+        this.eventSave.bodyareatext = this.card_form.get('bodyareatext').value;
       }
       if (this.card_form.get('ischronic').dirty){
         if (this.card_form.get('ischronic').value == true) {
@@ -1272,7 +1300,17 @@ export class FormMedicalEvent {
   }
 
 setFilteredItems() {
+  var self = this;
   this.items = this.filterItems(this.eventTerm);
+  this.setBodyAreaByME(this.eventTerm, function(err, result) {
+    if (result) {
+      self.hasBodyArea = true;
+      //alert('Has body area!');
+    } else {
+      self.hasBodyArea = false;
+      //alert('Has no body area!');
+    }
+  });
   //alert('Search Term:' + this.searchTerm);
 }
 
@@ -1642,6 +1680,9 @@ loadMainRecord() {
   this.card_form.get('visittext').setValue(visittext);
   this.card_form.get('ischronic').setValue(ischronic);
   this.card_form.get('isallergy').setValue(isallergy);
+
+
+
 }
 
 createItem(): FormGroup {

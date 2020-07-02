@@ -22,6 +22,7 @@ export class ListMedication {
   startdate: string;
   enddate: string;
   lastdose: string;
+  pagelabel: string;
   active: string;
   profileid: number;
   userid: number;

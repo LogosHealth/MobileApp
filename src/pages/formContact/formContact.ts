@@ -66,6 +66,7 @@ export class FormContactPage {
         lastname: new FormControl(this.curRec.lastname),
         lastnamelock: new FormControl(this.curRec.lastnamelock),
         suffix: new FormControl(this.curRec.suffix),
+        licensenum: new FormControl(this.curRec.licensenum),
         streetaddress: new FormControl(this.curRec.streetaddress),
         city: new FormControl(this.curRec.city),
         state: new FormControl(this.curRec.state),
@@ -106,6 +107,7 @@ export class FormContactPage {
         lastname: new FormControl(null, Validators.required),
         lastnamelock: new FormControl(),
         suffix: new FormControl(),
+        licensenum: new FormControl(),
         streetaddress: new FormControl(),
         city: new FormControl(),
         state: new FormControl(),
@@ -269,6 +271,7 @@ export class FormContactPage {
     this.card_form.get('lastname').setValue(this.curRec.lastname);
     this.card_form.get('lastnamelock').setValue(this.curRec.lastnamelock);
     this.card_form.get('suffix').setValue(this.curRec.suffix);
+    this.card_form.get('licensenum').setValue(this.curRec.licensenum);
     this.card_form.get('streetaddress').setValue(this.curRec.streetaddress);
     this.card_form.get('city').setValue(this.curRec.city);
     this.card_form.get('state').setValue(this.curRec.state);
@@ -488,6 +491,9 @@ export class FormContactPage {
     }
     if (this.card_form.controls["lastname"].dirty) {
       this.saveModel.lastname = this.card_form.controls["lastname"].value;
+    }
+    if (this.card_form.controls["licensenum"].dirty) {
+      this.saveModel.licensenum = this.card_form.controls["licensenum"].value;
     }
     if (this.card_form.controls["streetaddress"].dirty) {
       this.saveModel.streetaddress = this.card_form.controls["streetaddress"].value;
