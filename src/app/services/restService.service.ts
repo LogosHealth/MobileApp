@@ -7,7 +7,6 @@ import { WalkthroughPage } from '../../pages/walkthrough/walkthrough';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
 
 var moment = require('moment-timezone');
-
 var apigClientFactory = require('aws-api-gateway-client').default;
 var profiles = [];
 var results = [];

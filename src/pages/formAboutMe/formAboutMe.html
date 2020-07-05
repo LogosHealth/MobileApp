@@ -346,21 +346,31 @@
                 <ion-col>
                   <ion-item>
                     <ion-label floating>Visual Acuity</ion-label>
-                    <ion-input type="text" formControlName="vision"></ion-input>
+                    <ion-select formControlName="vision">
+                      <ion-option class="section-title" value="20/20">20/20</ion-option>
+                      <ion-option class="section-title" value="20/16">20/16</ion-option>
+                      <ion-option class="section-title" value="20/25">20/25</ion-option>
+                      <ion-option class="section-title" value="20/30">20/30</ion-option>
+                      <ion-option class="section-title" value="20/40">20/40</ion-option>
+                      <ion-option class="section-title" value="20/50">20/50</ion-option>
+                      <ion-option class="section-title" value="20/60">20/60</ion-option>
+                      <ion-option class="section-title" value="20/100">20/100</ion-option>
+                      <ion-option class="section-title" value="20/>100">20/>100</ion-option>
+                    </ion-select>
                   </ion-item>
                 </ion-col>
               </ion-row>
               <ion-row *ngIf="!isPet">
                 <ion-col no-padding width-50>
                   <ion-item>
-                    <ion-label floating>OS (left eye)</ion-label>
-                    <ion-input type="text" formControlName="visionos"></ion-input>
+                    <ion-label floating>OD (right eye)</ion-label>
+                    <ion-input type="text" formControlName="visionod"></ion-input>
                   </ion-item>
                 </ion-col>
                 <ion-col no-padding width-50>
                   <ion-item>
-                    <ion-label floating>OD (right eye)</ion-label>
-                    <ion-input type="text" formControlName="visionod"></ion-input>
+                    <ion-label floating>OS (left eye)</ion-label>
+                    <ion-input type="text" formControlName="visionos"></ion-input>
                   </ion-item>
                 </ion-col>
               </ion-row>

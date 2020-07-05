@@ -28,6 +28,7 @@ export class FormVaccinesPage {
   pageName: any = 'Vaccine Page';
   newRec: boolean = false;
   loadFromId: any;
+  loadFromSchedule: any;
   saving: boolean = false;
   loading: any;
   checkSave: boolean = false;
@@ -47,6 +48,7 @@ export class FormVaccinesPage {
 
     this.recId = navParams.get('recId');
     this.loadFromId = navParams.get('loadFromId');
+    this.loadFromSchedule = navParams.get('loadFromSchedule');
     if (this.loadFromId !== undefined && this.loadFromId !== null) {
       this.newRec = true;
     } else {

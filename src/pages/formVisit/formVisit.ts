@@ -2860,7 +2860,7 @@ presentFromVisit() {
           } else if (dataObj == 'vaccine') {
             //alert('Add new vaccine');
             cat = {title: 'Select Vaccine'};
-            self.curRec.mode = 'visitinfo';
+            self.curRec.mode = 'outcome';
             let profileModal = self.modalCtrl.create(ListChooseVaccine, { category: cat, fromVisit: self.curRec });
             profileModal.onDidDismiss(data => {
               if (data !==undefined && data !== null) {
