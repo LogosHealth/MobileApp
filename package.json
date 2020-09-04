@@ -63,7 +63,7 @@
     "cordova-plugin-email-composer": "^0.9.2",
     "cordova-plugin-file": "5.0.0",
     "cordova-plugin-file-transfer": "1.7.1",
-    "cordova-plugin-inappbrowser": "^2.0.2",
+    "cordova-plugin-inappbrowser": "^3.1.0",
     "cordova-plugin-ionic": "^4.2.0",
     "cordova-plugin-ionic-keyboard": "^2.2.0",
     "cordova-plugin-ionic-webview": "^4.1.3",
