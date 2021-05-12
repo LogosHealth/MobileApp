@@ -50,7 +50,7 @@
     "axios": "^0.19.0",
     "bourbon": "4.3.4",
     "call-number": "^1.0.1",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "chartjs-plugin-annotation": "^0.5.7",
     "cordova-android": "^7.1.4",
     "cordova-android-support-gradle-release": "^1.4.7",
