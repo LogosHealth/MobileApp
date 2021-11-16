@@ -46,7 +46,7 @@
     "@types/googlemaps": "3.25.38",
     "angular2-text-mask": "^4.1.0",
     "aws-api-gateway-client": "^0.2.17",
-    "aws-sdk": "^2.573.0",
+    "aws-sdk": "^2.814.0",
     "axios": "^0.19.0",
     "bourbon": "4.3.4",
     "call-number": "^1.0.1",
